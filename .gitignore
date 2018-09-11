@@ -1,0 +1,51 @@
+# This is a white-list gitignore
+#
+
+
+# First, ignore everything
+*
+.*
+
+
+# White-list
+
+# gitignore
+!/.gitignore
+
+# CMake files
+!/CMakeLists.txt
+!/cmake/
+!/cmake/*.cmake
+
+# Documents
+!/README.md
+!/LICENSE
+!/Acknowledgement.md
+!/documents/
+!/documents/Doxyfile.in
+
+# Source code
+!/source/
+!/source/*.hpp
+!/source/*.cpp
+!/source/zinvul/
+!/source/zinvul/*.dox
+!/source/zinvul/*.cmake
+!/source/zinvul/zinvul/
+!/source/zinvul/zinvul/*.hpp
+!/source/zinvul/zinvul/*.cpp
+# Dependencies
+!/source/dependencies/
+!/source/dependencies/zisc
+
+# Test
+!/test/
+!/test/config.cmake
+!/test/googletest
+!/test/unittest/
+!/test/unittest/*.hpp
+!/test/unittest/*.cpp
+
+# Build directories
+!/build/
+!/build/.gitkeep

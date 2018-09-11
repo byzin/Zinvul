@@ -1,0 +1,6 @@
+[submodule "source/dependencies/zisc"]
+	path = source/dependencies/zisc
+	url = https://github.com/byzin/Zisc.git
+[submodule "test/googletest"]
+	path = test/googletest
+	url = https://github.com/google/googletest.git
