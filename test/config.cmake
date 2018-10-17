@@ -28,6 +28,7 @@ function(buildUnitTest)
   file(GLOB unittest_source_files ${__test_root__}/unittest/*.hpp
                                   ${__test_root__}/unittest/*.cpp)
   add_executable(UnitTest ${unittest_source_files}
+                          ${zisc_header_files}
                           ${zinvul_header_files})
   source_group(UnitTest FILES ${unittest_source_files})
   # Set unittest properties
@@ -37,17 +38,22 @@ function(buildUnitTest)
   getTestWarningOption(test_warning_flags)
   target_compile_options(UnitTest PRIVATE ${cxx_compiler_flags}
                                           ${zisc_compile_flags}
+                                          ${zinvul_compile_flags}
                                           ${cxx_warning_flags}
                                           ${test_warning_flags})
   target_include_directories(UnitTest PRIVATE ${PROJECT_SOURCE_DIR}/source
-                                              ${PROJECT_BINARY_DIR}/include)
+                                              ${PROJECT_BINARY_DIR}/include
+                                              ${zisc_include_dirs}
+                                              ${zinvul_include_dirs})
   target_include_directories(UnitTest SYSTEM PRIVATE ${gtest_include_dir})
-  target_link_libraries(UnitTest ${CMAKE_THREAD_LIBS_INIT}
-                                 ${cxx_linker_flags}
-                                 ${zisc_linker_flags}
-                                 ${gtest_libraries})
+  target_link_libraries(UnitTest PRIVATE ${CMAKE_THREAD_LIBS_INIT}
+                                         ${cxx_linker_flags}
+                                         ${zisc_linker_flags}
+                                         ${zinvul_linker_flags}
+                                         ${gtest_libraries})
   target_compile_definitions(UnitTest PRIVATE ${cxx_definitions}
                                               ${zisc_definitions}
+                                              ${zinvul_definitions}
                                               ${environment_definitions})
   setStaticAnalyzer(UnitTest)
 endfunction(buildUnitTest)

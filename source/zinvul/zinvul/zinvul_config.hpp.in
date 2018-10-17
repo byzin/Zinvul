@@ -1,0 +1,37 @@
+/*!
+  \file zinvul_config.hpp
+  \author Sho Ikeda
+
+  Copyright (c) 2015-2018 Sho Ikeda
+  This software is released under the MIT License.
+  http://opensource.org/licenses/mit-license.php
+  */
+
+#ifndef ZINVUL_CONFIG_HPP
+#define ZINVUL_CONFIG_HPP
+
+// Zisc
+#include "zisc/zisc_config.hpp"
+
+constexpr unsigned int kZinvulVersionMajor = @zinvul_version_major@;
+constexpr unsigned int kZinvulVersionMinor = @zinvul_version_minor@;
+constexpr unsigned int kZinvulVersionPatch = @zinvul_version_patch@;
+constexpr char kZinvulVersion[] = "@zinvul_version@";
+
+namespace zinvul {
+
+// General
+using int8 = zisc::int8;
+using int16 = zisc::int16;
+using int32 = zisc::int32;
+using int64 = zisc::int64;
+using uint8 = zisc::uint8;
+using uint16 = zisc::uint16;
+using uint32 = zisc::uint32;
+using uint64 = zisc::uint64;
+
+} // namespace zinvul
+
+#include "zinvul/zinvul_config-inl.hpp"
+
+#endif // ZINVUL_CONFIG_HPP

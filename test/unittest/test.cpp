@@ -9,6 +9,8 @@
 
 // GoogleTest
 #include "gtest/gtest.h"
+// Zinvul
+#include "zinvul/zinvul_config.hpp"
 
 /*!
   */

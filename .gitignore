@@ -33,6 +33,7 @@
 !/source/zinvul/*.cmake
 !/source/zinvul/zinvul/
 !/source/zinvul/zinvul/*.hpp
+!/source/zinvul/zinvul/*.hpp.in
 !/source/zinvul/zinvul/*.cpp
 # Dependencies
 !/source/dependencies/

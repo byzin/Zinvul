@@ -46,6 +46,20 @@ getCxxCompilerOption(cxx_compiler_flags cxx_linker_flags cxx_definitions)
 # Common libraries
 # Thread
 find_package(Threads REQUIRED)
+# Zisc
+include(${zisc_path}/source/zisc/config.cmake)
+loadZisc(zisc_header_files
+         zisc_include_dirs
+         zisc_compile_flags
+         zisc_linker_flags
+         zisc_definitions)
+# Zinvul
+include(${PROJECT_SOURCE_DIR}/source/zinvul/config.cmake)
+loadZinvul(zinvul_header_files
+           zinvul_include_dirs
+           zinvul_compile_flags
+           zinvul_linker_flags
+           zinvul_definitions)
 
 # Unit tests
 include(${PROJECT_SOURCE_DIR}/test/config.cmake)
