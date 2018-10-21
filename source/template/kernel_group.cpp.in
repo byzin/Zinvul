@@ -1,0 +1,40 @@
+/*!
+  \file @kernel_group_name@.cpp
+  \author Sho Ikeda
+
+  Copyright (c) 2015-2018 Sho Ikeda
+  This software is released under the MIT License.
+  http://opensource.org/licenses/mit-license.php
+  */
+
+#include "@kernel_hpp_file@"
+
+#ifdef Z_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-macros"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif // Z_CLANG
+
+// Check definitions
+
+@define_cpp_address_qualifiers_code@
+
+namespace zinvul {
+
+namespace @kernel_group_name@ {
+
+class KernelImpl
+{
+ public:
+@kernel_include_lines@
+};
+
+} // namespace @kernel_group_name@
+
+} // namespace zinvul
+
+#ifdef Z_CLANG
+#pragma clang diagnostic pop
+#pragma clang diagnostic pop
+#endif // Z_CLANG

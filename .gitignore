@@ -28,6 +28,10 @@
 !/source/
 !/source/*.hpp
 !/source/*.cpp
+!/source/template/
+!/source/template/*.hpp.in
+!/source/template/*.cpp.in
+!/source/template/*.cl.in
 !/source/zinvul/
 !/source/zinvul/*.dox
 !/source/zinvul/*.cmake
@@ -38,11 +42,17 @@
 # Dependencies
 !/source/dependencies/
 !/source/dependencies/zisc
+!/source/dependencies/VulkanMemoryAllocator
 
 # Test
 !/test/
 !/test/config.cmake
 !/test/googletest
+!/test/kernels/
+!/test/kernels/work_item/
+!/test/kernels/work_item/*.cl
+!/test/kernels/math/
+!/test/kernels/math/*.cl
 !/test/unittest/
 !/test/unittest/*.hpp
 !/test/unittest/*.cpp

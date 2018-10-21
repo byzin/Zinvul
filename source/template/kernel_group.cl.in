@@ -1,0 +1,15 @@
+/*!
+  \file @kernel_group_name@.cl
+  \author Sho Ikeda
+
+  Copyright (c) 2015-2018 Sho Ikeda
+  This software is released under the MIT License.
+  http://opensource.org/licenses/mit-license.php
+  */
+
+#ifndef ZINVUL_@kernel_group_name@_CL
+#define ZINVUL_@kernel_group_name@_CL
+
+@kernel_include_lines@
+
+#endif /* ZINVUL_@kernel_group_name@_CL */

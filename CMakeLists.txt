@@ -44,8 +44,6 @@ initCompilerOption()
 getCxxCompilerOption(cxx_compiler_flags cxx_linker_flags cxx_definitions)
 
 # Common libraries
-# Thread
-find_package(Threads REQUIRED)
 # Zisc
 include(${zisc_path}/source/zisc/config.cmake)
 loadZisc(zisc_header_files
@@ -60,6 +58,13 @@ loadZinvul(zinvul_header_files
            zinvul_compile_flags
            zinvul_linker_flags
            zinvul_definitions)
+# Thread
+find_package(Threads REQUIRED)
+# Vulkan
+if(ZINVUL_ENABLE_VULKAN_BACKEND)
+  find_package(Vulkan REQUIRED)
+  set(vma_include_dir ${PROJECT_SOURCE_DIR}/source/dependencies/VulkanMemoryAllocator/src)
+endif()
 
 # Unit tests
 include(${PROJECT_SOURCE_DIR}/test/config.cmake)
