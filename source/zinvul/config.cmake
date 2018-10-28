@@ -64,27 +64,6 @@ function(loadZinvul zinvul_header_files zinvul_include_dirs zinvul_compile_flags
 endfunction(loadZinvul)
 
 
-function(listCppKernels cpp_kernel_list_code)
-  set(kernel_key "(__kernel|kernel)")
-  set(function_name "[a-zA-Z0-9_]+")
-  set(arguments "[a-zA-Z0-9_*, ]*")
-  set(kernel_pattern "${kernel_key} +void +${function_name} *\\(${arguments}\\)")
-
-  set(kernel_list_code "")
-  foreach(cl_file IN LISTS ARGN)
-    file(STRINGS ${cl_file} cl_strings)
-    string(REGEX MATCHALL ${kernel_pattern} kernel_list "${cl_strings}")
-    foreach(cl_kernel IN LISTS kernel_list)
-      string(APPEND kernel_list_code "${cl_kernel};\n\n")
-    endforeach(cl_kernel)
-  endforeach(cl_file)
-
-
-  # Output variables
-  set(${cpp_kernel_list_code} ${kernel_list_code} PARENT_SCOPE)
-endfunction(listCppKernels)
-
-
 macro(getCppAddressQualifiersCodeImpl address_qualifier)
   string(APPEND define_address_qualifiers_code "#ifdef ${address_qualifier}\n")
   string(APPEND define_address_qualifiers_code "static_assert(false, \"The macro '${address_qualifier}' is already defined.\");\n")
@@ -135,16 +114,11 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
   endforeach(cl_file)
 
   # C++ backend
-  listCppKernels(cpp_kernel_list_code ${ZINVUL_SOURCE_FILES})
   getCppAddressQualifiersCode(define_cpp_address_qualifiers_code undefine_cpp_address_qualifiers_code)
   set(definitions "")
   set(kernel_hpp_file ${PROJECT_BINARY_DIR}/include/zinvul/${kernel_group_name}.hpp)
   configure_file(${PROJECT_SOURCE_DIR}/source/template/kernel_group.hpp.in
                  ${kernel_hpp_file}
-                 @ONLY)
-  set(kernel_cpp_file ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.cpp)
-  configure_file(${PROJECT_SOURCE_DIR}/source/template/kernel_group.cpp.in
-                 ${kernel_cpp_file}
                  @ONLY)
   # Vulkan backend
   if(ZINVUL_ENABLE_VULKAN_BACKEND)
@@ -163,14 +137,15 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
       list(APPEND clspv_options -O3 -DZ_RELEASE)
     endif()
     set(spv_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.spv)
+    set(clspv_include_dirs -I ${PROJECT_SOURCE_DIR}/source/zinvul)
     add_custom_command(OUTPUT ${spv_file_path}
-      COMMAND ${clspv} ${clspv_options} -o ${spv_file_path} ${cl_file_path}
+      COMMAND ${clspv} ${clspv_options} ${clspv_include_dirs} -o ${spv_file_path} ${cl_file_path}
       DEPENDS ${ZINVUL_SOURCE_FILES}
       COMMENT "Building CL object ${cl_file_path}")
   endif()
   add_custom_target(${kernel_group_name} DEPENDS ${spv_file_path})
 
   # Output variables
-  set(${zinvul_source_files} ${kernel_hpp_file} ${kernel_cpp_file} PARENT_SCOPE)
+  set(${zinvul_source_files} ${kernel_hpp_file} PARENT_SCOPE)
   set(${zinvul_definitions} ${definitions} PARENT_SCOPE)
 endfunction(makeKernelGroup)

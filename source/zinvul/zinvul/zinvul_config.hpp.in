@@ -21,14 +21,43 @@ constexpr char kZinvulVersion[] = "@zinvul_version@";
 namespace zinvul {
 
 // General
-using int8 = zisc::int8;
-using int16 = zisc::int16;
-using int32 = zisc::int32;
-using int64 = zisc::int64;
-using uint8 = zisc::uint8;
-using uint16 = zisc::uint16;
-using uint32 = zisc::uint32;
-using uint64 = zisc::uint64;
+// Integer types
+using int8b = zisc::int8b;
+using int16b = zisc::int16b;
+using int32b = zisc::int32b;
+using int64b = zisc::int64b;
+// Unsigned integer types
+using uint = zisc::uint;
+using uint8b = zisc::uint8b;
+using uint16b = zisc::uint16b;
+using uint32b = zisc::uint32b;
+using uint64b = zisc::uint64b;
+// Pointer types
+using size_t = uint32b;
+using ptrdiff_t = int32b;
+using intptr_t = int32b;
+using uintptr_t = uint32b;
+
+// Device
+
+/*!
+  */
+enum class DeviceType : uint32b
+{
+  kCpu = 0,
+  kVulkan
+};
+
+// Buffer
+
+/*!
+  */
+enum BufferUsage
+{
+  kDeviceOnly = 0x0b,
+  kHostToDevice = 0x1b << 0,
+  kDeviceToHost = 0x1b << 1
+};
 
 } // namespace zinvul
 

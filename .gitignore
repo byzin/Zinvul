@@ -39,6 +39,16 @@
 !/source/zinvul/zinvul/*.hpp
 !/source/zinvul/zinvul/*.hpp.in
 !/source/zinvul/zinvul/*.cpp
+!/source/zinvul/zinvul/cl/
+!/source/zinvul/zinvul/cl/*.hpp
+!/source/zinvul/zinvul/cl/*.cpp
+!/source/zinvul/zinvul/cl/*.cl
+!/source/zinvul/zinvul/cpu/
+!/source/zinvul/zinvul/cpu/*.hpp
+!/source/zinvul/zinvul/cpu/*.cpp
+!/source/zinvul/zinvul/vulkan/
+!/source/zinvul/zinvul/vulkan/*.hpp
+!/source/zinvul/zinvul/vulkan/*.cpp
 # Dependencies
 !/source/dependencies/
 !/source/dependencies/zisc
@@ -49,10 +59,12 @@
 !/test/config.cmake
 !/test/googletest
 !/test/kernels/
-!/test/kernels/work_item/
-!/test/kernels/work_item/*.cl
+!/test/kernels/data/
+!/test/kernels/data/*.cl
 !/test/kernels/math/
 !/test/kernels/math/*.cl
+!/test/kernels/work_item/
+!/test/kernels/work_item/*.cl
 !/test/unittest/
 !/test/unittest/*.hpp
 !/test/unittest/*.cpp

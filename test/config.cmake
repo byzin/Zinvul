@@ -12,6 +12,12 @@ set(__test_root__ ${CMAKE_CURRENT_LIST_DIR})
 function(getTestWarningOption test_warning_flags)
   set(warning_flags "")
 
+  if(Z_CLANG)
+    list(APPEND warning_flags -Wno-exit-time-destructors
+                              -Wno-global-constructors
+                              -Wno-weak-vtables
+                              )
+  endif()
 
   # Output variables
   set(${test_warning_flags} ${warning_flags} PARENT_SCOPE)
@@ -25,6 +31,11 @@ function(buildUnitTest)
   buildGoogleTest(${gtest_project_root} gtest_include_dir gtest_libraries)
 
   # Test kernels
+  # Data
+  set(data_dir ${__test_root__}/kernels/data)
+  file(GLOB_RECURSE data_cl_files ${data_dir}/*.cl)
+  makeKernelGroup(data data_source_files data_definitions
+      SOURCE_FILES ${data_cl_files} INCLUDE_DIRS ${data_dir})
   # Work item
   set(work_item_dir ${__test_root__}/kernels/work_item)
   file(GLOB_RECURSE work_item_cl_files ${work_item_dir}/*.cl)
@@ -42,6 +53,7 @@ function(buildUnitTest)
   add_executable(UnitTest ${unittest_source_files}
                           ${zisc_header_files}
                           ${zinvul_header_files}
+                          ${data_source_files}
                           ${work_item_source_files}
                           ${math_source_files})
   source_group(UnitTest FILES ${unittest_source_files})
@@ -72,8 +84,9 @@ function(buildUnitTest)
                                               ${zisc_definitions}
                                               ${zinvul_definitions}
                                               ${environment_definitions}
+                                              ${data_definitions}
                                               ${work_item_definitions}
                                               ${math_definitions})
-  add_dependencies(UnitTest work_item math)
+  add_dependencies(UnitTest data work_item math)
   setStaticAnalyzer(UnitTest)
 endfunction(buildUnitTest)
