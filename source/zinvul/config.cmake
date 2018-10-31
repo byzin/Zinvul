@@ -53,6 +53,11 @@ function(loadZinvul zinvul_header_files zinvul_include_dirs zinvul_compile_flags
   list(APPEND hpp_files ${zinvul_config_path}/zinvul_config.hpp)
   source_group(Zinvul FILES ${hpp_files})
 
+  # Vulkan
+  list(APPEND definitions VULKAN_HPP_TYPESAFE_CONVERSION=0
+                          VULKAN_HPP_NO_SMART_HANDLE
+                          VULKAN_HPP_NO_EXCEPTIONS)
+
 
   # Output variables
   set(${zinvul_header_files} ${hpp_files} PARENT_SCOPE)
@@ -68,7 +73,12 @@ macro(getCppAddressQualifiersCodeImpl address_qualifier)
   string(APPEND define_address_qualifiers_code "#ifdef ${address_qualifier}\n")
   string(APPEND define_address_qualifiers_code "static_assert(false, \"The macro '${address_qualifier}' is already defined.\");\n")
   string(APPEND define_address_qualifiers_code "#endif // ${address_qualifier}\n")
-  string(APPEND define_address_qualifiers_code "#define ${address_qualifier}\n")
+  if("${address_qualifier}" MATCHES "constant")
+    set(cpp_address_qualifier "static constexpr")
+  else()
+    set(cpp_address_qualifier "")
+  endif()
+  string(APPEND define_address_qualifiers_code "#define ${address_qualifier} ${cpp_address_qualifier}\n")
   string(APPEND undefine_address_qualifiers_code "#undef ${address_qualifier}\n")
 endmacro(getCppAddressQualifiersCodeImpl)
 

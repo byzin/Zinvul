@@ -16,6 +16,7 @@
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
+#include "vulkan/vulkan_device.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
