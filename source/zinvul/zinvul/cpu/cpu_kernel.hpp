@@ -10,6 +10,9 @@
 #ifndef ZINVUL_CPU_KERNEL_HPP
 #define ZINVUL_CPU_KERNEL_HPP
 
+// Standard C++ library
+#include <array>
+#include <cstddef>
 // Zinvul
 #include "zinvul/kernel.hpp"
 #include "zinvul/kernel_group.hpp"
@@ -23,10 +26,10 @@ template <typename> class CpuBuffer;
 
 /*!
   */
-template <typename GroupType, typename ...ArgumentTypes>
-class CpuKernel : public Kernel<GroupType, ArgumentTypes...>
+template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+class CpuKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
 {
-  using KernelBase = Kernel<GroupType, ArgumentTypes...>;
+  using KernelBase = Kernel<GroupType, kDimension, ArgumentTypes...>;
   template <typename Type>
   using BufferRef = typename KernelBase::template BufferRef<Type>;
 
@@ -39,10 +42,10 @@ class CpuKernel : public Kernel<GroupType, ArgumentTypes...>
   CpuKernel(CpuDevice* device, const KernelFunction kernel) noexcept;
 
 
-  //! Return a assigned device
+  //! Return an assigned device
   CpuDevice* device() noexcept;
 
-  //! Return a assigned device
+  //! Return an assigned device
   const CpuDevice* device() const noexcept;
 
   //! Return the device type
@@ -53,9 +56,7 @@ class CpuKernel : public Kernel<GroupType, ArgumentTypes...>
 
   //! Execute a kernel
   void run(BufferRef<ArgumentTypes>... args,
-           const uint32b work_x_size,
-           const uint32b work_y_size = 1,
-           const uint32b work_z_size = 1) noexcept override;
+           const std::array<uint32b, kDimension> works) noexcept override;
 
   //! Set a kernel function
   void setKernel(const KernelFunction kernel) noexcept;

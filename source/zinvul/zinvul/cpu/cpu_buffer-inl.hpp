@@ -26,8 +26,9 @@ namespace zinvul {
 /*!
   */
 template <typename Type> inline
-CpuBuffer<Type>::CpuBuffer(CpuDevice* device, const int usage_flags) noexcept :
-    Buffer<Type>(usage_flags),
+CpuBuffer<Type>::CpuBuffer(CpuDevice* device,
+                           const BufferUsage usage_flag) noexcept :
+    Buffer<Type>(usage_flag),
     buffer_{device->memoryResource()}
 {
 }
@@ -36,9 +37,9 @@ CpuBuffer<Type>::CpuBuffer(CpuDevice* device, const int usage_flags) noexcept :
   */
 template <typename Type> inline
 CpuBuffer<Type>::CpuBuffer(CpuDevice* device,
-                           const int usage_flags,
+                           const BufferUsage usage_flag,
                            const std::size_t size) noexcept :
-    CpuBuffer(device, usage_flags)
+    CpuBuffer(device, usage_flag)
 {
   setSize(size);
 }
@@ -65,6 +66,15 @@ template <typename Type> inline
 DeviceType CpuBuffer<Type>::deviceType() const noexcept
 {
   return DeviceType::kCpu;
+}
+
+/*!
+  */
+template <typename Type> inline
+std::size_t CpuBuffer<Type>::memoryUsage() const noexcept
+{
+  const std::size_t memory_usage = sizeof(Type) * size();
+  return memory_usage;
 }
 
 /*!

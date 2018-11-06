@@ -11,6 +11,7 @@
 #include "gtest/gtest.h"
 // Vulkan
 #include <vulkan/vulkan.hpp>
+#define VMA_IMPLEMENTATION
 // Zisc
 #include "zisc/math.hpp"
 #include "zisc/utility.hpp"
@@ -46,6 +47,12 @@ TEST(ZinvulTest, VulkanDeviceTest)
     std::cout << "  Driver version: " << to_version_string(properties.driverVersion) << std::endl;
     std::cout << "  API version: " << to_version_string(properties.apiVersion) << std::endl;
     std::cout << "  SubgroupSize: " << info.subgroup_properties_.subgroupSize << std::endl;
+    const auto& queue_family_list = info.queue_family_list_;
+    for (zinvul::uint32b i = 0; i < queue_family_list.size(); ++i) {
+      std::cout << "  QueueFamily[" << i << "]" << std::endl;
+      std::cout << "    Type: " << vk::to_string(queue_family_list[i].queueFlags) << std::endl;
+      std::cout << "    Count: " << queue_family_list[i].queueCount << std::endl;
+    }
     const auto& memory_properties = info.memory_properties_;
     for (zinvul::uint32b i = 0; i < memory_properties.memoryTypeCount; ++i) {
       std::cout << "  MemoryType[" << i << "]" << std::endl;

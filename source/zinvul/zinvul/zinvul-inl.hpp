@@ -11,6 +11,8 @@
 #define ZINVUL_ZINVUL_INL_HPP
 
 #include "zinvul.hpp"
+// Standard C++ library
+#include <cstddef>
 // Zisc
 #include "zisc/memory_resource.hpp"
 #include "zisc/unique_memory_pointer.hpp"
@@ -19,6 +21,9 @@
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
+#include "vulkan/vulkan_buffer.hpp"
+#include "vulkan/vulkan_device.hpp"
+#include "vulkan/vulkan_kernel.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
@@ -26,13 +31,19 @@ namespace zinvul {
 /*!
   */
 template <typename Type> inline
-UniqueBuffer<Type> makeBuffer(Device* device, const int usage_flags) noexcept
+UniqueBuffer<Type> makeBuffer(Device* device,
+                              const BufferUsage usage_flag) noexcept
 {
   UniqueBuffer<Type> buffer;
   switch (device->deviceType()) {
    case DeviceType::kCpu: {
     auto d = zisc::cast<CpuDevice*>(device);
-    buffer = d->makeBuffer<Type>(usage_flags);
+    buffer = d->makeBuffer<Type>(usage_flag);
+    break;
+   }
+   case DeviceType::kVulkan: {
+    auto d = zisc::cast<VulkanDevice*>(device);
+    buffer = d->makeBuffer<Type>(usage_flag);
     break;
    }
    default: {
@@ -56,6 +67,11 @@ UniqueDevice makeDevice(DeviceOptions& options) noexcept
     device = UniqueCpuDevice::make(options.mem_resource_, options);
     break;
    }
+   case DeviceType::kVulkan: {
+    using UniqueVulkanDevice = zisc::UniqueMemoryPointer<VulkanDevice>;
+    device = UniqueVulkanDevice::make(options.mem_resource_, options);
+    break;
+   }
    default: {
     ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;
@@ -64,44 +80,61 @@ UniqueDevice makeDevice(DeviceOptions& options) noexcept
   return device;
 }
 
-/*!
-  */
-template <typename GroupType, typename ...ArgumentTypes>
-UniqueKernel<GroupType, ArgumentTypes...> makeKernel(
-    Device* device,
-    const typename Kernel<GroupType, ArgumentTypes...>::KernelFunction func) noexcept
-{
-  UniqueKernel<GroupType, ArgumentTypes...> kernel;
-  switch (device->deviceType()) {
-   case DeviceType::kCpu: {
-    auto d = zisc::cast<CpuDevice*>(device);
-    kernel = d->makeKernel<GroupType, ArgumentTypes...>(func);
-    break;
-   }
-   default: {
-    ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
-    break;
-   }
-  }
-  return kernel;
-}
-
 namespace inner {
 
-template <typename GroupType, typename ...ArgumentTypes> struct KernelFunction;
+template <typename, typename ...ArgumentTypes> struct KernelFunction;
+
 template <typename GroupType, typename ...ArgumentTypes>
 struct KernelFunction<void (GroupType::*)(ArgumentTypes...)>
 {
-  using Function = typename Kernel<GroupType, ArgumentTypes...>::KernelFunction;
-  static UniqueKernel<GroupType, ArgumentTypes...> make(
+  template <std::size_t kDimension>
+  using Function =
+      typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction;
+
+  template <std::size_t kDimension>
+  static UniqueKernel<GroupType, kDimension, ArgumentTypes...> make(
       Device* device,
-      const Function func) noexcept
+      const Function<kDimension> kernel_func,
+      const char* kernel_name) noexcept
   {
-    return makeKernel<GroupType, ArgumentTypes...>(device, func);
+    UniqueKernel<GroupType, kDimension, ArgumentTypes...> kernel;
+    switch (device->deviceType()) {
+     case DeviceType::kCpu: {
+      auto d = zisc::cast<CpuDevice*>(device);
+      kernel = d->makeKernel<GroupType, kDimension, ArgumentTypes...>(kernel_func);
+      break;
+     }
+     case DeviceType::kVulkan: {
+      auto d = zisc::cast<VulkanDevice*>(device);
+      GroupType group;
+      const uint32b module_index = group.getKernelGroupNumber__();
+      if (!d->hasShaderModule(module_index)) {
+        const auto spirv_code = group.getKernelSpirvCode__(d->workResource());
+        d->setShaderModule(spirv_code, module_index);
+      }
+      kernel = d->makeKernel<GroupType, kDimension, ArgumentTypes...>(module_index,
+                                                                      kernel_name);
+      break;
+     }
+     default: {
+      ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
+      break;
+     }
+    }
+    return kernel;
   }
 };
 
 } // namespace inner
+
+/*!
+  */
+#undef makeZinvulKernel
+#define makeZinvulKernel(device, kernel_group, kernel, dimension) \
+    inner::KernelFunction<decltype(&zinvul:: kernel_group ::KernelGroup:: kernel )>\
+        ::make< dimension >(device, \
+                            &zinvul:: kernel_group ::KernelGroup:: kernel , \
+                            #kernel )
 
 } // namespace zinvul
 

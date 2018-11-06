@@ -29,12 +29,13 @@ template <typename Type>
 class CpuBuffer : public Buffer<Type>
 {
  public:
-  //! Create a empty buffer
-  CpuBuffer(CpuDevice* device, const int usage_flags) noexcept;
+  //! Create an empty buffer
+  CpuBuffer(CpuDevice* device,
+            const BufferUsage usage_flag) noexcept;
 
   //! Create a buffer
   CpuBuffer(CpuDevice* device,
-            const int usage_flags,
+            const BufferUsage usage_flag,
             const std::size_t size) noexcept;
 
 
@@ -47,6 +48,9 @@ class CpuBuffer : public Buffer<Type>
   //! Return the device type
   DeviceType deviceType() const noexcept override;
 
+  //! Return the memory usage
+  std::size_t memoryUsage() const noexcept override;
+
   //! Read a data from a buffer
   void read(Type* data) const noexcept override;
 
@@ -57,7 +61,7 @@ class CpuBuffer : public Buffer<Type>
   std::size_t size() const noexcept override;
 
   //! Write a data to a buffer
-  virtual void write(const Type* data) noexcept override;
+  void write(const Type* data) noexcept override;
 
  private:
   zisc::pmr::vector<Type> buffer_;

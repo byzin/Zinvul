@@ -26,7 +26,8 @@ namespace zinvul {
   */
 inline
 Device::Device(DeviceOptions& options) noexcept :
-    mem_resource_{options.mem_resource_}
+    mem_resource_{options.mem_resource_},
+    work_resource_{options.work_resource_}
 {
 }
 
@@ -53,6 +54,50 @@ const zisc::pmr::memory_resource* Device::memoryResource() const noexcept
 {
   ZISC_ASSERT(mem_resource_ != nullptr, "The memory resource is null.");
   return mem_resource_;
+}
+
+/*!
+  */
+inline
+std::size_t Device::maxMemoryUsage() const noexcept
+{
+  return max_memory_usage_;
+}
+
+/*!
+  */
+inline
+std::size_t Device::memoryUsage() const noexcept
+{
+  return memory_usage_;
+}
+
+/*!
+  */
+inline
+void Device::setMemoryUsage(const std::size_t memory_usage) noexcept
+{
+  memory_usage_ = memory_usage;
+  if (maxMemoryUsage() < memory_usage)
+    max_memory_usage_ = memory_usage;
+}
+
+/*!
+  */
+inline
+zisc::pmr::memory_resource* Device::workResource() noexcept
+{
+  ZISC_ASSERT(work_resource_ != nullptr, "The work resource is null.");
+  return work_resource_;
+}
+
+/*!
+  */
+inline
+const zisc::pmr::memory_resource* Device::workResource() const noexcept
+{
+  ZISC_ASSERT(work_resource_ != nullptr, "The work resource is null.");
+  return work_resource_;
 }
 
 } // namespace zinvul

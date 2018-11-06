@@ -12,7 +12,9 @@
 
 // Standard C++ library
 #include <array>
+#include <cstddef>
 // Zisc
+#include "zisc/memory_resource.hpp"
 #include "zisc/non_copyable.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
@@ -28,8 +30,15 @@ class KernelGroup : private zisc::NonCopyable<KernelGroup>
   virtual ~KernelGroup() noexcept;
 
 
+  //! Return the group number
+  virtual uint32b getKernelGroupNumber__() const noexcept = 0;
+
+  //! Return the SPIR-V code
+  virtual zisc::pmr::vector<char> getKernelSpirvCode__(
+      zisc::pmr::memory_resource* mem_resource) const noexcept = 0;
+
   //! Set the global work ID
-  void setGlobalWorkId(const uint32b x, const uint32b y, const uint32b z) noexcept;
+  void setGlobalWorkId__(const std::array<uint32b, 3> global_work_id) noexcept;
 
   // OpenCL functions
 

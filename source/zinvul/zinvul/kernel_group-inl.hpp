@@ -30,11 +30,10 @@ KernelGroup::~KernelGroup() noexcept
 /*!
   */
 inline
-void KernelGroup::setGlobalWorkId(const uint32b x,
-                                  const uint32b y,
-                                  const uint32b z) noexcept
+void KernelGroup::setGlobalWorkId__(const std::array<uint32b, 3> global_work_id)
+    noexcept
 {
-  global_work_id_ = {{x, y, z}};
+  global_work_id_ = global_work_id;
 }
 
 // OpenCL functions

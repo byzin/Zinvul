@@ -11,11 +11,13 @@
 #define ZINVUL_KERNEL_HPP
 
 // Standard C++ library
+#include <array>
 #include <cstddef>
 #include <type_traits>
 // Zisc
 #include "zisc/unique_memory_pointer.hpp"
 #include "zisc/non_copyable.hpp"
+#include "zisc/utility.hpp"
 // Zinvul
 #include "kernel_group.hpp"
 #include "zinvul/zinvul_config.hpp"
@@ -27,13 +29,15 @@ template <typename> class Buffer;
 
 /*!
   */
-template <typename GroupType, typename ...ArgumentTypes>
-class Kernel : private zisc::NonCopyable<Kernel<ArgumentTypes...>>
+template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+class Kernel : private zisc::NonCopyable<Kernel<GroupType, kDimension, ArgumentTypes...>>
 {
   static_assert(std::is_base_of_v<KernelGroup, GroupType>,
                 "The GroupType isn't derived from zinvul::KernelGroup.");
   static_assert(std::is_default_constructible_v<GroupType>,
                 "The GroupType isn't default constructable.");
+  static_assert(zisc::isInBounds(kDimension, 1, 4),
+                "The kDimension should be 1, 2 or 3.");
 
  protected:
   template <typename Type>
@@ -52,20 +56,21 @@ class Kernel : private zisc::NonCopyable<Kernel<ArgumentTypes...>>
   virtual DeviceType deviceType() const noexcept = 0;
 
   //! Execute a kernel
-  virtual void run(BufferRef<ArgumentTypes>...,
-                   const uint32b work_x_size,
-                   const uint32b work_y_size = 1,
-                   const uint32b work_z_size = 1) noexcept = 0;
+  virtual void run(BufferRef<ArgumentTypes>... args,
+                   const std::array<uint32b, kDimension> works) noexcept = 0;
 
   //! Return the number of a kernel arguments
   static constexpr std::size_t numOfArguments() noexcept;
+
+  //! Return the workgroup dimension
+  static constexpr std::size_t workgroupDimension() noexcept;
 
  private:
 };
 
 // Type aliases
-template <typename GroupType, typename ...ArgumentTypes>
-using UniqueKernel = zisc::UniqueMemoryPointer<Kernel<GroupType, ArgumentTypes...>>;
+template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+using UniqueKernel = zisc::UniqueMemoryPointer<Kernel<GroupType, kDimension, ArgumentTypes...>>;
 
 } // namespace zinvul
 

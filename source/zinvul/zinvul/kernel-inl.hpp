@@ -20,18 +20,31 @@ namespace zinvul {
 
 /*!
   */
-template <typename GroupType, typename ...ArgumentTypes> inline
-Kernel<GroupType, ArgumentTypes...>::~Kernel() noexcept
+template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+inline
+Kernel<GroupType, kDimension, ArgumentTypes...>::~Kernel() noexcept
 {
 }
 
 /*!
   */
-template <typename GroupType, typename ...ArgumentTypes> inline
-constexpr std::size_t Kernel<GroupType, ArgumentTypes...>::numOfArguments() noexcept
+template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+inline
+constexpr std::size_t Kernel<GroupType, kDimension, ArgumentTypes...>::
+    numOfArguments() noexcept
 {
   constexpr std::size_t size = sizeof...(ArgumentTypes);
   return size;
+}
+
+/*!
+  */
+template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+inline
+constexpr std::size_t Kernel<GroupType, kDimension, ArgumentTypes...>::
+    workgroupDimension() noexcept
+{
+  return kDimension;
 }
 
 } // namespace zinvul

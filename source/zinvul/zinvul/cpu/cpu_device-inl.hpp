@@ -11,6 +11,8 @@
 #define ZINVUL_CPU_DEVICE_INL_HPP
 
 #include "cpu_device.hpp"
+// Standard C++ library
+#include <cstddef>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/unique_memory_pointer.hpp"
@@ -40,25 +42,34 @@ DeviceType CpuDevice::deviceType() const noexcept
 /*!
   */
 template <typename Type> inline
-UniqueBuffer<Type> CpuDevice::makeBuffer(const int usage_flags) noexcept
+UniqueBuffer<Type> CpuDevice::makeBuffer(const BufferUsage usage_flag) noexcept
 {
   using UniqueCpuBuffer = zisc::UniqueMemoryPointer<CpuBuffer<Type>>;
   UniqueBuffer<Type> buffer =
-      UniqueCpuBuffer::make(memoryResource(), this, usage_flags);
+      UniqueCpuBuffer::make(memoryResource(), this, usage_flag);
   return buffer;
 }
 
 /*!
   */
-template <typename GroupType, typename ...ArgumentTypes> inline
-UniqueKernel<GroupType, ArgumentTypes...> CpuDevice::makeKernel(
-    const typename Kernel<GroupType, ArgumentTypes...>::KernelFunction func) noexcept
+template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+inline
+UniqueKernel<GroupType, kDimension, ArgumentTypes...> CpuDevice::makeKernel(
+    const typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction func) noexcept
 {
   using UniqueCpuKernel = zisc::UniqueMemoryPointer<CpuKernel<GroupType,
+                                                              kDimension,
                                                               ArgumentTypes...>>;
-  UniqueKernel<GroupType, ArgumentTypes...> kernel =
+  UniqueKernel<GroupType, kDimension, ArgumentTypes...> kernel =
       UniqueCpuKernel::make(memoryResource(), this, func);
   return kernel;
+}
+
+/*!
+  */
+inline
+void CpuDevice::waitForCompletion() noexcept
+{
 }
 
 } // namespace zinvul

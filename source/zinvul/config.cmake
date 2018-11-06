@@ -7,8 +7,7 @@
 # 
 
 set(__zinvul_root__ ${CMAKE_CURRENT_LIST_DIR})
-set(__num_of_groups__ 0)
-
+set(__zinvul_num_of_groups__ -1 CACHE INTERNAL "")
 
 function(initZinvulOption)
   set(option_description "Bake vulkan kernels into a binary.")
@@ -57,6 +56,11 @@ function(loadZinvul zinvul_header_files zinvul_include_dirs zinvul_compile_flags
   list(APPEND definitions VULKAN_HPP_TYPESAFE_CONVERSION=0
                           VULKAN_HPP_NO_SMART_HANDLE
                           VULKAN_HPP_NO_EXCEPTIONS)
+  if(Z_DEBUG_MODE)
+    list(APPEND definitions VMA_DEBUG_INITIALIZE_ALLOCATIONS=1
+                            VMA_DEBUG_MARGIN=128
+                            VMA_DEBUG_DETECT_CORRUPTION=1)
+  endif()
 
 
   # Output variables
@@ -115,13 +119,15 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     message(FATAL_ERROR "The kernel group '${kernel_group_name}' has no source.")
   endif()
 
-  set(group_number ${__num_of_groups__})
-  math(EXPR __num_of_groups__ "${__num_of_groups__} + 1")
+  # Get the group number
+  math(EXPR group_number "${__zinvul_num_of_groups__} + 1")
 
   set(kernel_include_lines "")
   foreach(cl_file IN LISTS ZINVUL_SOURCE_FILES)
     string(APPEND kernel_include_lines "#include \"${cl_file}\"\n")
   endforeach(cl_file)
+
+  set(spv_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.spv)
 
   # C++ backend
   getCppAddressQualifiersCode(define_cpp_address_qualifiers_code undefine_cpp_address_qualifiers_code)
@@ -146,7 +152,6 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     elseif(Z_RELEASE_MODE)
       list(APPEND clspv_options -O3 -DZ_RELEASE)
     endif()
-    set(spv_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.spv)
     set(clspv_include_dirs -I ${PROJECT_SOURCE_DIR}/source/zinvul)
     add_custom_command(OUTPUT ${spv_file_path}
       COMMAND ${clspv} ${clspv_options} ${clspv_include_dirs} -o ${spv_file_path} ${cl_file_path}
@@ -158,4 +163,5 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
   # Output variables
   set(${zinvul_source_files} ${kernel_hpp_file} PARENT_SCOPE)
   set(${zinvul_definitions} ${definitions} PARENT_SCOPE)
+  set(__zinvul_num_of_groups__ ${group_number} CACHE INTERNAL "")
 endfunction(makeKernelGroup)

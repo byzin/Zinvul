@@ -8,8 +8,11 @@
   */
 
 // Standard C++ library
+#include <cstddef>
 #include <iomanip>
+#include <iostream>
 #include <limits>
+#include <vector>
 // GoogleTest
 #include "gtest/gtest.h"
 // Zisc
@@ -17,17 +20,22 @@
 // Zinvul
 #include "zinvul/zinvul.hpp"
 #include "zinvul/math.hpp"
+// Test
+#include "test.hpp"
 
 TEST(MathTest, ConstantValueTest)
 {
-  zinvul::DeviceOptions options;
-  auto device = zinvul::makeDevice(options);
-  {
-    auto pi_buffer = zinvul::makeBuffer<float>(device.get(), zinvul::kDeviceToHost);
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    auto pi_buffer = zinvul::makeBuffer<float>(device.get(),
+                                               zinvul::BufferUsage::kDeviceToHost);
     pi_buffer->setSize(1);
 
-    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testConstantValues);
-    kernel->run(*pi_buffer, 1);
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testConstantValues, 1);
+    kernel->run(*pi_buffer, {1});
+    device->waitForCompletion();
 
     {
       float pi = 0.0f;

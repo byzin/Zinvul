@@ -52,7 +52,7 @@ enum class DeviceType : uint32b
 
 /*!
   */
-enum BufferUsage
+enum class BufferUsage : uint32b
 {
   kDeviceOnly = 0x0b,
   kHostToDevice = 0x1b << 0,

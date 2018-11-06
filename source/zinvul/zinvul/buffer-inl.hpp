@@ -21,8 +21,8 @@ namespace zinvul {
 /*!
   */
 template <typename Type> inline
-Buffer<Type>::Buffer(const int usage_flags) noexcept :
-    usage_flags_{zisc::cast<int32b>(usage_flags)}
+Buffer<Type>::Buffer(const BufferUsage usage_flag) noexcept :
+    usage_flag_{usage_flag}
 {
 }
 
@@ -38,8 +38,7 @@ Buffer<Type>::~Buffer() noexcept
 template <typename Type> inline
 bool Buffer<Type>::isHostReadable() const noexcept
 {
-  const bool flag = (usageFlags() & kDeviceToHost) == kDeviceToHost;
-  return flag;
+  return usage() == BufferUsage::kDeviceToHost;
 }
 
 /*!
@@ -47,16 +46,15 @@ bool Buffer<Type>::isHostReadable() const noexcept
 template <typename Type> inline
 bool Buffer<Type>::isHostWritable() const noexcept
 {
-  const bool flag = (usageFlags() & kHostToDevice) == kHostToDevice;
-  return flag;
+  return usage() == BufferUsage::kHostToDevice;
 }
 
 /*!
   */
 template <typename Type> inline
-int Buffer<Type>::usageFlags() const noexcept
+BufferUsage Buffer<Type>::usage() const noexcept
 {
-  return zisc::cast<int>(usage_flags_);
+  return usage_flag_;
 }
 
 } // namespace zinvul

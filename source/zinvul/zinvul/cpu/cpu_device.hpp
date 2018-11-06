@@ -10,6 +10,8 @@
 #ifndef ZINVUL_CPU_DEVICE_HPP
 #define ZINVUL_CPU_DEVICE_HPP
 
+// Standard C++ library
+#include <cstddef>
 // Zisc
 #include "zisc/unique_memory_pointer.hpp"
 // Zinvul
@@ -34,12 +36,15 @@ class CpuDevice : public Device
 
   //! Make a buffer
   template <typename Type>
-  UniqueBuffer<Type> makeBuffer(const int usage_flags) noexcept;
+  UniqueBuffer<Type> makeBuffer(const BufferUsage usage_flag) noexcept;
 
   //! Make a kernel
-  template <typename GroupType, typename ...ArgumentTypes>
-  UniqueKernel<GroupType, ArgumentTypes...> makeKernel(
-      const typename Kernel<GroupType, ArgumentTypes...>::KernelFunction func) noexcept;
+  template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+  UniqueKernel<GroupType, kDimension, ArgumentTypes...> makeKernel(
+      const typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction func) noexcept;
+
+  //! Wait this thread until all commands in the queue are completed
+  void waitForCompletion() noexcept override;
 };
 
 } // namespace zinvul

@@ -28,7 +28,7 @@ class Buffer : private zisc::NonCopyable<Buffer<Type>>
 {
  public:
   //! Initialize a buffer
-  Buffer(const int usage_flags) noexcept;
+  Buffer(const BufferUsage usage_flag) noexcept;
 
   //!
   virtual ~Buffer() noexcept;
@@ -37,29 +37,42 @@ class Buffer : private zisc::NonCopyable<Buffer<Type>>
   //! Return the device type
   virtual DeviceType deviceType() const noexcept = 0;
 
+  //! Return the expected memory usage
+  std::size_t expectedMemoryUsage() const noexcept;
+
   //! Check if a buffer is readable from host
   bool isHostReadable() const noexcept;
 
   //! Check if a buffer is writable from host
   bool isHostWritable() const noexcept;
 
+  //! Return the memory usage
+  virtual std::size_t memoryUsage() const noexcept = 0;
+
   //! Read a data from a buffer
   virtual void read(Type* data) const noexcept = 0;
 
   //! Set a size of a buffer
-  virtual void setSize(const std::size_t size) noexcept = 0;
+  virtual void setSize(const std::size_t s) noexcept = 0;
 
   //! Return a size of a buffer
   virtual std::size_t size() const noexcept = 0;
 
-  //! Return usage flags
-  int usageFlags() const noexcept;
+  //! Return usage flag
+  BufferUsage usage() const noexcept;
 
   //! Write a data to a buffer
   virtual void write(const Type* data) noexcept = 0;
 
  private:
-  int32b usage_flags_;
+  //! Map a device buffer memory to a host
+  void mapMemory(void** data) const noexcept;
+
+  //! Map a device buffer memory to a host
+  void unmapMemory() const noexcept;
+
+
+  BufferUsage usage_flag_;
 };
 
 // Type aliases
