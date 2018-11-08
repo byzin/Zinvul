@@ -7,6 +7,9 @@
   http://opensource.org/licenses/mit-license.php
   */
 
+#ifndef ZINVUL_VULKAN_DEVICE_INL_HPP
+#define ZINVUL_VULKAN_DEVICE_INL_HPP
+
 #include "vulkan_device.hpp"
 // Standard C++ library
 #include <array>
@@ -33,9 +36,6 @@
 #include "zinvul/device.hpp"
 #include "zinvul/kernel.hpp"
 #include "zinvul/zinvul_config.hpp"
-
-#ifndef ZINVUL_VULKAN_DEVICE_INL_HPP
-#define ZINVUL_VULKAN_DEVICE_INL_HPP
 
 namespace zinvul {
 
@@ -356,7 +356,7 @@ auto VulkanDevice::physicalDeviceInfo() const noexcept -> const PhysicalDeviceIn
 /*!
   */
 inline
-void VulkanDevice::setShaderModule(const zisc::pmr::vector<char>& spirv_code,
+void VulkanDevice::setShaderModule(const zisc::pmr::vector<uint32b>& spirv_code,
                                    const std::size_t index) noexcept
 {
   if (shader_module_list_.size() <= index)
@@ -364,10 +364,9 @@ void VulkanDevice::setShaderModule(const zisc::pmr::vector<char>& spirv_code,
   else if (hasShaderModule(index))
     device_.destroyShaderModule(getShaderModule(index));
 
-  const vk::ShaderModuleCreateInfo create_info{
-      vk::ShaderModuleCreateFlags{},
-      spirv_code.size(),
-      reinterpret_cast<const uint32b*>(spirv_code.data())};
+  const vk::ShaderModuleCreateInfo create_info{vk::ShaderModuleCreateFlags{},
+                                               4 * spirv_code.size(),
+                                               spirv_code.data()};
   auto [result, shader_module] = device_.createShaderModule(create_info);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Shader module creation failed.");
   shader_module_list_[index] = shader_module;
@@ -644,20 +643,22 @@ void VulkanDevice::initMemoryAllocator() noexcept
   auto result = vmaCreateAllocator(&allocator_create_info, &allocator_);
   ZISC_ASSERT(result == VK_SUCCESS, "Memory allocator creation failed.");
 
-  VkBufferCreateInfo buffer_info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-  buffer_info.size = sizeof(void*);
-  buffer_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-  buffer_info.queueFamilyIndexCount = 1;
-  buffer_info.pQueueFamilyIndices = &queue_family_index_;
+  VkBufferCreateInfo buffer_info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+                                 nullptr,
+                                 0,
+                                 sizeof(void*),
+                                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                                 VK_SHARING_MODE_EXCLUSIVE,
+                                 1,
+                                 &queue_family_index_};
 
-  VmaAllocationCreateInfo alloc_info;
-  alloc_info.flags = 0;
-  alloc_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-  alloc_info.requiredFlags = 0;
-  alloc_info.preferredFlags = 0;
-  alloc_info.memoryTypeBits = 0;
-  alloc_info.pool = VK_NULL_HANDLE;
-  alloc_info.pUserData = nullptr;
+  VmaAllocationCreateInfo alloc_info{0,
+                                     VMA_MEMORY_USAGE_GPU_ONLY,
+                                     0,
+                                     0,
+                                     0,
+                                     VK_NULL_HANDLE,
+                                     nullptr};
 
   result = vmaFindMemoryTypeIndexForBufferInfo(allocator_,
                                                &buffer_info,

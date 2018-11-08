@@ -7,6 +7,7 @@
   http://opensource.org/licenses/mit-license.php
   */
 
+#include "test.hpp"
 // Standard C++ library
 #include <vector>
 // GoogleTest

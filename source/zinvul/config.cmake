@@ -21,6 +21,9 @@ endfunction(initZinvulOption)
 function(getZinvulOption zinvul_compile_flags zinvul_linker_flags zinvul_definitions)
   set(definitions "")
 
+  if(ZINVUL_BAKE_KERNELS)
+    list(APPEND definitions ZINVUL_BAKE_KERNELS)
+  endif()
   if(ZINVUL_ENABLE_VULKAN_BACKEND)
     list(APPEND definitions ZINVUL_ENABLE_VULKAN_BACKEND)
   endif()
@@ -45,7 +48,8 @@ function(loadZinvul zinvul_header_files zinvul_include_dirs zinvul_compile_flags
   file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
   set(zinvul_config_path ${PROJECT_BINARY_DIR}/include/zinvul)
   configure_file(${__zinvul_root__}/zinvul/zinvul_config.hpp.in
-                 ${zinvul_config_path}/zinvul_config.hpp)
+                 ${zinvul_config_path}/zinvul_config.hpp
+                 @ONLY)
 
   # Set source code
   file(GLOB hpp_files ${__zinvul_root__}/zinvul/*.hpp)
@@ -128,12 +132,13 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
   endforeach(cl_file)
 
   set(spv_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.spv)
+  set(baked_spv_file_path ${PROJECT_BINARY_DIR}/zinvul/baked_${kernel_group_name}_spirv.hpp)
 
   # C++ backend
   getCppAddressQualifiersCode(define_cpp_address_qualifiers_code undefine_cpp_address_qualifiers_code)
   set(definitions "")
   set(kernel_hpp_file ${PROJECT_BINARY_DIR}/include/zinvul/${kernel_group_name}.hpp)
-  configure_file(${PROJECT_SOURCE_DIR}/source/template/kernel_group.hpp.in
+  configure_file(${__zinvul_root__}/template/kernel_group.hpp.in
                  ${kernel_hpp_file}
                  @ONLY)
   # Vulkan backend
@@ -143,7 +148,7 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
       message(FATAL_ERROR "'clspv' not found in path.") 
     endif()
     set(cl_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.cl)
-    configure_file(${PROJECT_SOURCE_DIR}/source/template/kernel_group.cl.in
+    configure_file(${__zinvul_root__}/template/kernel_group.cl.in
                    ${cl_file_path}
                    @ONLY)
     set(clspv_options "")
@@ -152,9 +157,21 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     elseif(Z_RELEASE_MODE)
       list(APPEND clspv_options -O3 -DZ_RELEASE)
     endif()
-    set(clspv_include_dirs -I ${PROJECT_SOURCE_DIR}/source/zinvul)
+    set(clspv_commands COMMAND ${clspv} ${clspv_options}
+                               -I ${__zinvul_root__}
+                               -o ${spv_file_path} ${cl_file_path})
+    if(ZINVUL_BAKE_KERNELS)
+      list(APPEND clspv_commands COMMAND
+          ${CMAKE_COMMAND}
+          -DKERNEL_GROUP_NAME=${kernel_group_name}
+          -DBAKED_SPIRV_TEMPLATE_PATH=${__zinvul_root__}/template/baked_spirv.hpp.in
+          -DSPIRV_PATH=${spv_file_path}
+          -DBAKED_SPIRV_PATH=${baked_spv_file_path}
+          -DFILE_TYPE=SpirV
+          -P ${__zinvul_root__}/cmake/bake_command.cmake)
+    endif()
     add_custom_command(OUTPUT ${spv_file_path}
-      COMMAND ${clspv} ${clspv_options} ${clspv_include_dirs} -o ${spv_file_path} ${cl_file_path}
+      ${clspv_commands}
       DEPENDS ${ZINVUL_SOURCE_FILES}
       COMMENT "Building CL object ${cl_file_path}")
   endif()

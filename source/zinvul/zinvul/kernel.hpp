@@ -36,7 +36,7 @@ class Kernel : private zisc::NonCopyable<Kernel<GroupType, kDimension, ArgumentT
                 "The GroupType isn't derived from zinvul::KernelGroup.");
   static_assert(std::is_default_constructible_v<GroupType>,
                 "The GroupType isn't default constructable.");
-  static_assert(zisc::isInBounds(kDimension, 1, 4),
+  static_assert(zisc::isInBounds(kDimension, 1u, 4u),
                 "The kDimension should be 1, 2 or 3.");
 
  protected:

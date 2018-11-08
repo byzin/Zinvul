@@ -125,7 +125,7 @@ class VulkanDevice : public Device
   const PhysicalDeviceInfo& physicalDeviceInfo() const noexcept;
 
   //! Set a shader module
-  void setShaderModule(const zisc::pmr::vector<char>& spirv_code,
+  void setShaderModule(const zisc::pmr::vector<uint32b>& spirv_code,
                        const std::size_t index) noexcept;
 
   //! Submit a command

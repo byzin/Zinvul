@@ -34,7 +34,7 @@ class KernelGroup : private zisc::NonCopyable<KernelGroup>
   virtual uint32b getKernelGroupNumber__() const noexcept = 0;
 
   //! Return the SPIR-V code
-  virtual zisc::pmr::vector<char> getKernelSpirvCode__(
+  virtual zisc::pmr::vector<uint32b> getKernelSpirvCode__(
       zisc::pmr::memory_resource* mem_resource) const noexcept = 0;
 
   //! Set the global work ID

@@ -16,6 +16,7 @@
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/memory_resource.hpp"
+#include "zisc/utility.hpp"
 // Zinvul
 #include "zinvul/kernel_group.hpp"
 #include "zinvul/zinvul_config.hpp"
@@ -47,25 +48,29 @@ class KernelGroup : public zinvul::KernelGroup
   }
 
   //! Return the SPIR-V code
-  zisc::pmr::vector<char> getKernelSpirvCode__(
+  zisc::pmr::vector<uint32b> getKernelSpirvCode__(
       zisc::pmr::memory_resource* mem_resource) const noexcept override
   {
+#ifndef ZINVUL_BAKE_KERNELS
     std::ifstream spirv_file{"@spv_file_path@", std::ios_base::binary};
     ZISC_ASSERT(spirv_file.is_open(), "The SPIR-V file doesn't exist.");
-    std::size_t spirv_size = 0;
+    std::streamsize spirv_size = 0;
     {
-      const std::size_t begin = spirv_file.tellg();
+      const auto begin = spirv_file.tellg();
       spirv_file.seekg(0, std::ios_base::end);
-      const std::size_t end = spirv_file.tellg();
+      const auto end = spirv_file.tellg();
       spirv_size = end - begin;
       ZISC_ASSERT((spirv_size % 4) == 0, "The size of the SPIR-V code is invalid.");
       spirv_file.clear();
       spirv_file.seekg(0, std::ios_base::beg);
     }
-    zisc::pmr::vector<char> spirv_code{mem_resource};
-    spirv_code.resize(spirv_size);
-    spirv_file.read(spirv_code.data(), spirv_size);
+    zisc::pmr::vector<uint32b> spirv_code{mem_resource};
+    spirv_code.resize(zisc::cast<std::size_t>(spirv_size / 4));
+    spirv_file.read(reinterpret_cast<char*>(spirv_code.data()), spirv_size);
     return spirv_code;
+#else // ZINVUL_BAKE_KERNELS
+#include "@baked_spv_file_path@"
+#endif // ZINVUL_BAKE_KERNELS
   }
 };
 

@@ -14,5 +14,8 @@ endfunction(validateOptions)
 
 # Set command options
 function(initCommandOptions)
+  set(option_description "Suppress excessive warnings.")
+  setBooleanOption(ZINVUL_SUPPRESS_EXCESSIVE_WARNING ON ${option_description})
+
   validateOptions()
 endfunction(initCommandOptions)
