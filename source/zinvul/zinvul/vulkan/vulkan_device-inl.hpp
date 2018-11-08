@@ -739,7 +739,7 @@ vk::ApplicationInfo VulkanDevice::makeApplicationInfo(
   const uint32b app_version = VK_MAKE_VERSION(app_version_major,
                                               app_version_minor,
                                               app_version_patch);
-  constexpr char engine_name[] = "Zinvul";
+  static constexpr char engine_name[] = "Zinvul";
   constexpr uint32b engine_version = VK_MAKE_VERSION(kZinvulVersionMajor,
                                                      kZinvulVersionMinor,
                                                      kZinvulVersionPatch);
