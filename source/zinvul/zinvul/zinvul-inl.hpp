@@ -21,9 +21,11 @@
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
 #include "vulkan/vulkan_buffer.hpp"
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_kernel.hpp"
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
@@ -41,11 +43,13 @@ UniqueBuffer<Type> makeBuffer(Device* device,
     buffer = d->makeBuffer<Type>(usage_flag);
     break;
    }
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
    case DeviceType::kVulkan: {
     auto d = zisc::cast<VulkanDevice*>(device);
     buffer = d->makeBuffer<Type>(usage_flag);
     break;
    }
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
    default: {
     ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;
@@ -67,11 +71,13 @@ UniqueDevice makeDevice(DeviceOptions& options) noexcept
     device = UniqueCpuDevice::make(options.mem_resource_, options);
     break;
    }
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
    case DeviceType::kVulkan: {
     using UniqueVulkanDevice = zisc::UniqueMemoryPointer<VulkanDevice>;
     device = UniqueVulkanDevice::make(options.mem_resource_, options);
     break;
    }
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
    default: {
     ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;
@@ -88,14 +94,12 @@ template <typename GroupType, typename ...ArgumentTypes>
 struct KernelFunction<void (GroupType::*)(ArgumentTypes...)>
 {
   template <std::size_t kDimension>
-  using Function =
-      typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction;
+  using Function = typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction;
 
   template <std::size_t kDimension>
-  static UniqueKernel<GroupType, kDimension, ArgumentTypes...> make(
-      Device* device,
-      const Function<kDimension> kernel_func,
-      const char* kernel_name) noexcept
+  static auto make(Device* device,
+                   const Function<kDimension> kernel_func,
+                   const char* kernel_name) noexcept
   {
     UniqueKernel<GroupType, kDimension, ArgumentTypes...> kernel;
     switch (device->deviceType()) {
@@ -104,18 +108,19 @@ struct KernelFunction<void (GroupType::*)(ArgumentTypes...)>
       kernel = d->makeKernel<GroupType, kDimension, ArgumentTypes...>(kernel_func);
       break;
      }
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
      case DeviceType::kVulkan: {
       auto d = zisc::cast<VulkanDevice*>(device);
-      GroupType group;
-      const uint32b module_index = group.getKernelGroupNumber__();
+      const uint32b module_index = GroupType{}.getKernelGroupNumber__();
       if (!d->hasShaderModule(module_index)) {
-        const auto spirv_code = group.getKernelSpirvCode__(d->workResource());
+        const auto spirv_code = GroupType{}.getKernelSpirvCode__(d->workResource());
         d->setShaderModule(spirv_code, module_index);
       }
       kernel = d->makeKernel<GroupType, kDimension, ArgumentTypes...>(module_index,
                                                                       kernel_name);
       break;
      }
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
      default: {
       ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
       break;

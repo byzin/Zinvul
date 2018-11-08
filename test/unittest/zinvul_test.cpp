@@ -10,14 +10,17 @@
 // GoogleTest
 #include "gtest/gtest.h"
 // Vulkan
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
 #include <vulkan/vulkan.hpp>
 #define VMA_IMPLEMENTATION
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
 // Zisc
 #include "zisc/math.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
 
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
 TEST(ZinvulTest, VulkanDeviceTest)
 {
   const auto device_info_list = zinvul::VulkanDevice::getPhysicalDeviceInfoList();
@@ -66,3 +69,4 @@ TEST(ZinvulTest, VulkanDeviceTest)
     }
   }
 }
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND

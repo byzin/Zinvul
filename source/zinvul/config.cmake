@@ -174,8 +174,10 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
       ${clspv_commands}
       DEPENDS ${ZINVUL_SOURCE_FILES}
       COMMENT "Building CL object ${cl_file_path}")
+    add_custom_target(${kernel_group_name} DEPENDS ${spv_file_path})
+  else()
+    add_custom_target(${kernel_group_name})
   endif()
-  add_custom_target(${kernel_group_name} DEPENDS ${spv_file_path})
 
   # Output variables
   set(${zinvul_source_files} ${kernel_hpp_file} PARENT_SCOPE)

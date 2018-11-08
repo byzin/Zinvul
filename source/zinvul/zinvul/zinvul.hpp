@@ -18,9 +18,11 @@
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
 #include "vulkan/vulkan_buffer.hpp"
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_kernel.hpp"
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
