@@ -28,16 +28,19 @@ struct DeviceOptions
 {
   // Common options
   const char* app_name_ = "Application";
-  zisc::pmr::memory_resource* mem_resource_ = zisc::SimpleMemoryResource::sharedResource();
-  zisc::pmr::memory_resource* work_resource_ = zisc::SimpleMemoryResource::sharedResource();
+  zisc::pmr::memory_resource* mem_resource_ =
+      zisc::SimpleMemoryResource::sharedResource();
+  zisc::pmr::memory_resource* work_resource_ =
+      zisc::SimpleMemoryResource::sharedResource();
   DeviceType device_type_ = DeviceType::kCpu;
   uint32b app_version_major_ = 0;
   uint32b app_version_minor_ = 0;
   uint32b app_version_patch_ = 0;
   // CPU options
-  uint32b num_of_threads_ = 1;
+  uint32b cpu_num_of_threads_ = 0; //!< 0: Optimal number of threads
+  uint32b cpu_subgroup_size_ = 16;
   // Vulkan options
-  uint32b device_number_ = 0;
+  uint32b vulkan_device_number_ = 0;
 };
 
 /*!

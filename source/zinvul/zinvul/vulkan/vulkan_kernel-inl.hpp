@@ -113,11 +113,12 @@ template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
 void VulkanKernel<GroupType, kDimension, ArgumentTypes...>::run(
     BufferRef<ArgumentTypes>... args,
-    const std::array<uint32b, kDimension> works) noexcept
+    const std::array<uint32b, kDimension> works,
+    const uint32b queue_index) noexcept
 {
   bindBuffers(args...);
   dispatch(works);
-  device_->submit(command_buffer_);
+  device_->submit(queue_index, command_buffer_);
 }
 
 /*!

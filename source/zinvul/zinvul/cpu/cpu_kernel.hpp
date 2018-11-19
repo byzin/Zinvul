@@ -56,7 +56,8 @@ class CpuKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
 
   //! Execute a kernel
   void run(BufferRef<ArgumentTypes>... args,
-           const std::array<uint32b, kDimension> works) noexcept override;
+           const std::array<uint32b, kDimension> works,
+           const uint32b queue_index = 0) noexcept override;
 
   //! Set a kernel function
   void setKernel(const KernelFunction kernel) noexcept;

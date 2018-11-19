@@ -57,7 +57,8 @@ class Kernel : private zisc::NonCopyable<Kernel<GroupType, kDimension, ArgumentT
 
   //! Execute a kernel
   virtual void run(BufferRef<ArgumentTypes>... args,
-                   const std::array<uint32b, kDimension> works) noexcept = 0;
+                   const std::array<uint32b, kDimension> works,
+                   const uint32b queue_index = 0) noexcept = 0;
 
   //! Return the number of a kernel arguments
   static constexpr std::size_t numOfArguments() noexcept;

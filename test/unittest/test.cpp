@@ -38,7 +38,7 @@ std::vector<zinvul::UniqueDevice> makeTestDeviceList(
   options.device_type_ = zinvul::DeviceType::kVulkan;
   const auto vulkan_device_list = zinvul::VulkanDevice::getPhysicalDeviceInfoList();
   for (std::size_t i = 0; i < vulkan_device_list.size(); ++i) {
-    options.device_number_ = static_cast<zinvul::uint32b>(i);
+    options.vulkan_device_number_ = static_cast<zinvul::uint32b>(i);
     device_list.emplace_back(zinvul::makeDevice(options));
   }
 #endif // ZINVUL_ENABLE_VULKAN_BACKEND

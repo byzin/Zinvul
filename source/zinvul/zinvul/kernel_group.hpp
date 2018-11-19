@@ -16,6 +16,7 @@
 // Zisc
 #include "zisc/memory_resource.hpp"
 #include "zisc/non_copyable.hpp"
+#include "zisc/spin_lock_mutex.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
 
@@ -40,6 +41,9 @@ class KernelGroup : private zisc::NonCopyable<KernelGroup>
   //! Set the global work ID
   void setGlobalWorkId__(const std::array<uint32b, 3> global_work_id) noexcept;
 
+  //! Set a mutex
+  void setMutex(zisc::SpinLockMutex* mutex) noexcept;
+
   // OpenCL functions
 
   //! Return the global work-item ID
@@ -52,6 +56,7 @@ class KernelGroup : private zisc::NonCopyable<KernelGroup>
   uint get_work_dim() const noexcept;
 
  private:
+  zisc::SpinLockMutex* mutex_ = nullptr;
   std::array<uint32b, 3> global_work_id_{{0, 0, 0}};
 };
 

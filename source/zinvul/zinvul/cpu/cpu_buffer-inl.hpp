@@ -29,6 +29,7 @@ template <typename Type> inline
 CpuBuffer<Type>::CpuBuffer(CpuDevice* device,
                            const BufferUsage usage_flag) noexcept :
     Buffer<Type>(usage_flag),
+    device_{device},
     buffer_{device->memoryResource()}
 {
 }
@@ -42,6 +43,22 @@ CpuBuffer<Type>::CpuBuffer(CpuDevice* device,
     CpuBuffer(device, usage_flag)
 {
   setSize(size);
+}
+
+/*!
+  */
+template <typename Type> inline
+zisc::pmr::vector<Type>& CpuBuffer<Type>::buffer() noexcept
+{
+  return buffer_;
+}
+
+/*!
+  */
+template <typename Type> inline
+const zisc::pmr::vector<Type>& CpuBuffer<Type>::buffer() const noexcept
+{
+  return buffer_;
 }
 
 /*!
@@ -92,7 +109,8 @@ void CpuBuffer<Type>::read(Type* host_data) const noexcept
 template <typename Type> inline
 void CpuBuffer<Type>::setSize(const std::size_t size) noexcept
 {
-  buffer_.resize(size);
+  device_->deallocate(this);
+  device_->allocate(size, this);
 }
 
 /*!

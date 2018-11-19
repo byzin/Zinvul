@@ -286,11 +286,8 @@ std::array<uint32b, 3> VulkanDevice::getWorkgroupSize(const uint32b dimension)
   {
     return std::accumulate(s.begin(), s.end(), 1u, std::multiplies<uint32b>());
   };
-  for (uint32b i = 0;
-       product(workgroup_size) < subgroup_size;
-       i = ((i + 1) == dimension) ? 0 : i + 1 ) {
+  for (uint32b i = 0; product(workgroup_size) < subgroup_size; i = (i + 1) % dimension)
     workgroup_size[i] *= 2;
-  }
   ZISC_ASSERT(product(workgroup_size) == subgroup_size,
               "The subgroup size should be power of 2: ", subgroup_size);
   return workgroup_size;
@@ -375,10 +372,16 @@ void VulkanDevice::setShaderModule(const zisc::pmr::vector<uint32b>& spirv_code,
 /*!
   */
 inline
-void VulkanDevice::submit(const vk::CommandBuffer& command) noexcept
+void VulkanDevice::submit(const uint32b queue_index,
+                          const vk::CommandBuffer& command) noexcept
 {
+  // Compute the actual queue index
+  const auto& queue_family_info =
+      physicalDeviceInfo().queue_family_list_[queue_family_index_];
+  const uint32b index = queue_index % queue_family_info.queueCount;
+
   const vk::SubmitInfo info{0, nullptr, nullptr, 1, &command};
-  auto q = device_.getQueue(queue_family_index_, 0);
+  auto q = device_.getQueue(queue_family_index_, index);
   const auto result = q.submit(1, &info, nullptr);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Command submission failed.");
 }
@@ -396,8 +399,12 @@ void VulkanDevice::unmapMemory(const VulkanBuffer<Type>& buffer) const noexcept
 inline
 void VulkanDevice::waitForCompletion() noexcept
 {
-  auto q = device_.getQueue(queue_family_index_, 0);
-  q.waitIdle();
+  const auto& queue_family_info =
+      physicalDeviceInfo().queue_family_list_[queue_family_index_];
+  for (uint32b index = 0; index < queue_family_info.queueCount; ++index) {
+    auto q = device_.getQueue(queue_family_index_, index);
+    q.waitIdle();
+  }
 }
 
 /*!
@@ -605,9 +612,11 @@ void VulkanDevice::initDevice() noexcept
   device_features.shaderInt16 = device_info.features_.shaderInt16;
 
   const float priority = 0.0f;
+  const auto& queue_family_info =
+      physicalDeviceInfo().queue_family_list_[queue_family_index_];
   const vk::DeviceQueueCreateInfo queue_create_info{vk::DeviceQueueCreateFlags{},
                                                     queue_family_index_,
-                                                    1,
+                                                    queue_family_info.queueCount,
                                                     &priority};
   const vk::DeviceCreateInfo device_create_info{
       vk::DeviceCreateFlags{},
@@ -696,9 +705,9 @@ void VulkanDevice::initPhysicalDevice(const DeviceOptions& options) noexcept
   auto [result, physical_device_list] = instance_.enumeratePhysicalDevices();
   ZISC_ASSERT(result == vk::Result::eSuccess,
               "Vulkan physical device enumeration failed.");
-  ZISC_ASSERT(options.device_number_ < physical_device_list.size(),
+  ZISC_ASSERT(options.vulkan_device_number_ < physical_device_list.size(),
               "The specified device doesn't exist.");
-  physical_device_ = physical_device_list[options.device_number_];
+  physical_device_ = physical_device_list[options.vulkan_device_number_];
   device_info_ = getPhysicalDeviceInfo(physical_device_);
 }
 

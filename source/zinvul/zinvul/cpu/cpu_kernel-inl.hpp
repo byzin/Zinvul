@@ -17,6 +17,7 @@
 #include <type_traits>
 // Zisc
 #include "zisc/error.hpp"
+#include "zisc/function_reference.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "cpu_buffer.hpp"
@@ -86,7 +87,8 @@ template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
 void CpuKernel<GroupType, kDimension, ArgumentTypes...>::run(
     BufferRef<ArgumentTypes>... args,
-    const std::array<uint32b, kDimension> works) noexcept
+    const std::array<uint32b, kDimension> works,
+    const uint32b /* queue_index */) noexcept
 {
   ZISC_ASSERT(kernel_ != nullptr, "The kernel function is null.");
 
@@ -96,15 +98,12 @@ void CpuKernel<GroupType, kDimension, ArgumentTypes...>::run(
     num_of_works[i] = works[i];
   }
 
-  KernelGroupType instance;
-  for (uint32b z = 0; z < num_of_works[2]; ++z) {
-    for (uint32b y = 0; y < num_of_works[1]; ++y) {
-      for (uint32b x = 0; x < num_of_works[0]; ++x) {
-        instance.setGlobalWorkId__({x, y, z});
-        (instance.*kernel_)(refer<ArgumentTypes>(args)...);
-      }
-    }
-  }
+  using Command = typename CpuDevice::Command<KernelGroupType>;
+  const Command command{[this, &args...](KernelGroupType& instance)
+  {
+    (instance.*kernel_)(refer<ArgumentTypes>(args)...);
+  }};
+  device_->submit(num_of_works, command);
 }
 
 /*!

@@ -39,6 +39,12 @@ class CpuBuffer : public Buffer<Type>
             const std::size_t size) noexcept;
 
 
+  //! Return the buffer body
+  zisc::pmr::vector<Type>& buffer() noexcept;
+
+  //! Return the buffer body
+  const zisc::pmr::vector<Type>& buffer() const noexcept;
+
   //! Return a data from a cpu buffer
   Type* data() noexcept;
 
@@ -64,6 +70,7 @@ class CpuBuffer : public Buffer<Type>
   void write(const Type* data) noexcept override;
 
  private:
+  CpuDevice* device_;
   zisc::pmr::vector<Type> buffer_;
 };
 

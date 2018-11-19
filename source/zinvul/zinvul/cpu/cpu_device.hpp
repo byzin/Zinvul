@@ -11,8 +11,13 @@
 #define ZINVUL_CPU_DEVICE_HPP
 
 // Standard C++ library
+#include <array>
 #include <cstddef>
 // Zisc
+#include "zisc/function_reference.hpp"
+#include "zisc/memory_resource.hpp"
+#include "zisc/spin_lock_mutex.hpp"
+#include "zisc/thread_manager.hpp"
 #include "zisc/unique_memory_pointer.hpp"
 // Zinvul
 #include "zinvul/buffer.hpp"
@@ -22,14 +27,29 @@
 
 namespace zinvul {
 
+// Forward declaration
+template <typename> class CpuBuffer;
+
 /*!
   */
 class CpuDevice : public Device
 {
  public:
+  template <typename GroupType>
+  using Command = zisc::FunctionReference<void (GroupType&)>;
+
+
   //! Initialize a cpu device
   CpuDevice(DeviceOptions& options) noexcept;
 
+
+  //! Allocate a memory of a buffer
+  template <typename Type>
+  void allocate(const std::size_t size, CpuBuffer<Type>* buffer) noexcept;
+
+  //! Deallocate a memory of a buffer
+  template <typename Type>
+  void deallocate(CpuBuffer<Type>* buffer) noexcept;
 
   //! Return cpu type
   DeviceType deviceType() const noexcept override;
@@ -43,8 +63,21 @@ class CpuDevice : public Device
   UniqueKernel<GroupType, kDimension, ArgumentTypes...> makeKernel(
       const typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction func) noexcept;
 
+  //! Return the subgroup size
+  uint32b subgroupSize() const noexcept;
+
+  //! Submit a command
+  template <typename GroupType>
+  void submit(const std::array<uint32b, 3>& works,
+              const Command<GroupType>& command) noexcept;
+
   //! Wait this thread until all commands in the queue are completed
   void waitForCompletion() noexcept override;
+
+ private:
+  zisc::ThreadManager thread_manager_;
+  uint32b subgroup_size_;
+  zisc::SpinLockMutex mutex_;
 };
 
 } // namespace zinvul

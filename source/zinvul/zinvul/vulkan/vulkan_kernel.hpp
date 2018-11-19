@@ -59,7 +59,8 @@ class VulkanKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
 
   //! Execute a kernel
   void run(BufferRef<ArgumentTypes>... args,
-           const std::array<uint32b, kDimension> works) noexcept override;
+           const std::array<uint32b, kDimension> works,
+           const uint32b queue_index = 0) noexcept override;
 
  private:
   //! Bind buffers

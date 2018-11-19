@@ -30,6 +30,7 @@
 
 namespace zinvul {
 
+// Forward declaration
 template <typename> class VulkanBuffer;
 
 /*!
@@ -129,7 +130,8 @@ class VulkanDevice : public Device
                        const std::size_t index) noexcept;
 
   //! Submit a command
-  void submit(const vk::CommandBuffer& command) noexcept;
+  void submit(const uint32b queue_index,
+              const vk::CommandBuffer& command) noexcept;
 
   //! Unmap a buffer memory
   template <typename Type>
