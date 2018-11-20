@@ -421,27 +421,30 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDevice::debugMessengerCallback(
   std::string message;
 
   {
-    char prefix[64];
+    char prefix[64] = "";
     if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-      std::strcpy(prefix, "VERBOSE : ");
+      std::strcat(prefix, "VERBOSE : ");
     }
     else if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-      std::strcpy(prefix, "INFO : ");
+      std::strcat(prefix, "INFO : ");
     }
     else if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-      std::strcpy(prefix, "WARNING : ");
+      std::strcat(prefix, "WARNING : ");
     }
     else if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-      std::strcpy(prefix, "ERROR : ");
+      std::strcat(prefix, "ERROR : ");
       is_error = true;
     }
 
-    if (message_type & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT)
+    if (message_type & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) {
       std::strcat(prefix, "GENERAL");
-    else if (message_type & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT)
+    }
+    else if (message_type & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) {
       std::strcat(prefix, "VALIDATION");
-    else if (message_type & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
+    }
+    else if (message_type & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) {
       std::strcat(prefix, "PERF");
+    }
 
     char tmp_message[max_add_message_length];
     std::sprintf(tmp_message, "%s - Message ID Number %d, Message ID Name %s :\n%s",
@@ -573,6 +576,8 @@ void VulkanDevice::initDebugMessenger() noexcept
   create_info.pNext = nullptr;
   create_info.flags = 0;
   create_info.messageSeverity =
+//      VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+//      VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
       VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
       VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
   create_info.messageType =
