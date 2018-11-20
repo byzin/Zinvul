@@ -25,10 +25,14 @@ class CpuDevice;
 
 /*!
   */
-template <typename Type>
-class CpuBuffer : public Buffer<Type>
+template <typename T>
+class CpuBuffer : public Buffer<T>
 {
  public:
+  //! The type of the buffer. "const", "volatile" and "reference" are removed
+  using Type = typename Buffer<T>::Type;
+
+
   //! Create an empty buffer
   CpuBuffer(CpuDevice* device,
             const BufferUsage usage_flag) noexcept;

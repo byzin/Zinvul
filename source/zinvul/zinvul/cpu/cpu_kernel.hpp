@@ -54,10 +54,21 @@ class CpuKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
   //! Return a kernel function
   KernelFunction kernel() const noexcept;
 
+  //! Check if this has a kernel
+  bool hasKernel() const noexcept;
+
   //! Execute a kernel
   void run(BufferRef<ArgumentTypes>... args,
            const std::array<uint32b, kDimension> works,
-           const uint32b queue_index = 0) noexcept override;
+           const uint32b /* queue_index*/) noexcept override
+  {
+    using Command = typename CpuDevice::Command<KernelGroupType>;
+    const Command command{[this, &args...](KernelGroupType& instance)
+    {
+      (instance.*kernel())(refer<ArgumentTypes>(args)...);
+    }};
+    device_->submit(this->getNumOfWorks(works), command);
+  }
 
   //! Set a kernel function
   void setKernel(const KernelFunction kernel) noexcept;

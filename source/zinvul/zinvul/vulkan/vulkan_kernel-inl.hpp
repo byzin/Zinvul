@@ -110,23 +110,9 @@ DeviceType VulkanKernel<GroupType, kDimension, ArgumentTypes...>::deviceType()
 /*!
   */
 template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
-inline
-void VulkanKernel<GroupType, kDimension, ArgumentTypes...>::run(
-    BufferRef<ArgumentTypes>... args,
-    const std::array<uint32b, kDimension> works,
-    const uint32b queue_index) noexcept
-{
-  bindBuffers(args...);
-  dispatch(works);
-  device_->submit(queue_index, command_buffer_);
-}
-
-/*!
-  */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
-inline
+template <typename ...Buffers> inline
 void VulkanKernel<GroupType, kDimension, ArgumentTypes...>::bindBuffers(
-    BufferRef<ArgumentTypes>... args) noexcept
+    std::add_lvalue_reference_t<Buffers>... args) noexcept
 {
   constexpr std::size_t n = KernelBase::numOfArguments();
   std::array<vk::Buffer, n> buffer_list{refer<ArgumentTypes>(args)...};
@@ -151,11 +137,11 @@ void VulkanKernel<GroupType, kDimension, ArgumentTypes...>::dispatch(
     std::array<uint32b, kDimension> works) noexcept
 {
   const auto workgroup_size = device_->getWorkgroupSize(this->workgroupDimension());
-  std::array<uint32b, 3> num_of_works{{1, 1, 1}};
-  for (std::size_t i = 0; i < works.size(); ++i) {
-    num_of_works[i] = ((works[i] % workgroup_size[i]) == 0)
-        ? works[i] / workgroup_size[i]
-        : works[i] / workgroup_size[i] + 1;
+  auto num_of_works = this->getNumOfWorks(works);
+  for (std::size_t i = 0; i < this->workgroupDimension(); ++i) {
+    num_of_works[i] = ((num_of_works[i] % workgroup_size[i]) == 0)
+        ? num_of_works[i] / workgroup_size[i]
+        : num_of_works[i] / workgroup_size[i] + 1;
   }
 
   const vk::CommandBufferBeginInfo begin_info{};
@@ -334,7 +320,7 @@ vk::Buffer& VulkanKernel<GroupType, kDimension, ArgumentTypes...>::refer(
   ZISC_ASSERT(buffer.deviceType() == DeviceType::kVulkan,
               "The device type of the buffer isn't vulkan.");
   using VulkanBufferP =
-      std::add_pointer_t<VulkanBuffer<std::remove_cv_t<std::remove_pointer_t<Type>>>>;
+      std::add_pointer_t<VulkanBuffer<std::remove_pointer_t<Type>>>;
   auto vulkan_buffer = zisc::cast<VulkanBufferP>(&buffer);
   return vulkan_buffer->buffer();
 }

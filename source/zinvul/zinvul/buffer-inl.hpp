@@ -20,39 +20,39 @@ namespace zinvul {
 
 /*!
   */
-template <typename Type> inline
-Buffer<Type>::Buffer(const BufferUsage usage_flag) noexcept :
+template <typename T> inline
+Buffer<T>::Buffer(const BufferUsage usage_flag) noexcept :
     usage_flag_{usage_flag}
 {
 }
 
 /*!
   */
-template <typename Type> inline
-Buffer<Type>::~Buffer() noexcept
+template <typename T> inline
+Buffer<T>::~Buffer() noexcept
 {
 }
 
 /*!
   */
-template <typename Type> inline
-bool Buffer<Type>::isHostReadable() const noexcept
+template <typename T> inline
+bool Buffer<T>::isHostReadable() const noexcept
 {
   return usage() == BufferUsage::kDeviceToHost;
 }
 
 /*!
   */
-template <typename Type> inline
-bool Buffer<Type>::isHostWritable() const noexcept
+template <typename T> inline
+bool Buffer<T>::isHostWritable() const noexcept
 {
   return usage() == BufferUsage::kHostToDevice;
 }
 
 /*!
   */
-template <typename Type> inline
-BufferUsage Buffer<Type>::usage() const noexcept
+template <typename T> inline
+BufferUsage Buffer<T>::usage() const noexcept
 {
   return usage_flag_;
 }

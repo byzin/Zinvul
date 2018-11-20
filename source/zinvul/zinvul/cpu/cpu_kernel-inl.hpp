@@ -78,6 +78,7 @@ inline
 auto CpuKernel<GroupType, kDimension, ArgumentTypes...>::kernel() const noexcept
     -> KernelFunction
 {
+  ZISC_ASSERT(kernel_ != nullptr, "The kernel function is null.");
   return kernel_;
 }
 
@@ -85,25 +86,10 @@ auto CpuKernel<GroupType, kDimension, ArgumentTypes...>::kernel() const noexcept
   */
 template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-void CpuKernel<GroupType, kDimension, ArgumentTypes...>::run(
-    BufferRef<ArgumentTypes>... args,
-    const std::array<uint32b, kDimension> works,
-    const uint32b /* queue_index */) noexcept
+bool CpuKernel<GroupType, kDimension, ArgumentTypes...>::hasKernel() const noexcept
 {
-  ZISC_ASSERT(kernel_ != nullptr, "The kernel function is null.");
-
-  std::array<uint32b, 3> num_of_works{{1, 1, 1}};
-  for (std::size_t i = 0; i < works.size(); ++i) {
-    ZISC_ASSERT(0 < works[i], "The workgroup size is 0.");
-    num_of_works[i] = works[i];
-  }
-
-  using Command = typename CpuDevice::Command<KernelGroupType>;
-  const Command command{[this, &args...](KernelGroupType& instance)
-  {
-    (instance.*kernel_)(refer<ArgumentTypes>(args)...);
-  }};
-  device_->submit(num_of_works, command);
+  const bool result = kernel_ != nullptr;
+  return result;
 }
 
 /*!
@@ -120,14 +106,13 @@ void CpuKernel<GroupType, kDimension, ArgumentTypes...>::setKernel(
   */
 template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
 template <typename Type> inline
-Type CpuKernel<GroupType, kDimension, ArgumentTypes...>::refer(BufferRef<Type> buffer)
-    const noexcept
+Type CpuKernel<GroupType, kDimension, ArgumentTypes...>::refer(
+    BufferRef<Type> buffer) const noexcept
 {
   ZISC_ASSERT(buffer.deviceType() == DeviceType::kCpu,
               "The device type of the buffer isn't cpu.");
   ZISC_ASSERT(0 < buffer.size(), "The buffer is empty.");
-  using CpuBufferP =
-      std::add_pointer_t<CpuBuffer<std::remove_cv_t<std::remove_pointer_t<Type>>>>;
+  using CpuBufferP = std::add_pointer_t<CpuBuffer<std::remove_pointer_t<Type>>>;
   auto cpu_buffer = zisc::cast<CpuBufferP>(&buffer);
   if constexpr (std::is_pointer_v<Type>)
     return cpu_buffer->data();

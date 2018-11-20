@@ -23,10 +23,15 @@ namespace zinvul {
 
 /*!
   */
-template <typename Type>
-class Buffer : private zisc::NonCopyable<Buffer<Type>>
+template <typename T>
+class Buffer : private zisc::NonCopyable<Buffer<T>>
 {
+  static_assert(!std::is_pointer_v<T>, "Pointer type is restricted.");
  public:
+  //! The type of the buffer. "const", "volatile" and "reference" are removed
+  using Type = std::remove_reference_t<std::remove_cv_t<T>>;
+
+
   //! Initialize a buffer
   Buffer(const BufferUsage usage_flag) noexcept;
 

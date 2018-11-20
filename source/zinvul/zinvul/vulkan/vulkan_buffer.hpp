@@ -26,10 +26,14 @@ class VulkanDevice;
 
 /*!
   */
-template <typename Type>
-class VulkanBuffer : public Buffer<Type>
+template <typename T>
+class VulkanBuffer : public Buffer<T>
 {
  public:
+  //! The type of the buffer. "const", "volatile" and "reference" are removed
+  using Type = typename Buffer<T>::Type;
+
+
   //! Create an empty buffer
   VulkanBuffer(VulkanDevice* device,
                const BufferUsage usage_flag) noexcept;

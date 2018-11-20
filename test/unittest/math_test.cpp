@@ -34,7 +34,7 @@ TEST(MathTest, ConstantValueTest)
     pi_buffer->setSize(1);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testConstantValues, 1);
-    kernel->run(*pi_buffer, {1});
+    kernel->run(*pi_buffer, {1}, 0);
     device->waitForCompletion();
 
     {

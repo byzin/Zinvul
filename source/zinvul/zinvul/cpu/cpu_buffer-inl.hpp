@@ -25,10 +25,10 @@ namespace zinvul {
 
 /*!
   */
-template <typename Type> inline
-CpuBuffer<Type>::CpuBuffer(CpuDevice* device,
+template <typename T> inline
+CpuBuffer<T>::CpuBuffer(CpuDevice* device,
                            const BufferUsage usage_flag) noexcept :
-    Buffer<Type>(usage_flag),
+    Buffer<T>(usage_flag),
     device_{device},
     buffer_{device->memoryResource()}
 {
@@ -36,8 +36,8 @@ CpuBuffer<Type>::CpuBuffer(CpuDevice* device,
 
 /*!
   */
-template <typename Type> inline
-CpuBuffer<Type>::CpuBuffer(CpuDevice* device,
+template <typename T> inline
+CpuBuffer<T>::CpuBuffer(CpuDevice* device,
                            const BufferUsage usage_flag,
                            const std::size_t size) noexcept :
     CpuBuffer(device, usage_flag)
@@ -47,48 +47,48 @@ CpuBuffer<Type>::CpuBuffer(CpuDevice* device,
 
 /*!
   */
-template <typename Type> inline
-zisc::pmr::vector<Type>& CpuBuffer<Type>::buffer() noexcept
+template <typename T> inline
+auto CpuBuffer<T>::buffer() noexcept -> zisc::pmr::vector<Type>&
 {
   return buffer_;
 }
 
 /*!
   */
-template <typename Type> inline
-const zisc::pmr::vector<Type>& CpuBuffer<Type>::buffer() const noexcept
+template <typename T> inline
+auto CpuBuffer<T>::buffer() const noexcept -> const zisc::pmr::vector<Type>&
 {
   return buffer_;
 }
 
 /*!
   */
-template <typename Type> inline
-Type* CpuBuffer<Type>::data() noexcept
+template <typename T> inline
+auto CpuBuffer<T>::data() noexcept -> Type*
 {
   return buffer_.data();
 }
 
 /*!
   */
-template <typename Type> inline
-const Type* CpuBuffer<Type>::data() const noexcept
+template <typename T> inline
+auto CpuBuffer<T>::data() const noexcept -> const Type*
 {
   return buffer_.data();
 }
 
 /*!
   */
-template <typename Type> inline
-DeviceType CpuBuffer<Type>::deviceType() const noexcept
+template <typename T> inline
+DeviceType CpuBuffer<T>::deviceType() const noexcept
 {
   return DeviceType::kCpu;
 }
 
 /*!
   */
-template <typename Type> inline
-std::size_t CpuBuffer<Type>::memoryUsage() const noexcept
+template <typename T> inline
+std::size_t CpuBuffer<T>::memoryUsage() const noexcept
 {
   const std::size_t memory_usage = sizeof(Type) * size();
   return memory_usage;
@@ -96,8 +96,8 @@ std::size_t CpuBuffer<Type>::memoryUsage() const noexcept
 
 /*!
   */
-template <typename Type> inline
-void CpuBuffer<Type>::read(Type* host_data) const noexcept
+template <typename T> inline
+void CpuBuffer<T>::read(Type* host_data) const noexcept
 {
   ZISC_ASSERT(this->isHostReadable(), "The buffer isn't host readable.");
   const std::size_t count = sizeof(Type) * size();
@@ -106,8 +106,8 @@ void CpuBuffer<Type>::read(Type* host_data) const noexcept
 
 /*!
   */
-template <typename Type> inline
-void CpuBuffer<Type>::setSize(const std::size_t size) noexcept
+template <typename T> inline
+void CpuBuffer<T>::setSize(const std::size_t size) noexcept
 {
   device_->deallocate(this);
   device_->allocate(size, this);
@@ -115,16 +115,16 @@ void CpuBuffer<Type>::setSize(const std::size_t size) noexcept
 
 /*!
   */
-template <typename Type> inline
-std::size_t CpuBuffer<Type>::size() const noexcept
+template <typename T> inline
+std::size_t CpuBuffer<T>::size() const noexcept
 {
   return buffer_.size();
 }
 
 /*!
   */
-template <typename Type> inline
-void CpuBuffer<Type>::write(const Type* host_data) noexcept
+template <typename T> inline
+void CpuBuffer<T>::write(const Type* host_data) noexcept
 {
   ZISC_ASSERT(this->isHostWritable(), "The buffer isn't host writable.");
   const std::size_t count = sizeof(Type) * size();

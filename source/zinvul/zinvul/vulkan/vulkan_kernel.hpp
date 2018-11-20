@@ -13,11 +13,13 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <type_traits>
 // Vulkan
 #include <vulkan/vulkan.hpp>
 // Zinvul
-#include "zinvul/zinvul.hpp"
+#include "zinvul/buffer.hpp"
 #include "zinvul/kernel_group.hpp"
+#include "zinvul/zinvul.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
@@ -60,11 +62,17 @@ class VulkanKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
   //! Execute a kernel
   void run(BufferRef<ArgumentTypes>... args,
            const std::array<uint32b, kDimension> works,
-           const uint32b queue_index = 0) noexcept override;
+           const uint32b queue_index) noexcept override
+  {
+    bindBuffers<BufferRef<ArgumentTypes>...>(args...);
+    dispatch(works);
+    device_->submit(queue_index, command_buffer_);
+  }
 
  private:
   //! Bind buffers
-  void bindBuffers(BufferRef<ArgumentTypes>... args) noexcept;
+  template <typename ...Buffers>
+  void bindBuffers(std::add_lvalue_reference_t<Buffers>... args) noexcept;
 
   //! Dispatch
   void dispatch(const std::array<uint32b, kDimension> works) noexcept;

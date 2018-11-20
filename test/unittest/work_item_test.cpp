@@ -38,7 +38,7 @@ TEST(WorkItemTest, CpuTest)
     buffer2->write(&resolution);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), work_item, test1dWorkSize, 1);
-    kernel->run(*buffer1, *buffer2, {resolution});
+    kernel->run(*buffer1, *buffer2, {resolution}, 0);
     device->waitForCompletion();
 
     std::vector<zinvul::uint32b> result;

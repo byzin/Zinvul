@@ -41,7 +41,7 @@ class Kernel : private zisc::NonCopyable<Kernel<GroupType, kDimension, ArgumentT
 
  protected:
   template <typename Type>
-  using BufferRef = std::add_lvalue_reference_t<Buffer<std::remove_cv_t<std::remove_pointer_t<Type>>>>;
+  using BufferRef = std::add_lvalue_reference_t<Buffer<std::remove_pointer_t<Type>>>;
 
  public:
   using KernelGroupType = GroupType;
@@ -58,7 +58,7 @@ class Kernel : private zisc::NonCopyable<Kernel<GroupType, kDimension, ArgumentT
   //! Execute a kernel
   virtual void run(BufferRef<ArgumentTypes>... args,
                    const std::array<uint32b, kDimension> works,
-                   const uint32b queue_index = 0) noexcept = 0;
+                   const uint32b queue_index) noexcept = 0;
 
   //! Return the number of a kernel arguments
   static constexpr std::size_t numOfArguments() noexcept;
@@ -66,7 +66,10 @@ class Kernel : private zisc::NonCopyable<Kernel<GroupType, kDimension, ArgumentT
   //! Return the workgroup dimension
   static constexpr std::size_t workgroupDimension() noexcept;
 
- private:
+ protected:
+  //! Return the 3-dimensions works
+  std::array<uint32b, 3> getNumOfWorks(const std::array<uint32b, kDimension>& works)
+      const noexcept;
 };
 
 // Type aliases
