@@ -44,4 +44,37 @@ uint getGlobalIdZ()
   return id;
 }
 
+/*!
+  */
+float2 makeFloat2(const float x, const float y)
+{
+#ifdef ZINVUL_CPP_CL
+  return float2{x, y};
+#else // ZINVUL_CPP_CL
+  return (float2)(x, y);
+#endif // ZINVUL_CPP_CL
+}
+
+/*!
+  */
+float3 makeFloat3(const float x, const float y, const float z)
+{
+#ifdef ZINVUL_CPP_CL
+  return float3{x, y, z};
+#else // ZINVUL_CPP_CL
+  return (float3)(x, y, z);
+#endif // ZINVUL_CPP_CL
+}
+
+/*!
+  */
+float4 makeFloat4(const float x, const float y, const float z, const float w)
+{
+#ifdef ZINVUL_CPP_CL
+  return float4{x, y, z, w};
+#else // ZINVUL_CPP_CL
+  return (float4)(x, y, z, w);
+#endif // ZINVUL_CPP_CL
+}
+
 #endif /* ZINVUL_UTILITY_CL */

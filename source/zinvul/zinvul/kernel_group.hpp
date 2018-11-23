@@ -19,6 +19,7 @@
 #include "zisc/spin_lock_mutex.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/cppcl/types.hpp"
 
 namespace zinvul {
 
@@ -32,14 +33,14 @@ class KernelGroup : private zisc::NonCopyable<KernelGroup>
 
 
   //! Return the group number
-  virtual uint32b getKernelGroupNumber__() const noexcept = 0;
+  virtual uint32b __getKernelGroupNumber__() const noexcept = 0;
 
   //! Return the SPIR-V code
-  virtual zisc::pmr::vector<uint32b> getKernelSpirvCode__(
+  virtual zisc::pmr::vector<uint32b> __getKernelSpirvCode__(
       zisc::pmr::memory_resource* mem_resource) const noexcept = 0;
 
   //! Set the global work ID
-  void setGlobalWorkId__(const std::array<uint32b, 3> global_work_id) noexcept;
+  void __setGlobalWorkId__(const std::array<uint32b, 3> global_work_id) noexcept;
 
   //! Set a mutex
   void setMutex(zisc::SpinLockMutex* mutex) noexcept;

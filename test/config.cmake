@@ -18,6 +18,8 @@ function(getTestWarningOption test_warning_flags)
                                 -Wno-exit-time-destructors
                                 -Wno-float-equal
                                 -Wno-global-constructors
+                                -Wno-gnu-anonymous-struct
+                                -Wno-nested-anon-types
                                 -Wno-padded
                                 -Wno-weak-vtables
                                 )
@@ -70,6 +72,7 @@ function(buildUnitTest)
   source_group(UnitTest FILES ${unittest_source_files})
   # Set unittest properties
   set_target_properties(UnitTest PROPERTIES CXX_STANDARD 17
+                                            CXX_EXTENSIONS ON
                                             CXX_STANDARD_REQUIRED ON)
   getCxxWarningOption(cxx_warning_flags)
   getTestWarningOption(test_warning_flags)

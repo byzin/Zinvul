@@ -65,6 +65,8 @@ function(loadZinvul zinvul_header_files zinvul_include_dirs zinvul_compile_flags
                             VMA_DEBUG_MARGIN=128
                             VMA_DEBUG_DETECT_CORRUPTION=1)
   endif()
+  # OpenCL
+  list(APPEND definitions ZINVUL_CPP_CL)
 
 
   # Output variables

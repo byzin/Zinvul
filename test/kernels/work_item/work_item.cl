@@ -21,6 +21,9 @@ kernel void test1dWorkSize(global uint32b* work_size_table, const uint32b work_s
   const uint index = getGlobalIdX();
   if (index < work_size)
     work_size_table[index] = index;
+  float3 a = makeFloat3(1.0f, 2.0f, 3.0f);
+  float3 b = makeFloat3(3.0f, 4.0f, 5.0f);
+  const float3 c = a + b;
 }
 
 /*!

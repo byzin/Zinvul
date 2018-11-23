@@ -32,11 +32,6 @@ using uint8b = zisc::uint8b;
 using uint16b = zisc::uint16b;
 using uint32b = zisc::uint32b;
 using uint64b = zisc::uint64b;
-// Pointer types
-using size_t = uint32b;
-using ptrdiff_t = int32b;
-using intptr_t = int32b;
-using uintptr_t = uint32b;
 
 // Device
 

@@ -20,6 +20,8 @@
 // Zinvul
 #include "zinvul/kernel_group.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/cppcl/types.hpp"
+#include "zinvul/cppcl/vector.hpp"
 
 #ifdef Z_CLANG
 #pragma clang diagnostic push
@@ -42,13 +44,13 @@ class KernelGroup : public zinvul::KernelGroup
 @kernel_include_lines@
 
   //! Return the group number
-  uint32b getKernelGroupNumber__() const noexcept override
+  uint32b __getKernelGroupNumber__() const noexcept override
   {
     return @group_number@;
   }
 
   //! Return the SPIR-V code
-  zisc::pmr::vector<uint32b> getKernelSpirvCode__(
+  zisc::pmr::vector<uint32b> __getKernelSpirvCode__(
       zisc::pmr::memory_resource* mem_resource) const noexcept override
   {
 #ifndef ZINVUL_BAKE_KERNELS

@@ -42,9 +42,10 @@
 !/source/zinvul/zinvul/*.hpp.in
 !/source/zinvul/zinvul/*.cpp
 !/source/zinvul/zinvul/cl/
-!/source/zinvul/zinvul/cl/*.hpp
-!/source/zinvul/zinvul/cl/*.cpp
 !/source/zinvul/zinvul/cl/*.cl
+!/source/zinvul/zinvul/cppcl/
+!/source/zinvul/zinvul/cppcl/*.hpp
+!/source/zinvul/zinvul/cppcl/*.cpp
 !/source/zinvul/zinvul/cpu/
 !/source/zinvul/zinvul/cpu/*.hpp
 !/source/zinvul/zinvul/cpu/*.cpp

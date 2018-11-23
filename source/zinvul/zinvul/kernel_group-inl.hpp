@@ -18,6 +18,7 @@
 #include "zisc/spin_lock_mutex.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/cppcl/types.hpp"
 
 namespace zinvul {
 
@@ -31,7 +32,7 @@ KernelGroup::~KernelGroup() noexcept
 /*!
   */
 inline
-void KernelGroup::setGlobalWorkId__(const std::array<uint32b, 3> global_work_id)
+void KernelGroup::__setGlobalWorkId__(const std::array<uint32b, 3> global_work_id)
     noexcept
 {
   global_work_id_ = global_work_id;

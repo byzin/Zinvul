@@ -119,7 +119,7 @@ void CpuDevice::submit(const std::array<uint32b, 3>& works,
         const uint32b y = (work_id / works[0]) % works[1];
         const uint32b z = work_id / (works[0] * works[1]);
         ZISC_ASSERT(z < works[2], "The computation of work ID is wrong.");
-        instance.setGlobalWorkId__({x, y, z});
+        instance.__setGlobalWorkId__({x, y, z});
         command(instance);
       }
     }
