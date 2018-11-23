@@ -29,6 +29,10 @@ function(getTestWarningOption test_warning_flags)
                                 -Wno-strict-overflow
                                 -Wno-unused-but-set-variable
                                 )
+    elseif(Z_MSVC)
+      list(APPEND warning_flags /wd4201
+                                /wd4996
+                                )
     endif()
   endif()
 
