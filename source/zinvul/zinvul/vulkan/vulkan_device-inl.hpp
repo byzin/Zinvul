@@ -19,7 +19,6 @@
 #include <functional>
 #include <iostream>
 #include <limits>
-#include <numeric>
 #include <string>
 #include <vector>
 // Vulkan
@@ -269,28 +268,6 @@ std::string VulkanDevice::getVendorName(const uint32b vendor_id) noexcept
    }
   }
   return vendor_name;
-}
-
-/*!
-  */
-inline
-std::array<uint32b, 3> VulkanDevice::getWorkgroupSize(const uint32b dimension)
-    const noexcept
-{
-  ZISC_ASSERT(zisc::isInBounds(dimension, 1u, 4u),
-              "The dimension should be 1, 2 or 3.");
-  const auto subgroup_size = physicalDeviceInfo().subgroup_properties_.subgroupSize;
-  std::array<uint32b, 3> workgroup_size{{1, 1, 1}};
-
-  const auto product = [](const std::array<uint32b, 3>& s)
-  {
-    return std::accumulate(s.begin(), s.end(), 1u, std::multiplies<uint32b>());
-  };
-  for (uint32b i = 0; product(workgroup_size) < subgroup_size; i = (i + 1) % dimension)
-    workgroup_size[i] *= 2;
-  ZISC_ASSERT(product(workgroup_size) == subgroup_size,
-              "The subgroup size should be power of 2: ", subgroup_size);
-  return workgroup_size;
 }
 
 /*!
@@ -616,13 +593,14 @@ void VulkanDevice::initDevice() noexcept
   device_features.shaderInt64 = device_info.features_.shaderInt64;
   device_features.shaderInt16 = device_info.features_.shaderInt16;
 
-  const float priority = 0.0f;
   const auto& queue_family_info =
       physicalDeviceInfo().queue_family_list_[queue_family_index_];
+  std::vector<float> priority_list;
+  priority_list.resize(queue_family_info.queueCount, 0.0f);
   const vk::DeviceQueueCreateInfo queue_create_info{vk::DeviceQueueCreateFlags{},
                                                     queue_family_index_,
                                                     queue_family_info.queueCount,
-                                                    &priority};
+                                                    priority_list.data()};
   const vk::DeviceCreateInfo device_create_info{
       vk::DeviceCreateFlags{},
       1,
@@ -697,6 +675,10 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
 #endif // Z_DEBUG_MODE
   initPhysicalDevice(options);
   queue_family_index_ = findQueueFamilyForShader();
+
+  const auto subgroup_size = physicalDeviceInfo().subgroup_properties_.subgroupSize;
+  initWorkgroupSize(subgroup_size);
+
   initDevice();
   initCommandPool();
   initMemoryAllocator();

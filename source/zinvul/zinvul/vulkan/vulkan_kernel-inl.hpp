@@ -136,14 +136,7 @@ inline
 void VulkanKernel<GroupType, kDimension, ArgumentTypes...>::dispatch(
     std::array<uint32b, kDimension> works) noexcept
 {
-  const auto workgroup_size = device_->getWorkgroupSize(this->workgroupDimension());
-  auto num_of_works = this->getNumOfWorks(works);
-  for (std::size_t i = 0; i < this->workgroupDimension(); ++i) {
-    num_of_works[i] = ((num_of_works[i] % workgroup_size[i]) == 0)
-        ? num_of_works[i] / workgroup_size[i]
-        : num_of_works[i] / workgroup_size[i] + 1;
-  }
-
+  const auto group_size = device_->calcWorkGroupSize(works);
   const vk::CommandBufferBeginInfo begin_info{};
   command_buffer_.begin(begin_info);
 
@@ -155,7 +148,7 @@ void VulkanKernel<GroupType, kDimension, ArgumentTypes...>::dispatch(
                                      &descriptor_set_,
                                      0,
                                      nullptr);
-  command_buffer_.dispatch(num_of_works[0], num_of_works[1], num_of_works[2]);
+  command_buffer_.dispatch(group_size[0], group_size[1], group_size[2]);
 
   command_buffer_.end();
 }
@@ -186,7 +179,7 @@ void VulkanKernel<GroupType, kDimension, ArgumentTypes...>::initComputePipeline(
     const char* kernel_name) noexcept
 {
   // Set work group size
-  const auto workgroup_size = device_->getWorkgroupSize(this->workgroupDimension());
+  const auto& workgroup_size = device_->workgroupSize<kDimension>();
   const vk::SpecializationMapEntry entries[] = {
     {0, 0 * sizeof(uint32b), sizeof(uint32b)},
     {1, 1 * sizeof(uint32b), sizeof(uint32b)},

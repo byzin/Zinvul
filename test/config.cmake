@@ -18,8 +18,6 @@ function(getTestWarningOption test_warning_flags)
                                 -Wno-exit-time-destructors
                                 -Wno-float-equal
                                 -Wno-global-constructors
-                                -Wno-gnu-anonymous-struct
-                                -Wno-nested-anon-types
                                 -Wno-padded
                                 -Wno-weak-vtables
                                 )
@@ -30,9 +28,7 @@ function(getTestWarningOption test_warning_flags)
                                 -Wno-unused-but-set-variable
                                 )
     elseif(Z_MSVC)
-      list(APPEND warning_flags /wd4201
-                                /wd4996
-                                )
+      list(APPEND warning_flags )
     endif()
   endif()
 

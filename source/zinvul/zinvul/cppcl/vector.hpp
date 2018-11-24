@@ -13,13 +13,14 @@
 // Standard C++ library
 #include <cstddef>
 // Zisc
-#include "zisc/arith_array.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "types.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
+
+namespace cl {
 
 /*!
   */
@@ -30,17 +31,11 @@ template <typename Type, std::size_t kN> struct Vector;
 template <typename Type>
 struct alignas(2 * sizeof(Type)) Vector<Type, 2>
 {
-  using Array = zisc::ArithArray<Type, 2>;
-
-
   //! Initialize a vector
   Vector() noexcept;
 
   //! Initialize a vector
-  Vector(const Array& data) noexcept;
-
-  //! Initialize a vector
-  Vector(const Type x, const Type y) noexcept;
+  Vector(const Type v0, const Type v1) noexcept;
 
 
   //! Return a reference to the element
@@ -50,25 +45,8 @@ struct alignas(2 * sizeof(Type)) Vector<Type, 2>
   const Type& operator[](const std::size_t index) const noexcept;
 
 
-  union
-  {
-    Array __data_;
-    struct
-    {
-      Type x,
-           y;
-    };
-    struct
-    {
-      Type s0,
-           s1;
-    };
-    struct
-    {
-      Type lo,
-           hi;
-    };
-  };
+  Type x,
+       y;
 };
 
 /*!
@@ -76,17 +54,11 @@ struct alignas(2 * sizeof(Type)) Vector<Type, 2>
 template <typename Type>
 struct alignas(4 * sizeof(Type)) Vector<Type, 3>
 {
-  using Array = zisc::ArithArray<Type, 3>;
-
-
   //! Initialize a vector
   Vector() noexcept;
 
   //! Initialize a vector
-  Vector(const Array& data) noexcept;
-
-  //! Initialize a vector
-  Vector(const Type x, const Type y, const Type z) noexcept;
+  Vector(const Type v0, const Type v1, const Type v2) noexcept;
 
 
   //! Return a reference to the element
@@ -96,33 +68,10 @@ struct alignas(4 * sizeof(Type)) Vector<Type, 3>
   const Type& operator[](const std::size_t index) const noexcept;
 
 
-  union
-  {
-    struct
-    {
-      Array __data_;
-      Type __padding0_;
-    };
-    struct
-    {
-      Type x,
-           y,
-           z,
-           __padding1_;
-    };
-    struct
-    {
-      Type s0,
-           s1,
-           s2,
-           __padding2_;
-    };
-    struct
-    {
-      Vector<Type, 2> lo,
-                      hi;
-    };
-  };
+  Type x,
+       y,
+       z,
+       __padding_;
 };
 
 /*!
@@ -130,17 +79,11 @@ struct alignas(4 * sizeof(Type)) Vector<Type, 3>
 template <typename Type>
 struct alignas(4 * sizeof(Type)) Vector<Type, 4>
 {
-  using Array = zisc::ArithArray<Type, 4>;
-
-
   //! Initialize a vector
   Vector() noexcept;
 
   //! Initialize a vector
-  Vector(const Array& data) noexcept;
-
-  //! Initialize a vector
-  Vector(const Type x, const Type y, const Type z, const Type w) noexcept;
+  Vector(const Type v0, const Type v1, const Type v2, const Type v3) noexcept;
 
 
   //! Return a reference to the element
@@ -150,29 +93,10 @@ struct alignas(4 * sizeof(Type)) Vector<Type, 4>
   const Type& operator[](const std::size_t index) const noexcept;
 
 
-  union
-  {
-    Array __data_;
-    struct
-    {
-      Type x,
-           y,
-           z,
-           w;
-    };
-    struct
-    {
-      Type s0,
-           s1,
-           s2,
-           s3;
-    };
-    struct
-    {
-      Vector<Type, 2> lo,
-                      hi;
-    };
-  };
+  Type x,
+       y,
+       z,
+       w;
 };
 
 //! Compute an addition of two vectors
@@ -232,6 +156,8 @@ using ulong4 = Vector<uint64b, 4>;
 using half4 = Vector<half, 4>;
 using float4 = Vector<float, 4>;
 using double4 = Vector<double, 4>;
+
+} // namespace cl
 
 } // namespace zinvul
 

@@ -65,11 +65,6 @@ class Kernel : private zisc::NonCopyable<Kernel<GroupType, kDimension, ArgumentT
 
   //! Return the workgroup dimension
   static constexpr std::size_t workgroupDimension() noexcept;
-
- protected:
-  //! Return the 3-dimensions works
-  std::array<uint32b, 3> getNumOfWorks(const std::array<uint32b, kDimension>& works)
-      const noexcept;
 };
 
 // Type aliases

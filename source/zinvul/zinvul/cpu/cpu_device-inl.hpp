@@ -15,6 +15,7 @@
 #include <array>
 #include <atomic>
 #include <cstddef>
+#include <numeric>
 #include <type_traits>
 // Zisc
 #include "zisc/error.hpp"
@@ -35,9 +36,9 @@ namespace zinvul {
 inline
 CpuDevice::CpuDevice(DeviceOptions& options) noexcept :
     Device(options),
-    thread_manager_{options.cpu_num_of_threads_, memoryResource()},
-    subgroup_size_{options.cpu_subgroup_size_}
+    thread_manager_{options.cpu_num_of_threads_, memoryResource()}
 {
+  initWorkgroupSize(options.cpu_subgroup_size_);
   ZISC_ASSERT(0 < subgroupSize(), "The subgroup size is zero.");
 }
 
@@ -98,8 +99,8 @@ UniqueKernel<GroupType, kDimension, ArgumentTypes...> CpuDevice::makeKernel(
 
 /*!
   */
-template <typename GroupType> inline
-void CpuDevice::submit(const std::array<uint32b, 3>& works,
+template <std::size_t kDimension, typename GroupType> inline
+void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
                        const Command<GroupType>& command) noexcept
 {
   static_assert(std::is_base_of_v<KernelGroup, GroupType>,
@@ -108,18 +109,21 @@ void CpuDevice::submit(const std::array<uint32b, 3>& works,
   std::atomic<uint32b> id{0};
   auto task = [this, &command, &works, &id](const uint, const uint)
   {
+    uint32b n = std::accumulate(works.begin(), works.end(),
+                                1u, std::multiplies<uint32b>());
+    n = (n % subgroupSize() == 0) ? n / subgroupSize() : n / subgroupSize() + 1;
+
     GroupType instance;
-    instance.setMutex(&mutex_);
-    const uint32b n = works[0] * works[1] * works[2];
-    for (uint32b work_id = 0, group_id = id++; work_id < n; group_id = id++) {
-      for (work_id = group_id * subgroupSize();
-           work_id < zisc::min((group_id + 1) * subgroupSize(), n);
-           ++work_id) {
-        const uint32b x = work_id % works[0];
-        const uint32b y = (work_id / works[0]) % works[1];
-        const uint32b z = work_id / (works[0] * works[1]);
-        ZISC_ASSERT(z < works[2], "The computation of work ID is wrong.");
-        instance.__setGlobalWorkId__({x, y, z});
+    instance.__setMutex(&mutex_);
+    instance.__setLocalWorkSize(workgroupSize<kDimension>());
+    instance.__setWorkGroupSize(calcWorkGroupSize(works));
+    for (uint32b group_id = id++; group_id < n; group_id = id++) {
+      for (uint32b local_id = 0; local_id < subgroupSize(); ++local_id) {
+        const uint32b global_id = group_id * subgroupSize() + local_id;
+        const uint32b x = global_id % works[0];
+        const uint32b y = (1 < kDimension) ? (global_id / works[0]) % works[1] : 0;
+        const uint32b z = (2 < kDimension) ? global_id / (works[0] * works[1]) : 0;
+        instance.__setGlobalWorkId({x, y, z});
         command(instance);
       }
     }
@@ -129,14 +133,6 @@ void CpuDevice::submit(const std::array<uint32b, 3>& works,
   const uint end = thread_manager_.numOfThreads();
   auto result = thread_manager_.enqueueLoop(task, start, end, workResource());
   result.wait();
-}
-
-/*!
-  */
-inline
-uint32b CpuDevice::subgroupSize() const noexcept
-{
-  return subgroup_size_;
 }
 
 /*!

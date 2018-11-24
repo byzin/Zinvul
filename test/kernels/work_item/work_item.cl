@@ -16,20 +16,47 @@
 
 /*!
   */
-kernel void test1dWorkSize(global uint32b* work_size_table, const uint32b work_size)
+kernel void test1dWorkSize(global uint32b* work_size_table, const uint32b resolution)
 {
+  const uint n_func = 8;
   const uint index = getGlobalIdX();
-  if (index < work_size)
-    work_size_table[index] = index;
-  float3 a = makeFloat3(1.0f, 2.0f, 3.0f);
-  float3 b = makeFloat3(3.0f, 4.0f, 5.0f);
-  const float3 c = a + b;
+  if (index < resolution) {
+    work_size_table[n_func * index    ] = index;
+    work_size_table[n_func * index + 1] = get_global_offset(0);
+    work_size_table[n_func * index + 2] = get_global_size(0);
+    work_size_table[n_func * index + 3] = get_group_id(0);
+    work_size_table[n_func * index + 4] = get_local_id(0);
+    work_size_table[n_func * index + 5] = get_local_size(0);
+    work_size_table[n_func * index + 6] = get_num_groups(0);
+    work_size_table[n_func * index + 7] = resolution;
+  }
 }
 
-/*!
-  */
-kernel void getGlobalId2dTest()
+kernel void test2dWorkSize(global uint32b* work_size_table, const uint2 resolution)
 {
+  const uint n_func = 16;
+  const uint x = getGlobalIdX();
+  const uint y = getGlobalIdY();
+  if ((x < resolution.x) && (y < resolution.y)) {
+    const uint index = x + y * resolution.x;
+    work_size_table[n_func * index    ] = x;
+    work_size_table[n_func * index + 1] = y;
+    work_size_table[n_func * index + 2] = get_global_offset(0);
+    work_size_table[n_func * index + 3] = get_global_offset(1);
+    work_size_table[n_func * index + 4] = get_global_size(0);
+    work_size_table[n_func * index + 5] = get_global_size(1);
+    work_size_table[n_func * index + 6] = get_group_id(0);
+    work_size_table[n_func * index + 7] = get_group_id(1);
+    work_size_table[n_func * index + 8] = get_local_id(0);
+    work_size_table[n_func * index + 9] = get_local_id(1);
+    work_size_table[n_func * index + 10] = get_local_size(0);
+    work_size_table[n_func * index + 11] = get_local_size(1);
+    work_size_table[n_func * index + 12] = get_num_groups(0);
+    work_size_table[n_func * index + 13] = get_num_groups(1);
+    work_size_table[n_func * index + 14] = resolution.x;
+    work_size_table[n_func * index + 15] = resolution.y;
+  }
 }
+
 
 #endif /* ZINVUL_WORK_ITEM_TEST_WORK_ITEM_CL */

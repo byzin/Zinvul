@@ -67,7 +67,7 @@ class CpuKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
     {
       (instance.*kernel())(refer<ArgumentTypes>(args)...);
     }};
-    device_->submit(this->getNumOfWorks(works), command);
+    device_->submit(works, command);
   }
 
   //! Set a kernel function

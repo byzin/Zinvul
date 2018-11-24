@@ -111,10 +111,9 @@ struct KernelFunction<void (GroupType::*)(ArgumentTypes...)>
 #ifdef ZINVUL_ENABLE_VULKAN_BACKEND
      case DeviceType::kVulkan: {
       auto d = zisc::cast<VulkanDevice*>(device);
-      const uint32b module_index = GroupType{}.__getKernelGroupNumber__();
+      const uint32b module_index = GroupType{}.__getKernelGroupNumber();
       if (!d->hasShaderModule(module_index)) {
-        const auto spirv_code =
-            GroupType{}.__getKernelSpirvCode__(d->workResource());
+        const auto spirv_code = GroupType{}.__getKernelSpirvCode(d->workResource());
         d->setShaderModule(spirv_code, module_index);
       }
       kernel = d->makeKernel<GroupType, kDimension, ArgumentTypes...>(module_index,

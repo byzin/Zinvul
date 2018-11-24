@@ -102,9 +102,6 @@ class VulkanDevice : public Device
   //! Return the vendor name corresponding to the vendor ID
   static std::string getVendorName(const uint32b vendorId) noexcept;
 
-  //! Get the workgroup size
-  std::array<uint32b, 3> getWorkgroupSize(const uint32b dimension) const noexcept;
-
   //! Check if the device has the shader module
   bool hasShaderModule(const std::size_t index) const noexcept;
 

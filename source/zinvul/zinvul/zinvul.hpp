@@ -24,6 +24,8 @@
 #include "vulkan/vulkan_kernel.hpp"
 #endif // ZINVUL_ENABLE_VULKAN_BACKEND
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/cppcl/types.hpp"
+#include "zinvul/cppcl/vector.hpp"
 
 namespace zinvul {
 

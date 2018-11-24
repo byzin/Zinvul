@@ -33,32 +33,58 @@ class KernelGroup : private zisc::NonCopyable<KernelGroup>
 
 
   //! Return the group number
-  virtual uint32b __getKernelGroupNumber__() const noexcept = 0;
+  virtual uint32b __getKernelGroupNumber() const noexcept = 0;
 
   //! Return the SPIR-V code
-  virtual zisc::pmr::vector<uint32b> __getKernelSpirvCode__(
+  virtual zisc::pmr::vector<uint32b> __getKernelSpirvCode(
       zisc::pmr::memory_resource* mem_resource) const noexcept = 0;
 
   //! Set the global work ID
-  void __setGlobalWorkId__(const std::array<uint32b, 3> global_work_id) noexcept;
+  void __setGlobalWorkId(const std::array<uint32b, 3>& id) noexcept;
+
+  //! Set the local work size
+  void __setLocalWorkSize(const std::array<uint32b, 3>& size) noexcept;
 
   //! Set a mutex
-  void setMutex(zisc::SpinLockMutex* mutex) noexcept;
+  void __setMutex(zisc::SpinLockMutex* mutex) noexcept;
+
+  //! Set the work group size
+  void __setWorkGroupSize(const std::array<uint32b, 3>& size) noexcept;
 
   // OpenCL functions
 
+  // Work-Item functions
+
   //! Return the global work-item ID
-  size_t get_global_id(const uint dimension) const noexcept;
+  cl::size_t get_global_id(const uint dimension) const noexcept;
 
   //! Return the offset values
-  size_t get_global_offset(const uint dimension) const noexcept;
+  cl::size_t get_global_offset(const uint dimension) const noexcept;
+
+  //! Return the number of global work-items
+  cl::size_t get_global_size(const uint dimension) const noexcept;
+
+  //! Return the work-group ID
+  cl::size_t get_group_id(const uint dimension) const noexcept;
+
+  //! Return the unique local work-item ID
+  cl::size_t get_local_id(const uint dimension) const noexcept;
+
+  //! Return the number of local work-item
+  cl::size_t get_local_size(const uint dimension) const noexcept;
+
+  //! Return the number of work-groups that will execute a kernel
+  cl::size_t get_num_groups(const uint dimension) const noexcept;
 
   //! Return the number of dimensions in use
-  uint get_work_dim() const noexcept;
+  static constexpr uint get_work_dim() noexcept;
 
  private:
   zisc::SpinLockMutex* mutex_ = nullptr;
-  std::array<uint32b, 3> global_work_id_{{0, 0, 0}};
+  std::array<uint32b, 3> local_work_id_{{0, 0, 0}};
+  std::array<uint32b, 3> local_work_size_{{0, 0, 0}};
+  std::array<uint32b, 3> work_group_id_{{0, 0, 0}};
+  std::array<uint32b, 3> work_group_size_{{0, 0, 0}};
 };
 
 } // namespace zinvul

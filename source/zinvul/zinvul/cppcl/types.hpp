@@ -17,6 +17,8 @@
 
 namespace zinvul {
 
+namespace cl {
+
 // Scalar data types
 using uchar = uint8b;
 using ushort = uint16b;
@@ -27,6 +29,8 @@ using size_t = uint32b;
 using ptrdiff_t = int32b;
 using intptr_t = int32b;
 using uintptr_t = uint32b;
+
+} // namespace cl
 
 } // namespace zinvul
 

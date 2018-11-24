@@ -63,12 +63,9 @@ class CpuDevice : public Device
   UniqueKernel<GroupType, kDimension, ArgumentTypes...> makeKernel(
       const typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction func) noexcept;
 
-  //! Return the subgroup size
-  uint32b subgroupSize() const noexcept;
-
   //! Submit a command
-  template <typename GroupType>
-  void submit(const std::array<uint32b, 3>& works,
+  template <std::size_t kDimension, typename GroupType>
+  void submit(const std::array<uint32b, kDimension>& works,
               const Command<GroupType>& command) noexcept;
 
   //! Wait this thread until all commands in the queue are completed
@@ -76,7 +73,6 @@ class CpuDevice : public Device
 
  private:
   zisc::ThreadManager thread_manager_;
-  uint32b subgroup_size_;
   zisc::SpinLockMutex mutex_;
 };
 

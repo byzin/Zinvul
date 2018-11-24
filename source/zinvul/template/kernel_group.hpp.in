@@ -36,6 +36,8 @@ namespace zinvul {
 
 namespace @kernel_group_name@ {
 
+using namespace zinvul::cl;
+
 /*!
   */
 class KernelGroup : public zinvul::KernelGroup
@@ -44,13 +46,13 @@ class KernelGroup : public zinvul::KernelGroup
 @kernel_include_lines@
 
   //! Return the group number
-  uint32b __getKernelGroupNumber__() const noexcept override
+  uint32b __getKernelGroupNumber() const noexcept override
   {
     return @group_number@;
   }
 
   //! Return the SPIR-V code
-  zisc::pmr::vector<uint32b> __getKernelSpirvCode__(
+  zisc::pmr::vector<uint32b> __getKernelSpirvCode(
       zisc::pmr::memory_resource* mem_resource) const noexcept override
   {
 #ifndef ZINVUL_BAKE_KERNELS
