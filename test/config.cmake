@@ -28,7 +28,8 @@ function(getTestWarningOption test_warning_flags)
                                 -Wno-unused-but-set-variable
                                 )
     elseif(Z_MSVC)
-      list(APPEND warning_flags )
+      list(APPEND warning_flags /wd4996
+                                )
     endif()
   endif()
 
