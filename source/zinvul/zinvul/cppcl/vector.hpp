@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_VECTOR_HPP
-#define ZINVUL_VECTOR_HPP
+#ifndef ZINVUL_CL_VECTOR_HPP
+#define ZINVUL_CL_VECTOR_HPP
 
 // Standard C++ library
 #include <cstddef>
@@ -45,6 +45,10 @@ struct alignas(2 * sizeof(Type)) Vector<Type, 2>
   const Type& operator[](const std::size_t index) const noexcept;
 
 
+  //! Return the size of the vector
+  static constexpr std::size_t size() noexcept;
+
+
   Type x,
        y;
 };
@@ -66,6 +70,10 @@ struct alignas(4 * sizeof(Type)) Vector<Type, 3>
 
   //! Return a reference to the element
   const Type& operator[](const std::size_t index) const noexcept;
+
+
+  //! Return the size of the vector
+  static constexpr std::size_t size() noexcept;
 
 
   Type x,
@@ -93,31 +101,412 @@ struct alignas(4 * sizeof(Type)) Vector<Type, 4>
   const Type& operator[](const std::size_t index) const noexcept;
 
 
+  //! Return the size of the vector
+  static constexpr std::size_t size() noexcept;
+
+
   Type x,
        y,
        z,
        w;
 };
 
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator<<=(Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator<<=(Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator>>=(Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator>>=(Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//! Pre-increment a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept;
+
+//! Pre-decrement a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept;
+
+//! Post-increment a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept;
+
+//! Post-decrement a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator--(Vector<Type, kN>& value, int) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator-(const Vector<Type, kN>& value) noexcept;
+
 //! Compute an addition of two vectors
 template <typename Type, std::size_t kN>
 Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute an addition of a scalar and a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator+(const Type& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute an addition of a scalar and a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
+                           const Type& rhs) noexcept;
 
 //! Compute a subtract of two vectors
 template <typename Type, std::size_t kN>
 Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
+//! Compute a subtract of a scalar and a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator-(const Type& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a subtract of a scalar and a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
+                           const Type& rhs) noexcept;
+
 //! Compute a multiplication of two vectors
 template <typename Type, std::size_t kN>
 Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
+//! Compute a multiplication of a scalar and a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator*(const Type& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a multiplication of a scalar and a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
+                           const Type& rhs) noexcept;
+
 //! Compute a division of two vectors
 template <typename Type, std::size_t kN>
 Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a division of a scalar and a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator/(const Type& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a division of a scalar and a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
+                           const Type& rhs) noexcept;
+
+//! Compute a reminder of two vectors
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a reminder of a scalar and a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator%(const Type& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a reminder of a scalar and a vector
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
+                           const Type& rhs) noexcept;
+
+//! Compute a bitwise NOT
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator~(const Vector<Type, kN>& value) noexcept;
+
+//! Compute a bitwise AND
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a bitwise AND
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator&(const Type& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a bitwise AND
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
+                           const Type& rhs) noexcept;
+
+//! Compute a bitwise OR
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a bitwise OR
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator|(const Type& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a bitwise OR
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
+                           const Type& rhs) noexcept;
+
+//! Compute a bitwise XOR
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a bitwise XOR
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator^(const Type& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a bitwise XOR
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
+                           const Type& rhs) noexcept;
+
+//! Compute a left shift
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator<<(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a left shift
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator<<(const Type& lhs,
+                            const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a left shift
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator<<(const Vector<Type, kN>& lhs,
+                            const Type& rhs) noexcept;
+
+//! Compute a right shift
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator>>(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a right shift
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator>>(const Type& lhs,
+                            const Vector<Type, kN>& rhs) noexcept;
+
+//! Compute a right shift
+template <typename Type, std::size_t kN>
+Vector<Type, kN> operator>>(const Vector<Type, kN>& lhs,
+                            const Type& rhs) noexcept;
+
+//! Check if two values are equal in value
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator==(const Vector<Type, kN>& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//! Check if two values are equal in value
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator==(const Type& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//! Check if two values are equal in value
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator==(const Vector<Type, kN>& lhs,
+                              const Type& rhs) noexcept;
+
+//! Check if two values are equal in value
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator!=(const Vector<Type, kN>& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//! Check if two values are equal in value
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator!=(const Type& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//! Check if two values are equal in value
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator!=(const Vector<Type, kN>& lhs,
+                              const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator<(const Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator<(const Type& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator<(const Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator<=(const Vector<Type, kN>& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator<=(const Type& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator<=(const Vector<Type, kN>& lhs,
+                              const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator>(const Vector<Type, kN>& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator>(const Type& lhs,
+                             const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator>(const Vector<Type, kN>& lhs,
+                             const Type& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator>=(const Vector<Type, kN>& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator>=(const Type& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//!
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator>=(const Vector<Type, kN>& lhs,
+                              const Type& rhs) noexcept;
+
+//! Return the result of boolean negation operations
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator!(const Vector<Type, kN>& value) noexcept;
+
+//! Return the result of boolean AND operations
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator&&(const Vector<Type, kN>& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//! Return the result of boolean AND operations
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator&&(const Type& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//! Return the result of boolean AND operations
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator&&(const Vector<Type, kN>& lhs,
+                              const Type& rhs) noexcept;
+
+//! Return the result of boolean OR operations
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator||(const Vector<Type, kN>& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//! Return the result of boolean OR operations
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator||(const Type& lhs,
+                              const Vector<Type, kN>& rhs) noexcept;
+
+//! Return the result of boolean OR operations
+template <typename Type, std::size_t kN>
+Vector<int32b, kN> operator||(const Vector<Type, kN>& lhs,
+                              const Type& rhs) noexcept;
 
 // Type aliases
 // Vector2
@@ -163,4 +552,4 @@ using double4 = Vector<double, 4>;
 
 #include "vector-inl.hpp"
 
-#endif // ZINVUL_VECTOR_HPP
+#endif // ZINVUL_CL_VECTOR_HPP

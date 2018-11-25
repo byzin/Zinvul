@@ -162,6 +162,10 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
                                -I ${__zinvul_root__}
                                -o ${spv_file_path} ${cl_file_path})
+    if(Z_DEBUG_MODE)
+      set(descriptor_map_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.csv)
+      list(APPEND clspv_commands -descriptormap=${descriptor_map_path})
+    endif()
     if(ZINVUL_BAKE_KERNELS)
       list(APPEND clspv_commands COMMAND
           ${CMAKE_COMMAND}

@@ -21,6 +21,7 @@
 #include "zinvul/kernel_group.hpp"
 #include "zinvul/zinvul_config.hpp"
 #include "zinvul/cppcl/types.hpp"
+#include "zinvul/cppcl/utility.hpp"
 #include "zinvul/cppcl/vector.hpp"
 
 #ifdef Z_CLANG

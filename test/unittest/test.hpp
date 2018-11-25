@@ -11,16 +11,22 @@
 #define ZINVUL_TEST_TEST_HPP
 
 // Standard C++ library
+#include <cstddef>
+#include <string>
 #include <vector>
 // Zisc
 #include "zisc/unique_memory_pointer.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/cppcl/vector.hpp"
 
-std::vector<zinvul::UniqueDevice> makeTestDeviceList(
-    zinvul::DeviceOptions& options) noexcept;
+std::vector<zinvul::UniqueDevice> makeTestDeviceList(zinvul::DeviceOptions& options);
 
-zinvul::DeviceOptions makeTestOptions() noexcept;
+zinvul::DeviceOptions makeTestOptions();
+
+std::string getTestDeviceInfo(const zinvul::Device& device);
+
+std::string getTestDeviceUsedMemory(const zinvul::Device& device);
 
 #endif // ZINVUL_TEST_TEST_HPP

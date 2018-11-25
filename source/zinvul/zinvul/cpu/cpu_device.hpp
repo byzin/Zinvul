@@ -63,6 +63,9 @@ class CpuDevice : public Device
   UniqueKernel<GroupType, kDimension, ArgumentTypes...> makeKernel(
       const typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction func) noexcept;
 
+  //! Return the number of threads
+  std::size_t numOfThreads() const noexcept;
+
   //! Submit a command
   template <std::size_t kDimension, typename GroupType>
   void submit(const std::array<uint32b, kDimension>& works,

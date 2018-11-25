@@ -21,6 +21,7 @@
 #include "zisc/error.hpp"
 #include "zisc/function_reference.hpp"
 #include "zisc/memory_resource.hpp"
+#include "zisc/thread_manager.hpp"
 #include "zisc/unique_memory_pointer.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
@@ -95,6 +96,14 @@ UniqueKernel<GroupType, kDimension, ArgumentTypes...> CpuDevice::makeKernel(
   UniqueKernel<GroupType, kDimension, ArgumentTypes...> kernel =
       UniqueCpuKernel::make(memoryResource(), this, func);
   return kernel;
+}
+
+/*!
+  */
+inline
+std::size_t CpuDevice::numOfThreads() const noexcept
+{
+  return thread_manager_.numOfThreads();
 }
 
 /*!

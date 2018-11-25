@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_TYPES_HPP
-#define ZINVUL_TYPES_HPP
+#ifndef ZINVUL_CL_TYPES_HPP
+#define ZINVUL_CL_TYPES_HPP
 
 // Zisc
 #include "zisc/floating_point.hpp"
@@ -34,4 +34,4 @@ using uintptr_t = uint32b;
 
 } // namespace zinvul
 
-#endif // ZINVUL_TYPES_HPP
+#endif // ZINVUL_CL_TYPES_HPP

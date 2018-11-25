@@ -32,6 +32,9 @@ using uint8b = zisc::uint8b;
 using uint16b = zisc::uint16b;
 using uint32b = zisc::uint32b;
 using uint64b = zisc::uint64b;
+// Vector values
+constexpr int32b kVecFalse = 0b0;
+constexpr int32b kVecTrue = ~0b0;
 
 // Device
 
