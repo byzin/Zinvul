@@ -20,13 +20,25 @@ __kernel void getTypeSize(__global uint32b* size_table)
   const uint32b index = getGlobalIdX();
   if (index == 0) {
     uint32b table_index = 0;
+    size_table[table_index++] = sizeof(char);
     size_table[table_index++] = sizeof(int8b);
+    size_table[table_index++] = sizeof(short);
     size_table[table_index++] = sizeof(int16b);
+    size_table[table_index++] = sizeof(int);
     size_table[table_index++] = sizeof(int32b);
+    size_table[table_index++] = sizeof(long);
     size_table[table_index++] = sizeof(int64b);
+    size_table[table_index++] = sizeof(unsigned char);
+    size_table[table_index++] = sizeof(uchar);
     size_table[table_index++] = sizeof(uint8b);
+    size_table[table_index++] = sizeof(unsigned short);
+    size_table[table_index++] = sizeof(ushort);
     size_table[table_index++] = sizeof(uint16b);
+    size_table[table_index++] = sizeof(unsigned int);
+    size_table[table_index++] = sizeof(uint);
     size_table[table_index++] = sizeof(uint32b);
+    size_table[table_index++] = sizeof(unsigned long);
+    size_table[table_index++] = sizeof(ulong);
     size_table[table_index++] = sizeof(uint64b);
     size_table[table_index++] = sizeof(half);
     size_table[table_index++] = sizeof(float);

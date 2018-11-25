@@ -21,7 +21,7 @@ namespace cl {
 
 //! Convert to a char value
 template <typename Type>
-char convert_char(Type&& value) noexcept;
+int8b convert_char(Type&& value) noexcept;
 
 //! Convert to a char2 value
 template <typename Type>
@@ -37,7 +37,7 @@ char4 convert_char4(const Vector<Type, 4>& value) noexcept;
 
 //! Convert to a uchar value
 template <typename Type>
-uchar convert_uchar(Type&& value) noexcept;
+uint8b convert_uchar(Type&& value) noexcept;
 
 //! Convert to a uchar2 value
 template <typename Type>
@@ -53,7 +53,7 @@ uchar4 convert_uchar4(const Vector<Type, 4>& value) noexcept;
 
 //! Convert to a short value
 template <typename Type>
-short convert_short(Type&& value) noexcept;
+int16b convert_short(Type&& value) noexcept;
 
 //! Convert to a short2 value
 template <typename Type>
@@ -69,7 +69,7 @@ short4 convert_short4(const Vector<Type, 4>& value) noexcept;
 
 //! Convert to a ushort value
 template <typename Type>
-ushort convert_ushort(Type&& value) noexcept;
+uint16b convert_ushort(Type&& value) noexcept;
 
 //! Convert to a ushort2 value
 template <typename Type>
@@ -85,7 +85,7 @@ ushort4 convert_ushort4(const Vector<Type, 4>& value) noexcept;
 
 //! Convert to a int value
 template <typename Type>
-int convert_int(Type&& value) noexcept;
+int32b convert_int(Type&& value) noexcept;
 
 //! Convert to a int2 value
 template <typename Type>
@@ -101,7 +101,7 @@ int4 convert_int4(const Vector<Type, 4>& value) noexcept;
 
 //! Convert to a uint value
 template <typename Type>
-uint convert_uint(Type&& value) noexcept;
+uint32b convert_uint(Type&& value) noexcept;
 
 //! Convert to a uint2 value
 template <typename Type>
@@ -117,7 +117,7 @@ uint4 convert_uint4(const Vector<Type, 4>& value) noexcept;
 
 //! Convert to a long value
 template <typename Type>
-long convert_long(Type&& value) noexcept;
+int64b convert_long(Type&& value) noexcept;
 
 //! Convert to a long2 value
 template <typename Type>
@@ -133,7 +133,7 @@ long4 convert_long4(const Vector<Type, 4>& value) noexcept;
 
 //! Convert to a ulong value
 template <typename Type>
-ulong convert_ulong(Type&& value) noexcept;
+uint64b convert_ulong(Type&& value) noexcept;
 
 //! Convert to a ulong2 value
 template <typename Type>
@@ -165,7 +165,7 @@ float4 convert_float4(const Vector<Type, 4>& value) noexcept;
 
 //! A data is reinterpreted as a char data
 template <typename Type>
-char as_char(Type&& value) noexcept;
+int8b as_char(Type&& value) noexcept;
 
 //! A data is reinterpreted as a char2 data
 template <typename Type>
@@ -181,7 +181,7 @@ char4 as_char4(Type&& value) noexcept;
 
 //! A data is reinterpreted as a uchar data
 template <typename Type>
-uchar as_uchar(Type&& value) noexcept;
+uint8b as_uchar(Type&& value) noexcept;
 
 //! A data is reinterpreted as a uchar2 data
 template <typename Type>
@@ -197,7 +197,7 @@ uchar4 as_uchar4(Type&& value) noexcept;
 
 //! A data is reinterpreted as a short data
 template <typename Type>
-short as_short(Type&& value) noexcept;
+int16b as_short(Type&& value) noexcept;
 
 //! A data is reinterpreted as a short2 data
 template <typename Type>
@@ -213,7 +213,7 @@ short4 as_short4(Type&& value) noexcept;
 
 //! A data is reinterpreted as a ushort data
 template <typename Type>
-ushort as_ushort(Type&& value) noexcept;
+uint16b as_ushort(Type&& value) noexcept;
 
 //! A data is reinterpreted as a ushort2 data
 template <typename Type>
@@ -229,7 +229,7 @@ ushort4 as_ushort4(Type&& value) noexcept;
 
 //! A data is reinterpreted as a int data
 template <typename Type>
-int as_int(Type&& value) noexcept;
+int32b as_int(Type&& value) noexcept;
 
 //! A data is reinterpreted as a int2 data
 template <typename Type>
@@ -245,7 +245,7 @@ int4 as_int4(Type&& value) noexcept;
 
 //! A data is reinterpreted as a uint data
 template <typename Type>
-uint as_uint(Type&& value) noexcept;
+uint32b as_uint(Type&& value) noexcept;
 
 //! A data is reinterpreted as a uint2 data
 template <typename Type>
@@ -261,7 +261,7 @@ uint4 as_uint4(Type&& value) noexcept;
 
 //! A data is reinterpreted as a long data
 template <typename Type>
-long as_long(Type&& value) noexcept;
+int64b as_long(Type&& value) noexcept;
 
 //! A data is reinterpreted as a long2 data
 template <typename Type>
@@ -277,7 +277,7 @@ long4 as_long4(Type&& value) noexcept;
 
 //! A data is reinterpreted as a ulong data
 template <typename Type>
-ulong as_ulong(Type&& value) noexcept;
+uint64b as_ulong(Type&& value) noexcept;
 
 //! A data is reinterpreted as a ulong2 data
 template <typename Type>

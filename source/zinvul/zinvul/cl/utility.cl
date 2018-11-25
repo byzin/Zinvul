@@ -14,33 +14,33 @@
 
 /*!
   */
-uint getGlobalId(const uint dimension)
+uint32b getGlobalId(const uint32b dimension)
 {
-  const uint id = get_global_id(dimension);
+  const uint32b id = get_global_id(dimension);
   return id;
 }
 
 /*!
   */
-uint getGlobalIdX()
+uint32b getGlobalIdX()
 {
-  const uint id = get_global_id(0);
+  const uint32b id = get_global_id(0);
   return id;
 }
 
 /*!
   */
-uint getGlobalIdY()
+uint32b getGlobalIdY()
 {
-  const uint id = get_global_id(1);
+  const uint32b id = get_global_id(1);
   return id;
 }
 
 /*!
   */
-uint getGlobalIdZ()
+uint32b getGlobalIdZ()
 {
-  const uint id = get_global_id(2);
+  const uint32b id = get_global_id(2);
   return id;
 }
 

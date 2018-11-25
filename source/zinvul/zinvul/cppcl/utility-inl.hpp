@@ -44,7 +44,7 @@ auto convertToVector(const Vector<Type, kN>& value)
 /*!
   */
 template <typename Type> inline
-char convert_char(Type&& value) noexcept
+int8b convert_char(Type&& value) noexcept
 {
   return zisc::cast<int8b>(value);
 }
@@ -76,7 +76,7 @@ char4 convert_char4(const Vector<Type, 4>& value) noexcept
 /*!
   */
 template <typename Type> inline
-uchar convert_uchar(Type&& value) noexcept
+uint8b convert_uchar(Type&& value) noexcept
 {
   return zisc::cast<uint8b>(value);
 }
@@ -108,7 +108,7 @@ uchar4 convert_uchar4(const Vector<Type, 4>& value) noexcept
 /*!
   */
 template <typename Type> inline
-short convert_short(Type&& value) noexcept
+int16b convert_short(Type&& value) noexcept
 {
   return zisc::cast<int16b>(value);
 }
@@ -140,7 +140,7 @@ short4 convert_short4(const Vector<Type, 4>& value) noexcept
 /*!
   */
 template <typename Type> inline
-ushort convert_ushort(Type&& value) noexcept
+uint16b convert_ushort(Type&& value) noexcept
 {
   return zisc::cast<uint16b>(value);
 }
@@ -172,7 +172,7 @@ ushort4 convert_ushort4(const Vector<Type, 4>& value) noexcept
 /*!
   */
 template <typename Type> inline
-int convert_int(Type&& value) noexcept
+int32b convert_int(Type&& value) noexcept
 {
   return zisc::cast<int32b>(value);
 }
@@ -204,7 +204,7 @@ int4 convert_int4(const Vector<Type, 4>& value) noexcept
 /*!
   */
 template <typename Type> inline
-uint convert_uint(Type&& value) noexcept
+uint32b convert_uint(Type&& value) noexcept
 {
   return zisc::cast<uint32b>(value);
 }
@@ -236,7 +236,7 @@ uint4 convert_uint4(const Vector<Type, 4>& value) noexcept
 /*!
   */
 template <typename Type> inline
-long convert_long(Type&& value) noexcept
+int64b convert_long(Type&& value) noexcept
 {
   return zisc::cast<int64b>(value);
 }
@@ -268,7 +268,7 @@ long4 convert_long4(const Vector<Type, 4>& value) noexcept
 /*!
   */
 template <typename Type> inline
-ulong convert_ulong(Type&& value) noexcept
+uint64b convert_ulong(Type&& value) noexcept
 {
   return zisc::cast<uint64b>(value);
 }
@@ -332,9 +332,9 @@ float4 convert_float4(const Vector<Type, 4>& value) noexcept
 /*!
   */
 template <typename Type> inline
-char as_char(Type&& value) noexcept
+int8b as_char(Type&& value) noexcept
 {
-  return *zisc::treatAs<const char*>(&value);
+  return *zisc::treatAs<const int8b*>(&value);
 }
 
 /*!
@@ -364,9 +364,9 @@ char4 as_char4(Type&& value) noexcept
 /*!
   */
 template <typename Type> inline
-uchar as_uchar(Type&& value) noexcept
+uint8b as_uchar(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uchar*>(&value);
+  return *zisc::treatAs<const uint8b*>(&value);
 }
 
 /*!
@@ -396,9 +396,9 @@ uchar4 as_uchar4(Type&& value) noexcept
 /*!
   */
 template <typename Type> inline
-short as_short(Type&& value) noexcept
+int16b as_short(Type&& value) noexcept
 {
-  return *zisc::treatAs<const short*>(&value);
+  return *zisc::treatAs<const int16b*>(&value);
 }
 
 /*!
@@ -428,9 +428,9 @@ short4 as_short4(Type&& value) noexcept
 /*!
   */
 template <typename Type> inline
-ushort as_ushort(Type&& value) noexcept
+uint16b as_ushort(Type&& value) noexcept
 {
-  return *zisc::treatAs<const ushort*>(&value);
+  return *zisc::treatAs<const uint16b*>(&value);
 }
 
 /*!
@@ -460,9 +460,9 @@ ushort4 as_ushort4(Type&& value) noexcept
 /*!
   */
 template <typename Type> inline
-int as_int(Type&& value) noexcept
+int32b as_int(Type&& value) noexcept
 {
-  return *zisc::treatAs<const int*>(&value);
+  return *zisc::treatAs<const int32b*>(&value);
 }
 
 /*!
@@ -492,9 +492,9 @@ int4 as_int4(Type&& value) noexcept
 /*!
   */
 template <typename Type> inline
-uint as_uint(Type&& value) noexcept
+uint32b as_uint(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uint*>(&value);
+  return *zisc::treatAs<const uint32b*>(&value);
 }
 
 /*!
@@ -524,9 +524,9 @@ uint4 as_uint4(Type&& value) noexcept
 /*!
   */
 template <typename Type> inline
-long as_long(Type&& value) noexcept
+int64b as_long(Type&& value) noexcept
 {
-  return *zisc::treatAs<const long*>(&value);
+  return *zisc::treatAs<const int64b*>(&value);
 }
 
 /*!
@@ -556,9 +556,9 @@ long4 as_long4(Type&& value) noexcept
 /*!
   */
 template <typename Type> inline
-ulong as_ulong(Type&& value) noexcept
+uint64b as_ulong(Type&& value) noexcept
 {
-  return *zisc::treatAs<const ulong*>(&value);
+  return *zisc::treatAs<const uint64b*>(&value);
 }
 
 /*!

@@ -24,7 +24,7 @@ TEST(DataTest, TypeSizeTest)
 {
   using namespace zinvul;
 
-  constexpr std::size_t num_of_tables = 29;
+  constexpr std::size_t num_of_tables = 41;
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
@@ -45,21 +45,45 @@ TEST(DataTest, TypeSizeTest)
 
     std::size_t table_index = 0;
     EXPECT_EQ(sizeof(int8b), result[table_index++])
-        << "The size of 'char' is wrong.";
+        << "Using 'char' isn't recommended.";
+    EXPECT_EQ(sizeof(int8b), result[table_index++])
+        << "The size of 'int8b' is wrong.";
     EXPECT_EQ(sizeof(int16b), result[table_index++])
-        << "The size of 'short' is wrong.";
+        << "Using 'short' isn't recommended.";
+    EXPECT_EQ(sizeof(int16b), result[table_index++])
+        << "The size of 'int16b' is wrong.";
     EXPECT_EQ(sizeof(int32b), result[table_index++])
-        << "The size of 'int' is wrong.";
+        << "Using 'int' isn't recommended.";
+    EXPECT_EQ(sizeof(int32b), result[table_index++])
+        << "The size of 'int32b' is wrong.";
     EXPECT_EQ(sizeof(int64b), result[table_index++])
-        << "The size of 'long' is wrong.";
+        << "Using 'long' isn't recommended.";
+    EXPECT_EQ(sizeof(int64b), result[table_index++])
+        << "The size of 'int64b' is wrong.";
     EXPECT_EQ(sizeof(uint8b), result[table_index++])
-        << "The size of 'uchar' is wrong.";
+        << "Using 'unsigned char' isn't recommended.";
+    EXPECT_EQ(sizeof(uint8b), result[table_index++])
+        << "Using 'uchar' isn't recommended.";
+    EXPECT_EQ(sizeof(uint8b), result[table_index++])
+        << "The size of 'uint8b' is wrong.";
     EXPECT_EQ(sizeof(uint16b), result[table_index++])
-        << "The size of 'ushort' is wrong.";
+        << "Using 'unsigned short' isn't recommended.";
+    EXPECT_EQ(sizeof(uint16b), result[table_index++])
+        << "Using 'ushort' isn't recommended.";
+    EXPECT_EQ(sizeof(uint16b), result[table_index++])
+        << "The size of 'uint16b' is wrong.";
     EXPECT_EQ(sizeof(uint32b), result[table_index++])
-        << "The size of 'uint' is wrong.";
+        << "Using 'unsigned int' isn't recommended.";
+    EXPECT_EQ(sizeof(uint32b), result[table_index++])
+        << "Using 'uint' isn't recommended.";
+    EXPECT_EQ(sizeof(uint32b), result[table_index++])
+        << "The size of 'uint32b' is wrong.";
     EXPECT_EQ(sizeof(uint64b), result[table_index++])
-        << "The size of 'ulong' is wrong.";
+        << "Using 'unsigned long' isn't recommended.";
+    EXPECT_EQ(sizeof(uint64b), result[table_index++])
+        << "Using 'ulong' isn't recommended.";
+    EXPECT_EQ(sizeof(uint64b), result[table_index++])
+        << "The size of 'uint64b' is wrong.";
     EXPECT_EQ(sizeof(cl::half), result[table_index++])
         << "The size of 'half' is wrong.";
     EXPECT_EQ(sizeof(float), result[table_index++])
