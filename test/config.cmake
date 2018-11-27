@@ -50,11 +50,11 @@ function(buildUnitTest)
   file(GLOB_RECURSE data_cl_files ${data_dir}/*.cl)
   makeKernelGroup(data data_source_files data_definitions
       SOURCE_FILES ${data_cl_files} INCLUDE_DIRS ${data_dir})
-  # Work item
-  set(work_item_dir ${__test_root__}/kernels/work_item)
-  file(GLOB_RECURSE work_item_cl_files ${work_item_dir}/*.cl)
-  makeKernelGroup(work_item work_item_source_files work_item_definitions 
-      SOURCE_FILES ${work_item_cl_files} INCLUDE_DIRS ${work_item_dir})
+  # Built-in functions
+  set(built_in_func_dir ${__test_root__}/kernels/built_in_func)
+  file(GLOB_RECURSE built_in_func_cl_files ${built_in_func_dir}/*.cl)
+  makeKernelGroup(built_in_func built_in_func_source_files built_in_func_definitions
+      SOURCE_FILES ${built_in_func_cl_files} INCLUDE_DIRS ${built_in_func_dir})
   # Math
   set(math_dir ${__test_root__}/kernels/math)
   file(GLOB_RECURSE math_cl_files ${math_dir}/*.cl)
@@ -68,7 +68,7 @@ function(buildUnitTest)
                           ${zisc_header_files}
                           ${zinvul_header_files}
                           ${data_source_files}
-                          ${work_item_source_files}
+                          ${built_in_func_source_files}
                           ${math_source_files})
   source_group(UnitTest FILES ${unittest_source_files})
   # Set unittest properties
@@ -100,8 +100,8 @@ function(buildUnitTest)
                                               ${zinvul_definitions}
                                               ${environment_definitions}
                                               ${data_definitions}
-                                              ${work_item_definitions}
+                                              ${built_in_func_definitions}
                                               ${math_definitions})
-  add_dependencies(UnitTest data work_item math)
+  add_dependencies(UnitTest data built_in_func math)
   setStaticAnalyzer(UnitTest)
 endfunction(buildUnitTest)

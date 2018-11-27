@@ -66,8 +66,8 @@
 !/test/kernels/data/*.cl
 !/test/kernels/math/
 !/test/kernels/math/*.cl
-!/test/kernels/work_item/
-!/test/kernels/work_item/*.cl
+!/test/kernels/built_in_func/
+!/test/kernels/built_in_func/*.cl
 !/test/unittest/
 !/test/unittest/*.hpp
 !/test/unittest/*.cpp

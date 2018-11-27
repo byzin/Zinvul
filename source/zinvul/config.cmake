@@ -159,12 +159,19 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     elseif(Z_RELEASE_MODE)
       list(APPEND clspv_options -O3 -DZ_RELEASE)
     endif()
+    list(APPEND clspv_options -f16bit_storage)
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
                                -I ${__zinvul_root__}
                                -o ${spv_file_path} ${cl_file_path})
     if(Z_DEBUG_MODE)
       set(descriptor_map_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.csv)
       list(APPEND clspv_commands -descriptormap=${descriptor_map_path})
+      # SPIRV-dis
+      find_program(spirv_dis "spirv-dis")
+      if(NOT spirv_dis-NOTFOUND)
+        set(dis_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.txt)
+        set(spirv_dis_command COMMAND ${spirv_dis} ${spv_file_path} -o ${dis_file_path})
+      endif()
     endif()
     if(ZINVUL_BAKE_KERNELS)
       list(APPEND clspv_commands COMMAND
@@ -178,6 +185,7 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     endif()
     add_custom_command(OUTPUT ${spv_file_path}
       ${clspv_commands}
+      ${spirv_dis_command}
       DEPENDS ${ZINVUL_SOURCE_FILES}
       COMMENT "Building CL object ${cl_file_path}")
     add_custom_target(${kernel_group_name} DEPENDS ${spv_file_path})

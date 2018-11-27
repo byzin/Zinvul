@@ -14,6 +14,8 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <mutex>
+#include <type_traits>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/spin_lock_mutex.hpp"
@@ -74,7 +76,7 @@ void KernelGroup::__setWorkGroupSize(const std::array<uint32b, 3>& size) noexcep
 /*!
   */
 inline
-cl::size_t KernelGroup::get_global_id(const uint dimension) const noexcept
+cl::size_t KernelGroup::get_global_id(const uint32b dimension) const noexcept
 {
   const auto id = get_group_id(dimension) * get_local_size(dimension) +
                   get_local_id(dimension);
@@ -84,7 +86,7 @@ cl::size_t KernelGroup::get_global_id(const uint dimension) const noexcept
 /*!
   */
 inline
-cl::size_t KernelGroup::get_global_offset(const uint /* dimension */) const noexcept
+cl::size_t KernelGroup::get_global_offset(const uint32b /* dimension */) const noexcept
 {
   return 0;
 }
@@ -92,7 +94,7 @@ cl::size_t KernelGroup::get_global_offset(const uint /* dimension */) const noex
 /*!
   */
 inline
-cl::size_t KernelGroup::get_global_size(const uint dimension) const noexcept
+cl::size_t KernelGroup::get_global_size(const uint32b dimension) const noexcept
 {
   return get_local_size(dimension) * get_num_groups(dimension);
 }
@@ -100,7 +102,7 @@ cl::size_t KernelGroup::get_global_size(const uint dimension) const noexcept
 /*!
   */
 inline
-cl::size_t KernelGroup::get_group_id(const uint dimension) const noexcept
+cl::size_t KernelGroup::get_group_id(const uint32b dimension) const noexcept
 {
   const cl::size_t id = zisc::isInBounds(dimension, 0u, get_work_dim())
       ? work_group_id_[dimension]
@@ -111,7 +113,7 @@ cl::size_t KernelGroup::get_group_id(const uint dimension) const noexcept
 /*!
   */
 inline
-cl::size_t KernelGroup::get_local_id(const uint dimension) const noexcept
+cl::size_t KernelGroup::get_local_id(const uint32b dimension) const noexcept
 {
   const cl::size_t id = zisc::isInBounds(dimension, 0u, get_work_dim())
       ? local_work_id_[dimension]
@@ -122,7 +124,7 @@ cl::size_t KernelGroup::get_local_id(const uint dimension) const noexcept
 /*!
   */
 inline
-cl::size_t KernelGroup::get_local_size(const uint dimension) const noexcept
+cl::size_t KernelGroup::get_local_size(const uint32b dimension) const noexcept
 {
   const cl::size_t size = zisc::isInBounds(dimension, 0u, get_work_dim())
       ? local_work_size_[dimension]
@@ -133,7 +135,7 @@ cl::size_t KernelGroup::get_local_size(const uint dimension) const noexcept
 /*!
   */
 inline
-cl::size_t KernelGroup::get_num_groups(const uint dimension) const noexcept
+cl::size_t KernelGroup::get_num_groups(const uint32b dimension) const noexcept
 {
   const cl::size_t size = zisc::isInBounds(dimension, 0u, get_work_dim())
       ? work_group_size_[dimension]
@@ -144,9 +146,197 @@ cl::size_t KernelGroup::get_num_groups(const uint dimension) const noexcept
 /*!
   */
 inline
-constexpr uint KernelGroup::get_work_dim() noexcept
+constexpr uint32b KernelGroup::get_work_dim() noexcept
 {
   return 3;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer KernelGroup::atomic_add(Integer* p, const Integer value) noexcept
+{
+  static_assert(std::is_same_v<Integer, int32b> || std::is_same_v<Integer, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Integer old = 0;
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = *p;
+    *p = old + value;
+  }
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer KernelGroup::atomic_sub(Integer* p, const Integer value) noexcept
+{
+  static_assert(std::is_same_v<Integer, int32b> || std::is_same_v<Integer, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Integer old = 0;
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = *p;
+    *p = old - value;
+  }
+  return old;
+}
+
+/*!
+  */
+template <typename Type> inline
+Type KernelGroup::atomic_xchg(Type* p, const Type value) noexcept
+{
+  static_assert(std::is_same_v<Type, int32b> || std::is_same_v<Type, uint32b> ||
+                std::is_same_v<Type, float>,
+                "The Type isn't int, unsigned int or float.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Type old = zisc::cast<Type>(0);
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = *p;
+    *p = value;
+  }
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer KernelGroup::atomic_inc(Integer* p) noexcept
+{
+  static_assert(std::is_same_v<Integer, int32b> || std::is_same_v<Integer, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Integer old = 0;
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = (*p)++;
+  }
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer KernelGroup::atomic_dec(Integer* p) noexcept
+{
+  static_assert(std::is_same_v<Integer, int32b> || std::is_same_v<Integer, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Integer old = 0;
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = (*p)--;
+  }
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer KernelGroup::atomic_cmpxchg(Integer* p,
+                                    const Integer comp,
+                                    const Integer value) noexcept
+{
+  static_assert(std::is_same_v<Integer, int32b> || std::is_same_v<Integer, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Integer old = 0;
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = *p;
+    *p = (old == comp) ? value : old;
+  }
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer KernelGroup::atomic_min(Integer* p, const Integer value) noexcept
+{
+  static_assert(std::is_same_v<Integer, int32b> || std::is_same_v<Integer, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Integer old = 0;
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = *p;
+    *p = (value < old) ? value : old;
+  }
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer KernelGroup::atomic_max(Integer* p, const Integer value) noexcept
+{
+  static_assert(std::is_same_v<Integer, int32b> || std::is_same_v<Integer, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Integer old = 0;
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = *p;
+    *p = (old < value) ? value : old;
+  }
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer KernelGroup::atomic_and(Integer* p, const Integer value) noexcept
+{
+  static_assert(std::is_same_v<Integer, int32b> || std::is_same_v<Integer, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Integer old = 0;
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = *p;
+    *p = old & value;
+  }
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer KernelGroup::atomic_or(Integer* p, const Integer value) noexcept
+{
+  static_assert(std::is_same_v<Integer, int32b> || std::is_same_v<Integer, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Integer old = 0;
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = *p;
+    *p = old | value;
+  }
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer KernelGroup::atomic_xor(Integer* p, const Integer value) noexcept
+{
+  static_assert(std::is_same_v<Integer, int32b> || std::is_same_v<Integer, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  ZISC_ASSERT(mutex_ != nullptr, "The mutex is null.");
+  Integer old = 0;
+  {
+    std::unique_lock<zisc::SpinLockMutex> lock{*mutex_};
+    old = *p;
+    *p = old ^ value;
+  }
+  return old;
 }
 
 } // namespace zinvul

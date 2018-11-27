@@ -56,28 +56,74 @@ class KernelGroup : private zisc::NonCopyable<KernelGroup>
   // Work-Item functions
 
   //! Return the global work-item ID
-  cl::size_t get_global_id(const uint dimension) const noexcept;
+  cl::size_t get_global_id(const uint32b dimension) const noexcept;
 
   //! Return the offset values
-  cl::size_t get_global_offset(const uint dimension) const noexcept;
+  cl::size_t get_global_offset(const uint32b dimension) const noexcept;
 
   //! Return the number of global work-items
-  cl::size_t get_global_size(const uint dimension) const noexcept;
+  cl::size_t get_global_size(const uint32b dimension) const noexcept;
 
   //! Return the work-group ID
-  cl::size_t get_group_id(const uint dimension) const noexcept;
+  cl::size_t get_group_id(const uint32b dimension) const noexcept;
 
   //! Return the unique local work-item ID
-  cl::size_t get_local_id(const uint dimension) const noexcept;
+  cl::size_t get_local_id(const uint32b dimension) const noexcept;
 
   //! Return the number of local work-item
-  cl::size_t get_local_size(const uint dimension) const noexcept;
+  cl::size_t get_local_size(const uint32b dimension) const noexcept;
 
   //! Return the number of work-groups that will execute a kernel
-  cl::size_t get_num_groups(const uint dimension) const noexcept;
+  cl::size_t get_num_groups(const uint32b dimension) const noexcept;
 
   //! Return the number of dimensions in use
-  static constexpr uint get_work_dim() noexcept;
+  static constexpr uint32b get_work_dim() noexcept;
+
+  // Atomic functions
+
+  //! Compute (old + value) and store result at location pointed by p, return old
+  template <typename Integer>
+  Integer atomic_add(Integer* p, const Integer value) noexcept;
+
+  //! Compute (old - value) and store result at location pointed by p, return old
+  template <typename Integer>
+  Integer atomic_sub(Integer* p, const Integer value) noexcept;
+
+  //! Swap the old value at location p with new value, return old
+  template <typename Type>
+  Type atomic_xchg(Type* p, const Type value) noexcept;
+
+  //! Compute (old + 1) and store result at location pointed by p, return old
+  template <typename Integer>
+  Integer atomic_inc(Integer* p) noexcept;
+
+  //! Compute (old - 1) and store result at location pointed by p, return old
+  template <typename Integer>
+  Integer atomic_dec(Integer* p) noexcept;
+
+  //! Compute (old == comp) ? value : old and store result , return old
+  template <typename Integer>
+  Integer atomic_cmpxchg(Integer* p, const Integer comp, const Integer value) noexcept;
+
+  //! Compute min(old, value) and store result , return old
+  template <typename Integer>
+  Integer atomic_min(Integer* p, const Integer value) noexcept;
+
+  //! Compute max(old, value) and store result , return old
+  template <typename Integer>
+  Integer atomic_max(Integer* p, const Integer value) noexcept;
+
+  //! Compute (old & value) and store result , return old
+  template <typename Integer>
+  Integer atomic_and(Integer* p, const Integer value) noexcept;
+
+  //! Compute (old | value) and store result , return old
+  template <typename Integer>
+  Integer atomic_or(Integer* p, const Integer value) noexcept;
+
+  //! Compute (old ^ value) and store result , return old
+  template <typename Integer>
+  Integer atomic_xor(Integer* p, const Integer value) noexcept;
 
  private:
   zisc::SpinLockMutex* mutex_ = nullptr;

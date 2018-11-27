@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_WORK_ITEM_TEST_WORK_ITEM_CL
-#define ZINVUL_WORK_ITEM_TEST_WORK_ITEM_CL
+#ifndef ZINVUL_BUILT_IN_FUNC_TEST_WORK_ITEM_CL
+#define ZINVUL_BUILT_IN_FUNC_TEST_WORK_ITEM_CL
 
 // Zinvul
 #include "zinvul/cl/types.cl"
@@ -59,4 +59,4 @@ kernel void test2dWorkSize(global uint32b* work_size_table, const uint2 resoluti
 }
 
 
-#endif /* ZINVUL_WORK_ITEM_TEST_WORK_ITEM_CL */
+#endif /* ZINVUL_BUILT_IN_FUNC_TEST_WORK_ITEM_CL */
