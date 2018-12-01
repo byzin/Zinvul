@@ -103,67 +103,141 @@ TEST(BuiltInFuncTest, WorkSize2dTest)
   }
 }
 
-//TEST(BuiltInFuncTest, AtomicFuncTest)
-//{
-//  using namespace zinvul;
-//
-//  constexpr uint resolution = 10000;
-////  constexpr uint num_of_funcs = 11;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    auto add_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
-//    add_table->setSize(resolution);
-//    auto add_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
-//    add_result->setSize(1);
-//    auto sub_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
-//    sub_table->setSize(resolution);
-//    auto sub_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
-//    sub_result->setSize(1);
-//    auto xchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
-//    xchg_table->setSize(resolution);
-//    auto xchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
-//    xchg_result->setSize(1);
-//    auto inc_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
-//    inc_table->setSize(resolution);
-//    auto inc_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
-//    inc_result->setSize(1);
-//    auto dec_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
-//    dec_table->setSize(resolution);
-//    auto dec_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
-//    dec_result->setSize(1);
-//    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
-//    res_buff->setSize(1);
-//    res_buff->write(&resolution);
-//
-//    auto init_kernel = makeZinvulKernel(device.get(), built_in_func, initAtomicTest, 1);
-//    init_kernel->run(*add_table, *add_result, *sub_table, *sub_result,
-//        *xchg_table, *xchg_result, *inc_table, *inc_result,
-//        *dec_table, *dec_result, *res_buff, {1}, 0);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomic, 1);
-//    kernel->run(*add_table, *add_result, *sub_table, *sub_result,
-//        *xchg_table, *xchg_result, *inc_table, *inc_result,
-//        *dec_table, *dec_result, *res_buff, {resolution}, 0);
-//    device->waitForCompletion();
-//
-//    // atomic_inc
-//    {
-//      std::vector<int32b> table;
-//      table.resize(resolution);
-//      inc_table->read(table.data());
-//      for (std::size_t i = 0; i < table.size(); ++i)
-//        ASSERT_NE(0, table[i]) << "The 'atomic_inc' is wrong.";
-//      int32b result;
-//      inc_result->read(&result);
-//      ASSERT_EQ(resolution, result) << "The 'atomic_inc' is wrong.";
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
+TEST(BuiltInFuncTest, AtomicFuncTest)
+{
+  using namespace zinvul;
 
+  constexpr uint resolution = 10000;
+//  constexpr uint num_of_funcs = 11;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto add_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    add_table->setSize(resolution);
+    auto add_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    add_result->setSize(1);
+    auto sub_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    sub_table->setSize(resolution);
+    auto sub_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    sub_result->setSize(1);
+    auto xchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    xchg_table->setSize(resolution);
+    auto xchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    xchg_result->setSize(1);
+    auto inc_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    inc_table->setSize(resolution);
+    auto inc_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    inc_result->setSize(1);
+    auto dec_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    dec_table->setSize(resolution);
+    auto dec_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    dec_result->setSize(1);
+    auto cmpxchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    cmpxchg_table->setSize(resolution);
+    auto cmpxchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    cmpxchg_result->setSize(1);
+    auto min_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    min_table->setSize(resolution);
+    auto min_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    min_result->setSize(1);
+    auto max_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    max_table->setSize(resolution);
+    auto max_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    max_result->setSize(1);
+    auto and_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    and_table->setSize(resolution);
+    auto and_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    and_result->setSize(1);
+    auto or_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    or_table->setSize(resolution);
+    auto or_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    or_result->setSize(1);
+    auto xor_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    xor_table->setSize(resolution);
+    auto xor_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    xor_result->setSize(1);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    res_buff->write(&resolution);
+
+    auto init_kernel = makeZinvulKernel(device.get(), built_in_func, initAtomicTest, 1);
+    init_kernel->run(*add_table, *add_result, *sub_table, *sub_result,
+        *xchg_table, *xchg_result, *inc_table, *inc_result,
+        *dec_table, *dec_result, *cmpxchg_table, *cmpxchg_result,
+        *min_table, *min_result, *max_table, *max_result,
+        *and_table, *and_result, *or_table, *or_result,
+        *xor_table, *xor_result, *res_buff, {1}, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomic, 1);
+    kernel->run(*add_table, *add_result, *sub_table, *sub_result,
+        *xchg_table, *xchg_result, *inc_table, *inc_result,
+        *dec_table, *dec_result, *cmpxchg_table, *cmpxchg_result,
+        *min_table, *min_result, *max_table, *max_result,
+        *and_table, *and_result, *or_table, *or_result,
+        *xor_table, *xor_result, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_add
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      add_table->read(table.data());
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_NE(0, table[i]) << "The 'atomic_add' is wrong.";
+      int32b result;
+      add_result->read(&result);
+      ASSERT_EQ(resolution, result) << "The 'atomic_add' is wrong.";
+    }
+    // atomic_sub
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      sub_table->read(table.data());
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_NE(0, table[i]) << "The 'atomic_sub' is wrong.";
+      int32b result;
+      sub_result->read(&result);
+      ASSERT_EQ(resolution, -result) << "The 'atomic_sub' is wrong.";
+    }
+    // atomic_inc
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      inc_table->read(table.data());
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_NE(0, table[i]) << "The 'atomic_inc' is wrong.";
+      int32b result;
+      inc_result->read(&result);
+      ASSERT_EQ(resolution, result) << "The 'atomic_inc' is wrong.";
+    }
+    // atomic_dec
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      dec_table->read(table.data());
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_NE(0, table[i]) << "The 'atomic_dec' is wrong.";
+      int32b result;
+      dec_result->read(&result);
+      ASSERT_EQ(resolution, -result) << "The 'atomic_dec' is wrong.";
+    }
+    // atomic_min
+    {
+      int32b result;
+      min_result->read(&result);
+      ASSERT_EQ(resolution, -result) << "The 'atomic_min' is wrong.";
+    }
+    // atomic_max
+    {
+      int32b result;
+      max_result->read(&result);
+      ASSERT_EQ(resolution, result) << "The 'atomic_max' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}

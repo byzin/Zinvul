@@ -18,6 +18,7 @@ function(getTestWarningOption test_warning_flags)
                                 -Wno-exit-time-destructors
                                 -Wno-float-equal
                                 -Wno-global-constructors
+                                -Wno-old-style-cast
                                 -Wno-padded
                                 -Wno-weak-vtables
                                 )
