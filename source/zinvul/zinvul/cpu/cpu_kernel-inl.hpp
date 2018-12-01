@@ -112,7 +112,7 @@ Type CpuKernel<GroupType, kDimension, ArgumentTypes...>::refer(
   ZISC_ASSERT(buffer.deviceType() == DeviceType::kCpu,
               "The device type of the buffer isn't cpu.");
   ZISC_ASSERT(0 < buffer.size(), "The buffer is empty.");
-  using CpuBufferP = std::add_pointer_t<CpuBuffer<std::remove_pointer_t<Type>>>;
+  using CpuBufferP = std::add_pointer_t<CpuBuffer<std::remove_cv_t<std::remove_pointer_t<Type>>>>;
   auto cpu_buffer = zisc::cast<CpuBufferP>(&buffer);
   if constexpr (std::is_pointer_v<Type>)
     return cpu_buffer->data();

@@ -246,4 +246,51 @@ kernel void testVectorOperations(
   }
 }
 
+/*!
+  */
+kernel void testHalfLoadStore(
+    global const half* input_scalar, global half* output_scalar,
+    global const half* input_vector2, global half* output_vector2,
+    global const half* input_vector3, global half* output_vector3,
+    global const half* input_vector4, global half* output_vector4)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    // scalar
+    {
+      const float v0 = vload_half(0, input_scalar);
+      const float v1 = vload_half(1, input_scalar);
+      const float v2 = vload_half(2, input_scalar);
+      vstore_half(2.0f * v0, 0, output_scalar);
+      vstore_half(2.0f * v1, 1, output_scalar);
+      vstore_half(2.0f * v2, 2, output_scalar);
+    }
+    // vector2
+    {
+//      const float2 v0 = vload_half2(0, input_vector2);
+//      const float2 v1 = vload_half2(1, input_vector2);
+//      vstore_half2(2.0f * v0, 0, output_vector2);
+//      vstore_half2(2.0f * v1, 1, output_vector2);
+      (void)input_vector2;
+      (void)output_vector2;
+    }
+    // vector3
+    {
+//      const float3 v0 = vload_half3(0, input_vector3);
+//      const float3 v1 = vload_half3(1, input_vector3);
+//      vstore_half3(2.0f * v0, 0, output_vector3);
+//      vstore_half3(2.0f * v1, 1, output_vector3);
+      (void)input_vector3;
+      (void)output_vector3;
+    }
+    // vector4
+    {
+      const float4 v0 = vload_half4(0, input_vector4);
+      const float4 v1 = vload_half4(1, input_vector4);
+      vstore_half4(2.0f * v0, 0, output_vector4);
+      vstore_half4(2.0f * v1, 1, output_vector4);
+    }
+  }
+}
+
 #endif /* ZINVUL_DATA_TEST_VECTOR_CL */

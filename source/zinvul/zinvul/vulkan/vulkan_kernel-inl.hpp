@@ -312,8 +312,7 @@ vk::Buffer& VulkanKernel<GroupType, kDimension, ArgumentTypes...>::refer(
 {
   ZISC_ASSERT(buffer.deviceType() == DeviceType::kVulkan,
               "The device type of the buffer isn't vulkan.");
-  using VulkanBufferP =
-      std::add_pointer_t<VulkanBuffer<std::remove_pointer_t<Type>>>;
+  using VulkanBufferP = std::add_pointer_t<VulkanBuffer<std::remove_cv_t<std::remove_pointer_t<Type>>>>;
   auto vulkan_buffer = zisc::cast<VulkanBufferP>(&buffer);
   return vulkan_buffer->buffer();
 }

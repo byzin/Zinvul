@@ -14,6 +14,8 @@
 #include <vector>
 // GoogleTest
 #include "gtest/gtest.h"
+// Zisc
+#include "zisc/floating_point.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
 #include "zinvul/data.hpp"
@@ -635,5 +637,125 @@ TEST(DataTest, VectorOperationsTest)
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
+}
 
+TEST(DataTest, HalfLoadStoreTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto input_scalar =
+        makeBuffer<cl::half>(device.get(), BufferUsage::kHostToDevice);
+    input_scalar->setSize(3);
+    {
+      std::array<cl::half, 3> input;
+      input[0] = zisc::SingleFloat::fromFloat(1.0f);
+      input[1] = zisc::SingleFloat::fromFloat(2.0f);
+      input[2] = zisc::SingleFloat::fromFloat(4.0f);
+      input_scalar->write(input.data());
+    }
+    auto output_scalar =
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceToHost);
+    output_scalar->setSize(3);
+    auto input_vector2 =
+        makeBuffer<cl::half>(device.get(), BufferUsage::kHostToDevice);
+    input_vector2->setSize(4);
+    {
+      std::array<cl::half, 4> input;
+      input[0] = zisc::SingleFloat::fromFloat(1.0f);
+      input[1] = zisc::SingleFloat::fromFloat(2.0f);
+      input[2] = zisc::SingleFloat::fromFloat(4.0f);
+      input[3] = zisc::SingleFloat::fromFloat(8.0f);
+      input_vector2->write(input.data());
+    }
+    auto output_vector2 =
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceToHost);
+    output_vector2->setSize(4);
+    auto input_vector3 =
+        makeBuffer<cl::half>(device.get(), BufferUsage::kHostToDevice);
+    input_vector3->setSize(6);
+    {
+      std::array<cl::half, 6> input;
+      input[0] = zisc::SingleFloat::fromFloat(1.0f);
+      input[1] = zisc::SingleFloat::fromFloat(2.0f);
+      input[2] = zisc::SingleFloat::fromFloat(4.0f);
+      input[3] = zisc::SingleFloat::fromFloat(8.0f);
+      input[4] = zisc::SingleFloat::fromFloat(16.0f);
+      input[5] = zisc::SingleFloat::fromFloat(32.0f);
+      input_vector3->write(input.data());
+    }
+    auto output_vector3 =
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceToHost);
+    output_vector3->setSize(6);
+    auto input_vector4 =
+        makeBuffer<cl::half>(device.get(), BufferUsage::kHostToDevice);
+    input_vector4->setSize(8);
+    {
+      std::array<cl::half, 8> input;
+      input[0] = zisc::SingleFloat::fromFloat(1.0f);
+      input[1] = zisc::SingleFloat::fromFloat(2.0f);
+      input[2] = zisc::SingleFloat::fromFloat(4.0f);
+      input[3] = zisc::SingleFloat::fromFloat(8.0f);
+      input[4] = zisc::SingleFloat::fromFloat(16.0f);
+      input[5] = zisc::SingleFloat::fromFloat(32.0f);
+      input[6] = zisc::SingleFloat::fromFloat(64.0f);
+      input[7] = zisc::SingleFloat::fromFloat(128.0f);
+      input_vector4->write(input.data());
+    }
+    auto output_vector4 =
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceToHost);
+    output_vector4->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testHalfLoadStore, 1);
+    kernel->run(*input_scalar, *output_scalar, *input_vector2, *output_vector2,
+        *input_vector3, *output_vector3, *input_vector4, *output_vector4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<cl::half, 3> result;
+      output_scalar->read(result.data());
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        const float expected = static_cast<float>(2u << i);
+        const auto r = zisc::SingleFloat{result[i]};
+        ASSERT_EQ(expected, r.toFloat()) << "Loading and storing half failed.";
+      }
+    }
+
+//    {
+//      std::array<cl::half, 4> result;
+//      output_vector2->read(result.data());
+//      for (std::size_t i = 0; i < result.size(); ++i) {
+//        const float expected = static_cast<float>(2u << i);
+//        const auto r = zisc::SingleFloat{result[i]};
+//        ASSERT_EQ(expected, r.toFloat()) << "Loading and storing half2 failed.";
+//      }
+//    }
+//
+//    {
+//      std::array<cl::half, 6> result;
+//      output_vector3->read(result.data());
+//      for (std::size_t i = 0; i < result.size(); ++i) {
+//        const float expected = static_cast<float>(2u << i);
+//        const auto r = zisc::SingleFloat{result[i]};
+//        ASSERT_EQ(expected, r.toFloat()) << "Loading and storing half3 failed.";
+//      }
+//    }
+
+    {
+      std::array<cl::half, 8> result;
+      output_vector4->read(result.data());
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        const float expected = static_cast<float>(2u << i);
+        const auto r = zisc::SingleFloat{result[i]};
+        ASSERT_EQ(expected, r.toFloat()) << "Loading and storing half4 failed.";
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
 }

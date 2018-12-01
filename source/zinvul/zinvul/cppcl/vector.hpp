@@ -546,6 +546,33 @@ using half4 = Vector<half, 4>;
 using float4 = Vector<float, 4>;
 using double4 = Vector<double, 4>;
 
+// Load and store functions
+
+// Read half data from address (p + offset). The address must be 16bit aligned
+float vload_half(const size_t offset, const half* p) noexcept;
+
+// Read half data from address (p + offset * 2). The address must be 16bit aligned
+float2 vload_half2(const size_t offset, const half* p) noexcept;
+
+// Read half data from address (p + offset * 3). The address must be 16bit aligned
+float3 vload_half3(const size_t offset, const half* p) noexcept;
+
+// Read half data from address (p + offset * 4). The address must be 16bit aligned
+float4 vload_half4(const size_t offset, const half* p) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset)
+void vstore_half(const float data, const size_t offset, half* p) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset * 2)
+void vstore_half2(const float2& data, const size_t offset, half* p) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset * 3)
+void vstore_half3(const float3& data, const size_t offset, half* p) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset * 4)
+void vstore_half4(const float4& data, const size_t offset, half* p) noexcept;
+
+
 } // namespace cl
 
 } // namespace zinvul

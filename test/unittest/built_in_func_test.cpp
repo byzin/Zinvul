@@ -43,8 +43,7 @@ TEST(BuiltInFuncTest, WorkSize1dTest)
     kernel->run(*buffer1, *buffer2, {resolution}, 0);
     device->waitForCompletion();
 
-    std::vector<uint32b> result;
-    result.resize(num_of_funcs * resolution);
+    std::array<uint32b, num_of_funcs * resolution> result;
     buffer1->read(result.data());
 
     for (std::size_t index = 0; index < resolution; ++index) {
@@ -183,8 +182,7 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
 
     // atomic_add
     {
-      std::vector<int32b> table;
-      table.resize(resolution);
+      std::array<int32b, resolution> table;
       add_table->read(table.data());
       for (std::size_t i = 0; i < table.size(); ++i)
         ASSERT_NE(0, table[i]) << "The 'atomic_add' is wrong.";
@@ -194,8 +192,7 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
     }
     // atomic_sub
     {
-      std::vector<int32b> table;
-      table.resize(resolution);
+      std::array<int32b, resolution> table;
       sub_table->read(table.data());
       for (std::size_t i = 0; i < table.size(); ++i)
         ASSERT_NE(0, table[i]) << "The 'atomic_sub' is wrong.";
@@ -205,8 +202,7 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
     }
     // atomic_inc
     {
-      std::vector<int32b> table;
-      table.resize(resolution);
+      std::array<int32b, resolution> table;
       inc_table->read(table.data());
       for (std::size_t i = 0; i < table.size(); ++i)
         ASSERT_NE(0, table[i]) << "The 'atomic_inc' is wrong.";
@@ -216,8 +212,7 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
     }
     // atomic_dec
     {
-      std::vector<int32b> table;
-      table.resize(resolution);
+      std::array<int32b, resolution> table;
       dec_table->read(table.data());
       for (std::size_t i = 0; i < table.size(); ++i)
         ASSERT_NE(0, table[i]) << "The 'atomic_dec' is wrong.";
@@ -236,6 +231,137 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
       int32b result;
       max_result->read(&result);
       ASSERT_EQ(resolution, result) << "The 'atomic_max' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+
+TEST(BuiltInFuncTest, RelationalFunctionTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n_scalars = 24;
+    constexpr std::size_t n_vectors = 11;
+    auto scalar_results =
+        makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    scalar_results->setSize(n_scalars);
+    auto vector_results =
+        makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceToHost);
+    vector_results->setSize(n_vectors);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testRelational, 1);
+    kernel->run(*scalar_results, *vector_results, {1}, 0);
+    device->waitForCompletion();
+
+    // Scalar results
+    {
+      std::array<int32b, n_scalars> result;
+      scalar_results->read(result.data());
+      std::size_t index = 0;
+      ASSERT_TRUE(result[index++]) << "The isequal func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The isequal func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The isnotequal func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The isnotequal func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The isgreater func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The isgreater func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The isgreater func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The isgreaterequal func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The isgreaterequal func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The isgreaterequal func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The isless func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The isless func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The isless func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The islessequal func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The islessequal func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The islessequal func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The isinf func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The isinf func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The isnan func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The isnan func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The signbit func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The signbit func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The signbit func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The signbit func is wrong.";
+    }
+    // Vector results
+    {
+      std::array<cl::int4, n_vectors> result;
+      vector_results->read(result.data());
+      std::size_t index = 0;
+      {
+        const cl::int4 expected{kVecTrue, kVecTrue, kVecTrue, kVecTrue};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The isequal func is wrong.";
+      }
+      {
+        const cl::int4 expected{kVecFalse, kVecTrue, kVecFalse, kVecFalse};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The isequal func is wrong.";
+      }
+      {
+        const cl::int4 expected{kVecFalse, kVecFalse, kVecFalse, kVecFalse};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The isnotequal func is wrong.";
+      }
+      {
+        const cl::int4 expected{kVecTrue, kVecFalse, kVecTrue, kVecTrue};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The isnotequal func is wrong.";
+      }
+      {
+        const cl::int4 expected{kVecFalse, kVecFalse, kVecTrue, kVecTrue};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The isgreater func is wrong.";
+      }
+      {
+        const cl::int4 expected{kVecFalse, kVecTrue, kVecTrue, kVecTrue};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The isgreaterequal func is wrong.";
+      }
+      {
+        const cl::int4 expected{kVecTrue, kVecFalse, kVecFalse, kVecFalse};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The isless func is wrong.";
+      }
+      {
+        const cl::int4 expected{kVecTrue, kVecTrue, kVecFalse, kVecFalse};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The islessequal func is wrong.";
+      }
+      {
+        const cl::int4 expected{kVecFalse, kVecTrue, kVecTrue, kVecFalse};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The isinf func is wrong.";
+      }
+      {
+        const cl::int4 expected{kVecFalse, kVecFalse, kVecFalse, kVecTrue};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The isnan func is wrong.";
+      }
+      {
+        const cl::int4 expected{kVecFalse, kVecFalse, kVecTrue, kVecTrue};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i) 
+          ASSERT_EQ(expected[i], r[i]) << "The signbit func is wrong.";
+      }
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;

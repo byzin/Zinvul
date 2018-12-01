@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <type_traits>
 // Zisc
+#include "zisc/floating_point.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "types.hpp"
@@ -1050,6 +1051,102 @@ Vector<int32b, kN> operator||(const Vector<Type, kN>& lhs,
                               const Type& rhs) noexcept
 {
   return rhs || lhs;
+}
+
+namespace inner {
+
+template <std::size_t kN> inline
+Vector<float, kN> vload_halfn(const size_t offset, const half* p) noexcept
+{
+  Vector<float, kN> value;
+  const half* address = p + offset * kN;
+  for (std::size_t i = 0; i < kN; ++i) {
+    const zisc::SingleFloat v{address[i]};
+    value[i] = v.toFloat();
+  }
+  return value;
+}
+
+template <std::size_t kN> inline
+void vstore_halfn(const Vector<float, kN>& data,
+                  const size_t offset,
+                  half* p) noexcept
+{
+  half* address = p + offset * kN;
+  for (std::size_t i = 0; i < kN; ++i) {
+    const auto v = zisc::SingleFloat::fromFloat(data[i]);
+    address[i] = v;
+  }
+}
+
+} // namespace inner
+
+/*!
+  */
+inline
+float vload_half(const size_t offset, const half* p) noexcept
+{
+  const half* address = p + offset;
+  const zisc::SingleFloat value{*address};
+  return value.toFloat();
+}
+
+/*!
+  */
+inline
+float2 vload_half2(const size_t offset, const half* p) noexcept
+{
+  return inner::vload_halfn<2>(offset, p);
+}
+
+/*!
+  */
+inline
+float3 vload_half3(const size_t offset, const half* p) noexcept
+{
+  return inner::vload_halfn<3>(offset, p);
+}
+
+/*!
+  */
+inline
+float4 vload_half4(const size_t offset, const half* p) noexcept
+{
+  return inner::vload_halfn<4>(offset, p);
+}
+
+/*!
+  */
+inline
+void vstore_half(const float data, const size_t offset, half* p) noexcept
+{
+  half* address = p + offset;
+  const auto value = zisc::SingleFloat::fromFloat(data);
+  *address = value;
+}
+
+/*!
+  */
+inline
+void vstore_half2(const float2& data, const size_t offset, half* p) noexcept
+{
+  inner::vstore_halfn(data, offset, p);
+}
+
+/*!
+  */
+inline
+void vstore_half3(const float3& data, const size_t offset, half* p) noexcept
+{
+  inner::vstore_halfn(data, offset, p);
+}
+
+/*!
+  */
+inline
+void vstore_half4(const float4& data, const size_t offset, half* p) noexcept
+{
+  inner::vstore_halfn(data, offset, p);
 }
 
 } // namespace cl

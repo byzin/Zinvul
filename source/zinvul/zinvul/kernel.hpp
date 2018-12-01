@@ -41,7 +41,7 @@ class Kernel : private zisc::NonCopyable<Kernel<GroupType, kDimension, ArgumentT
 
  protected:
   template <typename Type>
-  using BufferRef = std::add_lvalue_reference_t<Buffer<std::remove_pointer_t<Type>>>;
+  using BufferRef = std::add_lvalue_reference_t<Buffer<std::remove_cv_t<std::remove_pointer_t<Type>>>>;
 
  public:
   using KernelGroupType = GroupType;
