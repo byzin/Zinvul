@@ -62,12 +62,12 @@ class CpuKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
            const std::array<uint32b, kDimension> works,
            const uint32b /* queue_index*/) noexcept override
   {
-    using Command = typename CpuDevice::Command<KernelGroupType>;
-    const Command command{[this, &args...](KernelGroupType& instance)
+    const auto command =[this, &args...](KernelGroupType& instance)
     {
       (instance.*kernel())(refer<ArgumentTypes>(args)...);
-    }};
-    device_->submit(works, command);
+    };
+    using Command = typename CpuDevice::Command<KernelGroupType>;
+    device_->submit(works, Command{command});
   }
 
   //! Set a kernel function

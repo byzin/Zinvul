@@ -92,6 +92,7 @@ void VulkanDevice::allocate(const std::size_t size,
       &memory,
       &alloc_info);
   ZISC_ASSERT(result == VK_SUCCESS, "Buffer creation failed.");
+  (void)result;
 
   const std::size_t device_memory_usage = memoryUsage() + buffer->memoryUsage();
   setMemoryUsage(device_memory_usage);
@@ -316,6 +317,7 @@ void* VulkanDevice::mapMemory(const VulkanBuffer<Type>& buffer) const noexcept
   void* data = nullptr;
   const auto result = vmaMapMemory(allocator_, buffer.memory(), &data);
   ZISC_ASSERT(result == VK_SUCCESS, "Buffer memory map failed.");
+  (void)result;
   return data;
 }
 
@@ -361,6 +363,7 @@ void VulkanDevice::submit(const uint32b queue_index,
   auto q = device_.getQueue(queue_family_index_, index);
   const auto result = q.submit(1, &info, nullptr);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Command submission failed.");
+  (void)result;
 }
 
 /*!
@@ -670,7 +673,7 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
                                   options.app_version_patch_);
   instance_ = makeInstance(app_info_);
   ZISC_ASSERT(instance_, "Vulkan instance creation failed.");
-#if Z_DEBUG_MODE
+#ifdef Z_DEBUG_MODE
   initDebugMessenger();
 #endif // Z_DEBUG_MODE
   initPhysicalDevice(options);

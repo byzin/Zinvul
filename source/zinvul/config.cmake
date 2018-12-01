@@ -157,7 +157,9 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     if(Z_DEBUG_MODE)
       list(APPEND clspv_options -O0 -DZ_DEBUG)
     elseif(Z_RELEASE_MODE)
-      list(APPEND clspv_options -O3 -DZ_RELEASE)
+      message(WARNING "The clspv optimization is disabled.")
+      #      list(APPEND clspv_options -O3 -DZ_RELEASE)
+      list(APPEND clspv_options -O0 -DZ_RELEASE)
     endif()
     list(APPEND clspv_options -f16bit_storage)
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
