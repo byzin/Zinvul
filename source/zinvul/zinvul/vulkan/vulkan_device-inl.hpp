@@ -584,9 +584,10 @@ void VulkanDevice::initDevice() noexcept
   const std::array<const char*, 1> layers{{
     "VK_LAYER_LUNARG_standard_validation"
     }};
-  const std::array<const char*, 4> extensions{{
+  const std::array<const char*, 5> extensions{{
       VK_KHR_8BIT_STORAGE_EXTENSION_NAME,
       VK_KHR_16BIT_STORAGE_EXTENSION_NAME,
+      VK_KHR_SHADER_ATOMIC_INT64_EXTENSION_NAME,
       VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
       VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME}};
 

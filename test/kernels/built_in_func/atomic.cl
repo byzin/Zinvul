@@ -74,91 +74,85 @@ kernel void testAtomic(global int32b* add_table, global int32b* add_result,
     const uint32b resolution)
 {
   const uint index = getGlobalIdX();
-
-  if (index == 0) {
-    for (uint32b i = 0; i < resolution; ++i) {
-      add_table[i] = 0;
-      sub_table[i] = 0;
-      xchg_table[i] = 0;
-      inc_table[i] = 0;
-      dec_table[i] = 0;
-      cmpxchg_table[i] = 0;
-      min_table[i] = 0;
-      max_table[i] = 0;
-      and_table[i] = 0;
-      or_table[i] = 0;
-      xor_table[i] = 0;
-    }
-    add_result[0] = 0;
-    sub_result[0] = 0;
-    xchg_result[0] = -1;
-    inc_result[0] = 0;
-    dec_result[0] = 0;
-    cmpxchg_result[0] = 0;
-    min_result[0] = 0;
-    max_result[0] = 0;
-    and_result[0] = 0;
-    or_result[0] = 0;
-    xor_result[0] = 0;
-  }
-
-//  if (index < resolution) {
-//    // atomic_add
-//    {
+  if (index < resolution) {
+    // atomic_add
+    {
 //      const int32b i = atomic_add(add_result, 1);
 //      add_table[i] = 1;
-//    }
-//    // atomic_sub
-//    {
+      (void)add_table;
+      (void)add_result;
+    }
+    // atomic_sub
+    {
 //      const int32b i = atomic_sub(sub_result, 1);
 //      sub_table[-i] = 1;
-//    }
-//    // atomic_xchg
-//    {
+      (void)sub_table;
+      (void)sub_result;
+    }
+    // atomic_xchg
+    {
 //      atomic_xchg(xchg_result, (int32b)index);
 //      xchg_table[index] = 1;
-//    }
-//    // atomic_inc
-//    {
+      (void)xchg_table;
+      (void)xchg_result;
+    }
+    // atomic_inc
+    {
 //      const int i = atomic_inc(inc_result);
 //      inc_table[i] = 1;
-//    }
-//    // atomic_dec
-//    {
+      (void)inc_table;
+      (void)inc_result;
+    }
+    // atomic_dec
+    {
 //      const int i = atomic_dec(dec_result);
 //      dec_table[-i] = 1;
-//    }
-//    // cmpxchg
-//    {
+      (void)dec_table;
+      (void)dec_result;
+    }
+    // cmpxchg
+    {
 //      atomic_cmpxchg(cmpxchg_result, 0, (int32b)index);
 //      cmpxchg_table[index] = 1;
-//    }
-//    // atomic_min
-//    {
+      (void)cmpxchg_table;
+      (void)cmpxchg_result;
+    }
+    // atomic_min
+    {
 //      atomic_min(min_result, -(int32b)(index + 1));
 //      min_table[index] = 1;
-//    }
-//    // atomic_max
-//    {
+      (void)min_table;
+      (void)min_result;
+    }
+    // atomic_max
+    {
 //      atomic_max(max_result, (int32b)(index + 1));
 //      max_table[index] = 1;
-//    }
-//    // atomic_and
-//    {
+      (void)max_table;
+      (void)max_result;
+    }
+    // atomic_and
+    {
 //      atomic_and(and_result, (int32b)index);
 //      and_table[index] = 1;
-//    }
-//    // atomic_or
-//    {
+      (void)and_table;
+      (void)and_result;
+    }
+    // atomic_or
+    {
 //      atomic_or(or_result, (int32b)index);
 //      or_table[index] = 1;
-//    }
-//    // atomic_xor
-//    {
+      (void)or_table;
+      (void)or_result;
+    }
+    // atomic_xor
+    {
 //      atomic_xor(xor_result, (int32b)index);
 //      xor_table[index] = 1;
-//    }
-//  }
+      (void)xor_table;
+      (void)xor_result;
+    }
+  }
 }
 
 #endif /* ZINVUL_BUILT_IN_FUNC_TEST_ATOMIC_CL */
