@@ -177,7 +177,7 @@ TEST(MathTest, CommonTest)
       ASSERT_EQ(-2, result[1][1]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::float2, 1> result;
+      std::array<cl::float2, 2> result;
       clamp_result4->read(result.data());
       ASSERT_EQ(0.0f, result[0][0]) << "The clamp func is wrong.";
       ASSERT_EQ(2.0f, result[0][1]) << "The clamp func is wrong.";
