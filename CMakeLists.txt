@@ -53,7 +53,7 @@ loadZisc(zisc_header_files
          zisc_definitions)
 # Zinvul
 include(${PROJECT_SOURCE_DIR}/source/zinvul/config.cmake)
-loadZinvul(zinvul_header_files
+loadZinvul(zinvul_source_files
            zinvul_include_dirs
            zinvul_compile_flags
            zinvul_linker_flags

@@ -21,7 +21,9 @@ namespace zinvul {
 namespace cl {
 
 // Float constants
+#ifndef MAXFLOAT
 constexpr float MAXFLOAT = std::numeric_limits<float>::max();
+#endif // MAXFLOAT
 
 //! Return |x|
 template <typename Integer>

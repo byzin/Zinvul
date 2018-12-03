@@ -67,7 +67,7 @@ function(buildUnitTest)
                                   ${__test_root__}/unittest/*.cpp)
   add_executable(UnitTest ${unittest_source_files}
                           ${zisc_header_files}
-                          ${zinvul_header_files}
+                          ${zinvul_source_files}
                           ${data_source_files}
                           ${built_in_func_source_files}
                           ${math_source_files})
