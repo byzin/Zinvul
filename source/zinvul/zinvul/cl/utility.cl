@@ -14,7 +14,7 @@
 
 /*!
   */
-uint32b getGlobalId(const uint32b dimension)
+uint32b zGetGlobalId(const uint32b dimension)
 {
   const uint32b id = get_global_id(dimension);
   return id;
@@ -22,7 +22,7 @@ uint32b getGlobalId(const uint32b dimension)
 
 /*!
   */
-uint32b getGlobalIdX()
+uint32b zGetGlobalIdX()
 {
   const uint32b id = get_global_id(0);
   return id;
@@ -30,7 +30,7 @@ uint32b getGlobalIdX()
 
 /*!
   */
-uint32b getGlobalIdY()
+uint32b zGetGlobalIdY()
 {
   const uint32b id = get_global_id(1);
   return id;
@@ -38,7 +38,7 @@ uint32b getGlobalIdY()
 
 /*!
   */
-uint32b getGlobalIdZ()
+uint32b zGetGlobalIdZ()
 {
   const uint32b id = get_global_id(2);
   return id;
@@ -46,7 +46,7 @@ uint32b getGlobalIdZ()
 
 /*!
   */
-char2 makeChar2(const int8b x, const int8b y)
+char2 zMakeChar2(const int8b x, const int8b y)
 {
 #ifdef ZINVUL_CPP_CL
   const char2 value{x, y};
@@ -58,7 +58,7 @@ char2 makeChar2(const int8b x, const int8b y)
 
 /*!
   */
-char3 makeChar3(const int8b x, const int8b y, const int8b z)
+char3 zMakeChar3(const int8b x, const int8b y, const int8b z)
 {
 #ifdef ZINVUL_CPP_CL
   const char3 value{x, y, z};
@@ -70,7 +70,7 @@ char3 makeChar3(const int8b x, const int8b y, const int8b z)
 
 /*!
   */
-char4 makeChar4(const int8b x, const int8b y, const int8b z, const int8b w)
+char4 zMakeChar4(const int8b x, const int8b y, const int8b z, const int8b w)
 {
 #ifdef ZINVUL_CPP_CL
   const char4 value{x, y, z, w};
@@ -82,7 +82,7 @@ char4 makeChar4(const int8b x, const int8b y, const int8b z, const int8b w)
 
 /*!
   */
-uchar2 makeUChar2(const uint8b x, const uint8b y)
+uchar2 zMakeUChar2(const uint8b x, const uint8b y)
 {
 #ifdef ZINVUL_CPP_CL
   const uchar2 value{x, y};
@@ -94,7 +94,7 @@ uchar2 makeUChar2(const uint8b x, const uint8b y)
 
 /*!
   */
-uchar3 makeUChar3(const uint8b x, const uint8b y, const uint8b z)
+uchar3 zMakeUChar3(const uint8b x, const uint8b y, const uint8b z)
 {
 #ifdef ZINVUL_CPP_CL
   const uchar3 value{x, y, z};
@@ -106,7 +106,7 @@ uchar3 makeUChar3(const uint8b x, const uint8b y, const uint8b z)
 
 /*!
   */
-uchar4 makeUChar4(const uint8b x, const uint8b y, const uint8b z, const uint8b w)
+uchar4 zMakeUChar4(const uint8b x, const uint8b y, const uint8b z, const uint8b w)
 {
 #ifdef ZINVUL_CPP_CL
   const uchar4 value{x, y, z, w};
@@ -118,7 +118,7 @@ uchar4 makeUChar4(const uint8b x, const uint8b y, const uint8b z, const uint8b w
 
 /*!
   */
-short2 makeShort2(const int16b x, const int16b y)
+short2 zMakeShort2(const int16b x, const int16b y)
 {
 #ifdef ZINVUL_CPP_CL
   const short2 value{x, y};
@@ -130,7 +130,7 @@ short2 makeShort2(const int16b x, const int16b y)
 
 /*!
   */
-short3 makeShort3(const int16b x, const int16b y, const int16b z)
+short3 zMakeShort3(const int16b x, const int16b y, const int16b z)
 {
 #ifdef ZINVUL_CPP_CL
   const short3 value{x, y, z};
@@ -142,7 +142,7 @@ short3 makeShort3(const int16b x, const int16b y, const int16b z)
 
 /*!
   */
-short4 makeShort4(const int16b x, const int16b y, const int16b z, const int16b w)
+short4 zMakeShort4(const int16b x, const int16b y, const int16b z, const int16b w)
 {
 #ifdef ZINVUL_CPP_CL
   const short4 value{x, y, z, w};
@@ -154,7 +154,7 @@ short4 makeShort4(const int16b x, const int16b y, const int16b z, const int16b w
 
 /*!
   */
-ushort2 makeUShort2(const uint16b x, const uint16b y)
+ushort2 zMakeUShort2(const uint16b x, const uint16b y)
 {
 #ifdef ZINVUL_CPP_CL
   const ushort2 value{x, y};
@@ -166,7 +166,7 @@ ushort2 makeUShort2(const uint16b x, const uint16b y)
 
 /*!
   */
-ushort3 makeUShort3(const uint16b x, const uint16b y, const uint16b z)
+ushort3 zMakeUShort3(const uint16b x, const uint16b y, const uint16b z)
 {
 #ifdef ZINVUL_CPP_CL
   const ushort3 value{x, y, z};
@@ -178,7 +178,7 @@ ushort3 makeUShort3(const uint16b x, const uint16b y, const uint16b z)
 
 /*!
   */
-ushort4 makeUShort4(const uint16b x, const uint16b y, const uint16b z, const uint16b w)
+ushort4 zMakeUShort4(const uint16b x, const uint16b y, const uint16b z, const uint16b w)
 {
 #ifdef ZINVUL_CPP_CL
   const ushort4 value{x, y, z, w};
@@ -190,7 +190,7 @@ ushort4 makeUShort4(const uint16b x, const uint16b y, const uint16b z, const uin
 
 /*!
   */
-int2 makeInt2(const int32b x, const int32b y)
+int2 zMakeInt2(const int32b x, const int32b y)
 {
 #ifdef ZINVUL_CPP_CL
   const int2 value{x, y};
@@ -202,7 +202,7 @@ int2 makeInt2(const int32b x, const int32b y)
 
 /*!
   */
-int3 makeInt3(const int32b x, const int32b y, const int32b z)
+int3 zMakeInt3(const int32b x, const int32b y, const int32b z)
 {
 #ifdef ZINVUL_CPP_CL
   const int3 value{x, y, z};
@@ -214,7 +214,7 @@ int3 makeInt3(const int32b x, const int32b y, const int32b z)
 
 /*!
   */
-int4 makeInt4(const int32b x, const int32b y, const int32b z, const int32b w)
+int4 zMakeInt4(const int32b x, const int32b y, const int32b z, const int32b w)
 {
 #ifdef ZINVUL_CPP_CL
   const int4 value{x, y, z, w};
@@ -226,7 +226,7 @@ int4 makeInt4(const int32b x, const int32b y, const int32b z, const int32b w)
 
 /*!
   */
-uint2 makeUInt2(const uint32b x, const uint32b y)
+uint2 zMakeUInt2(const uint32b x, const uint32b y)
 {
 #ifdef ZINVUL_CPP_CL
   const uint2 value{x, y};
@@ -238,7 +238,7 @@ uint2 makeUInt2(const uint32b x, const uint32b y)
 
 /*!
   */
-uint3 makeUInt3(const uint32b x, const uint32b y, const uint32b z)
+uint3 zMakeUInt3(const uint32b x, const uint32b y, const uint32b z)
 {
 #ifdef ZINVUL_CPP_CL
   const uint3 value{x, y, z};
@@ -250,7 +250,7 @@ uint3 makeUInt3(const uint32b x, const uint32b y, const uint32b z)
 
 /*!
   */
-uint4 makeUInt4(const uint32b x, const uint32b y, const uint32b z, const uint32b w)
+uint4 zMakeUInt4(const uint32b x, const uint32b y, const uint32b z, const uint32b w)
 {
 #ifdef ZINVUL_CPP_CL
   const uint4 value{x, y, z, w};
@@ -262,7 +262,7 @@ uint4 makeUInt4(const uint32b x, const uint32b y, const uint32b z, const uint32b
 
 /*!
   */
-long2 makeLong2(const int64b x, const int64b y)
+long2 zMakeLong2(const int64b x, const int64b y)
 {
 #ifdef ZINVUL_CPP_CL
   const long2 value{x, y};
@@ -274,7 +274,7 @@ long2 makeLong2(const int64b x, const int64b y)
 
 /*!
   */
-long3 makeLong3(const int64b x, const int64b y, const int64b z)
+long3 zMakeLong3(const int64b x, const int64b y, const int64b z)
 {
 #ifdef ZINVUL_CPP_CL
   const long3 value{x, y, z};
@@ -286,7 +286,7 @@ long3 makeLong3(const int64b x, const int64b y, const int64b z)
 
 /*!
   */
-long4 makeLong4(const int64b x, const int64b y, const int64b z, const int64b w)
+long4 zMakeLong4(const int64b x, const int64b y, const int64b z, const int64b w)
 {
 #ifdef ZINVUL_CPP_CL
   const long4 value{x, y, z, w};
@@ -298,7 +298,7 @@ long4 makeLong4(const int64b x, const int64b y, const int64b z, const int64b w)
 
 /*!
   */
-ulong2 makeULong2(const uint64b x, const uint64b y)
+ulong2 zMakeULong2(const uint64b x, const uint64b y)
 {
 #ifdef ZINVUL_CPP_CL
   const ulong2 value{x, y};
@@ -310,7 +310,7 @@ ulong2 makeULong2(const uint64b x, const uint64b y)
 
 /*!
   */
-ulong3 makeULong3(const uint64b x, const uint64b y, const uint64b z)
+ulong3 zMakeULong3(const uint64b x, const uint64b y, const uint64b z)
 {
 #ifdef ZINVUL_CPP_CL
   const ulong3 value{x, y, z};
@@ -322,7 +322,7 @@ ulong3 makeULong3(const uint64b x, const uint64b y, const uint64b z)
 
 /*!
   */
-ulong4 makeULong4(const uint64b x, const uint64b y, const uint64b z, const uint64b w)
+ulong4 zMakeULong4(const uint64b x, const uint64b y, const uint64b z, const uint64b w)
 {
 #ifdef ZINVUL_CPP_CL
   const ulong4 value{x, y, z, w};
@@ -334,7 +334,7 @@ ulong4 makeULong4(const uint64b x, const uint64b y, const uint64b z, const uint6
 
 /*!
   */
-float2 makeFloat2(const float x, const float y)
+float2 zMakeFloat2(const float x, const float y)
 {
 #ifdef ZINVUL_CPP_CL
   const float2 value{x, y};
@@ -346,7 +346,7 @@ float2 makeFloat2(const float x, const float y)
 
 /*!
   */
-float3 makeFloat3(const float x, const float y, const float z)
+float3 zMakeFloat3(const float x, const float y, const float z)
 {
 #ifdef ZINVUL_CPP_CL
   const float3 value{x, y, z};
@@ -358,7 +358,7 @@ float3 makeFloat3(const float x, const float y, const float z)
 
 /*!
   */
-float4 makeFloat4(const float x, const float y, const float z, const float w)
+float4 zMakeFloat4(const float x, const float y, const float z, const float w)
 {
 #ifdef ZINVUL_CPP_CL
   const float4 value{x, y, z, w};

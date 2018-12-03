@@ -19,7 +19,7 @@
 kernel void testRelational(global int32b* scalar_results,
                            global int4* vector_results)
 {
-  const uint index = getGlobalIdX();
+  const uint index = zGetGlobalIdX();
   if (index == 0) {
     // Scalar
     uint scalar_index = 0;
@@ -50,9 +50,9 @@ kernel void testRelational(global int32b* scalar_results,
     // Vector
     uint vector_index = 0;
     {
-      const float4 v0 = makeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
-      const float4 v1 = makeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
-      const float4 v2 = makeFloat4(1.0f, 1.0f, 1.0f, 1.0f);
+      const float4 v0 = zMakeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
+      const float4 v1 = zMakeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
+      const float4 v2 = zMakeFloat4(1.0f, 1.0f, 1.0f, 1.0f);
       vector_results[vector_index++] = isequal(v0, v1);
       vector_results[vector_index++] = isequal(v0, v2);
       vector_results[vector_index++] = isnotequal(v0, v1);
@@ -63,12 +63,12 @@ kernel void testRelational(global int32b* scalar_results,
       vector_results[vector_index++] = islessequal(v0, v2);
     }
     {
-      const float4 v0 = makeFloat4(MAXFLOAT, -INFINITY, INFINITY, NAN);
+      const float4 v0 = zMakeFloat4(MAXFLOAT, -INFINITY, INFINITY, NAN);
       vector_results[vector_index++] = isinf(v0);
       vector_results[vector_index++] = isnan(v0);
     }
     {
-      const float4 v0 = makeFloat4(1.0f, 0.0f, -0.0f, -1.0f);
+      const float4 v0 = zMakeFloat4(1.0f, 0.0f, -0.0f, -1.0f);
       vector_results[vector_index++] = signbit(v0);
     }
   }

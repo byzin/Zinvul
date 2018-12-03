@@ -19,7 +19,7 @@
 kernel void test1dWorkSize(global uint32b* work_size_table, const uint32b resolution)
 {
   const uint num_of_funcs = 8;
-  const uint index = getGlobalIdX();
+  const uint index = zGetGlobalIdX();
   if (index < resolution) {
     work_size_table[num_of_funcs * index    ] = index;
     work_size_table[num_of_funcs * index + 1] = get_global_offset(0);
@@ -35,8 +35,8 @@ kernel void test1dWorkSize(global uint32b* work_size_table, const uint32b resolu
 kernel void test2dWorkSize(global uint32b* work_size_table, const uint2 resolution)
 {
   const uint num_of_funcs = 16;
-  const uint x = getGlobalIdX();
-  const uint y = getGlobalIdY();
+  const uint x = zGetGlobalIdX();
+  const uint y = zGetGlobalIdY();
   if ((x < resolution.x) && (y < resolution.y)) {
     const uint index = x + y * resolution.x;
     work_size_table[num_of_funcs * index    ] = x;

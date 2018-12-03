@@ -12,6 +12,6 @@
 
 #include "types.cl"
 
-constant float kPiF = 3.14159274f;
+constant float zPiF = 3.14159274f;
 
 #endif /* ZINVUL_MATH_CL */

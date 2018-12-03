@@ -17,7 +17,7 @@
   */
 __kernel void getTypeSize(__global uint32b* size_table)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zGetGlobalIdX();
   if (index == 0) {
     uint32b table_index = 0;
     size_table[table_index++] = sizeof(char);
@@ -70,7 +70,7 @@ __kernel void testDataConversion(
     __global int16b* buffer1, __global float* buffer2, __global uint32b* buffer3,
     __global float4* buffer4, __global int4* buffer5)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zGetGlobalIdX();
   if (index == 0) {
     (void)buffer1[0];
 //    {
@@ -106,7 +106,7 @@ __kernel void testDataReinterpreting(
     __global uint32b* buffer1, __global float* buffer2,
     __global uint4* buffer3, __global float4* buffer4)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zGetGlobalIdX();
   if (index == 0) {
     {
       const float v = 1.0f;
@@ -117,11 +117,11 @@ __kernel void testDataReinterpreting(
       buffer2[0] = as_float(v);
     }
     {
-      const float4 v = makeFloat4(1.0f, 2.0f, 4.0f, 8.0f);
+      const float4 v = zMakeFloat4(1.0f, 2.0f, 4.0f, 8.0f);
       buffer3[0] = as_uint4(v);
     }
     {
-      const uint4 v = makeUInt4(0x3f800000u, 0x40000000u, 0x40800000u, 0x41000000u);
+      const uint4 v = zMakeUInt4(0x3f800000u, 0x40000000u, 0x40800000u, 0x41000000u);
       buffer4[0] = as_float4(v);
     }
   }

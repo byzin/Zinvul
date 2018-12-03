@@ -29,7 +29,7 @@ kernel void initAtomicTest(global int32b* add_table, global int32b* add_result,
     global int32b* xor_table, global int32b* xor_result,
     const uint32b resolution)
 {
-  const uint index = getGlobalIdX();
+  const uint index = zGetGlobalIdX();
   if (index == 0) {
     for (uint32b i = 0; i < resolution; ++i) {
       add_table[i] = 0;
@@ -73,7 +73,7 @@ kernel void testAtomic(global int32b* add_table, global int32b* add_result,
     global int32b* xor_table, global int32b* xor_result,
     const uint32b resolution)
 {
-  const uint index = getGlobalIdX();
+  const uint index = zGetGlobalIdX();
   if (index < resolution) {
     // atomic_add
     {

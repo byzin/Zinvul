@@ -469,7 +469,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDevice::debugMessengerCallback(
   std::ostream* output = (is_error) ? &std::cerr : &std::cout;
   (*output) << message << std::endl;
 
-  return false;
+  return VK_FALSE;
 }
 
 /*!
@@ -482,16 +482,16 @@ uint32b VulkanDevice::findQueueFamilyForShader() const noexcept
   uint32b index = std::numeric_limits<uint32b>::max();
   bool is_found = false;
 
-  auto hasFlag = [](const vk::QueueFamilyProperties& family,
-                    const vk::QueueFlagBits& flag)
+  auto has_flag = [](const vk::QueueFamilyProperties& family,
+                     const vk::QueueFlagBits& flag)
   {
     return (family.queueFlags & flag) == flag;
   };
 
   for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
     const auto& family = queue_family_list[i];
-    if (!hasFlag(family, vk::QueueFlagBits::eGraphics) &&
-        hasFlag(family, vk::QueueFlagBits::eCompute)) {
+    if (!has_flag(family, vk::QueueFlagBits::eGraphics) &&
+        has_flag(family, vk::QueueFlagBits::eCompute)) {
       index = zisc::cast<uint32b>(i);
       is_found = true;
     }
@@ -499,7 +499,7 @@ uint32b VulkanDevice::findQueueFamilyForShader() const noexcept
 
   for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
     const auto& family = queue_family_list[i];
-    if (hasFlag(family, vk::QueueFlagBits::eCompute)) {
+    if (has_flag(family, vk::QueueFlagBits::eCompute)) {
       index = zisc::cast<uint32b>(i);
       is_found = true;
     }
