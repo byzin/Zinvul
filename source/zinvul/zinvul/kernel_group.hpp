@@ -39,14 +39,17 @@ class KernelGroup : private zisc::NonCopyable<KernelGroup>
   virtual zisc::pmr::vector<uint32b> __getKernelSpirvCode(
       zisc::pmr::memory_resource* mem_resource) const noexcept = 0;
 
-  //! Set the global work ID
-  void __setGlobalWorkId(const std::array<uint32b, 3>& id) noexcept;
+  //! Set the local work ID
+  void __setLocalWorkId(const uint32b id) noexcept;
 
   //! Set the local work size
   void __setLocalWorkSize(const std::array<uint32b, 3>& size) noexcept;
 
   //! Set a mutex
   void __setMutex(zisc::SpinLockMutex* mutex) noexcept;
+
+  //! Set the work group ID
+  void __setWorkGroupId(const uint32b id) noexcept;
 
   //! Set the work group size
   void __setWorkGroupSize(const std::array<uint32b, 3>& size) noexcept;

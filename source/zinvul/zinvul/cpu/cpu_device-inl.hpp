@@ -127,12 +127,9 @@ void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
     instance.__setLocalWorkSize(workgroupSize<kDimension>());
     instance.__setWorkGroupSize(calcWorkGroupSize(works));
     for (uint32b group_id = id++; group_id < n; group_id = id++) {
+      instance.__setWorkGroupId(group_id);
       for (uint32b local_id = 0; local_id < subgroupSize(); ++local_id) {
-        const uint32b global_id = group_id * subgroupSize() + local_id;
-        const uint32b x = global_id % works[0];
-        const uint32b y = (1 < kDimension) ? (global_id / works[0]) % works[1] : 0;
-        const uint32b z = (2 < kDimension) ? global_id / (works[0] * works[1]) : 0;
-        instance.__setGlobalWorkId({x, y, z});
+        instance.__setLocalWorkId(local_id);
         command(instance);
       }
     }

@@ -36,15 +36,13 @@ KernelGroup::~KernelGroup() noexcept
 /*!
   */
 inline
-void KernelGroup::__setGlobalWorkId(const std::array<uint32b, 3>& id)
-    noexcept
+void KernelGroup::__setLocalWorkId(const uint32b id) noexcept
 {
-  for (std::size_t dim = 0; dim < 3; ++dim) {
-    local_work_id_[dim] = id[dim] % local_work_size_[dim];
-    work_group_id_[dim] = id[dim] / local_work_size_[dim];
-    ZISC_ASSERT(work_group_id_[dim] < work_group_size_[dim],
-                "The work group id is out of range.");
-  }
+  local_work_id_[0] = id % local_work_size_[0];
+  local_work_id_[1] = (id / local_work_size_[0]) % local_work_size_[1];
+  local_work_id_[2] = id / (local_work_size_[0] * local_work_size_[1]);
+  ZISC_ASSERT(local_work_id_[2] < local_work_size_[2],
+              "The local ID is invalid: ID=", id);
 }
 
 /*!
@@ -61,6 +59,18 @@ inline
 void KernelGroup::__setMutex(zisc::SpinLockMutex* mutex) noexcept
 {
   mutex_ = mutex;
+}
+
+/*!
+  */
+inline
+void KernelGroup::__setWorkGroupId(const uint32b id) noexcept
+{
+  work_group_id_[0] = id % work_group_size_[0];
+  work_group_id_[1] = (id / work_group_size_[0]) % work_group_size_[1];
+  work_group_id_[2] = id / (work_group_size_[0] * work_group_size_[1]);
+  ZISC_ASSERT(work_group_id_[2] < work_group_size_[2],
+              "The workgroup ID is invalid: ID=", id);
 }
 
 /*!
