@@ -234,11 +234,11 @@ const vk::ShaderModule& VulkanDevice::getShaderModule(
 /*!
   */
 inline
-std::string VulkanDevice::getVendorName(const uint32b vendor_id) noexcept
+std::string VulkanDevice::getVendorName(const uint32b id) noexcept
 {
   using namespace std::string_literals;
   std::string vendor_name;
-  switch (vendor_id) {
+  switch (id) {
    case zisc::cast<uint32b>(VendorId::kAmd): {
     vendor_name = "AMD"s;
     break;
@@ -269,6 +269,28 @@ std::string VulkanDevice::getVendorName(const uint32b vendor_id) noexcept
    }
   }
   return vendor_name;
+}
+
+/*!
+  */
+inline
+uint32b VulkanDevice::getVendorSubgroupSize(const uint32b id) noexcept
+{
+  uint32b subgroup_size = 1;
+  switch (id) {
+   case zisc::cast<uint32b>(VendorId::kAmd): {
+    subgroup_size = 64;
+    break;
+   }
+   case zisc::cast<uint32b>(VendorId::kNvidia): {
+    subgroup_size = 32;
+    break;
+   }
+   default: {
+    break;
+   }
+  }
+  return subgroup_size;
 }
 
 /*!
@@ -584,12 +606,16 @@ void VulkanDevice::initDevice() noexcept
   const std::array<const char*, 1> layers{{
     "VK_LAYER_LUNARG_standard_validation"
     }};
+#ifdef Z_MAC
+  const std::array<const char*, 0> extensions{};
+#else // Z_MAC
   const std::array<const char*, 5> extensions{{
       VK_KHR_8BIT_STORAGE_EXTENSION_NAME,
       VK_KHR_16BIT_STORAGE_EXTENSION_NAME,
       VK_KHR_SHADER_ATOMIC_INT64_EXTENSION_NAME,
       VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
       VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME}};
+#endif // Z_MAC
 
   const auto& device_info = physicalDeviceInfo();
   vk::PhysicalDeviceFeatures device_features;
@@ -680,8 +706,14 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
   initPhysicalDevice(options);
   queue_family_index_ = findQueueFamilyForShader();
 
-  const auto subgroup_size = physicalDeviceInfo().subgroup_properties_.subgroupSize;
-  initWorkgroupSize(subgroup_size);
+  {
+    const auto& info = physicalDeviceInfo();
+    uint32b subgroup_size = info.subgroup_properties_.subgroupSize;
+    subgroup_size = (subgroup_size == 0)
+        ? getVendorSubgroupSize(info.properties_.vendorID)
+        : subgroup_size;
+    initWorkgroupSize(subgroup_size);
+  }
 
   initDevice();
   initCommandPool();

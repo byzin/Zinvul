@@ -46,10 +46,19 @@ TEST(BuiltInFuncTest, WorkSize1dTest)
     std::array<uint32b, num_of_funcs * resolution> result;
     buffer1->read(result.data());
 
+    {
+      const std::size_t expected = device->subgroupSize();
+      const std::size_t subgroup_x = result[5];
+      std::cout << "  Device LocalSize[x]: " << result[5] << std::endl;
+      ASSERT_EQ(expected, subgroup_x)
+          << "The subgroup sizes are different on between host and device.";
+    }
     for (std::size_t index = 0; index < resolution; ++index) {
       ASSERT_EQ(index, result[index * num_of_funcs])
+          << "[" << index << "]: "
           << "The 'getGlobalIdX()' func doesn't work.";
       ASSERT_EQ(resolution, result[index * num_of_funcs + 7])
+          << "[" << index << "]: "
           << "The resolution is wrong.";
     }
 
@@ -84,16 +93,29 @@ TEST(BuiltInFuncTest, WorkSize2dTest)
     result.resize(num_of_funcs * resolution.x * resolution.y);
     buffer1->read(result.data());
 
+    {
+      const std::size_t expected = device->subgroupSize();
+      const std::size_t subgroup_x = result[10];
+      const std::size_t subgroup_y = result[11];
+      std::cout << "  Device LocalSize[x]: " << subgroup_x << std::endl;
+      std::cout << "  Device LocalSize[y]: " << subgroup_y << std::endl;
+      ASSERT_EQ(expected, subgroup_x * subgroup_y)
+          << "The subgroup sizes are different on between host and device.";
+    }
     for (std::size_t y = 0; y < resolution.y; ++y) {
       for (std::size_t x = 0; x < resolution.x; ++x) {
         const std::size_t index = x + y * resolution.x;
         ASSERT_EQ(x, result[index * num_of_funcs + 0])
+            << "[" << x << "," << y << "]: "
             << "The 'getGlobalIdX()' func doesn't work.";
         ASSERT_EQ(y, result[index * num_of_funcs + 1])
+            << "[" << x << "," << y << "]: "
             << "The 'getGlobalIdY()' func doesn't work.";
         ASSERT_EQ(resolution.x, result[index * num_of_funcs + 14])
+            << "[" << x << "," << y << "]: "
             << "The resolution.x is wrong.";
         ASSERT_EQ(resolution.y, result[index * num_of_funcs + 15])
+            << "[" << x << "," << y << "]: "
             << "The resolution.y is wrong.";
       }
     }
@@ -188,7 +210,7 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
         ASSERT_NE(0, table[i]) << "The 'atomic_add' is wrong.";
       int32b result;
       add_result->read(&result);
-      ASSERT_EQ(resolution, result) << "The 'atomic_add' is wrong.";
+      EXPECT_EQ(resolution, result) << "The 'atomic_add' is wrong.";
     }
     // atomic_sub
     {
@@ -198,7 +220,7 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
         ASSERT_NE(0, table[i]) << "The 'atomic_sub' is wrong.";
       int32b result;
       sub_result->read(&result);
-      ASSERT_EQ(resolution, -result) << "The 'atomic_sub' is wrong.";
+      EXPECT_EQ(resolution, -result) << "The 'atomic_sub' is wrong.";
     }
     // atomic_inc
     {
@@ -208,7 +230,7 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
         ASSERT_NE(0, table[i]) << "The 'atomic_inc' is wrong.";
       int32b result;
       inc_result->read(&result);
-      ASSERT_EQ(resolution, result) << "The 'atomic_inc' is wrong.";
+      EXPECT_EQ(resolution, result) << "The 'atomic_inc' is wrong.";
     }
     // atomic_dec
     {
@@ -218,19 +240,19 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
         ASSERT_NE(0, table[i]) << "The 'atomic_dec' is wrong.";
       int32b result;
       dec_result->read(&result);
-      ASSERT_EQ(resolution, -result) << "The 'atomic_dec' is wrong.";
+      EXPECT_EQ(resolution, -result) << "The 'atomic_dec' is wrong.";
     }
     // atomic_min
     {
       int32b result;
       min_result->read(&result);
-      ASSERT_EQ(resolution, -result) << "The 'atomic_min' is wrong.";
+      EXPECT_EQ(resolution, -result) << "The 'atomic_min' is wrong.";
     }
     // atomic_max
     {
       int32b result;
       max_result->read(&result);
-      ASSERT_EQ(resolution, result) << "The 'atomic_max' is wrong.";
+      EXPECT_EQ(resolution, result) << "The 'atomic_max' is wrong.";
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;

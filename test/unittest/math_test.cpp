@@ -41,10 +41,8 @@ TEST(MathTest, ConstantValueTest)
     {
       float pi = 0.0f;
       pi_buffer->read(&pi);
-      EXPECT_EQ(zisc::kPi<float>, pi)
-          << "The pi values aren't same on host and device: "
-          << std::setprecision(std::numeric_limits<float>::max_digits10)
-          << zisc::kPi<float>;
+      EXPECT_FLOAT_EQ(zisc::kPi<float>, pi)
+          << "The pi values are different on between host and device.";
     }
   }
 }
@@ -101,118 +99,118 @@ TEST(MathTest, CommonTest)
     {
       std::array<uint32b, 3> result;
       abs_result1->read(result.data());
-      ASSERT_EQ(1u, result[0]) << "The abs func is wrong.";
-      ASSERT_EQ(1u, result[1]) << "The abs func is wrong.";
-      ASSERT_EQ(1u, result[2]) << "The abs func is wrong.";
+      EXPECT_EQ(1u, result[0]) << "The abs func is wrong.";
+      EXPECT_EQ(1u, result[1]) << "The abs func is wrong.";
+      EXPECT_EQ(1u, result[2]) << "The abs func is wrong.";
     }
     {
       std::array<float, 2> result;
       abs_result2->read(result.data());
-      ASSERT_EQ(1.0f, result[0]) << "The fabs func is wrong.";
-      ASSERT_EQ(1.0f, result[1]) << "The fabs func is wrong.";
+      EXPECT_EQ(1.0f, result[0]) << "The fabs func is wrong.";
+      EXPECT_EQ(1.0f, result[1]) << "The fabs func is wrong.";
     }
     {
       std::array<cl::uint2, 2> result;
       abs_result3->read(result.data());
       for (std::size_t i = 0; i < 2; ++i) {
-        ASSERT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-        ASSERT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
+        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
+        EXPECT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
       }
     }
     {
       std::array<cl::float2, 1> result;
       abs_result4->read(result.data());
       for (std::size_t i = 0; i < 2; ++i)
-        ASSERT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
+        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
     }
     {
       std::array<cl::uint3, 2> result;
       abs_result5->read(result.data());
       for (std::size_t i = 0; i < 3; ++i) {
-        ASSERT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-        ASSERT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
+        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
+        EXPECT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
       }
     }
     {
       std::array<cl::float3, 1> result;
       abs_result6->read(result.data());
       for (std::size_t i = 0; i < 3; ++i)
-        ASSERT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
+        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
     }
     {
       std::array<cl::uint4, 2> result;
       abs_result7->read(result.data());
       for (std::size_t i = 0; i < 4; ++i) {
-        ASSERT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-        ASSERT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
+        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
+        EXPECT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
       }
     }
     {
       std::array<cl::float4, 1> result;
       abs_result8->read(result.data());
       for (std::size_t i = 0; i < 4; ++i)
-        ASSERT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
+        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
     }
 
     {
       std::array<int32b, 3> result;
       clamp_result1->read(result.data());
-      ASSERT_FALSE(result[0]) << "The clamp func is wrong.";
-      ASSERT_TRUE(result[1]) << "The clamp func is wrong.";
-      ASSERT_EQ(-1, result[2]) << "The clamp func is wrong.";
+      EXPECT_FALSE(result[0]) << "The clamp func is wrong.";
+      EXPECT_TRUE(result[1]) << "The clamp func is wrong.";
+      EXPECT_EQ(-1, result[2]) << "The clamp func is wrong.";
     }
     {
       std::array<float, 3> result;
       clamp_result2->read(result.data());
-      ASSERT_EQ(0.0f, result[0]) << "The clamp func is wrong.";
-      ASSERT_EQ(1.0f, result[1]) << "The clamp func is wrong.";
-      ASSERT_EQ(-1.0f, result[2]) << "The clamp func is wrong.";
+      EXPECT_EQ(0.0f, result[0]) << "The clamp func is wrong.";
+      EXPECT_EQ(1.0f, result[1]) << "The clamp func is wrong.";
+      EXPECT_EQ(-1.0f, result[2]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::int2, 2> result;
       clamp_result3->read(result.data());
-      ASSERT_FALSE(result[0][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2, result[0][1]) << "The clamp func is wrong.";
-      ASSERT_FALSE(result[1][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(-2, result[1][1]) << "The clamp func is wrong.";
+      EXPECT_FALSE(result[0][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2, result[0][1]) << "The clamp func is wrong.";
+      EXPECT_FALSE(result[1][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(-2, result[1][1]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::float2, 2> result;
       clamp_result4->read(result.data());
-      ASSERT_EQ(0.0f, result[0][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2.0f, result[0][1]) << "The clamp func is wrong.";
-      ASSERT_EQ(0.0f, result[1][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(-2.0f, result[1][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(0.0f, result[0][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2.0f, result[0][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(0.0f, result[1][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(-2.0f, result[1][1]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::int3, 2> result;
       clamp_result5->read(result.data());
-      ASSERT_FALSE(result[0][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2, result[0][1]) << "The clamp func is wrong.";
-      ASSERT_EQ(-3, result[0][2]) << "The clamp func is wrong.";
+      EXPECT_FALSE(result[0][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2, result[0][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(-3, result[0][2]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::float3, 1> result;
       clamp_result6->read(result.data());
-      ASSERT_EQ(0.0f, result[0][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2.0f, result[0][1]) << "The clamp func is wrong.";
-      ASSERT_EQ(-3.0f, result[0][2]) << "The clamp func is wrong.";
+      EXPECT_EQ(0.0f, result[0][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2.0f, result[0][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(-3.0f, result[0][2]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::int4, 2> result;
       clamp_result7->read(result.data());
-      ASSERT_FALSE(result[0][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2, result[0][1]) << "The clamp func is wrong.";
-      ASSERT_EQ(-3, result[0][2]) << "The clamp func is wrong.";
-      ASSERT_EQ(4, result[0][3]) << "The clamp func is wrong.";
+      EXPECT_FALSE(result[0][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2, result[0][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(-3, result[0][2]) << "The clamp func is wrong.";
+      EXPECT_EQ(4, result[0][3]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::float4, 1> result;
       clamp_result8->read(result.data());
-      ASSERT_EQ(0.0f, result[0][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2.0f, result[0][1]) << "The clamp func is wrong.";
-      ASSERT_EQ(-3.0f, result[0][2]) << "The clamp func is wrong.";
-      ASSERT_EQ(4.0f, result[0][3]) << "The clamp func is wrong.";
+      EXPECT_EQ(0.0f, result[0][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2.0f, result[0][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(-3.0f, result[0][2]) << "The clamp func is wrong.";
+      EXPECT_EQ(4.0f, result[0][3]) << "The clamp func is wrong.";
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;

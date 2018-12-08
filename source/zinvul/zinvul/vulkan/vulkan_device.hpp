@@ -100,7 +100,10 @@ class VulkanDevice : public Device
   const vk::ShaderModule& getShaderModule(const std::size_t index) const noexcept;
 
   //! Return the vendor name corresponding to the vendor ID
-  static std::string getVendorName(const uint32b vendorId) noexcept;
+  static std::string getVendorName(const uint32b id) noexcept;
+
+  //! Return the subgroup size of vendor device
+  static uint32b getVendorSubgroupSize(const uint32b id) noexcept;
 
   //! Check if the device has the shader module
   bool hasShaderModule(const std::size_t index) const noexcept;
