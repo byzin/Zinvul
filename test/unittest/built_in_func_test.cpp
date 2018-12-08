@@ -33,18 +33,18 @@ TEST(BuiltInFuncTest, WorkSize1dTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
     buffer1->setSize(num_of_funcs * resolution);
-    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
     buffer2->setSize(1);
-    buffer2->write(&resolution);
+    buffer2->write(&resolution, buffer2->size(), 0, 0);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, test1dWorkSize, 1);
     kernel->run(*buffer1, *buffer2, {resolution}, 0);
     device->waitForCompletion();
 
     std::array<uint32b, num_of_funcs * resolution> result;
-    buffer1->read(result.data());
+    buffer1->read(result.data(), result.size(), 0, 0);
 
     {
       const std::size_t expected = device->subgroupSize();
@@ -79,11 +79,11 @@ TEST(BuiltInFuncTest, WorkSize2dTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
     buffer1->setSize(num_of_funcs * resolution.x * resolution.y);
-    auto buffer2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kHostToDevice);
+    auto buffer2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceDst);
     buffer2->setSize(1);
-    buffer2->write(&resolution);
+    buffer2->write(&resolution, buffer2->size(), 0, 0);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, test2dWorkSize, 2);
     kernel->run(*buffer1, *buffer2, {resolution.x, resolution.y}, 0);
@@ -91,7 +91,7 @@ TEST(BuiltInFuncTest, WorkSize2dTest)
 
     std::vector<uint32b> result;
     result.resize(num_of_funcs * resolution.x * resolution.y);
-    buffer1->read(result.data());
+    buffer1->read(result.data(), result.size(), 0, 0);
 
     {
       const std::size_t expected = device->subgroupSize();
@@ -137,53 +137,53 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto add_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto add_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     add_table->setSize(resolution);
-    auto add_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto add_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     add_result->setSize(1);
-    auto sub_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto sub_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     sub_table->setSize(resolution);
-    auto sub_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto sub_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     sub_result->setSize(1);
-    auto xchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto xchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     xchg_table->setSize(resolution);
-    auto xchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto xchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     xchg_result->setSize(1);
-    auto inc_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto inc_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     inc_table->setSize(resolution);
-    auto inc_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto inc_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     inc_result->setSize(1);
-    auto dec_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto dec_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     dec_table->setSize(resolution);
-    auto dec_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto dec_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     dec_result->setSize(1);
-    auto cmpxchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto cmpxchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     cmpxchg_table->setSize(resolution);
-    auto cmpxchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto cmpxchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     cmpxchg_result->setSize(1);
-    auto min_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto min_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     min_table->setSize(resolution);
-    auto min_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto min_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     min_result->setSize(1);
-    auto max_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto max_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     max_table->setSize(resolution);
-    auto max_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto max_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     max_result->setSize(1);
-    auto and_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto and_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     and_table->setSize(resolution);
-    auto and_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto and_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     and_result->setSize(1);
-    auto or_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto or_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     or_table->setSize(resolution);
-    auto or_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto or_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     or_result->setSize(1);
-    auto xor_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto xor_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     xor_table->setSize(resolution);
-    auto xor_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto xor_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     xor_result->setSize(1);
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
     res_buff->setSize(1);
-    res_buff->write(&resolution);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
 
     auto init_kernel = makeZinvulKernel(device.get(), built_in_func, initAtomicTest, 1);
     init_kernel->run(*add_table, *add_result, *sub_table, *sub_result,
@@ -205,53 +205,53 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
     // atomic_add
     {
       std::array<int32b, resolution> table;
-      add_table->read(table.data());
+      add_table->read(table.data(), table.size(), 0, 0);
       for (std::size_t i = 0; i < table.size(); ++i)
         ASSERT_NE(0, table[i]) << "The 'atomic_add' is wrong.";
       int32b result;
-      add_result->read(&result);
+      add_result->read(&result, 1, 0, 0);
       EXPECT_EQ(resolution, result) << "The 'atomic_add' is wrong.";
     }
     // atomic_sub
     {
       std::array<int32b, resolution> table;
-      sub_table->read(table.data());
+      sub_table->read(table.data(), table.size(), 0, 0);
       for (std::size_t i = 0; i < table.size(); ++i)
         ASSERT_NE(0, table[i]) << "The 'atomic_sub' is wrong.";
       int32b result;
-      sub_result->read(&result);
+      sub_result->read(&result, 1, 0, 0);
       EXPECT_EQ(resolution, -result) << "The 'atomic_sub' is wrong.";
     }
     // atomic_inc
     {
       std::array<int32b, resolution> table;
-      inc_table->read(table.data());
+      inc_table->read(table.data(), table.size(), 0,0);
       for (std::size_t i = 0; i < table.size(); ++i)
         ASSERT_NE(0, table[i]) << "The 'atomic_inc' is wrong.";
       int32b result;
-      inc_result->read(&result);
+      inc_result->read(&result, 1, 0, 0);
       EXPECT_EQ(resolution, result) << "The 'atomic_inc' is wrong.";
     }
     // atomic_dec
     {
       std::array<int32b, resolution> table;
-      dec_table->read(table.data());
+      dec_table->read(table.data(), table.size(), 0, 0);
       for (std::size_t i = 0; i < table.size(); ++i)
         ASSERT_NE(0, table[i]) << "The 'atomic_dec' is wrong.";
       int32b result;
-      dec_result->read(&result);
+      dec_result->read(&result, 1, 0, 0);
       EXPECT_EQ(resolution, -result) << "The 'atomic_dec' is wrong.";
     }
     // atomic_min
     {
       int32b result;
-      min_result->read(&result);
+      min_result->read(&result, 1, 0, 0);
       EXPECT_EQ(resolution, -result) << "The 'atomic_min' is wrong.";
     }
     // atomic_max
     {
       int32b result;
-      max_result->read(&result);
+      max_result->read(&result, 1, 0, 0);
       EXPECT_EQ(resolution, result) << "The 'atomic_max' is wrong.";
     }
 
@@ -273,10 +273,10 @@ TEST(BuiltInFuncTest, RelationalFunctionTest)
     constexpr std::size_t n_scalars = 24;
     constexpr std::size_t n_vectors = 11;
     auto scalar_results =
-        makeBuffer<int32b>(device.get(), BufferUsage::kDeviceToHost);
+        makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     scalar_results->setSize(n_scalars);
     auto vector_results =
-        makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceToHost);
+        makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
     vector_results->setSize(n_vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testRelational, 1);
@@ -286,7 +286,7 @@ TEST(BuiltInFuncTest, RelationalFunctionTest)
     // Scalar results
     {
       std::array<int32b, n_scalars> result;
-      scalar_results->read(result.data());
+      scalar_results->read(result.data(), result.size(), 0, 0);
       std::size_t index = 0;
       ASSERT_TRUE(result[index++]) << "The isequal func is wrong.";
       ASSERT_FALSE(result[index++]) << "The isequal func is wrong.";
@@ -316,7 +316,7 @@ TEST(BuiltInFuncTest, RelationalFunctionTest)
     // Vector results
     {
       std::array<cl::int4, n_vectors> result;
-      vector_results->read(result.data());
+      vector_results->read(result.data(), result.size(), 0, 0);
       std::size_t index = 0;
       {
         const cl::int4 expected{kVecTrue, kVecTrue, kVecTrue, kVecTrue};

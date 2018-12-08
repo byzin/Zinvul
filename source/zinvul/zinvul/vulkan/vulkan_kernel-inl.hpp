@@ -137,7 +137,8 @@ void VulkanKernel<GroupType, kDimension, ArgumentTypes...>::dispatch(
     std::array<uint32b, kDimension> works) noexcept
 {
   const auto group_size = device_->calcWorkGroupSize(works);
-  const vk::CommandBufferBeginInfo begin_info{};
+  vk::CommandBufferBeginInfo begin_info{};
+  begin_info.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
   command_buffer_.begin(begin_info);
 
   command_buffer_.bindPipeline(vk::PipelineBindPoint::eCompute, compute_pipeline_);

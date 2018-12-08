@@ -35,11 +35,11 @@ class VulkanBuffer : public Buffer<T>
 
 
   //! Create an empty buffer
-  VulkanBuffer(VulkanDevice* device,
+  VulkanBuffer(const VulkanDevice* device,
                const BufferUsage usage_flag) noexcept;
 
   //! Create a buffer
-  VulkanBuffer(VulkanDevice* device,
+  VulkanBuffer(const VulkanDevice* device,
                const BufferUsage usage_flag,
                const std::size_t size) noexcept;
 
@@ -58,6 +58,13 @@ class VulkanBuffer : public Buffer<T>
 
   //! Return the buffer body
   const vk::Buffer& buffer() const noexcept;
+
+  //! Copy this buffer to a dst buffer
+  void copyTo(Buffer<Type>* dst,
+              const std::size_t count,
+              const std::size_t src_offset,
+              const std::size_t dst_offset,
+              const uint32b queue_index) const noexcept override;
 
   //! Destroy a buffer
   void destroy() noexcept;
@@ -78,7 +85,10 @@ class VulkanBuffer : public Buffer<T>
   std::size_t memoryUsage() const noexcept override;
 
   //! Read a data from a buffer
-  void read(Type* data) const noexcept override;
+  void read(Type* data,
+            const std::size_t count,
+            const std::size_t offset,
+            const uint32b queue_index) const noexcept override;
 
   //! Set a size of a buffer
   void setSize(const std::size_t size) noexcept override;
@@ -87,10 +97,13 @@ class VulkanBuffer : public Buffer<T>
   std::size_t size() const noexcept override;
 
   //! Write a data to a buffer
-  void write(const Type* data) noexcept override;
+  void write(const Type* data,
+             const std::size_t count,
+             const std::size_t offset,
+             const uint32b queue_index) noexcept override;
 
  private:
-  VulkanDevice* device_;
+  const VulkanDevice* device_;
   vk::Buffer buffer_;
   VmaAllocation memory_ = VK_NULL_HANDLE;
   VmaAllocationInfo alloc_info_;

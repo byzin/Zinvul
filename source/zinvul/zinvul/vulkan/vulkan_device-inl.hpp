@@ -70,14 +70,18 @@ void VulkanDevice::allocate(const std::size_t size,
   vk::BufferCreateInfo buffer_create_info;
   buffer_create_info.size = sizeof(Type) * size;
   buffer_create_info.usage = vk::BufferUsageFlagBits::eStorageBuffer;
+  if (buffer->isSource())
+    buffer_create_info.usage |= vk::BufferUsageFlagBits::eTransferSrc;
+  else if (buffer->isDestination())
+    buffer_create_info.usage |= vk::BufferUsageFlagBits::eTransferDst;
   buffer_create_info.queueFamilyIndexCount = 1;
   buffer_create_info.pQueueFamilyIndices = &queue_family_index_;
 
   VmaAllocationCreateInfo alloc_create_info;
   alloc_create_info.flags = 0;
-  alloc_create_info.usage = buffer->isHostReadable() ? VMA_MEMORY_USAGE_GPU_TO_CPU :
-                            buffer->isHostWritable() ? VMA_MEMORY_USAGE_CPU_TO_GPU :
-                                                       VMA_MEMORY_USAGE_GPU_ONLY;
+  alloc_create_info.usage = buffer->isHostBuffer()
+      ? VMA_MEMORY_USAGE_CPU_ONLY
+      : VMA_MEMORY_USAGE_GPU_ONLY;
   alloc_create_info.requiredFlags = 0;
   alloc_create_info.preferredFlags = 0;
   alloc_create_info.memoryTypeBits = 0;
@@ -112,6 +116,31 @@ inline
 const vk::CommandPool& VulkanDevice::commandPool() const noexcept
 {
   return command_pool_;
+}
+
+/*!
+  */
+template <typename Type> inline
+void VulkanDevice::copyBuffer(const VulkanBuffer<Type>& src,
+                              VulkanBuffer<Type>* dst,
+                              const vk::BufferCopy& copy_info,
+                              const uint32b queue_index) const noexcept
+{
+  ZISC_ASSERT(src.isSource(), "The buffer 'src' isn't source buffer.");
+  ZISC_ASSERT(dst->isDestination(), "The buffer 'dst' isn't destination buffer.");
+
+  // Set copy command
+  vk::CommandBufferBeginInfo begin_info{};
+  begin_info.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+  copy_command_.begin(begin_info);
+
+  copy_command_.copyBuffer(src.buffer(), dst->buffer(), 1, &copy_info);
+
+  copy_command_.end();
+
+  // Submit a copy command
+  submit(queue_index, copy_command_, fence_);
+  waitForCompletion(fence_);
 }
 
 /*!
@@ -154,6 +183,10 @@ void VulkanDevice::destroy() noexcept
     if (command_pool_) {
       device_.destroyCommandPool(command_pool_);
       command_pool_ = nullptr;
+    }
+    if (fence_) {
+      device_.destroyFence(fence_, nullptr);
+      fence_ = nullptr;
     }
     device_.destroy();
     device_ = nullptr;
@@ -374,8 +407,12 @@ void VulkanDevice::setShaderModule(const zisc::pmr::vector<uint32b>& spirv_code,
   */
 inline
 void VulkanDevice::submit(const uint32b queue_index,
-                          const vk::CommandBuffer& command) noexcept
+                          const vk::CommandBuffer& command,
+                          vk::Fence fence) const noexcept
 {
+  if (fence)
+    resetFence(fence);
+
   // Compute the actual queue index
   const auto& queue_family_info =
       physicalDeviceInfo().queue_family_list_[queue_family_index_];
@@ -383,7 +420,7 @@ void VulkanDevice::submit(const uint32b queue_index,
 
   const vk::SubmitInfo info{0, nullptr, nullptr, 1, &command};
   auto q = device_.getQueue(queue_family_index_, index);
-  const auto result = q.submit(1, &info, nullptr);
+  const auto result = q.submit(1, &info, fence);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Command submission failed.");
   (void)result;
 }
@@ -399,14 +436,27 @@ void VulkanDevice::unmapMemory(const VulkanBuffer<Type>& buffer) const noexcept
 /*!
   */
 inline
-void VulkanDevice::waitForCompletion() noexcept
+void VulkanDevice::waitForCompletion() const noexcept
 {
   const auto& queue_family_info =
       physicalDeviceInfo().queue_family_list_[queue_family_index_];
   for (uint32b index = 0; index < queue_family_info.queueCount; ++index) {
     auto q = device_.getQueue(queue_family_index_, index);
-    q.waitIdle();
+    const auto result = q.waitIdle();
+    ZISC_ASSERT(result == vk::Result::eSuccess, "Queue waiting failed.");
+    (void)result;
   }
+}
+
+/*!
+  */
+inline
+void VulkanDevice::waitForCompletion(const vk::Fence& fence) const noexcept
+{
+  constexpr uint64b time_out = std::numeric_limits<uint64b>::max();
+  const auto result = device_.waitForFences(1, &fence, VK_TRUE, time_out);
+  ZISC_ASSERT(result == vk::Result::eSuccess, "Fence waiting failed.");
+  (void)result;
 }
 
 /*!
@@ -513,7 +563,8 @@ uint32b VulkanDevice::findQueueFamilyForShader() const noexcept
   for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
     const auto& family = queue_family_list[i];
     if (!has_flag(family, vk::QueueFlagBits::eGraphics) &&
-        has_flag(family, vk::QueueFlagBits::eCompute)) {
+        has_flag(family, vk::QueueFlagBits::eCompute) &&
+        has_flag(family, vk::QueueFlagBits::eTransfer)) {
       index = zisc::cast<uint32b>(i);
       is_found = true;
     }
@@ -521,7 +572,8 @@ uint32b VulkanDevice::findQueueFamilyForShader() const noexcept
 
   for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
     const auto& family = queue_family_list[i];
-    if (has_flag(family, vk::QueueFlagBits::eCompute)) {
+    if (has_flag(family, vk::QueueFlagBits::eCompute) ||
+        has_flag(family, vk::QueueFlagBits::eTransfer)) {
       index = zisc::cast<uint32b>(i);
       is_found = true;
     }
@@ -648,6 +700,17 @@ void VulkanDevice::initDevice() noexcept
 /*!
   */
 inline
+void VulkanDevice::initFence() noexcept
+{
+  const vk::FenceCreateInfo info{};
+  auto [result, fence] = device_.createFence(info);
+  ZISC_ASSERT(result == vk::Result::eSuccess, "Fence creation failed.");
+  fence_ = fence;
+}
+
+/*!
+  */
+inline
 void VulkanDevice::initMemoryAllocator() noexcept
 {
   VmaAllocatorCreateInfo allocator_create_info{};
@@ -687,6 +750,15 @@ void VulkanDevice::initMemoryAllocator() noexcept
                                                &alloc_info, 
                                                &memory_type_index_);
   ZISC_ASSERT(result == VK_SUCCESS, "Finding buffer info failed.");
+
+  // Initialize a copy command for memory buffer
+  const vk::CommandBufferAllocateInfo command_alloc_info{
+      commandPool(),
+      vk::CommandBufferLevel::ePrimary,
+      1};
+  auto [r, copy_commands] = device_.allocateCommandBuffers(command_alloc_info);
+  ZISC_ASSERT(r == vk::Result::eSuccess, "Command buffer allocation failed.");
+  copy_command_ = copy_commands[0];
 }
 
 /*!
@@ -716,6 +788,7 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
   }
 
   initDevice();
+  initFence();
   initCommandPool();
   initMemoryAllocator();
 }
@@ -781,6 +854,16 @@ vk::ApplicationInfo VulkanDevice::makeApplicationInfo(
                              engine_name,
                              engine_version,
                              api_version};
+}
+
+/*!
+  */
+inline
+void VulkanDevice::resetFence(vk::Fence& fence) const noexcept
+{
+  const auto result = device_.resetFences(1, &fence);
+  ZISC_ASSERT(result == vk::Result::eSuccess, "Fence resetting failed.");
+  (void)result;
 }
 
 } // namespace zinvul

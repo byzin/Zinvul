@@ -22,6 +22,71 @@
 // Test
 #include "test.hpp"
 
+TEST(DataTest, CopyBufferTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 16;
+    constexpr uint32b initializer = 100;
+
+    std::array<uint32b, n> init;
+    for (std::size_t i = 0; i < init.size(); ++i)
+      init[i] = initializer;
+
+    auto buffer0 = makeBuffer<uint32b>(device.get(), BufferUsage::kHostSrc);
+    buffer0->setSize(n);
+    buffer0->write(init.data(), init.size(), 0, 0);
+
+    std::array<uint32b, 12> input;
+    for (std::size_t i = 0; i < input.size(); ++i)
+      input[i] = zisc::cast<uint32b>(i + 1);
+
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kHostSrc);
+    buffer1->setSize(n);
+    buffer1->write(input.data(), input.size(), 2, 0);
+
+    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    buffer2->setSize(n);
+    buffer0->copyTo(buffer2.get(), n, 0, 0, 0);
+    buffer1->copyTo(buffer2.get(), 12, 2, 2, 0);
+
+    auto buffer3 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    buffer3->setSize(n);
+
+    auto kernel = makeZinvulKernel(device.get(), data, copyBufferTest, 1);
+    kernel->run(*buffer2, *buffer3, {1}, 0);
+    device->waitForCompletion();
+
+    auto buffer4 = makeBuffer<uint32b>(device.get(), BufferUsage::kHostDst);
+    buffer4->setSize(n);
+    buffer3->copyTo(buffer4.get(), n, 0, 0, 0);
+
+    {
+      std::array<uint32b, 2> result;
+      buffer4->read(result.data(), result.size(), 0, 0);
+      EXPECT_EQ(initializer, result[0]) << "The copyBuffer func is wrong.";
+      EXPECT_EQ(initializer, result[1]) << "The copyBuffer func is wrong.";
+    }
+    {
+      std::array<uint32b, 14> result;
+      buffer4->read(result.data(), result.size(), 2, 0);
+      for (std::size_t i = 0; i < 12; ++i)
+        EXPECT_EQ(i + 1, result[i]) << "The copyBuffer func is wrong.";
+      EXPECT_EQ(initializer, result[12]) << "The copyBuffer func is wrong.";
+      EXPECT_EQ(initializer, result[13]) << "The copyBuffer func is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+
 TEST(DataTest, TypeSizeTest)
 {
   using namespace zinvul;
@@ -34,7 +99,7 @@ TEST(DataTest, TypeSizeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
     buffer1->setSize(num_of_tables);
 
     auto kernel = makeZinvulKernel(device.get(), data, getTypeSize, 1);
@@ -43,7 +108,7 @@ TEST(DataTest, TypeSizeTest)
 
     std::vector<uint32b> result;
     result.resize(num_of_tables);
-    buffer1->read(result.data());
+    buffer1->read(result.data(), result.size(), 0, 0);
 
     std::size_t table_index = 0;
     EXPECT_EQ(sizeof(int8b), result[table_index++])
@@ -143,15 +208,15 @@ TEST(DataTest, DataConversionTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<int16b>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer1 = makeBuffer<int16b>(device.get(), BufferUsage::kDeviceSrc);
     buffer1->setSize(1);
-    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     buffer2->setSize(1);
-    auto buffer3 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer3 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
     buffer3->setSize(1);
-    auto buffer4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
     buffer4->setSize(1);
-    auto buffer5 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer5 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
     buffer5->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), data, testDataConversion, 1);
@@ -161,32 +226,32 @@ TEST(DataTest, DataConversionTest)
     {
       constexpr int16b expected = 3;
       int16b result;
-      buffer1->read(&result);
+      buffer1->read(&result, 1, 0, 0);
       ASSERT_EQ(expected, result) << "The 'convert_short' func is wrong.";
     }
     {
       constexpr float expected = 3.0f;
       float result;
-      buffer2->read(&result);
+      buffer2->read(&result, 1, 0, 0);
       ASSERT_EQ(expected, result) << "The 'convert_float' func is wrong.";
     }
     {
       constexpr uint32b expected = 5;
       uint32b result;
-      buffer3->read(&result);
+      buffer3->read(&result, 1, 0, 0);
       ASSERT_EQ(expected, result) << "The 'convert_uint' func is wrong.";
     }
     {
       const cl::float4 expected{1.0f, 2.0f, 3.0f, 4.0f};
       cl::float4 result;
-      buffer4->read(&result);
+      buffer4->read(&result, 1, 0, 0);
       for (std::size_t i = 0; i < expected.size(); ++i)
         ASSERT_EQ(expected[i], result[i]) << "The 'convert_float4' func is wrong.";
     }
     {
       const cl::int4 expected{1, 2, 3, 4};
       cl::int4 result;
-      buffer5->read(&result);
+      buffer5->read(&result, 1, 0, 0);
       for (std::size_t i = 0; i < expected.size(); ++i)
         ASSERT_EQ(expected[i], result[i]) << "The 'convert_int4' func is wrong.";
     }
@@ -205,13 +270,13 @@ TEST(DataTest, DataReinterpretingTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
     buffer1->setSize(1);
-    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     buffer2->setSize(1);
-    auto buffer3 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer3 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
     buffer3->setSize(1);
-    auto buffer4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
     buffer4->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), data, testDataReinterpreting, 1);
@@ -221,26 +286,26 @@ TEST(DataTest, DataReinterpretingTest)
     {
       constexpr uint32b expected = 0x3f800000u;
       uint32b result;
-      buffer1->read(&result);
+      buffer1->read(&result, 1, 0, 0);
       ASSERT_EQ(expected, result) << "The 'as_uint' func is wrong.";
     }
     {
       constexpr float expected = 1.0f;
       float result;
-      buffer2->read(&result);
+      buffer2->read(&result, 1, 0, 0);
       ASSERT_EQ(expected, result) << "The 'as_float' func is wrong.";
     }
     {
       const cl::uint4 expected{0x3f800000u, 0x40000000u, 0x40800000u, 0x41000000u};
       cl::uint4 result;
-      buffer3->read(&result);
+      buffer3->read(&result, 1, 0, 0);
       for (std::size_t i = 0; i < expected.size(); ++i)
         ASSERT_EQ(expected[i], result[i]) << "The 'as_uint4' func is wrong.";
     }
     {
       const cl::float4 expected{1.0f, 2.0f, 4.0f, 8.0f};
       cl::float4 result;
-      buffer4->read(&result);
+      buffer4->read(&result, 1, 0, 0);
       for (std::size_t i = 0; i < expected.size(); ++i)
         ASSERT_EQ(expected[i], result[i]) << "The 'as_float4' func is wrong.";
     }
@@ -259,35 +324,35 @@ TEST(DataTest, VectorOperationsTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<cl::short2>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer1 = makeBuffer<cl::short2>(device.get(), BufferUsage::kDeviceSrc);
     buffer1->setSize(1);
-    auto buffer2 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer2 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
     buffer2->setSize(1);
-    auto buffer3 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer3 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
     buffer3->setSize(1);
-    auto buffer4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
     buffer4->setSize(5);
-    auto buffer5 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer5 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
     buffer5->setSize(8);
-    auto buffer6 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer6 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
     buffer6->setSize(5);
-    auto buffer7 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer7 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
     buffer7->setSize(5);
-    auto buffer8 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer8 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
     buffer8->setSize(5);
-    auto buffer9 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer9 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
     buffer9->setSize(5);
-    auto buffer10 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer10 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
     buffer10->setSize(5);
-    auto buffer11 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer11 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
     buffer11->setSize(5);
-    auto buffer12 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer12 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
     buffer12->setSize(3);
-    auto buffer13 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer13 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
     buffer13->setSize(3);
-    auto buffer14 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer14 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
     buffer14->setSize(11);
-    auto buffer15 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceToHost);
+    auto buffer15 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
     buffer15->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), data, testVectorOperations, 1);
@@ -297,7 +362,7 @@ TEST(DataTest, VectorOperationsTest)
     {
       const cl::short2 expected{20, 23};
       cl::short2 result;
-      buffer1->read(&result);
+      buffer1->read(&result, 1, 0, 0);
       for (std::size_t i = 0; i < expected.size(); ++i) {
         ASSERT_EQ(expected[i], result[i])
             << "The vector addition operations are wrong.";
@@ -306,7 +371,7 @@ TEST(DataTest, VectorOperationsTest)
     {
       const cl::int3 expected{3, 2, 1};
       cl::int3 result;
-      buffer2->read(&result);
+      buffer2->read(&result, 1, 0, 0);
       for (std::size_t i = 0; i < expected.size(); ++i) {
         ASSERT_EQ(expected[i], result[i])
             << "The vector subtraction operations are wrong.";
@@ -315,15 +380,15 @@ TEST(DataTest, VectorOperationsTest)
     {
       const cl::uint4 expected{540u, 1440u, 2772u, 4608u};
       cl::uint4 result;
-      buffer3->read(&result);
+      buffer3->read(&result, 1, 0, 0);
       for (std::size_t i = 0; i < expected.size(); ++i) {
         ASSERT_EQ(expected[i], result[i])
             << "The vector multiplication operations are wrong.";
       }
     }
     {
-      cl::float2 result[5];
-      buffer4->read(result);
+      std::array<cl::float2, 5> result;
+      buffer4->read(result.data(), result.size(), 0, 0);
       {
         const cl::float2 expected{5.0f, 3.0f};
         for (std::size_t i = 0; i < expected.size(); ++i) {
@@ -361,8 +426,8 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      cl::int2 result[8];
-      buffer5->read(result);
+      std::array<cl::int2, 8> result;
+      buffer5->read(result.data(), result.size(), 0, 0);
       {
         const cl::int2 expected{1, 2};
         for (std::size_t i = 0; i < expected.size(); ++i) {
@@ -401,8 +466,8 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      cl::int2 result[5];
-      buffer6->read(result);
+      std::array<cl::int2, 5> result;
+      buffer6->read(result.data(), result.size(), 0, 0);
       {
         const cl::int2 expected{1, 1};
         for (std::size_t i = 0; i < expected.size(); ++i) {
@@ -425,8 +490,8 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      cl::int2 result[5];
-      buffer7->read(result);
+      std::array<cl::int2, 5> result;
+      buffer7->read(result.data(), result.size(), 0, 0);
       const cl::int2 expected{3, 3};
       for (std::size_t i = 0; i < expected.size(); ++i) {
         ASSERT_EQ(expected[i], result[0][i]) <<
@@ -442,8 +507,8 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      cl::int2 result[5];
-      buffer8->read(result);
+      std::array<cl::int2, 5> result;
+      buffer8->read(result.data(), result.size(), 0, 0);
       const cl::int2 expected{~0, ~0};
       for (std::size_t i = 0; i < expected.size(); ++i) {
         ASSERT_EQ(expected[i], result[0][i]) <<
@@ -459,8 +524,8 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      cl::int2 result[5];
-      buffer9->read(result);
+      std::array<cl::int2, 5> result;
+      buffer9->read(result.data(), result.size(), 0, 0);
       const cl::int2 expected{~0 - 3, ~0 - 3};
       for (std::size_t i = 0; i < expected.size(); ++i) {
         ASSERT_EQ(expected[i], result[0][i]) <<
@@ -476,8 +541,8 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      cl::int2 result[5];
-      buffer10->read(result);
+      std::array<cl::int2, 5> result;
+      buffer10->read(result.data(), result.size(), 0, 0);
       const cl::int2 expected{4, 4};
       for (std::size_t i = 0; i < expected.size(); ++i) {
         ASSERT_EQ(expected[i], result[0][i]) <<
@@ -493,8 +558,8 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      cl::int2 result[5];
-      buffer11->read(result);
+      std::array<cl::int2, 5> result;
+      buffer11->read(result.data(), result.size(), 0, 0);
       {
         const cl::int2 expected{4, 4};
         for (std::size_t i = 0; i < expected.size(); ++i) {
@@ -515,8 +580,8 @@ TEST(DataTest, VectorOperationsTest)
 //      }
     }
     {
-      cl::int3 result[3];
-      buffer12->read(result);
+      std::array<cl::int3, 3> result;
+      buffer12->read(result.data(), result.size(), 0, 0);
       {
         const cl::int3 expected{kVecFalse, kVecFalse, kVecTrue};
         for (std::size_t i = 0; i < expected.size(); ++i) {
@@ -530,8 +595,8 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      cl::int3 result[3];
-      buffer13->read(result);
+      std::array<cl::int3, 3> result;
+      buffer13->read(result.data(), result.size(), 0, 0);
       {
         const cl::int3 expected{kVecTrue, kVecFalse, kVecTrue};
         for (std::size_t i = 0; i < expected.size(); ++i) {
@@ -550,8 +615,8 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      cl::int3 result[11];
-      buffer14->read(result);
+      std::array<cl::int3, 11> result;
+      buffer14->read(result.data(), result.size(), 0, 0);
       {
         const cl::int3 expected{kVecTrue, kVecFalse, kVecTrue};
         for (std::size_t i = 0; i < expected.size(); ++i) {
@@ -587,8 +652,8 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      cl::int3 result[16];
-      buffer15->read(result);
+      std::array<cl::int3, 16> result;
+      buffer15->read(result.data(), result.size(), 0, 0);
       {
         const cl::int3 expected{kVecTrue, kVecTrue, kVecFalse};
         for (std::size_t i = 0; i < expected.size(); ++i) {
@@ -650,20 +715,20 @@ TEST(DataTest, HalfLoadStoreTest)
     std::cout << getTestDeviceInfo(*device);
 
     auto input_scalar =
-        makeBuffer<cl::half>(device.get(), BufferUsage::kHostToDevice);
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceDst);
     input_scalar->setSize(3);
     {
       std::array<cl::half, 3> input;
       input[0] = zisc::SingleFloat::fromFloat(1.0f);
       input[1] = zisc::SingleFloat::fromFloat(2.0f);
       input[2] = zisc::SingleFloat::fromFloat(4.0f);
-      input_scalar->write(input.data());
+      input_scalar->write(input.data(), input.size(), 0, 0);
     }
     auto output_scalar =
-        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceToHost);
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceSrc);
     output_scalar->setSize(3);
     auto input_vector2 =
-        makeBuffer<cl::half>(device.get(), BufferUsage::kHostToDevice);
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceDst);
     input_vector2->setSize(4);
     {
       std::array<cl::half, 4> input;
@@ -671,13 +736,13 @@ TEST(DataTest, HalfLoadStoreTest)
       input[1] = zisc::SingleFloat::fromFloat(2.0f);
       input[2] = zisc::SingleFloat::fromFloat(4.0f);
       input[3] = zisc::SingleFloat::fromFloat(8.0f);
-      input_vector2->write(input.data());
+      input_vector2->write(input.data(), input.size(), 0, 0);
     }
     auto output_vector2 =
-        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceToHost);
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceSrc);
     output_vector2->setSize(4);
     auto input_vector3 =
-        makeBuffer<cl::half>(device.get(), BufferUsage::kHostToDevice);
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceDst);
     input_vector3->setSize(6);
     {
       std::array<cl::half, 6> input;
@@ -687,13 +752,13 @@ TEST(DataTest, HalfLoadStoreTest)
       input[3] = zisc::SingleFloat::fromFloat(8.0f);
       input[4] = zisc::SingleFloat::fromFloat(16.0f);
       input[5] = zisc::SingleFloat::fromFloat(32.0f);
-      input_vector3->write(input.data());
+      input_vector3->write(input.data(), input.size(), 0, 0);
     }
     auto output_vector3 =
-        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceToHost);
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceSrc);
     output_vector3->setSize(6);
     auto input_vector4 =
-        makeBuffer<cl::half>(device.get(), BufferUsage::kHostToDevice);
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceDst);
     input_vector4->setSize(8);
     {
       std::array<cl::half, 8> input;
@@ -705,10 +770,10 @@ TEST(DataTest, HalfLoadStoreTest)
       input[5] = zisc::SingleFloat::fromFloat(32.0f);
       input[6] = zisc::SingleFloat::fromFloat(64.0f);
       input[7] = zisc::SingleFloat::fromFloat(128.0f);
-      input_vector4->write(input.data());
+      input_vector4->write(input.data(), input.size(), 0, 0);
     }
     auto output_vector4 =
-        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceToHost);
+        makeBuffer<cl::half>(device.get(), BufferUsage::kDeviceSrc);
     output_vector4->setSize(8);
 
     auto kernel = makeZinvulKernel(device.get(), data, testHalfLoadStore, 1);
@@ -718,7 +783,7 @@ TEST(DataTest, HalfLoadStoreTest)
 
     {
       std::array<cl::half, 3> result;
-      output_scalar->read(result.data());
+      output_scalar->read(result.data(), result.size(), 0, 0);
       for (std::size_t i = 0; i < result.size(); ++i) {
         const float expected = static_cast<float>(2u << i);
         const auto r = zisc::SingleFloat{result[i]};
@@ -728,7 +793,7 @@ TEST(DataTest, HalfLoadStoreTest)
 
 //    {
 //      std::array<cl::half, 4> result;
-//      output_vector2->read(result.data());
+//      output_vector2->read(result.data(), result.size(), 0, 0);
 //      for (std::size_t i = 0; i < result.size(); ++i) {
 //        const float expected = static_cast<float>(2u << i);
 //        const auto r = zisc::SingleFloat{result[i]};
@@ -738,7 +803,7 @@ TEST(DataTest, HalfLoadStoreTest)
 //
 //    {
 //      std::array<cl::half, 6> result;
-//      output_vector3->read(result.data());
+//      output_vector3->read(result.data(), result.size(), 0, 0);
 //      for (std::size_t i = 0; i < result.size(); ++i) {
 //        const float expected = static_cast<float>(2u << i);
 //        const auto r = zisc::SingleFloat{result[i]};
@@ -748,7 +813,7 @@ TEST(DataTest, HalfLoadStoreTest)
 
     {
       std::array<cl::half, 8> result;
-      output_vector4->read(result.data());
+      output_vector4->read(result.data(), result.size(), 0, 0);
       for (std::size_t i = 0; i < result.size(); ++i) {
         const float expected = static_cast<float>(2u << i);
         const auto r = zisc::SingleFloat{result[i]};

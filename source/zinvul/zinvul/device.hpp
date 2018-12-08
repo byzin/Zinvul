@@ -86,7 +86,7 @@ class Device : private zisc::NonCopyable<Device>
   uint32b subgroupSize() const noexcept;
 
   //! Wait this thread until all commands in the queue are completed
-  virtual void waitForCompletion() noexcept = 0;
+  virtual void waitForCompletion() const noexcept = 0;
 
   //! Return the workgroup size for the work dimension
   template <std::size_t kDimension>

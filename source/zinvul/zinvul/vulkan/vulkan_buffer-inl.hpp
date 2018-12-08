@@ -26,7 +26,7 @@ namespace zinvul {
 /*!
   */
 template <typename T> inline
-VulkanBuffer<T>::VulkanBuffer(VulkanDevice* device,
+VulkanBuffer<T>::VulkanBuffer(const VulkanDevice* device,
                               const BufferUsage usage_flag) noexcept :
     Buffer<T>(usage_flag),
     device_{device}
@@ -38,7 +38,7 @@ VulkanBuffer<T>::VulkanBuffer(VulkanDevice* device,
 /*!
   */
 template <typename T> inline
-VulkanBuffer<T>::VulkanBuffer(VulkanDevice* device,
+VulkanBuffer<T>::VulkanBuffer(const VulkanDevice* device,
                               const BufferUsage usage_flag,
                               const std::size_t size) noexcept :
     VulkanBuffer(device, usage_flag)
@@ -89,10 +89,32 @@ const vk::Buffer& VulkanBuffer<T>::buffer() const noexcept
 /*!
   */
 template <typename T> inline
+void VulkanBuffer<T>::copyTo(Buffer<Type>* dst,
+                             const std::size_t count,
+                             const std::size_t src_offset,
+                             const std::size_t dst_offset,
+                             const uint32b queue_index) const noexcept
+{
+  ZISC_ASSERT(this->isSource(), "This buffer isn't source.");
+  ZISC_ASSERT(dst->isDestination(), "The buffer 'dst' isn't destination.");
+  const std::size_t s = sizeof(Type) * count;
+  ZISC_ASSERT(s <= dst->memoryUsage(), "The size of dst buffer memory is less.");
+  auto d = zisc::cast<VulkanBuffer<Type>*>(dst);
+  const std::size_t src_offset_size = sizeof(Type) * src_offset;
+  const std::size_t dst_offset_size = sizeof(Type) * dst_offset;
+  const vk::BufferCopy copy_info{src_offset_size, dst_offset_size, s};
+  device_->copyBuffer(*this, d, copy_info, queue_index);
+}
+
+/*!
+  */
+template <typename T> inline
 void VulkanBuffer<T>::destroy() noexcept
 {
-  if (buffer_)
-    device_->deallocate(this);
+  if (buffer_) {
+    auto d = const_cast<VulkanDevice*>(device_);
+    d->deallocate(this);
+  }
 }
 
 /*!
@@ -140,12 +162,24 @@ std::size_t VulkanBuffer<T>::memoryUsage() const noexcept
 /*!
   */
 template <typename T> inline
-void VulkanBuffer<T>::read(Type* data) const noexcept
+void VulkanBuffer<T>::read(Type* data,
+                           const std::size_t count,
+                           const std::size_t offset,
+                           const uint32b queue_index) const noexcept
 {
   ZISC_ASSERT(this->isHostReadable(), "The buffer isn't readable.");
-  void* source = device_->mapMemory(*this);
-  std::memcpy(data, source, expectedMemoryUsage());
-  device_->unmapMemory(*this);
+  if (this->isHostBuffer()) {
+    const Type* source = zisc::cast<const Type*>(device_->mapMemory(*this));
+    const std::size_t s = sizeof(Type) * count;
+    std::memcpy(data, source + offset, s);
+    device_->unmapMemory(*this);
+  }
+  else {
+    VulkanBuffer<Type> dst{device_, BufferUsage::kHost | BufferUsage::kDst};
+    dst.setSize(count);
+    copyTo(&dst, count, offset, 0, queue_index);
+    dst.read(data, count, 0, queue_index);
+  }
 }
 
 /*!
@@ -155,7 +189,8 @@ void VulkanBuffer<T>::setSize(const std::size_t size) noexcept
 {
   destroy();
   size_ = size;
-  device_->allocate(size, this);
+  auto d = const_cast<VulkanDevice*>(device_);
+  d->allocate(size, this);
 }
 
 /*!
@@ -169,12 +204,24 @@ std::size_t VulkanBuffer<T>::size() const noexcept
 /*!
   */
 template <typename T> inline
-void VulkanBuffer<T>::write(const Type* data) noexcept
+void VulkanBuffer<T>::write(const Type* data,
+                            const std::size_t count,
+                            const std::size_t offset,
+                            const uint32b queue_index) noexcept
 {
   ZISC_ASSERT(this->isHostWritable(), "The buffer isn't writable.");
-  void* dest = device_->mapMemory(*this);
-  std::memcpy(dest, data, expectedMemoryUsage());
-  device_->unmapMemory(*this);
+  if (this->isHostBuffer()) {
+    Type* dest = zisc::cast<Type*>(device_->mapMemory(*this));
+    const std::size_t s = sizeof(Type) * count;
+    std::memcpy(dest + offset, data, s);
+    device_->unmapMemory(*this);
+  }
+  else {
+    VulkanBuffer<Type> src{device_, BufferUsage::kHost | BufferUsage::kSrc};
+    src.setSize(count);
+    src.write(data, count, 0, queue_index);
+    src.copyTo(this, count, 0, offset, queue_index);
+  }
 }
 
 } // namespace zinvul

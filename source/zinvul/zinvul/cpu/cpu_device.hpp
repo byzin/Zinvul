@@ -72,7 +72,7 @@ class CpuDevice : public Device
               const Command<GroupType>& command) noexcept;
 
   //! Wait this thread until all commands in the queue are completed
-  void waitForCompletion() noexcept override;
+  void waitForCompletion() const noexcept override;
 
  private:
   zisc::ThreadManager thread_manager_;

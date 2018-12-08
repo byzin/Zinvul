@@ -49,6 +49,13 @@ class CpuBuffer : public Buffer<T>
   //! Return the buffer body
   const zisc::pmr::vector<Type>& buffer() const noexcept;
 
+  //! Copy this buffer to a dst buffer
+  void copyTo(Buffer<Type>* dst,
+              const std::size_t count,
+              const std::size_t src_offset,
+              const std::size_t dst_offset,
+              const uint32b queue_index) const noexcept override;
+
   //! Return a data from a cpu buffer
   Type* data() noexcept;
 
@@ -62,7 +69,10 @@ class CpuBuffer : public Buffer<T>
   std::size_t memoryUsage() const noexcept override;
 
   //! Read a data from a buffer
-  void read(Type* data) const noexcept override;
+  void read(Type* host_data,
+            const std::size_t count,
+            const std::size_t offset,
+            const uint32b queue_index) const noexcept override;
 
   //! Set a size of a buffer
   void setSize(const std::size_t size) noexcept override;
@@ -71,7 +81,10 @@ class CpuBuffer : public Buffer<T>
   std::size_t size() const noexcept override;
 
   //! Write a data to a buffer
-  void write(const Type* data) noexcept override;
+  void write(const Type* host_data,
+             const std::size_t count,
+             const std::size_t offset,
+             const uint32b queue_index) noexcept override;
 
  private:
   CpuDevice* device_;

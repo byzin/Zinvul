@@ -12,6 +12,7 @@
 
 // Zisc
 #include "zisc/zisc_config.hpp"
+#include "zisc/utility.hpp"
 
 constexpr unsigned int kZinvulVersionMajor = @zinvul_version_major@;
 constexpr unsigned int kZinvulVersionMinor = @zinvul_version_minor@;
@@ -52,9 +53,14 @@ enum class DeviceType : uint32b
   */
 enum class BufferUsage : uint32b
 {
-  kDeviceOnly = 0x0b,
-  kHostToDevice = 0x1b << 0,
-  kDeviceToHost = 0x1b << 1
+  kDevice = 0b1u << 0, //!< Memory will be used on device
+  kHost = 0b1u << 1, //!< Memory will be mappable on host
+  kSrc = 0b1u << 2, //!< A buffer can be used as a source of a transfer
+  kDst = 0b1u << 3, //!< A buffer can be used as a destination of a transfer
+  kDeviceSrc = zisc::cast<uint32b>(kDevice) | zisc::cast<uint32b>(kSrc),
+  kDeviceDst = zisc::cast<uint32b>(kDevice) | zisc::cast<uint32b>(kDst),
+  kHostSrc = zisc::cast<uint32b>(kHost) | zisc::cast<uint32b>(kSrc),
+  kHostDst = zisc::cast<uint32b>(kHost) | zisc::cast<uint32b>(kDst),
 };
 
 } // namespace zinvul

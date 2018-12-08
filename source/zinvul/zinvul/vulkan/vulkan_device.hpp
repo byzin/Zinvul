@@ -77,6 +77,13 @@ class VulkanDevice : public Device
   //! Return the command pool
   const vk::CommandPool& commandPool() const noexcept;
 
+  //! Copy a  buffer 'src' to a buffer 'dst'
+  template <typename Type>
+  void copyBuffer(const VulkanBuffer<Type>& src,
+                  VulkanBuffer<Type>* dst,
+                  const vk::BufferCopy& copy_info,
+                  const uint32b queue_index) const noexcept;
+
   //! Deallocate a memory of a buffer
   template <typename Type>
   void deallocate(VulkanBuffer<Type>* buffer) noexcept;
@@ -131,14 +138,18 @@ class VulkanDevice : public Device
 
   //! Submit a command
   void submit(const uint32b queue_index,
-              const vk::CommandBuffer& command) noexcept;
+              const vk::CommandBuffer& command,
+              vk::Fence fence = nullptr) const noexcept;
 
   //! Unmap a buffer memory
   template <typename Type>
   void unmapMemory(const VulkanBuffer<Type>& buffer) const noexcept;
 
   //! Wait this thread until all commands in the queue are completed
-  void waitForCompletion() noexcept override;
+  void waitForCompletion() const noexcept override;
+
+  //! Wait this thread until a fence signals
+  void waitForCompletion(const vk::Fence& fence) const noexcept;
 
  private:
   //! Output a debug message
@@ -164,6 +175,9 @@ class VulkanDevice : public Device
   //! Initialize a device
   void initDevice() noexcept;
 
+  //! Initialize a fence
+  void initFence() noexcept;
+
   //! Initialize a memory allocator
   void initMemoryAllocator() noexcept;
 
@@ -183,6 +197,9 @@ class VulkanDevice : public Device
       const uint32b app_version_minor,
       const uint32b app_version_patch) noexcept;
 
+  //! Reset a fence state
+  void resetFence(vk::Fence& fence) const noexcept;
+
 
   PhysicalDeviceInfo device_info_;
   zisc::pmr::vector<vk::ShaderModule> shader_module_list_;
@@ -191,7 +208,9 @@ class VulkanDevice : public Device
   vk::DebugUtilsMessengerEXT debug_messenger_;
   vk::PhysicalDevice physical_device_;
   vk::Device device_;
+  vk::Fence fence_;
   vk::CommandPool command_pool_;
+  vk::CommandBuffer copy_command_;
   VmaAllocator allocator_ = VK_NULL_HANDLE;
   uint32b queue_family_index_ = std::numeric_limits<uint32b>::max();
   uint32b memory_type_index_ = std::numeric_limits<uint32b>::max();

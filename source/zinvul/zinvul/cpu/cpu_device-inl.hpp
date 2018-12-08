@@ -144,7 +144,7 @@ void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
 /*!
   */
 inline
-void CpuDevice::waitForCompletion() noexcept
+void CpuDevice::waitForCompletion() const noexcept
 {
 }
 

@@ -39,23 +39,48 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
   virtual ~Buffer() noexcept;
 
 
+  //! Copy this buffer to a dst buffer
+  virtual void copyTo(Buffer<Type>* dst,
+                      const std::size_t count,
+                      const std::size_t src_offset,
+                      const std::size_t dst_offset,
+                      const uint32b queue_index) const noexcept = 0;
+
   //! Return the device type
   virtual DeviceType deviceType() const noexcept = 0;
 
   //! Return the expected memory usage
   std::size_t expectedMemoryUsage() const noexcept;
 
+  //! Check if a buffer is transfer destination buffer
+  bool isDestination() const noexcept;
+
+  //! Check if a buffer memory is on device
+  bool isDeviceBuffer() const noexcept;
+
+  //! Check if a buffer memory is mappable on host
+  bool isHostBuffer() const noexcept;
+
   //! Check if a buffer is readable from host
   bool isHostReadable() const noexcept;
 
+  //! Check if a buffer is host visible
+  bool isHostVisible() const noexcept;
+
   //! Check if a buffer is writable from host
   bool isHostWritable() const noexcept;
+
+  //! Check if a buffer is transfer source buffer
+  bool isSource() const noexcept;
 
   //! Return the memory usage
   virtual std::size_t memoryUsage() const noexcept = 0;
 
   //! Read a data from a buffer
-  virtual void read(Type* data) const noexcept = 0;
+  virtual void read(Type* data,
+                    const std::size_t count,
+                    const std::size_t offset,
+                    const uint32b queue_index) const noexcept = 0;
 
   //! Set a size of a buffer
   virtual void setSize(const std::size_t s) noexcept = 0;
@@ -67,14 +92,14 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
   BufferUsage usage() const noexcept;
 
   //! Write a data to a buffer
-  virtual void write(const Type* data) noexcept = 0;
+  virtual void write(const Type* data,
+                     const std::size_t count,
+                     const std::size_t offset,
+                     const uint32b queue_index) noexcept = 0;
 
  private:
-  //! Map a device buffer memory to a host
-  void mapMemory(void** data) const noexcept;
-
-  //! Map a device buffer memory to a host
-  void unmapMemory() const noexcept;
+  //! Initialize a buffer
+  void initialize() noexcept;
 
 
   BufferUsage usage_flag_;

@@ -15,6 +15,18 @@
 
 /*!
   */
+__kernel void copyBufferTest(__global const uint32b* src, __global uint32b* dst)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    for (size_t i = 0; i < 16; ++i) {
+      dst[i] = src[i];
+    }
+  }
+}
+
+/*!
+  */
 __kernel void getTypeSize(__global uint32b* size_table)
 {
   const uint32b index = zGetGlobalIdX();
