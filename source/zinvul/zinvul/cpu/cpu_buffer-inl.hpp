@@ -27,7 +27,7 @@ namespace zinvul {
   */
 template <typename T> inline
 CpuBuffer<T>::CpuBuffer(CpuDevice* device,
-                           const BufferUsage usage_flag) noexcept :
+                        const BufferUsage usage_flag) noexcept :
     Buffer<T>(usage_flag),
     device_{device},
     buffer_{device->memoryResource()}

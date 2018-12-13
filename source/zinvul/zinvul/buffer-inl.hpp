@@ -106,8 +106,6 @@ void Buffer<T>::initialize() noexcept
 {
   ZISC_ASSERT(!(isHostBuffer() && isDeviceBuffer()),
       "The flags \"kDevice\" and \"kHost\" aren't able to set to a same buffer");
-  ZISC_ASSERT(!(isSource() && isDestination()),
-      "The flags \"kSrc\" and \"kDst\" aren't able to set to a same buffer");
 }
 
 } // namespace zinvul

@@ -82,6 +82,37 @@ TEST(DataTest, CopyBufferTest)
       EXPECT_EQ(initializer, result[13]) << "The copyBuffer func is wrong.";
     }
 
+    constexpr uint32b resolution = 500;
+
+    auto buffer5 = makeBuffer<int32b>(device.get(), BufferUsage::kHostSrcDst);
+    buffer5->setSize(resolution);
+    {
+      std::array<int32b, resolution> table;
+      for (std::size_t i = 0; i < table.size(); ++i)
+        table[i] = zisc::cast<int>(i);
+      buffer5->write(table.begin(), table.size(), 0, 0);
+    }
+    auto buffer6 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    buffer6->setSize(resolution);
+    buffer5->copyTo(buffer6.get(), resolution, 0, 0, 0);
+    auto buffer7 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    buffer7->setSize(1);
+    buffer7->write(&resolution, 1, 0, 0);
+
+    auto kernel2 = makeZinvulKernel(device.get(), data, multiplyBufferTest, 1);
+    kernel2->run(*buffer6, *buffer7, {resolution}, 0);
+    device->waitForCompletion();
+
+    buffer6->copyTo(buffer5.get(), resolution, 0, 0, 0);
+    {
+      std::array<int32b, resolution> table;
+      buffer5->read(table.begin(), resolution, 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i) {
+        const int expected = 2 * zisc::cast<int>(i);
+        ASSERT_EQ(expected, table[i]) << "The buffer readwrite is wrong.";
+      }
+    }
+
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }

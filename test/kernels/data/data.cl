@@ -27,6 +27,16 @@ __kernel void copyBufferTest(__global const uint32b* src, __global uint32b* dst)
 
 /*!
   */
+__kernel void multiplyBufferTest(__global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    table[index] = 2 * table[index];
+  }
+}
+
+/*!
+  */
 __kernel void getTypeSize(__global uint32b* size_table)
 {
   const uint32b index = zGetGlobalIdX();

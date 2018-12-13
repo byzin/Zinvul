@@ -59,8 +59,10 @@ enum class BufferUsage : uint32b
   kDst = 0b1u << 3, //!< A buffer can be used as a destination of a transfer
   kDeviceSrc = zisc::cast<uint32b>(kDevice) | zisc::cast<uint32b>(kSrc),
   kDeviceDst = zisc::cast<uint32b>(kDevice) | zisc::cast<uint32b>(kDst),
+  kDeviceSrcDst = zisc::cast<uint32b>(kDeviceSrc) | zisc::cast<uint32b>(kDst),
   kHostSrc = zisc::cast<uint32b>(kHost) | zisc::cast<uint32b>(kSrc),
   kHostDst = zisc::cast<uint32b>(kHost) | zisc::cast<uint32b>(kDst),
+  kHostSrcDst = zisc::cast<uint32b>(kHostSrc) | zisc::cast<uint32b>(kDst),
 };
 
 } // namespace zinvul
