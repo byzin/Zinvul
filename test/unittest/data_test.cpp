@@ -90,7 +90,7 @@ TEST(DataTest, CopyBufferTest)
       std::array<int32b, resolution> table;
       for (std::size_t i = 0; i < table.size(); ++i)
         table[i] = zisc::cast<int>(i);
-      buffer5->write(table.begin(), table.size(), 0, 0);
+      buffer5->write(table.data(), table.size(), 0, 0);
     }
     auto buffer6 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
     buffer6->setSize(resolution);
@@ -106,7 +106,7 @@ TEST(DataTest, CopyBufferTest)
     buffer6->copyTo(buffer5.get(), resolution, 0, 0, 0);
     {
       std::array<int32b, resolution> table;
-      buffer5->read(table.begin(), resolution, 0, 0);
+      buffer5->read(table.data(), resolution, 0, 0);
       for (std::size_t i = 0; i < table.size(); ++i) {
         const int expected = 2 * zisc::cast<int>(i);
         ASSERT_EQ(expected, table[i]) << "The buffer readwrite is wrong.";
