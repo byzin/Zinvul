@@ -855,3 +855,73 @@ TEST(DataTest, HalfLoadStoreTest)
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
+
+namespace {
+
+using Ray1 = zinvul::data::KernelGroup::Ray1;
+using Ray2 = zinvul::data::KernelGroup::Ray2;
+
+} // namespace
+
+TEST(DataTest, VariablePointerTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 16;
+
+    auto buffer0 = makeBuffer<::Ray1>(device.get(), BufferUsage::kDeviceSrc);
+    buffer0->setSize(2 * resolution);
+
+    auto buffer1 = makeBuffer<::Ray2>(device.get(), BufferUsage::kDeviceSrc);
+    buffer1->setSize(2 * resolution);
+
+    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    buffer2->setSize(1);
+    buffer2->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testVariablePointer, 1);
+    kernel->run(*buffer0, *buffer1, *buffer2, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<::Ray1, 2 * resolution> results;
+      buffer0->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const auto& result = results[i];
+        for (std::size_t j = 0; j < 4; ++j) {
+          ASSERT_FLOAT_EQ(zisc::cast<float>(j + 1), result.origin_[j])
+              << "The variable pointer for "
+              << (zisc::isOdd(j) ? "local" : "global") << " is wrong.";
+          ASSERT_FLOAT_EQ(1.0f, result.dir_[j])
+              << "The variable pointer for "
+              << (zisc::isOdd(j) ? "local" : "global") << " is wrong.";
+        }
+      }
+    }
+    {
+      std::array<::Ray2, 2 * resolution> results;
+      buffer1->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        if (zisc::isOdd(i))
+          continue;
+        const auto& result = results[i];
+        for (std::size_t j = 0; j < 3; ++j) {
+          ASSERT_FLOAT_EQ(zisc::cast<float>(j + 1), result.origin_[j])
+              << "The variable pointer for "
+              << (zisc::isOdd(j) ? "local" : "global") << " is wrong.";
+          ASSERT_FLOAT_EQ(1.0f, result.dir_[j])
+              << "The variable pointer for "
+              << (zisc::isOdd(j) ? "local" : "global") << " is wrong.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}

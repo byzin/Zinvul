@@ -77,6 +77,7 @@ kernel void testAtomic(global int32b* add_table, global int32b* add_result,
   if (index < resolution) {
     // atomic_add
     {
+      //! \todo Remove commentout. The atomic functions crash on AMD
 //      const int32b i = atomic_add(add_result, 1);
 //      add_table[i] = 1;
       (void)add_table;

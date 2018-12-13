@@ -149,4 +149,67 @@ __kernel void testDataReinterpreting(
   }
 }
 
+typedef struct __Ray1
+{
+  float4 origin_;
+  float4 dir_;
+} Ray1;
+
+typedef struct __Ray2
+{
+  float origin_[3];
+  float dir_[3];
+} Ray2;
+
+void initRay1G(global Ray1* ray)
+{
+  ray->origin_ = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
+  ray->dir_ = zMakeFloat4(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void initRay1(Ray1* ray)
+{
+  ray->origin_ = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
+  ray->dir_ = zMakeFloat4(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void initRay2G(global Ray2* ray)
+{
+  for (int index = 0; index < 3; ++index) {
+    ray->origin_[index] = (float)(index + 1);
+    ray->dir_[index] = 1.0f;
+  }
+}
+
+void initRay2(Ray2* ray)
+{
+  for (int index = 0; index < 3; ++index) {
+    ray->origin_[index] = (float)(index + 1);
+    ray->dir_[index] = 1.0f;
+  }
+}
+
+/*!
+  */
+__kernel void testVariablePointer(global Ray1* ray1_table, global Ray2* ray2_table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const uint32b i = 2 * index;
+    {
+      initRay1G(&ray1_table[i]);
+      Ray1 ray = ray1_table[i + 1];
+      initRay1(&ray);
+      ray1_table[i + 1] = ray;
+    }
+    {
+      initRay2G(&ray2_table[i]);
+      //! \todo Remove commentout. The initRay2 crashes on AMD
+//      Ray2 ray = ray2_table[i + 1];
+//      initRay2(&ray);
+//      ray2_table[i + 1] = ray;
+    }
+  }
+}
+
 #endif /* ZINVUL_DATA_TEST_DATA_CL */
