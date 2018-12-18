@@ -33,7 +33,7 @@ auto abs(const Integer& x) noexcept;
 template <typename Type>
 Type fabs(const Type& x) noexcept;
 
-//! Return min(max(x, minval, maxval))
+//! Return min(max(x, minval), maxval)
 template <typename Type>
 Type clamp(const Type& x, const Type& minval, const Type& maxval) noexcept;
 

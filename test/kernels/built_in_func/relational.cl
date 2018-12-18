@@ -11,14 +11,14 @@
 #define ZINVUL_BUILT_IN_FUNC_TEST_RELATIONAL_CL
 
 // Zinvul
+#include "zinvul/cl/relational.cl"
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
 /*!
   */
 kernel void testRelational(global int32b* scalar_results,
-                           global int4* vector_results,
-                           global float4* vector_results2)
+                           global int4* vector_results)
 {
   const uint index = zGetGlobalIdX();
   if (index == 0) {
@@ -48,14 +48,6 @@ kernel void testRelational(global int32b* scalar_results,
     scalar_results[scalar_index++] = signbit(0.0f);
     scalar_results[scalar_index++] = signbit(-0.0f);
     scalar_results[scalar_index++] = signbit(-1.0f);
-    {
-      int32b x = 2;
-      scalar_results[scalar_index++] = select(x, -x, x < 0);
-    }
-    {
-      int32b x = -2;
-      scalar_results[scalar_index++] = select(-x, x, x < 0);
-    }
     // Vector
     uint vector_index = 0;
     {
@@ -81,13 +73,62 @@ kernel void testRelational(global int32b* scalar_results,
       vector_results[vector_index++] = signbit(v0);
     }
   }
-  // Vector result2
-  uint vector_index2 = 0;
-  {
+}
+
+/*!
+  */
+kernel void testSelect(global int32b* scalar_results,
+                       global float4* vector_results)
+{
+  const uint index = zGetGlobalIdX();
+  if (index == 0) {
+    // Scalar
+    uint scalar_index = 0;
     {
-      const float4 v0 = zMakeFloat4(1.0f, 1.0f, 1.0f, 1.0f);
-      const int4 v1 = zMakeInt4(1, -1, 1, -1);
-      vector_results2[vector_index2++] = select(v0, -v0, v1 < 0);
+      int32b x = 2;
+      scalar_results[scalar_index++] = select(x, -x, x < 0);
+    }
+    {
+      int32b x = -2;
+      scalar_results[scalar_index++] = select(-x, x, x < 0);
+    }
+    // Vector
+    uint vector_index = 0;
+    {
+      {
+        const float4 v0 = zMakeFloat4(1.0f, 1.0f, 1.0f, 1.0f);
+        const int4 v1 = zMakeInt4(1, -1, 1, -1);
+        vector_results[vector_index++] = select(v0, -v0, v1 < 0);
+      }
+    }
+  }
+}
+
+/*!
+  */
+kernel void testSelect2(global int32b* scalar_results,
+                        global float4* vector_results)
+{
+  const uint index = zGetGlobalIdX();
+  if (index == 0) {
+    // Scalar
+    uint scalar_index = 0;
+    {
+      int32b x = 2;
+      scalar_results[scalar_index++] = zSelect(x, -x, x < 0);
+    }
+    {
+      int32b x = -2;
+      scalar_results[scalar_index++] = zSelect(-x, x, x < 0);
+    }
+    // Vector
+    uint vector_index = 0;
+    {
+      {
+        const float4 v0 = zMakeFloat4(1.0f, 1.0f, 1.0f, 1.0f);
+        const int4 v1 = zMakeInt4(1, -1, 1, -1);
+        vector_results[vector_index++] = zSelectF4(v0, -v0, v1 < 0);
+      }
     }
   }
 }
