@@ -74,9 +74,6 @@ kernel void testCommon(global uint32b* abs_result1, global float* abs_result2,
       clamp_result2[6] = max(-10.0f, -1.0f);
       clamp_result2[7] = min(-10.0f, 1.0f);
       clamp_result2[8] = clamp(-10.0f, -1.0f, 1.0f);
-      // radian
-      clamp_result2[9] = degrees(zPiF);
-      clamp_result2[10] = radians(180.0f);
     }
     // vector2 clamp
     {
@@ -100,9 +97,6 @@ kernel void testCommon(global uint32b* abs_result1, global float* abs_result2,
       clamp_result4[5] = clamp(zMakeFloat2(0.0f, -10.0f),
                                zMakeFloat2(-1.0f, -2.0f), 
                                zMakeFloat2(1.0f, 2.0f));
-      // radian
-      clamp_result4[6] = degrees(zMakeFloat2(zPiF, 0.5f * zPiF));
-      clamp_result4[7] = radians(zMakeFloat2(180.0f, 90.0f));
     }
     // vector3 clamp
     {
@@ -118,8 +112,6 @@ kernel void testCommon(global uint32b* abs_result1, global float* abs_result2,
       clamp_result6[2] = clamp(zMakeFloat3(0.0f, 10.0f, -10.0f),
                                zMakeFloat3(-1.0f, -2.0f, -3.0f), 
                                zMakeFloat3(1.0f, 2.0f, 3.0f));
-      clamp_result6[3] = degrees(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF));
-      clamp_result6[4] = radians(zMakeFloat3(180.0f, 90.0f, 45.0f));
     }
     // vector4 clamp
     {
@@ -135,8 +127,38 @@ kernel void testCommon(global uint32b* abs_result1, global float* abs_result2,
       clamp_result8[2] = clamp(zMakeFloat4(0.0f, 10.0f, -10.0f, 100.0f),
                                zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f), 
                                zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f));
-      clamp_result8[3] = degrees(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f));
-      clamp_result8[4] = radians(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f));
+    }
+  }
+}
+
+/*!
+  */
+kernel void testRadian(
+    global float* radian_result1, global float2* radian_result2,
+    global float3* radian_result3, global float4* radian_result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    {
+      // radian
+      radian_result1[0] = degrees(zPiF);
+      radian_result1[1] = radians(180.0f);
+    }
+    // vector2
+    {
+      // radian
+      radian_result2[0] = degrees(zMakeFloat2(zPiF, 0.5f * zPiF));
+      radian_result2[1] = radians(zMakeFloat2(180.0f, 90.0f));
+    }
+    // vector3
+    {
+      radian_result3[0] = degrees(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF));
+      radian_result3[1] = radians(zMakeFloat3(180.0f, 90.0f, 45.0f));
+    }
+    // vector4
+    {
+      radian_result4[0] = degrees(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f));
+      radian_result4[1] = radians(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f));
     }
   }
 }
@@ -196,9 +218,6 @@ kernel void testCommon2(global uint32b* abs_result1, global float* abs_result2,
       clamp_result2[6] = zMaxF(-10.0f, -1.0f);
       clamp_result2[7] = zMinF(-10.0f, 1.0f);
       clamp_result2[8] = zClampF(-10.0f, -1.0f, 1.0f);
-      // radian
-      clamp_result2[9] = zDegreesF(zPiF);
-      clamp_result2[10] = zRadiansF(180.0f);
     }
     // vector2 clamp
     {
@@ -222,9 +241,6 @@ kernel void testCommon2(global uint32b* abs_result1, global float* abs_result2,
       clamp_result4[5] = zClampF2(zMakeFloat2(0.0f, -10.0f),
                                   zMakeFloat2(-1.0f, -2.0f), 
                                   zMakeFloat2(1.0f, 2.0f));
-      // radian
-      clamp_result4[6] = zDegreesF2(zMakeFloat2(zPiF, 0.5f * zPiF));
-      clamp_result4[7] = zRadiansF2(zMakeFloat2(180.0f, 90.0f));
     }
     // vector3 clamp
     {
@@ -240,8 +256,6 @@ kernel void testCommon2(global uint32b* abs_result1, global float* abs_result2,
       clamp_result6[2] = zClampF3(zMakeFloat3(0.0f, 10.0f, -10.0f),
                                   zMakeFloat3(-1.0f, -2.0f, -3.0f), 
                                   zMakeFloat3(1.0f, 2.0f, 3.0f));
-      clamp_result6[3] = zDegreesF3(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF));
-      clamp_result6[4] = zRadiansF3(zMakeFloat3(180.0f, 90.0f, 45.0f));
     }
     // vector4 clamp
     {
@@ -257,8 +271,38 @@ kernel void testCommon2(global uint32b* abs_result1, global float* abs_result2,
       clamp_result8[2] = zClampF4(zMakeFloat4(0.0f, 10.0f, -10.0f, 100.0f),
                                   zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f), 
                                   zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f));
-      clamp_result8[3] = zDegreesF4(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f));
-      clamp_result8[4] = zRadiansF4(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f));
+    }
+  }
+}
+
+/*!
+  */
+kernel void testRadian2(
+    global float* radian_result1, global float2* radian_result2,
+    global float3* radian_result3, global float4* radian_result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    {
+      // radian
+      radian_result1[0] = zDegreesF(zPiF);
+      radian_result1[1] = zRadiansF(180.0f);
+    }
+    // vector2
+    {
+      // radian
+      radian_result2[0] = zDegreesF2(zMakeFloat2(zPiF, 0.5f * zPiF));
+      radian_result2[1] = zRadiansF2(zMakeFloat2(180.0f, 90.0f));
+    }
+    // vector3
+    {
+      radian_result3[0] = zDegreesF3(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF));
+      radian_result3[1] = zRadiansF3(zMakeFloat3(180.0f, 90.0f, 45.0f));
+    }
+    // vector4
+    {
+      radian_result4[0] = zDegreesF4(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f));
+      radian_result4[1] = zRadiansF4(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f));
     }
   }
 }
