@@ -67,7 +67,7 @@ function(loadZinvul zinvul_source_files zinvul_include_dirs zinvul_compile_flags
                             VMA_DEBUG_DETECT_CORRUPTION=1)
   endif()
   # OpenCL
-  list(APPEND definitions ZINVUL_CPP_CL)
+  list(APPEND definitions ZINVUL_CPU)
 
 
   # Output variables
@@ -158,13 +158,21 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
                    ${cl_file_path}
                    @ONLY)
     list(APPEND kernel_source_files ${cl_file_path})
-    set(clspv_options "")
+    # Set clspv options
+    set(clspv_options -DZINVUL_VULKAN)
     if(Z_DEBUG_MODE)
       list(APPEND clspv_options -O0 -DZ_DEBUG)
     elseif(Z_RELEASE_MODE)
       message(WARNING "The clspv optimization is disabled.")
       #      list(APPEND clspv_options -O3 -DZ_RELEASE)
       list(APPEND clspv_options -O0 -DZ_RELEASE)
+    endif()
+    if(Z_WINDOWS)
+      list(APPEND clspv_options -DZ_WINDOWS)
+    elseif(Z_LINUX)
+      list(APPEND clspv_options -DZ_LINUX)
+    elseif(Z_MAC)
+      list(APPEND clspv_options -DZ_MAC)
     endif()
     list(APPEND clspv_options -f16bit_storage)
     set(clspv_commands COMMAND ${clspv} ${clspv_options}

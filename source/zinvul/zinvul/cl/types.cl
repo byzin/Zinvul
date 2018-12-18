@@ -11,7 +11,7 @@
 #define ZINVUL_TYPES_CL
 
 // Type aliases
-#ifndef ZINVUL_CPP_CL
+#if defined(ZINVUL_VULKAN)
 // Integer types
 typedef char int8b;
 typedef short int16b;
@@ -22,6 +22,6 @@ typedef unsigned char uint8b;
 typedef unsigned short uint16b;
 typedef unsigned int uint32b;
 typedef unsigned long uint64b;
-#endif // ZINVUL_CPP_CL
+#endif // ZINVUL_VULKAN
 
 #endif /* ZINVUL_TYPES_CL */
