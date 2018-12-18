@@ -91,6 +91,17 @@ int32b signbit(const Float value) noexcept
   return std::signbit(value) ? 1 : 0;
 }
 
+template <typename Type1, typename Type2, const std::size_t kN> inline
+Vector<Type1, kN> select(const Vector<Type1, kN>& a,
+                         const Vector<Type1, kN>& b,
+                         const Vector<Type2, kN>& c) noexcept
+{
+  Vector<Type1, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = c[i] ? b[i] : a[i];
+  return result;
+}
+
 } // namespace inner
 
 /*!
@@ -331,6 +342,24 @@ Vector<int32b, kN> signbit(const Vector<Float, kN>& value) noexcept
   for (std::size_t i = 0; i < kN; ++i)
     result[i] = std::signbit(value[i]) ? kVecTrue : kVecFalse;
   return result;
+}
+
+/*!
+  */
+template <typename Type1, typename Type2> inline
+Type1 select(const Type1& a, const Type1& b, const Type2& c) noexcept
+{
+  constexpr bool is_scalar_type1 = std::is_integral_v<Type1> ||
+                                   std::is_floating_point_v<Type1>;
+  constexpr bool is_scalar_type2 = std::is_integral_v<Type2> ||
+                                   std::is_floating_point_v<Type2>;
+  static_assert((is_scalar_type1 && is_scalar_type2) ||
+                (!is_scalar_type1 && !is_scalar_type2),
+                "The Type1 and Type2 don't have same n component.");
+  if constexpr (is_scalar_type1)
+    return c ? b : a;
+  else
+    return inner::select(a, b, c);
 }
 
 } // namespace cl

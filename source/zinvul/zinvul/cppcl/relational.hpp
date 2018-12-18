@@ -119,6 +119,10 @@ int32b signbit(const double value) noexcept;
 template <typename Float, std::size_t kN>
 Vector<int32b, kN> signbit(const Vector<Float, kN>& value) noexcept;
 
+//! Return c ? b : a
+template <typename Type1, typename Type2>
+Type1 select(const Type1& a, const Type1& b, const Type2& c) noexcept;
+
 } // namespace cl
 
 } // namespace zinvul

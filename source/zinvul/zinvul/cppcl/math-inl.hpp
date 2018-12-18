@@ -16,6 +16,7 @@
 #include <cstddef>
 #include <type_traits>
 // Zisc
+#include "zisc/math.hpp"
 #include "zisc/type_traits.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
@@ -61,6 +62,16 @@ auto clamp(const Vector<Type, kN>& x,
 }
 
 template <typename Type, std::size_t kN>
+auto degrees(const Vector<Type, kN>& r) noexcept
+{
+  Vector<Type, kN> result;
+  constexpr Type k = zisc::cast<Type>(180.0 / zisc::kPi<double>);
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = k * r[i];
+  return result;
+}
+
+template <typename Type, std::size_t kN>
 auto max(const Vector<Type, kN>& x, const Vector<Type, kN>& y) noexcept
 {
   Vector<Type, kN> result;
@@ -78,12 +89,22 @@ auto min(const Vector<Type, kN>& x, const Vector<Type, kN>& y) noexcept
   return result;
 }
 
+template <typename Type, std::size_t kN>
+auto radians(const Vector<Type, kN>& d) noexcept
+{
+  Vector<Type, kN> result;
+  constexpr Type k = zisc::cast<Type>(zisc::kPi<double> / 180.0);
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = k * d[i];
+  return result;
+}
+
 } // namespace inner
 
 /*!
   */
 template <typename Integer>
-auto abs(const Integer x) noexcept
+auto abs(const Integer& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_integral_v<Integer>;
   // Scalar
@@ -101,7 +122,7 @@ auto abs(const Integer x) noexcept
 /*!
   */
 template <typename Float>
-Float fabs(const Float x) noexcept
+Float fabs(const Float& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<Float>;
   // Scalar
@@ -118,7 +139,7 @@ Float fabs(const Float x) noexcept
 /*!
   */
 template <typename Type>
-Type clamp(const Type x, const Type minval, const Type maxval) noexcept
+Type clamp(const Type& x, const Type& minval, const Type& maxval) noexcept
 {
   constexpr bool is_scalar_type = std::is_integral_v<Type> ||
                                   std::is_floating_point_v<Type>;
@@ -132,7 +153,24 @@ Type clamp(const Type x, const Type minval, const Type maxval) noexcept
 /*!
   */
 template <typename Type>
-Type max(const Type x, const Type y) noexcept
+Type degrees(const Type& r) noexcept
+{
+  constexpr bool is_scalar_type = std::is_integral_v<Type> ||
+                                  std::is_floating_point_v<Type>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    constexpr Type k = zisc::cast<Type>(180.0 / zisc::kPi<double>);
+    return k * r;
+  }
+  else {
+    return inner::degrees(r);
+  }
+}
+
+/*!
+  */
+template <typename Type>
+Type max(const Type& x, const Type& y) noexcept
 {
   constexpr bool is_scalar_type = std::is_integral_v<Type> ||
                                   std::is_floating_point_v<Type>;
@@ -146,7 +184,7 @@ Type max(const Type x, const Type y) noexcept
 /*!
   */
 template <typename Type>
-Type min(const Type x, const Type y) noexcept
+Type min(const Type& x, const Type& y) noexcept
 {
   constexpr bool is_scalar_type = std::is_integral_v<Type> ||
                                   std::is_floating_point_v<Type>;
@@ -155,6 +193,23 @@ Type min(const Type x, const Type y) noexcept
     return (y < x) ? y : x;
   else
     return inner::min(x, y);
+}
+
+/*!
+  */
+template <typename Type>
+Type radians(const Type& d) noexcept
+{
+  constexpr bool is_scalar_type = std::is_integral_v<Type> ||
+                                  std::is_floating_point_v<Type>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    constexpr Type k = zisc::cast<Type>(zisc::kPi<double> / 180.0);
+    return k * d;
+  }
+  else {
+    return inner::radians(d);
+  }
 }
 
 } // namespace cl

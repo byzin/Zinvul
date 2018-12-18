@@ -270,17 +270,21 @@ TEST(BuiltInFuncTest, RelationalFunctionTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr std::size_t n_scalars = 24;
+    constexpr std::size_t n_scalars = 26;
     constexpr std::size_t n_vectors = 11;
+    constexpr std::size_t n_vectors2 = 1;
     auto scalar_results =
         makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     scalar_results->setSize(n_scalars);
     auto vector_results =
         makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
     vector_results->setSize(n_vectors);
+    auto vector_results2 =
+        makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    vector_results2->setSize(n_vectors2);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testRelational, 1);
-    kernel->run(*scalar_results, *vector_results, {1}, 0);
+    kernel->run(*scalar_results, *vector_results, *vector_results2, {1}, 0);
     device->waitForCompletion();
 
     // Scalar results
@@ -312,6 +316,8 @@ TEST(BuiltInFuncTest, RelationalFunctionTest)
       ASSERT_FALSE(result[index++]) << "The signbit func is wrong.";
       ASSERT_TRUE(result[index++]) << "The signbit func is wrong.";
       ASSERT_TRUE(result[index++]) << "The signbit func is wrong.";
+      ASSERT_EQ(2, result[index++]) << "The select func is wrong.";
+      ASSERT_EQ(-2, result[index++]) << "The select func is wrong.";
     }
     // Vector results
     {
@@ -383,6 +389,18 @@ TEST(BuiltInFuncTest, RelationalFunctionTest)
         const auto r = result[index++];
         for (std::size_t i = 0; i < 4; ++i) 
           ASSERT_EQ(expected[i], r[i]) << "The signbit func is wrong.";
+      }
+    }
+    // Vector result2
+    {
+      std::array<cl::float4, n_vectors2> result;
+      vector_results2->read(result.data(), result.size(), 0, 0);
+      std::size_t index = 0;
+      {
+        const cl::float4 expected{1.0f, -1.0f, 1.0f, -1.0f};
+        const auto r = result[index++];
+        for (std::size_t i = 0; i < 4; ++i)
+          ASSERT_EQ(expected[i], r[i]) << "The select func is wrong.";
       }
     }
 

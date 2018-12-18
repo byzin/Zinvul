@@ -75,19 +75,19 @@ TEST(MathTest, CommonTest)
     auto clamp_result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     clamp_result1->setSize(3);
     auto clamp_result2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result2->setSize(3);
+    clamp_result2->setSize(5);
     auto clamp_result3 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
     clamp_result3->setSize(2);
     auto clamp_result4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result4->setSize(2);
+    clamp_result4->setSize(4);
     auto clamp_result5 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
     clamp_result5->setSize(1);
     auto clamp_result6 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result6->setSize(1);
+    clamp_result6->setSize(3);
     auto clamp_result7 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
     clamp_result7->setSize(1);
     auto clamp_result8 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result8->setSize(1);
+    clamp_result8->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testCommon, 1);
     kernel->run(*abs_result1, *abs_result2, *abs_result3, *abs_result4,
@@ -152,6 +152,7 @@ TEST(MathTest, CommonTest)
         EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
     }
 
+    constexpr float pi = zisc::kPi<float>;
     {
       std::array<int32b, 3> result;
       clamp_result1->read(result.data(), result.size(), 0 ,0);
@@ -160,11 +161,14 @@ TEST(MathTest, CommonTest)
       EXPECT_EQ(-1, result[2]) << "The clamp func is wrong.";
     }
     {
-      std::array<float, 3> result;
+      std::array<float, 5> result;
       clamp_result2->read(result.data(), result.size(), 0, 0);
       EXPECT_EQ(0.0f, result[0]) << "The clamp func is wrong.";
       EXPECT_EQ(1.0f, result[1]) << "The clamp func is wrong.";
       EXPECT_EQ(-1.0f, result[2]) << "The clamp func is wrong.";
+      // radian
+      EXPECT_FLOAT_EQ(180.0f, result[3]) << "The degrees func is wrong.";
+      EXPECT_FLOAT_EQ(pi, result[4]) << "The radians func is wrong.";
     }
     {
       std::array<cl::int2, 2> result;
@@ -175,12 +179,17 @@ TEST(MathTest, CommonTest)
       EXPECT_EQ(-2, result[1][1]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::float2, 2> result;
+      std::array<cl::float2, 4> result;
       clamp_result4->read(result.data(), result.size(), 0, 0);
       EXPECT_EQ(0.0f, result[0][0]) << "The clamp func is wrong.";
       EXPECT_EQ(2.0f, result[0][1]) << "The clamp func is wrong.";
       EXPECT_EQ(0.0f, result[1][0]) << "The clamp func is wrong.";
       EXPECT_EQ(-2.0f, result[1][1]) << "The clamp func is wrong.";
+      // radian
+      EXPECT_FLOAT_EQ(180.0f, result[2][0]) << "The degrees func is wrong.";
+      EXPECT_FLOAT_EQ(90.0f, result[2][1]) << "The degrees func is wrong.";
+      EXPECT_FLOAT_EQ(pi, result[3][0]) << "The radians func is wrong.";
+      EXPECT_FLOAT_EQ(0.5f * pi, result[3][1]) << "The radians func is wrong.";
     }
     {
       std::array<cl::int3, 2> result;
@@ -190,11 +199,18 @@ TEST(MathTest, CommonTest)
       EXPECT_EQ(-3, result[0][2]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::float3, 1> result;
+      std::array<cl::float3, 3> result;
       clamp_result6->read(result.data(), result.size(), 0, 0);
       EXPECT_EQ(0.0f, result[0][0]) << "The clamp func is wrong.";
       EXPECT_EQ(2.0f, result[0][1]) << "The clamp func is wrong.";
       EXPECT_EQ(-3.0f, result[0][2]) << "The clamp func is wrong.";
+      // radian
+      EXPECT_FLOAT_EQ(180.0f, result[1][0]) << "The degrees func is wrong.";
+      EXPECT_FLOAT_EQ(90.0f, result[1][1]) << "The degrees func is wrong.";
+      EXPECT_FLOAT_EQ(45.0f, result[1][2]) << "The degrees func is wrong.";
+      EXPECT_FLOAT_EQ(pi, result[2][0]) << "The radians func is wrong.";
+      EXPECT_FLOAT_EQ(0.5f * pi, result[2][1]) << "The radians func is wrong.";
+      EXPECT_FLOAT_EQ(0.25f * pi, result[2][2]) << "The radians func is wrong.";
     }
     {
       std::array<cl::int4, 2> result;
@@ -205,12 +221,21 @@ TEST(MathTest, CommonTest)
       EXPECT_EQ(4, result[0][3]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::float4, 1> result;
+      std::array<cl::float4, 3> result;
       clamp_result8->read(result.data(), result.size(), 0, 0);
       EXPECT_EQ(0.0f, result[0][0]) << "The clamp func is wrong.";
       EXPECT_EQ(2.0f, result[0][1]) << "The clamp func is wrong.";
       EXPECT_EQ(-3.0f, result[0][2]) << "The clamp func is wrong.";
       EXPECT_EQ(4.0f, result[0][3]) << "The clamp func is wrong.";
+      // radian
+      EXPECT_FLOAT_EQ(180.0f, result[1][0]) << "The degrees func is wrong.";
+      EXPECT_FLOAT_EQ(90.0f, result[1][1]) << "The degrees func is wrong.";
+      EXPECT_FLOAT_EQ(45.0f, result[1][2]) << "The degrees func is wrong.";
+      EXPECT_FLOAT_EQ(0.0f, result[1][3]) << "The degrees func is wrong.";
+      EXPECT_FLOAT_EQ(pi, result[2][0]) << "The radians func is wrong.";
+      EXPECT_FLOAT_EQ(0.5f * pi, result[2][1]) << "The radians func is wrong.";
+      EXPECT_FLOAT_EQ(0.25f * pi, result[2][2]) << "The radians func is wrong.";
+      EXPECT_FLOAT_EQ(0.0f * pi, result[2][3]) << "The radians func is wrong.";
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
