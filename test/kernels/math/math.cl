@@ -56,55 +56,87 @@ kernel void testCommon(global uint32b* abs_result1, global float* abs_result2,
     }
     // scalar clamp
     {
-      clamp_result1[0] = clamp(0, -1, 1);
-      clamp_result1[1] = clamp(10, -1, 1);
-      clamp_result1[2] = clamp(-10, -1, 1);
-      clamp_result2[0] = clamp(0.0f, -1.0f, 1.0f);
-      clamp_result2[1] = clamp(10.0f, -1.0f, 1.0f);
-      clamp_result2[2] = clamp(-10.0f, -1.0f, 1.0f);
+      clamp_result1[0] = max(0, -1);
+      clamp_result1[1] = min(0, 1);
+      clamp_result1[2] = clamp(0, -1, 1);
+      clamp_result1[3] = max(10, -1);
+      clamp_result1[4] = min(10, 1);
+      clamp_result1[5] = clamp(10, -1, 1);
+      clamp_result1[6] = max(-10, -1);
+      clamp_result1[7] = min(-10, 1);
+      clamp_result1[8] = clamp(-10, -1, 1);
+      clamp_result2[0] = max(0.0f, -1.0f);
+      clamp_result2[1] = min(0.0f, 1.0f);
+      clamp_result2[2] = clamp(0.0f, -1.0f, 1.0f);
+      clamp_result2[3] = max(10.0f, -1.0f);
+      clamp_result2[4] = min(10.0f, 1.0f);
+      clamp_result2[5] = clamp(10.0f, -1.0f, 1.0f);
+      clamp_result2[6] = max(-10.0f, -1.0f);
+      clamp_result2[7] = min(-10.0f, 1.0f);
+      clamp_result2[8] = clamp(-10.0f, -1.0f, 1.0f);
       // radian
-      clamp_result2[3] = degrees(zPiF);
-      clamp_result2[4] = radians(180.0f);
+      clamp_result2[9] = degrees(zPiF);
+      clamp_result2[10] = radians(180.0f);
     }
     // vector2 clamp
     {
-      clamp_result3[0] = clamp(zMakeInt2(0, 10),
+      clamp_result3[0] = max(zMakeInt2(0, 10), zMakeInt2(-1, -2));
+      clamp_result3[1] = min(zMakeInt2(0, 10), zMakeInt2(1, 2));
+      clamp_result3[2] = clamp(zMakeInt2(0, 10),
                                zMakeInt2(-1, -2), 
                                zMakeInt2(1, 2));
-      clamp_result3[1] = clamp(zMakeInt2(0, -10),
+      clamp_result3[3] = max(zMakeInt2(0, -10), zMakeInt2(-1, -2));
+      clamp_result3[4] = min(zMakeInt2(0, -2), zMakeInt2(1, 2));
+      clamp_result3[5] = clamp(zMakeInt2(0, -10),
                                zMakeInt2(-1, -2), 
                                zMakeInt2(1, 2));
-      clamp_result4[0] = clamp(zMakeFloat2(0.0f, 10.0f),
+      clamp_result4[0] = max(zMakeFloat2(0.0f, 10.0f), zMakeFloat2(-1.0f, -2.0f));
+      clamp_result4[1] = min(zMakeFloat2(0.0f, 10.0f), zMakeFloat2(1.0f, 2.0f));
+      clamp_result4[2] = clamp(zMakeFloat2(0.0f, 10.0f),
                                zMakeFloat2(-1.0f, -2.0f), 
                                zMakeFloat2(1.0f, 2.0f));
-      clamp_result4[1] = clamp(zMakeFloat2(0.0f, -10.0f),
+      clamp_result4[3] = max(zMakeFloat2(0.0f, -10.0f), zMakeFloat2(-1.0f, -2.0f));
+      clamp_result4[4] = min(zMakeFloat2(0.0f, -2.0f), zMakeFloat2(1.0f, 2.0f));
+      clamp_result4[5] = clamp(zMakeFloat2(0.0f, -10.0f),
                                zMakeFloat2(-1.0f, -2.0f), 
                                zMakeFloat2(1.0f, 2.0f));
       // radian
-      clamp_result4[2] = degrees(zMakeFloat2(zPiF, 0.5f * zPiF));
-      clamp_result4[3] = radians(zMakeFloat2(180.0f, 90.0f));
+      clamp_result4[6] = degrees(zMakeFloat2(zPiF, 0.5f * zPiF));
+      clamp_result4[7] = radians(zMakeFloat2(180.0f, 90.0f));
     }
     // vector3 clamp
     {
-      clamp_result5[0] = clamp(zMakeInt3(0, 10, -10),
+      clamp_result5[0] = max(zMakeInt3(0, 10, -10), zMakeInt3(-1, -2, -3));
+      clamp_result5[1] = min(zMakeInt3(0, 10, -3), zMakeInt3(1, 2, 3));
+      clamp_result5[2] = clamp(zMakeInt3(0, 10, -10),
                                zMakeInt3(-1, -2, -3), 
                                zMakeInt3(1, 2, 3));
-      clamp_result6[0] = clamp(zMakeFloat3(0.0f, 10.0f, -10.0f),
+      clamp_result6[0] = max(zMakeFloat3(0.0f, 10.0f, -10.0f),
+                             zMakeFloat3(-1.0f, -2.0f, -3.0f));
+      clamp_result6[1] = min(zMakeFloat3(0.0f, 10.0f, -3.0f),
+                             zMakeFloat3(1.0f, 2.0f, 3.0f));
+      clamp_result6[2] = clamp(zMakeFloat3(0.0f, 10.0f, -10.0f),
                                zMakeFloat3(-1.0f, -2.0f, -3.0f), 
                                zMakeFloat3(1.0f, 2.0f, 3.0f));
-      clamp_result6[1] = degrees(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF));
-      clamp_result6[2] = radians(zMakeFloat3(180.0f, 90.0f, 45.0f));
+      clamp_result6[3] = degrees(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF));
+      clamp_result6[4] = radians(zMakeFloat3(180.0f, 90.0f, 45.0f));
     }
     // vector4 clamp
     {
-      clamp_result7[0] = clamp(zMakeInt4(0, 10, -10, 100),
+      clamp_result7[0] = max(zMakeInt4(0, 10, -10, 100), zMakeInt4(-1, -2, -3, -4));
+      clamp_result7[1] = min(zMakeInt4(0, 10, -3, 100), zMakeInt4(1, 2, 3, 4));
+      clamp_result7[2] = clamp(zMakeInt4(0, 10, -10, 100),
                                zMakeInt4(-1, -2, -3, -4), 
                                zMakeInt4(1, 2, 3, 4));
-      clamp_result8[0] = clamp(zMakeFloat4(0.0f, 10.0f, -10.0f, 100.0f),
+      clamp_result8[0] = max(zMakeFloat4(0.0f, 10.0f, -10.0f, 100.0f),
+                             zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f));
+      clamp_result8[1] = min(zMakeFloat4(0.0f, 10.0f, -3.0f, 100.0f),
+                             zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f));
+      clamp_result8[2] = clamp(zMakeFloat4(0.0f, 10.0f, -10.0f, 100.0f),
                                zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f), 
                                zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f));
-      clamp_result8[1] = degrees(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f));
-      clamp_result8[2] = radians(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f));
+      clamp_result8[3] = degrees(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f));
+      clamp_result8[4] = radians(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f));
     }
   }
 }
@@ -146,55 +178,87 @@ kernel void testCommon2(global uint32b* abs_result1, global float* abs_result2,
     }
     // scalar clamp
     {
-      clamp_result1[0] = zClamp(0, -1, 1);
-      clamp_result1[1] = zClamp(10, -1, 1);
-      clamp_result1[2] = zClamp(-10, -1, 1);
-      clamp_result2[0] = zClampF(0.0f, -1.0f, 1.0f);
-      clamp_result2[1] = zClampF(10.0f, -1.0f, 1.0f);
-      clamp_result2[2] = zClampF(-10.0f, -1.0f, 1.0f);
+      clamp_result1[0] = zMax(0, -1);
+      clamp_result1[1] = zMin(0, 1);
+      clamp_result1[2] = zClamp(0, -1, 1);
+      clamp_result1[3] = zMax(10, -1);
+      clamp_result1[4] = zMin(10, 1);
+      clamp_result1[5] = zClamp(10, -1, 1);
+      clamp_result1[6] = zMax(-10, -1);
+      clamp_result1[7] = zMin(-10, 1);
+      clamp_result1[8] = zClamp(-10, -1, 1);
+      clamp_result2[0] = zMaxF(0.0f, -1.0f);
+      clamp_result2[1] = zMinF(0.0f, 1.0f);
+      clamp_result2[2] = zClampF(0.0f, -1.0f, 1.0f);
+      clamp_result2[3] = zMaxF(10.0f, -1.0f);
+      clamp_result2[4] = zMinF(10.0f, 1.0f);
+      clamp_result2[5] = zClampF(10.0f, -1.0f, 1.0f);
+      clamp_result2[6] = zMaxF(-10.0f, -1.0f);
+      clamp_result2[7] = zMinF(-10.0f, 1.0f);
+      clamp_result2[8] = zClampF(-10.0f, -1.0f, 1.0f);
       // radian
-      clamp_result2[3] = zDegreesF(zPiF);
-      clamp_result2[4] = zRadiansF(180.0f);
+      clamp_result2[9] = zDegreesF(zPiF);
+      clamp_result2[10] = zRadiansF(180.0f);
     }
     // vector2 clamp
     {
-      clamp_result3[0] = zClamp2(zMakeInt2(0, 10),
+      clamp_result3[0] = zMax2(zMakeInt2(0, 10), zMakeInt2(-1, -2));
+      clamp_result3[1] = zMin2(zMakeInt2(0, 10), zMakeInt2(1, 2));
+      clamp_result3[2] = zClamp2(zMakeInt2(0, 10),
                                  zMakeInt2(-1, -2), 
                                  zMakeInt2(1, 2));
-      clamp_result3[1] = zClamp2(zMakeInt2(0, -10),
+      clamp_result3[3] = zMax2(zMakeInt2(0, -10), zMakeInt2(-1, -2));
+      clamp_result3[4] = zMin2(zMakeInt2(0, -2), zMakeInt2(1, 2));
+      clamp_result3[5] = zClamp2(zMakeInt2(0, -10),
                                  zMakeInt2(-1, -2), 
                                  zMakeInt2(1, 2));
-      clamp_result4[0] = zClampF2(zMakeFloat2(0.0f, 10.0f),
+      clamp_result4[0] = zMaxF2(zMakeFloat2(0.0f, 10.0f), zMakeFloat2(-1.0f, -2.0f));
+      clamp_result4[1] = zMinF2(zMakeFloat2(0.0f, 10.0f), zMakeFloat2(1.0f, 2.0f));
+      clamp_result4[2] = zClampF2(zMakeFloat2(0.0f, 10.0f),
                                   zMakeFloat2(-1.0f, -2.0f), 
                                   zMakeFloat2(1.0f, 2.0f));
-      clamp_result4[1] = zClampF2(zMakeFloat2(0.0f, -10.0f),
+      clamp_result4[3] = zMaxF2(zMakeFloat2(0.0f, -10.0f), zMakeFloat2(-1.0f, -2.0f));
+      clamp_result4[4] = zMinF2(zMakeFloat2(0.0f, -2.0f), zMakeFloat2(1.0f, 2.0f));
+      clamp_result4[5] = zClampF2(zMakeFloat2(0.0f, -10.0f),
                                   zMakeFloat2(-1.0f, -2.0f), 
                                   zMakeFloat2(1.0f, 2.0f));
       // radian
-      clamp_result4[2] = zDegreesF2(zMakeFloat2(zPiF, 0.5f * zPiF));
-      clamp_result4[3] = zRadiansF2(zMakeFloat2(180.0f, 90.0f));
+      clamp_result4[6] = zDegreesF2(zMakeFloat2(zPiF, 0.5f * zPiF));
+      clamp_result4[7] = zRadiansF2(zMakeFloat2(180.0f, 90.0f));
     }
     // vector3 clamp
     {
-      clamp_result5[0] = zClamp3(zMakeInt3(0, 10, -10),
+      clamp_result5[0] = zMax3(zMakeInt3(0, 10, -10), zMakeInt3(-1, -2, -3));
+      clamp_result5[1] = zMin3(zMakeInt3(0, 10, -3), zMakeInt3(1, 2, 3));
+      clamp_result5[2] = zClamp3(zMakeInt3(0, 10, -10),
                                  zMakeInt3(-1, -2, -3), 
                                  zMakeInt3(1, 2, 3));
-      clamp_result6[0] = zClampF3(zMakeFloat3(0.0f, 10.0f, -10.0f),
+      clamp_result6[0] = zMaxF3(zMakeFloat3(0.0f, 10.0f, -10.0f),
+                                zMakeFloat3(-1.0f, -2.0f, -3.0f));
+      clamp_result6[1] = zMinF3(zMakeFloat3(0.0f, 10.0f, -3.0f),
+                                zMakeFloat3(1.0f, 2.0f, 3.0f));
+      clamp_result6[2] = zClampF3(zMakeFloat3(0.0f, 10.0f, -10.0f),
                                   zMakeFloat3(-1.0f, -2.0f, -3.0f), 
                                   zMakeFloat3(1.0f, 2.0f, 3.0f));
-      clamp_result6[1] = zDegreesF3(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF));
-      clamp_result6[2] = zRadiansF3(zMakeFloat3(180.0f, 90.0f, 45.0f));
+      clamp_result6[3] = zDegreesF3(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF));
+      clamp_result6[4] = zRadiansF3(zMakeFloat3(180.0f, 90.0f, 45.0f));
     }
     // vector4 clamp
     {
-      clamp_result7[0] = zClamp4(zMakeInt4(0, 10, -10, 100),
+      clamp_result7[0] = zMax4(zMakeInt4(0, 10, -10, 100), zMakeInt4(-1, -2, -3, -4));
+      clamp_result7[1] = zMin4(zMakeInt4(0, 10, -3, 100), zMakeInt4(1, 2, 3, 4));
+      clamp_result7[2] = zClamp4(zMakeInt4(0, 10, -10, 100),
                                  zMakeInt4(-1, -2, -3, -4), 
                                  zMakeInt4(1, 2, 3, 4));
-      clamp_result8[0] = zClampF4(zMakeFloat4(0.0f, 10.0f, -10.0f, 100.0f),
+      clamp_result8[0] = zMaxF4(zMakeFloat4(0.0f, 10.0f, -10.0f, 100.0f),
+                                zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f));
+      clamp_result8[1] = zMinF4(zMakeFloat4(0.0f, 10.0f, -3.0f, 100.0f),
+                                zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f));
+      clamp_result8[2] = zClampF4(zMakeFloat4(0.0f, 10.0f, -10.0f, 100.0f),
                                   zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f), 
                                   zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f));
-      clamp_result8[1] = zDegreesF4(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f));
-      clamp_result8[2] = zRadiansF4(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f));
+      clamp_result8[3] = zDegreesF4(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f));
+      clamp_result8[4] = zRadiansF4(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f));
     }
   }
 }
