@@ -138,7 +138,7 @@ void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
   constexpr uint start = 0;
   const uint end = thread_manager_.numOfThreads();
   auto result = thread_manager_.enqueueLoop(task, start, end, workResource());
-  result.wait();
+  result->wait();
 }
 
 /*!
