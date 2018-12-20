@@ -92,8 +92,7 @@ int32b zMax(const int32b x, const int32b y)
   const int32b x_is_negative = zIsNegative(x);
   const int32b y_is_negative = zIsNegative(y);
   const int32b result = (x_is_negative && y_is_negative) ? zSelect(x, y, -y < -x) :
-                        x_is_negative                    ? y :
-                        y_is_negative                    ? x :
+                        (x_is_negative || y_is_negative) ? zSelect(x, y, y_is_negative < x_is_negative ) :
                                                            zSelect(x, y, x < y);
 #else
   const int32b result = zSelect(x, y, x < y);
@@ -192,8 +191,7 @@ int32b zMin(const int32b x, const int32b y)
   const int32b x_is_negative = zIsNegative(x);
   const int32b y_is_negative = zIsNegative(y);
   const int32b result = (x_is_negative && y_is_negative) ? zSelect(x, y, -x < -y) :
-                        x_is_negative                    ? x :
-                        y_is_negative                    ? y :
+                        (x_is_negative || y_is_negative) ? zSelect(x, y, x_is_negative < y_is_negative) :
                                                            zSelect(x, y, y < x);
 #else
   const int32b result = zSelect(x, y, y < x);

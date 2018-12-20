@@ -635,9 +635,11 @@ TEST(MathTest, MaxTest)
     constexpr std::size_t n = 10;
     auto buffer1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     buffer1->setSize(n);
+    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    buffer2->setSize(n);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMaxFunction, 1);
-    kernel->run(*buffer1, {1}, 0);
+    kernel->run(*buffer1, *buffer2, {1}, 0);
     device->waitForCompletion();
 
     {
@@ -655,6 +657,23 @@ TEST(MathTest, MaxTest)
       EXPECT_EQ(10, result[index++]) << "The max func is wrong.";
       EXPECT_EQ(10, result[index++]) << "The max func is wrong.";
     }
+    {
+      std::size_t index = 0;
+      std::array<float, n> result;
+      buffer2->read(result.data(), result.size(), 0, 0);
+//      EXPECT_FLOAT_EQ(std::numeric_limits<float>::max(), result[index++]) << "The max func is wrong.";
+//      EXPECT_FLOAT_EQ(std::numeric_limits<float>::max(), result[index++]) << "The max func is wrong.";
+      index = 2;
+      EXPECT_FLOAT_EQ(0.0f, result[index++]) << "The max func is wrong.";
+      EXPECT_FLOAT_EQ(0.0f, result[index++]) << "The max func is wrong.";
+      EXPECT_FLOAT_EQ(1.0f, result[index++]) << "The max func is wrong.";
+      EXPECT_FLOAT_EQ(1.0f, result[index++]) << "The max func is wrong.";
+      EXPECT_FLOAT_EQ(-1, result[index++]) << "The max func is wrong.";
+      EXPECT_FLOAT_EQ(-1, result[index++]) << "The max func is wrong.";
+      EXPECT_FLOAT_EQ(10, result[index++]) << "The max func is wrong.";
+      EXPECT_FLOAT_EQ(10, result[index++]) << "The max func is wrong.";
+    }
+
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
@@ -672,17 +691,19 @@ TEST(MathTest, MinTest)
     constexpr std::size_t n = 10;
     auto buffer1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     buffer1->setSize(n);
+    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    buffer2->setSize(n);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMinFunction, 1);
-    kernel->run(*buffer1, {1}, 0);
+    kernel->run(*buffer1, *buffer2, {1}, 0);
     device->waitForCompletion();
 
     {
       std::size_t index = 0;
       std::array<int32b, n> result;
       buffer1->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(std::numeric_limits<int>::min(), result[index++]) << "The min func is wrong.";
-      EXPECT_EQ(std::numeric_limits<int>::min(), result[index++]) << "The min func is wrong.";
+      EXPECT_EQ(std::numeric_limits<int>::lowest(), result[index++]) << "The min func is wrong.";
+      EXPECT_EQ(std::numeric_limits<int>::lowest(), result[index++]) << "The min func is wrong.";
       EXPECT_EQ(-1, result[index++]) << "The min func is wrong.";
       EXPECT_EQ(-1, result[index++]) << "The min func is wrong.";
       EXPECT_EQ(-1, result[index++]) << "The min func is wrong.";
@@ -691,6 +712,22 @@ TEST(MathTest, MinTest)
       EXPECT_EQ(-10, result[index++]) << "The min func is wrong.";
       EXPECT_TRUE(result[index++]) << "The min func is wrong.";
       EXPECT_TRUE(result[index++]) << "The min func is wrong.";
+    }
+    {
+      std::size_t index = 0;
+      std::array<float, n> result;
+      buffer2->read(result.data(), result.size(), 0, 0);
+//      EXPECT_FLOAT_EQ(std::numeric_limits<float>::lowest(), result[index++]) << "The min func is wrong.";
+//      EXPECT_FLOAT_EQ(std::numeric_limits<float>::lowest(), result[index++]) << "The min func is wrong.";
+      index = 2;
+      EXPECT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
+      EXPECT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
+      EXPECT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
+      EXPECT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
+      EXPECT_FLOAT_EQ(-10.0f, result[index++]) << "The min func is wrong.";
+      EXPECT_FLOAT_EQ(-10.0f, result[index++]) << "The min func is wrong.";
+      EXPECT_FLOAT_EQ(1.0f, result[index++]) << "The min func is wrong.";
+      EXPECT_FLOAT_EQ(1.0f, result[index++]) << "The min func is wrong.";
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;

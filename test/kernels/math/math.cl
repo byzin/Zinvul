@@ -319,7 +319,7 @@ kernel void testConstantValues(global float* pi_value)
 
 /*!
   */
-kernel void testMaxFunction(global int32b* result1)
+kernel void testMaxFunction(global int32b* result1, global float* result2)
 {
   const uint32b index = zGetGlobalIdX();
   if (index == 0) {
@@ -375,12 +375,63 @@ kernel void testMaxFunction(global int32b* result1)
       const int32b rhs = 10;
       result1[scalar_index++] = zMax(lhs, rhs);
     }
+    scalar_index = 0;
+    {
+      const float lhs = -FLT_MAX;
+      const float rhs = FLT_MAX;
+      result2[scalar_index++] = zMaxF(lhs, rhs);
+    }
+    {
+      const float lhs = FLT_MAX;
+      const float rhs = -FLT_MAX;
+      result2[scalar_index++] = zMaxF(lhs, rhs);
+    }
+    {
+      const float lhs = -1.0f;
+      const float rhs = 0.0f;
+      result2[scalar_index++] = zMaxF(lhs, rhs);
+    }
+    {
+      const float lhs = 0.0f;
+      const float rhs = -1.0f;
+      result2[scalar_index++] = zMaxF(lhs, rhs);
+    }
+    {
+      const float lhs = -1.0f;
+      const float rhs = 1.0f;
+      result2[scalar_index++] = zMaxF(lhs, rhs);
+    }
+    {
+      const float lhs = 1.0f;
+      const float rhs = -1.0f;
+      result2[scalar_index++] = zMaxF(lhs, rhs);
+    }
+    {
+      const float lhs = -10.0f;
+      const float rhs = -1.0f;
+      result2[scalar_index++] = zMaxF(lhs, rhs);
+    }
+    {
+      const float lhs = -1.0f;
+      const float rhs = -10.0f;
+      result2[scalar_index++] = zMaxF(lhs, rhs);
+    }
+    {
+      const float lhs = 10.0f;
+      const float rhs = 1.0f;
+      result2[scalar_index++] = zMaxF(lhs, rhs);
+    }
+    {
+      const float lhs = 1.0f;
+      const float rhs = 10.0f;
+      result2[scalar_index++] = zMaxF(lhs, rhs);
+    }
   }
 }
 
 /*!
   */
-kernel void testMinFunction(global int32b* result1)
+kernel void testMinFunction(global int32b* result1, global float* result2)
 {
   const uint32b index = zGetGlobalIdX();
   if (index == 0) {
@@ -435,6 +486,57 @@ kernel void testMinFunction(global int32b* result1)
       const int32b lhs = 1;
       const int32b rhs = 10;
       result1[scalar_index++] = zMin(lhs, rhs);
+    }
+    scalar_index = 0;
+    {
+      const float lhs = -FLT_MAX;
+      const float rhs = FLT_MAX;
+      result2[scalar_index++] = zMinF(lhs, rhs);
+    }
+    {
+      const float lhs = FLT_MAX;
+      const float rhs = -FLT_MAX;
+      result2[scalar_index++] = zMinF(lhs, rhs);
+    }
+    {
+      const float lhs = -1.0f;
+      const float rhs = 0.0f;
+      result2[scalar_index++] = zMinF(lhs, rhs);
+    }
+    {
+      const float lhs = 0.0f;
+      const float rhs = -1.0f;
+      result2[scalar_index++] = zMinF(lhs, rhs);
+    }
+    {
+      const float lhs = -1.0f;
+      const float rhs = 1.0f;
+      result2[scalar_index++] = zMinF(lhs, rhs);
+    }
+    {
+      const float lhs = 1.0f;
+      const float rhs = -1.0f;
+      result2[scalar_index++] = zMinF(lhs, rhs);
+    }
+    {
+      const float lhs = -10.0f;
+      const float rhs = -1.0f;
+      result2[scalar_index++] = zMinF(lhs, rhs);
+    }
+    {
+      const float lhs = -1.0f;
+      const float rhs = -10.0f;
+      result2[scalar_index++] = zMinF(lhs, rhs);
+    }
+    {
+      const float lhs = 10.0f;
+      const float rhs = 1.0f;
+      result2[scalar_index++] = zMinF(lhs, rhs);
+    }
+    {
+      const float lhs = 1.0f;
+      const float rhs = 10.0f;
+      result2[scalar_index++] = zMinF(lhs, rhs);
     }
   }
 }
