@@ -317,4 +317,125 @@ kernel void testConstantValues(global float* pi_value)
   }
 }
 
+/*!
+  */
+kernel void testMaxFunction(global int32b* result1)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // Scalar
+    size_t scalar_index = 0;
+    {
+      const int32b lhs = INT_MIN;
+      const int32b rhs = INT_MAX;
+      result1[scalar_index++] = zMax(lhs, rhs);
+    }
+    {
+      const int32b lhs = INT_MAX;
+      const int32b rhs = INT_MIN;
+      result1[scalar_index++] = zMax(lhs, rhs);
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 0;
+      result1[scalar_index++] = zMax(lhs, rhs);
+    }
+    {
+      const int32b lhs = 0;
+      const int32b rhs = -1;
+      result1[scalar_index++] = zMax(lhs,rhs);
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 1;
+      result1[scalar_index++] = zMax(lhs, rhs);
+    }
+    {
+      const int32b lhs = 1;
+      const int32b rhs = -1;
+      result1[scalar_index++] = zMax(lhs, rhs);
+    }
+    {
+      const int32b lhs = -10;
+      const int32b rhs = -1;
+      result1[scalar_index++] = zMax(lhs, rhs);
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = -10;
+      result1[scalar_index++] = zMax(lhs, rhs);
+    }
+    {
+      const int32b lhs = 10;
+      const int32b rhs = 1;
+      result1[scalar_index++] = zMax(lhs, rhs);
+    }
+    {
+      const int32b lhs = 1;
+      const int32b rhs = 10;
+      result1[scalar_index++] = zMax(lhs, rhs);
+    }
+  }
+}
+
+/*!
+  */
+kernel void testMinFunction(global int32b* result1)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // Scalar
+    size_t scalar_index = 0;
+    {
+      const int32b lhs = INT_MIN;
+      const int32b rhs = INT_MAX;
+      result1[scalar_index++] = zMin(lhs, rhs);
+    }
+    {
+      const int32b lhs = INT_MAX;
+      const int32b rhs = INT_MIN;
+      result1[scalar_index++] = zMin(lhs, rhs);
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 0;
+      result1[scalar_index++] = zMin(lhs, rhs);
+    }
+    {
+      const int32b lhs = 0;
+      const int32b rhs = -1;
+      result1[scalar_index++] = zMin(lhs,rhs);
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 1;
+      result1[scalar_index++] = zMin(lhs, rhs);
+    }
+    {
+      const int32b lhs = 1;
+      const int32b rhs = -1;
+      result1[scalar_index++] = zMin(lhs, rhs);
+    }
+    {
+      const int32b lhs = -10;
+      const int32b rhs = -1;
+      result1[scalar_index++] = zMin(lhs, rhs);
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = -10;
+      result1[scalar_index++] = zMin(lhs, rhs);
+    }
+    {
+      const int32b lhs = 10;
+      const int32b rhs = 1;
+      result1[scalar_index++] = zMin(lhs, rhs);
+    }
+    {
+      const int32b lhs = 1;
+      const int32b rhs = 10;
+      result1[scalar_index++] = zMin(lhs, rhs);
+    }
+  }
+}
 #endif /* ZINVUL_MATH_TEST_MATH_CL */
