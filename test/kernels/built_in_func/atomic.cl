@@ -77,18 +77,13 @@ kernel void testAtomic(global int32b* add_table, global int32b* add_result,
   if (index < resolution) {
     // atomic_add
     {
-      //! \todo Remove commentout. The atomic functions crash on AMD
-//      const int32b i = atomic_add(add_result, 1);
-//      add_table[i] = 1;
-      (void)add_table;
-      (void)add_result;
+      const int32b i = atomic_add(add_result, 1);
+      add_table[i] = 1;
     }
     // atomic_sub
     {
-//      const int32b i = atomic_sub(sub_result, 1);
-//      sub_table[-i] = 1;
-      (void)sub_table;
-      (void)sub_result;
+      const int32b i = atomic_sub(sub_result, 1);
+      sub_table[-i] = 1;
     }
     // atomic_xchg
     {
@@ -99,17 +94,13 @@ kernel void testAtomic(global int32b* add_table, global int32b* add_result,
     }
     // atomic_inc
     {
-//      const int i = atomic_inc(inc_result);
-//      inc_table[i] = 1;
-      (void)inc_table;
-      (void)inc_result;
+      const int i = atomic_inc(inc_result);
+      inc_table[i] = 1;
     }
     // atomic_dec
     {
-//      const int i = atomic_dec(dec_result);
-//      dec_table[-i] = 1;
-      (void)dec_table;
-      (void)dec_result;
+      const int i = atomic_dec(dec_result);
+      dec_table[-i] = 1;
     }
     // cmpxchg
     {
@@ -120,38 +111,28 @@ kernel void testAtomic(global int32b* add_table, global int32b* add_result,
     }
     // atomic_min
     {
-//      atomic_min(min_result, -(int32b)(index + 1));
-//      min_table[index] = 1;
-      (void)min_table;
-      (void)min_result;
+      atomic_min(min_result, -(int32b)(index + 1));
+      min_table[index] = 1;
     }
     // atomic_max
     {
-//      atomic_max(max_result, (int32b)(index + 1));
-//      max_table[index] = 1;
-      (void)max_table;
-      (void)max_result;
+      atomic_max(max_result, (int32b)(index + 1));
+      max_table[index] = 1;
     }
     // atomic_and
     {
-//      atomic_and(and_result, (int32b)index);
-//      and_table[index] = 1;
-      (void)and_table;
-      (void)and_result;
+      atomic_and(and_result, (int32b)index);
+      and_table[index] = 1;
     }
     // atomic_or
     {
-//      atomic_or(or_result, (int32b)index);
-//      or_table[index] = 1;
-      (void)or_table;
-      (void)or_result;
+      atomic_or(or_result, (int32b)index);
+      or_table[index] = 1;
     }
     // atomic_xor
     {
-//      atomic_xor(xor_result, (int32b)index);
-//      xor_table[index] = 1;
-      (void)xor_table;
-      (void)xor_result;
+      atomic_xor(xor_result, (int32b)index);
+      xor_table[index] = 1;
     }
   }
 }
