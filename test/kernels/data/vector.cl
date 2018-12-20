@@ -293,4 +293,190 @@ kernel void testHalfLoadStore(
   }
 }
 
+/*!
+  */
+kernel void testRelationalOperations(
+    global int32b* result1, global int2* result2,
+    global int3* result3, global int4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // Scalar
+    size_t scalar_index = 0;
+    {
+      const int32b lhs = INT_MIN;
+      const int32b rhs = INT_MAX;
+      result1[scalar_index++] = lhs < rhs;
+    }
+    {
+      const int32b lhs = INT_MIN;
+      const int32b rhs = INT_MAX;
+      result1[scalar_index++] = lhs <= rhs;
+    }
+    {
+      const int32b lhs = INT_MIN;
+      const int32b rhs = INT_MAX;
+      result1[scalar_index++] = lhs > rhs;
+    }
+    {
+      const int32b lhs = INT_MIN;
+      const int32b rhs = INT_MAX;
+      result1[scalar_index++] = lhs >= rhs;
+    }
+
+    {
+      const int32b lhs = INT_MAX;
+      const int32b rhs = INT_MIN;
+      result1[scalar_index++] = lhs < rhs;
+    }
+    {
+      const int32b lhs = INT_MAX;
+      const int32b rhs = INT_MIN;
+      result1[scalar_index++] = lhs <= rhs;
+    }
+    {
+      const int32b lhs = INT_MAX;
+      const int32b rhs = INT_MIN;
+      result1[scalar_index++] = lhs > rhs;
+    }
+    {
+      const int32b lhs = INT_MAX;
+      const int32b rhs = INT_MIN;
+      result1[scalar_index++] = lhs >= rhs;
+    }
+
+    {
+      const int32b lhs = INT_MAX - 1;
+      const int32b rhs = INT_MAX - 1;
+      result1[scalar_index++] = lhs == rhs;
+    }
+    {
+      const int32b lhs = INT_MAX - 1;
+      const int32b rhs = INT_MAX - 1;
+      result1[scalar_index++] = lhs < rhs;
+    }
+    {
+      const int32b lhs = INT_MIN + 1;
+      const int32b rhs = INT_MIN + 1;
+      result1[scalar_index++] = lhs == rhs;
+    }
+    {
+      const int32b lhs = INT_MIN + 1;
+      const int32b rhs = INT_MIN + 1;
+      result1[scalar_index++] = lhs < rhs;
+    }
+
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 0;
+      result1[scalar_index++] = lhs == rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 0;
+      result1[scalar_index++] = lhs < rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 0;
+      result1[scalar_index++] = lhs <= rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 0;
+      result1[scalar_index++] = lhs > rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 0;
+      result1[scalar_index++] = lhs >= rhs;
+    }
+
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 1;
+      result1[scalar_index++] = lhs == rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 1;
+      result1[scalar_index++] = lhs < rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 1;
+      result1[scalar_index++] = lhs <= rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 1;
+      result1[scalar_index++] = lhs > rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = 1;
+      result1[scalar_index++] = lhs >= rhs;
+    }
+
+    {
+      const int32b lhs = -1;
+      const int32b rhs = -1;
+      result1[scalar_index++] = lhs == rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = -1;
+      result1[scalar_index++] = lhs < rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = -1;
+      result1[scalar_index++] = lhs <= rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = -1;
+      result1[scalar_index++] = lhs > rhs;
+    }
+    {
+      const int32b lhs = -1;
+      const int32b rhs = -1;
+      result1[scalar_index++] = lhs >= rhs;
+    }
+
+    {
+      const int32b lhs = -2;
+      const int32b rhs = -1;
+      result1[scalar_index++] = lhs == rhs;
+    }
+    {
+      const int32b lhs = -2;
+      const int32b rhs = -1;
+      result1[scalar_index++] = lhs < rhs;
+    }
+    {
+      const int32b lhs = -2;
+      const int32b rhs = -1;
+      result1[scalar_index++] = lhs <= rhs;
+    }
+    {
+      const int32b lhs = -2;
+      const int32b rhs = -1;
+      result1[scalar_index++] = lhs > rhs;
+    }
+    {
+      const int32b lhs = -2;
+      const int32b rhs = -1;
+      result1[scalar_index++] = lhs >= rhs;
+    }
+
+    // vector2
+    (void)result2;
+    // vector3
+    (void)result3;
+    // vector4
+    (void)result4;
+  }
+}
+
 #endif /* ZINVUL_DATA_TEST_VECTOR_CL */

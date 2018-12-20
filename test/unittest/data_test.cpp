@@ -925,3 +925,76 @@ TEST(DataTest, VariablePointerTest)
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
+
+TEST(DataTest, RelationalOperationsTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t num_scalars = 32;
+    auto buffer1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    buffer1->setSize(num_scalars);
+    auto buffer2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    buffer2->setSize(1);
+    auto buffer3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    buffer3->setSize(1);
+    auto buffer4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    buffer4->setSize(1);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testRelationalOperations, 1);
+    kernel->run(*buffer1, *buffer2, *buffer3, *buffer4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<int32b, num_scalars> results;
+      buffer1->read(results.data(), num_scalars, 0, 0);
+      std::size_t scalar_index = 0;
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
