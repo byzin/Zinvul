@@ -309,11 +309,51 @@ kernel void testRadian2(
 
 /*!
   */
-kernel void testConstantValues(global float* pi_value)
+kernel void testConstantValues(global int32b* int_values, global float* float_values)
 {
   const uint32b index = zGetGlobalIdX();
   if (index == 0) {
-    pi_value[0] = zPiF;
+    size_t int_index = 0;
+    size_t float_index = 0;
+    // Integer
+    int_values[int_index++] = FLT_DIG;
+    int_values[int_index++] = FLT_MANT_DIG;
+    int_values[int_index++] = FLT_MAX_10_EXP;
+    int_values[int_index++] = FLT_MAX_EXP;
+    int_values[int_index++] = FLT_MIN_10_EXP;
+    int_values[int_index++] = FLT_MIN_EXP;
+    int_values[int_index++] = FLT_RADIX;
+    int_values[int_index++] = CHAR_BIT;
+    int_values[int_index++] = SCHAR_MAX;
+    int_values[int_index++] = SCHAR_MIN;
+    int_values[int_index++] = CHAR_MAX;
+    int_values[int_index++] = CHAR_MIN;
+    int_values[int_index++] = SHRT_MAX;
+    int_values[int_index++] = SHRT_MIN;
+    int_values[int_index++] = INT_MAX;
+    int_values[int_index++] = INT_MIN;
+    // Float
+    float_values[float_index++] = MAXFLOAT;
+    float_values[float_index++] = INFINITY;
+    float_values[float_index++] = NAN;
+    float_values[float_index++] = FLT_MAX;
+    float_values[float_index++] = FLT_MIN;
+    float_values[float_index++] = FLT_EPSILON;
+    float_values[float_index++] = M_E_F;
+    float_values[float_index++] = M_LOG2E_F;
+    float_values[float_index++] = M_LOG10E_F;
+    float_values[float_index++] = M_LN2_F;
+    float_values[float_index++] = M_LN10_F;
+    float_values[float_index++] = M_PI_F;
+    float_values[float_index++] = M_PI_2_F;
+    float_values[float_index++] = M_PI_4_F;
+    float_values[float_index++] = M_1_PI_F;
+    float_values[float_index++] = M_2_PI_F;
+    float_values[float_index++] = M_2_SQRTPI_F;
+    float_values[float_index++] = M_SQRT2_F;
+    float_values[float_index++] = M_SQRT1_2_F;
+    // Zinvul
+    float_values[float_index++] = zPiF;
   }
 }
 

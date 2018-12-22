@@ -11,8 +11,11 @@
 #define ZINVUL_CL_MATH_HPP
 
 // Standard C++ library
+#include <climits>
 #include <cmath>
 #include <type_traits>
+// Zisc
+#include "zisc/const_math.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
 
@@ -24,6 +27,19 @@ namespace cl {
 #ifndef MAXFLOAT
 constexpr float MAXFLOAT = std::numeric_limits<float>::max();
 #endif // MAXFLOAT
+constexpr float M_E_F = zisc::constant::exp(1.0f);
+constexpr float M_LOG2E_F = zisc::constant::log2(M_E_F);
+constexpr float M_LOG10E_F = zisc::constant::log10(M_E_F);
+constexpr float M_LN2_F = zisc::constant::log(2.0f);
+constexpr float M_LN10_F = zisc::constant::log(10.0f);
+constexpr float M_PI_F = zisc::constant::pi<float>();
+constexpr float M_PI_2_F = M_PI_F / 2.0f;
+constexpr float M_PI_4_F = M_PI_F / 4.0f;
+constexpr float M_1_PI_F = 1.0f / M_PI_F;
+constexpr float M_2_PI_F = 2.0f / M_PI_F;
+constexpr float M_2_SQRTPI_F = 2.0f / zisc::constant::sqrt(M_PI_F);
+constexpr float M_SQRT2_F = zisc::constant::sqrt(2.0f);
+constexpr float M_SQRT1_2_F = 1.0f / zisc::constant::sqrt(2.0f);
 
 //! Return |x|
 template <typename Integer>

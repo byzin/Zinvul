@@ -9,6 +9,7 @@
 
 // Standard C++ library
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
@@ -26,24 +27,109 @@
 
 TEST(MathTest, ConstantValueTest)
 {
+  using namespace zinvul;
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
   for (std::size_t number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
-    auto pi_buffer = zinvul::makeBuffer<float>(device.get(),
-                                               zinvul::BufferUsage::kDeviceSrc);
-    pi_buffer->setSize(1);
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n_int = 16;
+    constexpr std::size_t n_float = 20;
+    auto int_values = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    int_values->setSize(n_int);
+    auto float_values = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    float_values->setSize(n_float);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testConstantValues, 1);
-    kernel->run(*pi_buffer, {1}, 0);
+    kernel->run(*int_values, *float_values, {1}, 0);
     device->waitForCompletion();
 
     {
-      float pi = 0.0f;
-      pi_buffer->read(&pi, 1, 0, 0);
-      EXPECT_FLOAT_EQ(zisc::kPi<float>, pi)
-          << "The pi values are different on between host and device.";
+      std::array<int32b, n_int> results;
+      int_values->read(results.data(), n_int, 0, 0);
+      std::size_t index = 0;
+      EXPECT_EQ(FLT_DIG, results[index++])
+          << "The constant 'FLT_DIG' is wrong.";
+      EXPECT_EQ(FLT_MANT_DIG, results[index++])
+          << "The constant 'FLT_MANT_DIG' is wrong.";
+      EXPECT_EQ(FLT_MAX_10_EXP, results[index++])
+          << "The constant 'FLT_MAX_10_EXP' is wrong.";
+      EXPECT_EQ(FLT_MAX_EXP, results[index++])
+          << "The constant 'FLT_MAX_EXP' is wrong.";
+      EXPECT_EQ(FLT_MIN_10_EXP, results[index++])
+          << "The constant 'FLT_MIN_10_EXP' is wrong.";
+      EXPECT_EQ(FLT_MIN_EXP, results[index++])
+          << "The constant 'FLT_MIN_EXP' is wrong.";
+      EXPECT_EQ(FLT_RADIX, results[index++])
+          << "The constant 'FLT_RADIX' is wrong.";
+      EXPECT_EQ(CHAR_BIT, results[index++])
+          << "The constant 'CHAR_BIT' is wrong.";
+      EXPECT_EQ(SCHAR_MAX, results[index++])
+          << "The constant 'SCHAR_MAX' is wrong.";
+      EXPECT_EQ(SCHAR_MIN, results[index++])
+          << "The constant 'SCHAR_MIN' is wrong.";
+      EXPECT_EQ(CHAR_MAX, results[index++])
+          << "The constant 'CHAR_MAX' is wrong.";
+      EXPECT_EQ(CHAR_MIN, results[index++])
+          << "The constant 'CHAR_MIN' is wrong.";
+      EXPECT_EQ(SHRT_MAX, results[index++])
+          << "The constant 'SHRT_MAX' is wrong.";
+      EXPECT_EQ(SHRT_MIN, results[index++])
+          << "The constant 'SHRT_MIN' is wrong.";
+      EXPECT_EQ(INT_MAX, results[index++])
+          << "The constant 'INT_MAX' is wrong.";
+      EXPECT_EQ(INT_MIN, results[index++])
+          << "The constant 'INT_MIN' is wrong.";
     }
+
+    {
+      std::array<float, n_float> results;
+      float_values->read(results.data(), n_float, 0, 0);
+      std::size_t index = 0;
+      EXPECT_FLOAT_EQ(std::numeric_limits<float>::max(), results[index++])
+          << "The constant 'MAXFLOAT' is wrong.";
+      EXPECT_TRUE(std::isinf(results[index++])) 
+          << "The constant 'INFINITY' is wrong.";
+      EXPECT_TRUE(std::isnan(results[index++])) 
+          << "The constant 'NAN' is wrong.";
+      EXPECT_FLOAT_EQ(std::numeric_limits<float>::max(), results[index++])
+          << "The constant 'FLT_MAX' is wrong.";
+      EXPECT_FLOAT_EQ(std::numeric_limits<float>::min(), results[index++])
+          << "The constant 'FLT_MIN' is wrong.";
+      EXPECT_FLOAT_EQ(std::numeric_limits<float>::epsilon(), results[index++])
+          << "The constant 'FLT_EPSILON' is wrong.";
+      EXPECT_FLOAT_EQ(zisc::kE<float>, results[index++])
+          << "The constant 'M_E_F' is wrong.";
+      EXPECT_FLOAT_EQ(std::log2(zisc::kE<float>), results[index++])
+          << "The constant 'M_LOG2E_F' is wrong.";
+      EXPECT_FLOAT_EQ(std::log10(zisc::kE<float>), results[index++])
+          << "The constant 'M_LOG10E_F' is wrong.";
+      EXPECT_FLOAT_EQ(std::log(2.0f), results[index++])
+          << "The constant 'M_LN2_F' is wrong.";
+      EXPECT_FLOAT_EQ(std::log(10.0f), results[index++])
+          << "The constant 'M_LN10_F' is wrong.";
+      EXPECT_FLOAT_EQ(zisc::kPi<float>, results[index++])
+          << "The constant 'M_PI_F' is wrong.";
+      EXPECT_FLOAT_EQ(zisc::kPi<float> / 2.0f, results[index++])
+          << "The constant 'M_PI_2_F' is wrong.";
+      EXPECT_FLOAT_EQ(zisc::kPi<float> / 4.0f, results[index++])
+          << "The constant 'M_PI_4_F' is wrong.";
+      EXPECT_FLOAT_EQ(1.0f / zisc::kPi<float>, results[index++])
+          << "The constant 'M_1_PI_F' is wrong.";
+      EXPECT_FLOAT_EQ(2.0f / zisc::kPi<float>, results[index++])
+          << "The constant 'M_2_PI_F' is wrong.";
+      EXPECT_FLOAT_EQ(2.0f / std::sqrt(zisc::kPi<float>), results[index++])
+          << "The constant 'M_2_SQRTPI_F' is wrong.";
+      EXPECT_FLOAT_EQ(std::sqrt(2.0f), results[index++])
+          << "The constant 'M_SQRT2_F' is wrong.";
+      EXPECT_FLOAT_EQ(1.0f / std::sqrt(2.0f), results[index++])
+          << "The constant 'M_SQRT1_2_F' is wrong.";
+      EXPECT_FLOAT_EQ(zisc::kPi<float>, results[index++])
+          << "The constant 'zPiF' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
 
