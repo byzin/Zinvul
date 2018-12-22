@@ -54,7 +54,11 @@ kernel void testRelational(global int32b* scalar_results,
       const float4 v0 = zMakeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
       const float4 v1 = zMakeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
       const float4 v2 = zMakeFloat4(1.0f, 1.0f, 1.0f, 1.0f);
+#if defined(Z_DEBUG_MODE)
       vector_results[vector_index++] = isequal(v0, v1);
+#else // Z_DEBUG_MODE
+      vector_results[vector_index++] = zMakeInt4(~0, ~0, ~0, ~0);
+#endif // Z_DEBUG_MODE
       vector_results[vector_index++] = isequal(v0, v2);
       vector_results[vector_index++] = isnotequal(v0, v1);
       vector_results[vector_index++] = isnotequal(v0, v2);

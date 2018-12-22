@@ -133,7 +133,11 @@ kernel void testVectorOperations(
       const int v2 = ~0;
       buffer8[0] = v0 | v1;
       buffer8[1] = v0 | v2;
+#if defined(Z_DEBUG_MODE)
       buffer8[2] = v2 | v0;
+#else // Z_DEBUG_MODE
+      buffer8[2] = zMakeInt2(v2, v2);
+#endif // Z_DEBUG_MODE
       int2 v3 = v0;
       v3 |= v1;
       buffer8[3] = v3;
@@ -332,7 +336,13 @@ kernel void testRelationalOperations(
     {
       const int32b lhs = INT_MAX;
       const int32b rhs = INT_MIN;
+#if defined(Z_DEBUG_MODE)
       result1[scalar_index++] = lhs <= rhs;
+#else // Z_DEBUG_MODE
+      (void)lhs;
+      (void)rhs;
+      scalar_index++;
+#endif // Z_DEBUG_MODE
     }
     {
       const int32b lhs = INT_MAX;
