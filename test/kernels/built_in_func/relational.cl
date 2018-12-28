@@ -110,7 +110,7 @@ kernel void testSelect(global int32b* scalar_results,
 
 /*!
   */
-kernel void testSelect2(global int32b* scalar_results,
+kernel void testZSelect(global int32b* scalar_results,
                         global float4* vector_results)
 {
   const uint index = zGetGlobalIdX();

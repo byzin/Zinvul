@@ -17,6 +17,20 @@
 
 /*!
   */
+float makeNormal(const float x)
+{
+  const int bias = zExponentBiasF;
+  const float k = 2.0f * zAbsF(x) - 1.0f;
+  const int e = zClampF((int)(k * (float)bias), -bias + 1, bias);
+  const float s = (x < 0.0f) ? -1.0f : 1.0f;
+  const float m = 0.499f * zAbsF(x) + 0.5f;
+  float f = zLdexp(s * m, e);
+  f = (x == 0.0f) ? 0.0f : zClampF(f, FLT_MIN, FLT_MAX);
+  return f;
+}
+
+/*!
+  */
 kernel void testFrLdexp(
     global float* result1,
     global int32b* result_exp1,
@@ -31,7 +45,7 @@ kernel void testFrLdexp(
   const uint32b index = zGetGlobalIdX();
   if (index < resolution) {
     const float x = (float)(2 * index) / (float)resolution - 1.0f; // [-1, 1)
-    const float n = x * x * FLT_MAX;
+    const float n = makeNormal(x);
     // Scalar
     {
       const float z = n;
@@ -128,10 +142,9 @@ kernel void testZFrLdexp(
   const uint32b index = zGetGlobalIdX();
   if (index < resolution) {
     const float x = (float)(2 * index) / (float)resolution - 1.0f; // [-1, 1)
-    const float n = x * x * FLT_MAX;
     // Scalar
     {
-      const float z = n;
+      const float z = makeNormal(x);
       result1[3 * index] = z;
       int32b e = 0;
       const float m = zFrexp(z, &e);
@@ -166,7 +179,7 @@ kernel void testZFrLdexp(
     }
     // Vector2
     {
-      const float2 z = zMakeFloat2(n, n);
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
       result2[3 * index] = z;
       int2 e = zMakeInt2(0, 0);
       const float2 m = zFrexp2(z, &e);
@@ -177,7 +190,7 @@ kernel void testZFrLdexp(
     }
     // Vector3
     {
-      const float3 z = zMakeFloat3(n, n, n);
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
       result3[3 * index] = z;
       int3 e = zMakeInt3(0, 0, 0);
       const float3 m = zFrexp3(z, &e);
@@ -188,7 +201,7 @@ kernel void testZFrLdexp(
     }
     // Vector4
     {
-      const float4 z = zMakeFloat4(n, n, n, n);
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
       result4[3 * index] = z;
       int4 e = zMakeInt4(0, 0, 0, 0);
       const float4 m = zFrexp4(z, &e);

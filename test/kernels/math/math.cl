@@ -165,7 +165,7 @@ kernel void testRadian(
 
 /*!
   */
-kernel void testCommon2(global uint32b* abs_result1, global float* abs_result2,
+kernel void testZCommon(global uint32b* abs_result1, global float* abs_result2,
     global uint2* abs_result3, global float2* abs_result4,
     global uint3* abs_result5, global float3* abs_result6,
     global uint4* abs_result7, global float4* abs_result8,
@@ -277,7 +277,7 @@ kernel void testCommon2(global uint32b* abs_result1, global float* abs_result2,
 
 /*!
   */
-kernel void testRadian2(
+kernel void testZRadian(
     global float* radian_result1, global float2* radian_result2,
     global float3* radian_result3, global float4* radian_result4)
 {

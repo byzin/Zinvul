@@ -425,7 +425,7 @@ TEST(MathTest, RadianTest)
   }
 }
 
-TEST(MathTest, CommonTest2)
+TEST(MathTest, ZCommonTest)
 {
   using namespace zinvul;
   auto options = makeTestOptions();
@@ -467,7 +467,7 @@ TEST(MathTest, CommonTest2)
     auto clamp_result8 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
     clamp_result8->setSize(5);
 
-    auto kernel = makeZinvulKernel(device.get(), math, testCommon2, 1);
+    auto kernel = makeZinvulKernel(device.get(), math, testZCommon, 1);
     kernel->run(*buffer1, *abs_result2, *abs_result3, *abs_result4,
         *abs_result5, *abs_result6, *abs_result7, *abs_result8,
         *clamp_result1, *clamp_result2, *clamp_result3, *clamp_result4,
@@ -647,7 +647,7 @@ TEST(MathTest, CommonTest2)
   }
 }
 
-TEST(MathTest, RadianTest2)
+TEST(MathTest, ZRadianTest)
 {
   using namespace zinvul;
   auto options = makeTestOptions();
@@ -665,7 +665,7 @@ TEST(MathTest, RadianTest2)
     auto radian_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
     radian_result4->setSize(2);
 
-    auto kernel = makeZinvulKernel(device.get(), math, testRadian2, 1);
+    auto kernel = makeZinvulKernel(device.get(), math, testZRadian, 1);
     kernel->run(*radian_result1, *radian_result2, *radian_result3, *radian_result4, {1}, 0);
     device->waitForCompletion();
 
@@ -1038,17 +1038,15 @@ TEST(MathTest, ZFrLdexpTest)
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
         const cl::float2 n = results[3 * i];
         int e = 0;
-        float expected = std::frexp(n[0], &e);
-        cl::float2 result = results[3 * i + 1];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zFrexp2(" << n[0] << ") is wrong.";
-          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp2(" << n[0] << ") is wrong.";
-        }
-        const float m = expected;
-        expected = std::ldexp(m, e);
-        result = results[3 * i + 2];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zLdexp2(" << m << "," << e << ") is wrong.";
+        cl::float2 result1 = results[3 * i + 1];
+        cl::float2 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          EXPECT_FLOAT_EQ(expected, result1[j]) << "zFrexp2(" << n[j] << ") is wrong.";
+          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp2(" << n[j] << ") is wrong.";
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << "zLdexp2(" << m << "," << e << ") is wrong.";
         }
       }
     }
@@ -1062,17 +1060,15 @@ TEST(MathTest, ZFrLdexpTest)
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
         const cl::float3 n = results[3 * i];
         int e = 0;
-        float expected = std::frexp(n[0], &e);
-        cl::float3 result = results[3 * i + 1];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zFrexp3(" << n[0] << ") is wrong.";
-          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp3(" << n[0] << ") is wrong.";
-        }
-        const float m = expected;
-        expected = std::ldexp(m, e);
-        result = results[3 * i + 2];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zLdexp3(" << m << "," << e << ") is wrong.";
+        cl::float3 result1 = results[3 * i + 1];
+        cl::float3 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          EXPECT_FLOAT_EQ(expected, result1[j]) << "zFrexp3(" << n[j] << ") is wrong.";
+          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp3(" << n[j] << ") is wrong.";
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << "zLdexp3(" << m << "," << e << ") is wrong.";
         }
       }
     }
@@ -1086,17 +1082,15 @@ TEST(MathTest, ZFrLdexpTest)
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
         const cl::float4 n = results[3 * i];
         int e = 0;
-        float expected = std::frexp(n[0], &e);
-        cl::float4 result = results[3 * i + 1];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zFrexp4(" << n[0] << ") is wrong.";
-          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp4(" << n[0] << ") is wrong.";
-        }
-        const float m = expected;
-        expected = std::ldexp(m, e);
-        result = results[3 * i + 2];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zLdexp4(" << m << "," << e << ") is wrong.";
+        cl::float4 result1 = results[3 * i + 1];
+        cl::float4 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          EXPECT_FLOAT_EQ(expected, result1[j]) << "zFrexp4(" << n[j] << ") is wrong.";
+          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp4(" << n[j] << ") is wrong.";
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << "zLdexp4(" << m << "," << e << ") is wrong.";
         }
       }
     }

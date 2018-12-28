@@ -437,7 +437,7 @@ TEST(BuiltInFuncTest, SelectTest)
   }
 }
 
-TEST(BuiltInFuncTest, SelectTest2)
+TEST(BuiltInFuncTest, ZSelectTest)
 {
   using namespace zinvul;
 
@@ -456,7 +456,7 @@ TEST(BuiltInFuncTest, SelectTest2)
         makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
     vector_results->setSize(n_vectors);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testSelect2, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZSelect, 1);
     kernel->run(*scalar_results, *vector_results, {1}, 0);
     device->waitForCompletion();
 
