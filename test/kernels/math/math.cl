@@ -580,4 +580,154 @@ kernel void testMinFunction(global int32b* result1, global float* result2)
     }
   }
 }
+
+/*!
+  */
+kernel void testMathFunctions(global float* result1, global float2* result2,
+    global float3* result3, global float4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+#if defined(ZINVUL_VULKAN)
+    size_t result_index = 0;
+    int32b expr = 0;
+    result1[0] = frexp(5.14f, &expr);
+    // acos
+    {
+      const float p_list[] = {-1.0f, -0.5f, 0.0f, 0.5f, 1.0f};
+      size_t i = 0;
+      {
+        const float p = p_list[i++];
+        result1[result_index] = acos(p);
+        result2[result_index] = acos(zMakeFloat2(p, p));
+        result3[result_index] = acos(zMakeFloat3(p, p, p));
+        result4[result_index++] = acos(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = acos(p);
+        result2[result_index] = acos(zMakeFloat2(p, p));
+        result3[result_index] = acos(zMakeFloat3(p, p, p));
+        result4[result_index++] = acos(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = acos(p);
+        result2[result_index] = acos(zMakeFloat2(p, p));
+        result3[result_index] = acos(zMakeFloat3(p, p, p));
+        result4[result_index++] = acos(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = acos(p);
+        result2[result_index] = acos(zMakeFloat2(p, p));
+        result3[result_index] = acos(zMakeFloat3(p, p, p));
+        result4[result_index++] = acos(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = acos(p);
+        result2[result_index] = acos(zMakeFloat2(p, p));
+        result3[result_index] = acos(zMakeFloat3(p, p, p));
+        result4[result_index++] = acos(zMakeFloat4(p, p, p, p));
+      }
+    }
+    // asin
+    {
+      const float p_list[] = {-1.0f, -0.5f, 0.0f, 0.5f, 1.0f};
+      size_t i = 0;
+      {
+        const float p = p_list[i++];
+        result1[result_index] = asin(p);
+        result2[result_index] = asin(zMakeFloat2(p, p));
+        result3[result_index] = asin(zMakeFloat3(p, p, p));
+        result4[result_index++] = asin(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = asin(p);
+        result2[result_index] = asin(zMakeFloat2(p, p));
+        result3[result_index] = asin(zMakeFloat3(p, p, p));
+        result4[result_index++] = asin(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = asin(p);
+        result2[result_index] = asin(zMakeFloat2(p, p));
+        result3[result_index] = asin(zMakeFloat3(p, p, p));
+        result4[result_index++] = asin(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = asin(p);
+        result2[result_index] = asin(zMakeFloat2(p, p));
+        result3[result_index] = asin(zMakeFloat3(p, p, p));
+        result4[result_index++] = asin(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = asin(p);
+        result2[result_index] = asin(zMakeFloat2(p, p));
+        result3[result_index] = asin(zMakeFloat3(p, p, p));
+        result4[result_index++] = asin(zMakeFloat4(p, p, p, p));
+      }
+    }
+    // asin
+    {
+      const float p_list[] = {-INFINITY, -1.0f, -0.5f, 0.0f, 0.5f, 1.0f, INFINITY};
+      size_t i = 0;
+      {
+        const float p = p_list[i++];
+        result1[result_index] = atan(p);
+        result2[result_index] = atan(zMakeFloat2(p, p));
+        result3[result_index] = atan(zMakeFloat3(p, p, p));
+        result4[result_index++] = atan(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = atan(p);
+        result2[result_index] = atan(zMakeFloat2(p, p));
+        result3[result_index] = atan(zMakeFloat3(p, p, p));
+        result4[result_index++] = atan(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = atan(p);
+        result2[result_index] = atan(zMakeFloat2(p, p));
+        result3[result_index] = atan(zMakeFloat3(p, p, p));
+        result4[result_index++] = atan(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = atan(p);
+        result2[result_index] = atan(zMakeFloat2(p, p));
+        result3[result_index] = atan(zMakeFloat3(p, p, p));
+        result4[result_index++] = atan(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = atan(p);
+        result2[result_index] = atan(zMakeFloat2(p, p));
+        result3[result_index] = atan(zMakeFloat3(p, p, p));
+        result4[result_index++] = atan(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = atan(p);
+        result2[result_index] = atan(zMakeFloat2(p, p));
+        result3[result_index] = atan(zMakeFloat3(p, p, p));
+        result4[result_index++] = atan(zMakeFloat4(p, p, p, p));
+      }
+      {
+        const float p = p_list[i++];
+        result1[result_index] = atan(p);
+        result2[result_index] = atan(zMakeFloat2(p, p));
+        result3[result_index] = atan(zMakeFloat3(p, p, p));
+        result4[result_index++] = atan(zMakeFloat4(p, p, p, p));
+      }
+    }
+#endif
+  }
+}
+
 #endif /* ZINVUL_MATH_TEST_MATH_CL */

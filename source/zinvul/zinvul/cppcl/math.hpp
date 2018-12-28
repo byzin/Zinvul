@@ -69,6 +69,12 @@ Type min(const Type& x, const Type& y) noexcept;
 template <typename Type>
 Type radians(const Type& d) noexcept;
 
+// Floating point manipulation functions
+
+//! Decompose a number into significand and power of 2
+template <typename FloatN, typename IntegerN>
+FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
+
 } // namespace cl
 
 } // namespace zinvul

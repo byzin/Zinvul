@@ -368,4 +368,50 @@ float4 zMakeFloat4(const float x, const float y, const float z, const float w)
   return value;
 }
 
+//! Convert int2 to uint2
+uint2 zI2ToU2(const int2 value)
+{
+  const uint2 result = zMakeUInt2((uint32b)value.x, (uint32b)value.y);
+  return result;
+}
+
+//! Convert int3 to uint3
+uint3 zI3ToU3(const int3 value)
+{
+  const uint3 result = zMakeUInt3((uint32b)value.x, (uint32b)value.y,
+                                  (uint32b)value.z);
+  return result;
+}
+
+//! Convert int4 to uint4
+uint4 zI4ToU4(const int4 value)
+{
+  const uint4 result = zMakeUInt4((uint32b)value.x, (uint32b)value.y,
+                                  (uint32b)value.z, (uint32b)value.w);
+  return result;
+}
+
+//! Convert uint2 to int2
+int2 zU2ToI2(const uint2 value)
+{
+  const int2 result = zMakeInt2((int32b)value.x, (int32b)value.y);
+  return result;
+}
+
+//! Convert uint3 to int3
+int3 zU3ToI3(const uint3 value)
+{
+  const int3 result = zMakeInt3((int32b)value.x, (int32b)value.y,
+                                (int32b)value.z);
+  return result;
+}
+
+//! Convert uint4 to int4
+int4 zU4ToI4(const uint4 value)
+{
+  const int4 result = zMakeInt4((int32b)value.x, (int32b)value.y,
+                                (int32b)value.z, (int32b)value.w);
+  return result;
+}
+
 #endif /* ZINVUL_UTILITY_CL */

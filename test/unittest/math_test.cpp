@@ -9,6 +9,7 @@
 
 // Standard C++ library
 #include <array>
+#include <bitset>
 #include <cmath>
 #include <cstddef>
 #include <iomanip>
@@ -19,6 +20,7 @@
 #include "gtest/gtest.h"
 // Zisc
 #include "zisc/math.hpp"
+#include "zisc/utility.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
 #include "zinvul/math.hpp"
@@ -814,6 +816,289 @@ TEST(MathTest, MinTest)
       EXPECT_FLOAT_EQ(-10.0f, result[index++]) << "The min func is wrong.";
       EXPECT_FLOAT_EQ(1.0f, result[index++]) << "The min func is wrong.";
       EXPECT_FLOAT_EQ(1.0f, result[index++]) << "The min func is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FrLdexpTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 10000u;
+
+    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1_buffer->setSize(3 * (resolution + 2));
+    auto result_exp1_buffer = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result_exp1_buffer->setSize(resolution + 2);
+    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2_buffer->setSize(3 * resolution);
+    auto result_exp2_buffer = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result_exp2_buffer->setSize(resolution);
+    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3_buffer->setSize(3 * resolution);
+    auto result_exp3_buffer = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result_exp3_buffer->setSize(resolution);
+    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4_buffer->setSize(3 * resolution);
+    auto result_exp4_buffer = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result_exp4_buffer->setSize(resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testFrLdexp, 1);
+    kernel->run(*result1_buffer, *result_exp1_buffer,
+                *result2_buffer, *result_exp2_buffer,
+                *result3_buffer, *result_exp3_buffer,
+                *result4_buffer, *result_exp4_buffer,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    // Scalar
+    {
+      std::array<float, 3 * (resolution + 2)> results;
+      std::array<int32b, resolution + 2> result_exp;
+      result1_buffer->read(results.data(), results.size(), 0, 0);
+      result_exp1_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+        const float n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n, &e);
+        float result = results[3 * i + 1];
+        if( i == result_exp.size() - 1)
+          EXPECT_TRUE(std::isnan(result)) << "frexp(" << n << ") is wrong.";
+        else
+          EXPECT_FLOAT_EQ(expected, result) << "frexp(" << n << ") is wrong.";
+        EXPECT_EQ(e, result_exp[i]) << "frexp(" << n << ") is wrong.";
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        if( i == result_exp.size() - 1)
+          EXPECT_TRUE(std::isnan(result)) << "ldexp(" << m << "," << e << ") is wrong.";
+        else
+          ASSERT_FLOAT_EQ(expected, result) << "ldexp(" << m << "," << e << ") is wrong.";
+      }
+    }
+
+    // Vector2
+    {
+      std::array<cl::float2, 3 * resolution> results;
+      std::array<cl::int2, resolution> result_exp;
+      result2_buffer->read(results.data(), results.size(), 0, 0);
+      result_exp2_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+        const cl::float2 n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n[0], &e);
+        cl::float2 result = results[3 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          EXPECT_FLOAT_EQ(expected, result[j]) << "frexp(" << n[0] << ") is wrong.";
+          EXPECT_EQ(e, result_exp[i][j]) << "frexp(" << n[0] << ") is wrong.";
+        }
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          ASSERT_FLOAT_EQ(expected, result[j]) << "ldexp(" << m << "," << e << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::array<cl::float3, 3 * resolution> results;
+      std::array<cl::int3, resolution> result_exp;
+      result3_buffer->read(results.data(), results.size(), 0, 0);
+      result_exp3_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+        const cl::float3 n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n[0], &e);
+        cl::float3 result = results[3 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zrexp(" << n[0] << ") is wrong.";
+          EXPECT_EQ(e, result_exp[i][j]) << "frexp(" << n[0] << ") is wrong.";
+        }
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          ASSERT_FLOAT_EQ(expected, result[j]) << "ldexp(" << m << "," << e << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::array<cl::float4, 3 * resolution> results;
+      std::array<cl::int4, resolution> result_exp;
+      result4_buffer->read(results.data(), results.size(), 0, 0);
+      result_exp4_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+        const cl::float4 n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n[0], &e);
+        cl::float4 result = results[3 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zrexp(" << n[0] << ") is wrong.";
+          EXPECT_EQ(e, result_exp[i][j]) << "frexp(" << n[0] << ") is wrong.";
+        }
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          ASSERT_FLOAT_EQ(expected, result[j]) << "ldexp(" << m << "," << e << ") is wrong.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+TEST(MathTest, ZFrLdexpTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 10000u;
+
+    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1_buffer->setSize(3 * (resolution + 2));
+    auto result_exp1_buffer = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result_exp1_buffer->setSize(resolution + 2);
+    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2_buffer->setSize(3 * resolution);
+    auto result_exp2_buffer = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result_exp2_buffer->setSize(resolution);
+    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3_buffer->setSize(3 * resolution);
+    auto result_exp3_buffer = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result_exp3_buffer->setSize(resolution);
+    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4_buffer->setSize(3 * resolution);
+    auto result_exp4_buffer = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result_exp4_buffer->setSize(resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testZFrLdexp, 1);
+    kernel->run(*result1_buffer, *result_exp1_buffer,
+                *result2_buffer, *result_exp2_buffer,
+                *result3_buffer, *result_exp3_buffer,
+                *result4_buffer, *result_exp4_buffer,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    // Scalar
+    {
+      std::array<float, 3 * (resolution + 2)> results;
+      std::array<int32b, resolution + 2> result_exp;
+      result1_buffer->read(results.data(), results.size(), 0, 0);
+      result_exp1_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+        const float n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n, &e);
+        float result = results[3 * i + 1];
+        if( i == result_exp.size() - 1)
+          EXPECT_TRUE(std::isnan(result)) << "zFrexp(" << n << ") is wrong.";
+        else
+          EXPECT_FLOAT_EQ(expected, result) << "zFrexp(" << n << ") is wrong.";
+        EXPECT_EQ(e, result_exp[i]) << "zFrexp(" << n << ") is wrong.";
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        if( i == result_exp.size() - 1)
+          EXPECT_TRUE(std::isnan(result)) << "zLdexp(" << m << "," << e << ") is wrong.";
+        else
+          ASSERT_FLOAT_EQ(expected, result) << "zLdexp(" << m << "," << e << ") is wrong.";
+      }
+    }
+
+    // Vector2
+    {
+      std::array<cl::float2, 3 * resolution> results;
+      std::array<cl::int2, resolution> result_exp;
+      result2_buffer->read(results.data(), results.size(), 0, 0);
+      result_exp2_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+        const cl::float2 n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n[0], &e);
+        cl::float2 result = results[3 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zFrexp2(" << n[0] << ") is wrong.";
+          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp2(" << n[0] << ") is wrong.";
+        }
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zLdexp2(" << m << "," << e << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::array<cl::float3, 3 * resolution> results;
+      std::array<cl::int3, resolution> result_exp;
+      result3_buffer->read(results.data(), results.size(), 0, 0);
+      result_exp3_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+        const cl::float3 n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n[0], &e);
+        cl::float3 result = results[3 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zFrexp3(" << n[0] << ") is wrong.";
+          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp3(" << n[0] << ") is wrong.";
+        }
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zLdexp3(" << m << "," << e << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::array<cl::float4, 3 * resolution> results;
+      std::array<cl::int4, resolution> result_exp;
+      result4_buffer->read(results.data(), results.size(), 0, 0);
+      result_exp4_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+        const cl::float4 n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n[0], &e);
+        cl::float4 result = results[3 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zFrexp4(" << n[0] << ") is wrong.";
+          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp4(" << n[0] << ") is wrong.";
+        }
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zLdexp4(" << m << "," << e << ") is wrong.";
+        }
+      }
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;

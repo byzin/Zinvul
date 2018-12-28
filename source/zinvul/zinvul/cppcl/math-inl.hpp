@@ -99,6 +99,28 @@ auto radians(const Vector<Type, kN>& d) noexcept
   return result;
 }
 
+/*!
+  */
+template <typename Float, typename Integer, std::size_t kN> inline
+auto frexp(const Vector<Float, kN>& x, Vector<Integer, kN>* e) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::frexp(x[i], &(*e)[i]);
+  return result;
+}
+
+/*!
+  */
+template <typename Float, typename Integer, std::size_t kN> inline
+auto ldexp(const Vector<Float, kN>& x, const Vector<Integer, kN>& e) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::ldexp(x[i], e[i]);
+  return result;
+}
+
 } // namespace inner
 
 /*!
@@ -209,6 +231,38 @@ Type radians(const Type& d) noexcept
   }
   else {
     return inner::radians(d);
+  }
+}
+
+/*!
+  */
+template <typename FloatN, typename IntegerN> inline
+FloatN frexp(const FloatN& x, IntegerN* e) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> &&
+                                  std::is_integral_v<IntegerN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    return std::frexp(x, e);
+  }
+  else {
+    return inner::frexp(x, e);
+  }
+}
+
+/*!
+  */
+template <typename FloatN, typename IntegerN> inline
+FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> &&
+                                  std::is_integral_v<IntegerN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    return std::ldexp(x, e);
+  }
+  else {
+    return inner::ldexp(x, e);
   }
 }
 

@@ -14,8 +14,15 @@
 #include "types.cl"
 #include "utility.cl"
 
-constant float zPiF = 3.14159274f;
-constant float zInvPiF = 1.0f / 3.14159274f;
+// Constants
+#define zPiF 3.141592741f
+#define zInvPiF (1.0f / 3.141592741f)
+#define zSignBitMaskF 0x80000000u
+#define zExponentBitMaskF 0x7f800000u
+#define zExponentBitSizeF 8u
+#define zExponentBiasF 127
+#define zSignificandBitMaskF 0x7fffffu
+#define zSignificandBitSizeF 23u
 
 // Common functions
 
@@ -428,6 +435,115 @@ float4 zRadiansF4(const float4 d)
   const float k = zPiF / 180.0f;
   const float4 radian = k * d;
   return radian;
+}
+
+// Floating point manipulation functions
+
+//! Decompose a number into significand and a power of 2
+float zFrexp(const float x, __private int32b* e)
+{
+  union Float
+  {
+    float value_;
+    uint32b data_;
+  };
+  union Float y = {x};
+  const int32b is_special = (x == 0.0f) || isinf(x) || isnan(x);
+  // Compute the exponent value
+  int32b expt = (int32b)((y.data_ & zExponentBitMaskF) >> zSignificandBitSizeF) -
+                (zExponentBiasF - 1);
+  expt = zSelect(expt, 0, is_special);
+  *e = expt;
+  // Compute the significand value
+  y.data_ = (y.data_ & ~zExponentBitMaskF) | 0x3f000000u;
+  y.value_ = zSelectF(y.value_, x, is_special);
+  return y.value_;
+}
+
+#define ZINVUL_FREXP_VECTOR_IMPL(FType, UType, IType, zero, uToI, selectI, selectF, x, e) \
+  union Float \
+  { \
+    FType value_; \
+    UType data_; \
+  }; \
+  union Float y = {x}; \
+  const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
+  IType expt = uToI((y.data_ & zExponentBitMaskF) >> zSignificandBitSizeF) - \
+               (zExponentBiasF - 1); \
+  expt = selectI(expt, zero, is_special); \
+  *e = expt; \
+  y.data_ = (y.data_ & ~zExponentBitMaskF) | 0x3f000000u; \
+  y.value_ = selectF(y.value_, x, is_special); \
+  return y.value_
+
+//! Decompose a number into significand and a power of 2
+float2 zFrexp2(const float2 x, __private int2* e)
+{
+  const int2 zero = zMakeInt2(0, 0);
+  ZINVUL_FREXP_VECTOR_IMPL(float2, uint2, int2, zero, zU2ToI2, zSelect2, zSelectF2, x, e);
+}
+
+//! Decompose a number into significand and a power of 2
+float3 zFrexp3(const float3 x, __private int3* e)
+{
+  const int3 zero = zMakeInt3(0, 0, 0);
+  ZINVUL_FREXP_VECTOR_IMPL(float3, uint3, int3, zero, zU3ToI3, zSelect3, zSelectF3, x, e);
+}
+
+//! Decompose a number into significand and a power of 2
+float4 zFrexp4(const float4 x, __private int4* e)
+{
+  const int4 zero = zMakeInt4(0, 0, 0, 0);
+  ZINVUL_FREXP_VECTOR_IMPL(float4, uint4, int4, zero, zU4ToI4, zSelect4, zSelectF4, x, e);
+}
+
+//! Multiply a number by 2 raised to a power
+float zLdexp(const float x, const int32b e)
+{
+  union Float
+  {
+    float value_;
+    uint32b data_;
+  };
+  // Compute the exponent value
+  const uint32b expt_bits = (uint32b)(e + zExponentBiasF - 1) << zSignificandBitSizeF;
+  // Compute value
+  union Float y = {x};
+  y.data_ = (y.data_ & ~zExponentBitMaskF) | expt_bits;
+  const int32b is_special = (x == 0.0f) || isinf(x) || isnan(x);
+  y.value_ = zSelectF(y.value_, x, is_special);
+  return y.value_;
+}
+
+#define ZINVUL_LDEXP_VECTOR_IMPL(FType, UType, IType, iToU, selectF, x, e) \
+  union Float \
+  { \
+    FType value_; \
+    UType data_; \
+  }; \
+  const UType expt_bits = iToU(e + (zExponentBiasF - 1)) << zSignificandBitSizeF; \
+  union Float y = {x}; \
+  y.data_ = (y.data_ & ~zExponentBitMaskF) | expt_bits; \
+  const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
+  y.value_ = selectF(y.value_, x, is_special); \
+  return y.value_
+
+//! Multiply a number by 2 raised to a power
+float2 zLdexp2(const float2 x, const int2 e)
+{
+  ZINVUL_LDEXP_VECTOR_IMPL(float2, uint2, int2, zI2ToU2, zSelectF2, x, e);
+}
+
+//! Multiply a number by 2 raised to a power
+float3 zLdexp3(const float3 x, const int3 e)
+{
+  ZINVUL_LDEXP_VECTOR_IMPL(float3, uint3, int3, zI3ToU3, zSelectF3, x, e);
+}
+
+//! Multiply a number by 2 raised to a power
+float4 zLdexp4(const float4 x, const int4 e)
+{
+  ZINVUL_LDEXP_VECTOR_IMPL(float4, uint4, int4, zI4ToU4, zSelectF4, x, e);
 }
 
 #endif /* ZINVUL_MATH_CL */
