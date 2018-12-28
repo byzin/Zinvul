@@ -463,6 +463,7 @@ float4 zRadiansF4(const float4 d)
 //! Decompose a number into significand and a power of 2
 float zFrexp(const float x, __private int32b* e)
 {
+  //! \todo Support subnormal value
   union Float
   {
     float value_;
@@ -521,6 +522,7 @@ float4 zFrexp4(const float4 x, __private int4* e)
 //! Multiply a number by 2 raised to a power
 float zLdexp(const float x, const int32b e)
 {
+  //! \todo Support subnormal value
   union Float
   {
     float value_;
