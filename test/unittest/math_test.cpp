@@ -864,8 +864,11 @@ TEST(MathTest, FrLdexpTest)
 
     // Scalar
     {
-      std::array<float, 3 * (resolution + 2)> results;
-      std::array<int32b, resolution + 2> result_exp;
+      std::vector<float> results;
+      results.resize(3 * (resolution + 2));
+      std::vector<int32b> result_exp;
+      result_exp.resize(resolution + 2);
+
       result1_buffer->read(results.data(), results.size(), 0, 0);
       result_exp1_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
@@ -890,8 +893,10 @@ TEST(MathTest, FrLdexpTest)
 
     // Vector2
     {
-      std::array<cl::float2, 3 * resolution> results;
-      std::array<cl::int2, resolution> result_exp;
+      std::vector<cl::float2> results;
+      results.resize(3 * resolution);
+      std::vector<cl::int2> result_exp;
+      result_exp.resize(resolution);
       result2_buffer->read(results.data(), results.size(), 0, 0);
       result_exp2_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
@@ -914,8 +919,10 @@ TEST(MathTest, FrLdexpTest)
 
     // Vector3
     {
-      std::array<cl::float3, 3 * resolution> results;
-      std::array<cl::int3, resolution> result_exp;
+      std::vector<cl::float3> results;
+      results.resize(3 * resolution);
+      std::vector<cl::int3> result_exp;
+      result_exp.resize(resolution);
       result3_buffer->read(results.data(), results.size(), 0, 0);
       result_exp3_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
@@ -938,8 +945,10 @@ TEST(MathTest, FrLdexpTest)
 
     // Vector4
     {
-      std::array<cl::float4, 3 * resolution> results;
-      std::array<cl::int4, resolution> result_exp;
+      std::vector<cl::float4> results;
+      results.resize(3 * resolution);
+      std::vector<cl::int4> result_exp;
+      result_exp.resize(resolution);
       result4_buffer->read(results.data(), results.size(), 0, 0);
       result_exp4_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
@@ -1005,8 +1014,10 @@ TEST(MathTest, ZFrLdexpTest)
 
     // Scalar
     {
-      std::array<float, 3 * (resolution + 2)> results;
-      std::array<int32b, resolution + 2> result_exp;
+      std::vector<float> results;
+      results.resize(3 * (resolution + 2));
+      std::vector<int32b> result_exp;
+      result_exp.resize(resolution + 2);
       result1_buffer->read(results.data(), results.size(), 0, 0);
       result_exp1_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
@@ -1014,15 +1025,16 @@ TEST(MathTest, ZFrLdexpTest)
         int e = 0;
         float expected = std::frexp(n, &e);
         float result = results[3 * i + 1];
-        if( i == result_exp.size() - 1)
+        if (i == result_exp.size() - 1)
           EXPECT_TRUE(std::isnan(result)) << "zFrexp(" << n << ") is wrong.";
         else
           EXPECT_FLOAT_EQ(expected, result) << "zFrexp(" << n << ") is wrong.";
-        EXPECT_EQ(e, result_exp[i]) << "zFrexp(" << n << ") is wrong.";
+        if (i < resolution)
+          EXPECT_EQ(e, result_exp[i]) << "zFrexp(" << n << ") is wrong.";
         const float m = expected;
         expected = std::ldexp(m, e);
         result = results[3 * i + 2];
-        if( i == result_exp.size() - 1)
+        if (i == result_exp.size() - 1)
           EXPECT_TRUE(std::isnan(result)) << "zLdexp(" << m << "," << e << ") is wrong.";
         else
           ASSERT_FLOAT_EQ(expected, result) << "zLdexp(" << m << "," << e << ") is wrong.";
@@ -1031,8 +1043,10 @@ TEST(MathTest, ZFrLdexpTest)
 
     // Vector2
     {
-      std::array<cl::float2, 3 * resolution> results;
-      std::array<cl::int2, resolution> result_exp;
+      std::vector<cl::float2> results;
+      results.resize(3 * resolution);
+      std::vector<cl::int2> result_exp;
+      result_exp.resize(resolution);
       result2_buffer->read(results.data(), results.size(), 0, 0);
       result_exp2_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
@@ -1053,8 +1067,10 @@ TEST(MathTest, ZFrLdexpTest)
 
     // Vector3
     {
-      std::array<cl::float3, 3 * resolution> results;
-      std::array<cl::int3, resolution> result_exp;
+      std::vector<cl::float3> results;
+      results.resize(3 * resolution);
+      std::vector<cl::int3> result_exp;
+      result_exp.resize(resolution);
       result3_buffer->read(results.data(), results.size(), 0, 0);
       result_exp3_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
@@ -1071,12 +1087,14 @@ TEST(MathTest, ZFrLdexpTest)
           ASSERT_FLOAT_EQ(expected, result2[j]) << "zLdexp3(" << m << "," << e << ") is wrong.";
         }
       }
-    }
+  }
 
     // Vector4
     {
-      std::array<cl::float4, 3 * resolution> results;
-      std::array<cl::int4, resolution> result_exp;
+      std::vector<cl::float4> results;
+      results.resize(3 * resolution);
+      std::vector<cl::int4> result_exp;
+      result_exp.resize(resolution);
       result4_buffer->read(results.data(), results.size(), 0, 0);
       result_exp4_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
