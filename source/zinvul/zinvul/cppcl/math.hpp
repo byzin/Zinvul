@@ -24,7 +24,7 @@ namespace zinvul {
 namespace cl {
 
 // Float constants
-#ifndef MAXFLOAT
+#if !defined(MAXFLOAT)
 constexpr float MAXFLOAT = std::numeric_limits<float>::max();
 #endif // MAXFLOAT
 constexpr float M_E_F = zisc::constant::exp(1.0f);
@@ -40,6 +40,8 @@ constexpr float M_2_PI_F = 2.0f / M_PI_F;
 constexpr float M_2_SQRTPI_F = 2.0f / zisc::constant::sqrt(M_PI_F);
 constexpr float M_SQRT2_F = zisc::constant::sqrt(2.0f);
 constexpr float M_SQRT1_2_F = 1.0f / zisc::constant::sqrt(2.0f);
+
+// Basic operations
 
 //! Return |x|
 template <typename Integer>
@@ -57,6 +59,10 @@ Type clamp(const Type& x, const Type& minval, const Type& maxval) noexcept;
 template <typename Type>
 Type degrees(const Type& r) noexcept;
 
+//! Fused multiply-add operation
+template <typename FloatN>
+FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept;
+
 //! Return y if x < y, otherwise it returns x
 template <typename Type>
 Type max(const Type& x, const Type& y) noexcept;
@@ -68,6 +74,16 @@ Type min(const Type& x, const Type& y) noexcept;
 //! Convert degrees to radians. (pi / 180) * degrees
 template <typename Type>
 Type radians(const Type& d) noexcept;
+
+// Power function
+
+//! Compute inverse square root
+template <typename FloatN>
+FloatN rsqrt(const FloatN& x) noexcept;
+
+//! Compute square root
+template <typename FloatN>
+FloatN sqrt(const FloatN& x) noexcept;
 
 // Floating point manipulation functions
 

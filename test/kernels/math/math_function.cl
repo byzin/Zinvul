@@ -15,8 +15,7 @@
 #include "zinvul/cl/math.cl"
 #include "zinvul/cl/utility.cl"
 
-/*!
-  */
+//! Make a normal value
 float makeNormal(const float x)
 {
   const int bias = zExponentBiasF;
@@ -26,6 +25,16 @@ float makeNormal(const float x)
   const float m = 0.499f * zAbsF(x) + 0.5f;
   float f = zLdexp(s * m, e);
   f = (x == 0.0f) ? 0.0f : zClampF(f, FLT_MIN, FLT_MAX);
+  return f;
+}
+
+//! Make a subnormal value
+float makeSubnormal(const float x)
+{
+  const float subnormal_max = FLT_MIN - zDenormMinF;
+  const float s = (x < 0.0f) ? -1.0f : 1.0f;
+  float f = (x * x * x * x) * subnormal_max;
+  f = s * zClampF(f, zDenormMinF, subnormal_max);
   return f;
 }
 
@@ -209,6 +218,297 @@ kernel void testZFrLdexp(
       result_exp4[index] = e;
       const float4 f = zLdexp4(m, e);
       result4[3 * index + 2] = f;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testSqrt(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = (float)(index + 1) / (float)resolution; // (0, 1]
+    // Scalar
+    {
+      const float z = makeNormal(x);
+      result1[2 * index] = z;
+      const float y = sqrt(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = sqrt(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = sqrt(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
+      result2[2 * index] = z;
+      const float2 y = sqrt(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
+      result3[2 * index] = z;
+      const float3 y = sqrt(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
+      result4[2 * index] = z;
+      const float4 y = sqrt(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZsqrt(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  const uint32b offset = 100u;
+  if (index < resolution) {
+    const float x = (float)(index + 1) / (float)resolution; // (0, 1]
+    // Scalar
+    {
+      const float z = makeNormal(x);
+      result1[2 * index] = z;
+      const float y = zSqrt(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = zSqrt(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = zSqrt(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
+      result2[2 * index] = z;
+      const float2 y = zSqrt2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
+      result3[2 * index] = z;
+      const float3 y = zSqrt3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
+      result4[2 * index] = z;
+      const float4 y = zSqrt4(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testRsqrt(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = (float)(index + 1) / (float)resolution; // (0, 1]
+    // Scalar
+    {
+      const float z = makeNormal(x);
+      result1[2 * index] = z;
+      const float y = rsqrt(z);
+      result1[2 * index + 1] = y;
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
+      result2[2 * index] = z;
+      const float2 y = rsqrt(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
+      result3[2 * index] = z;
+      const float3 y = rsqrt(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
+      result4[2 * index] = z;
+      const float4 y = rsqrt(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testRsqrtSubnormal(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = (float)(index + 1) / (float)resolution; // (0, 1]
+    // Scalar
+    {
+      const float z = makeSubnormal(x);
+      result1[2 * index] = z;
+      const float y = rsqrt(z);
+      result1[2 * index + 1] = y;
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(makeSubnormal(x), makeSubnormal(0.85f * x));
+      result2[2 * index] = z;
+      const float2 y = rsqrt(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(makeSubnormal(x), makeSubnormal(0.85f * x), makeSubnormal(0.5f * x));
+      result3[2 * index] = z;
+      const float3 y = rsqrt(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(makeSubnormal(x), makeSubnormal(0.85f * x), makeSubnormal(0.5f * x), makeSubnormal(0.35f * x));
+      result4[2 * index] = z;
+      const float4 y = rsqrt(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZrsqrt(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = (float)(index + 1) / (float)resolution; // (0, 1]
+    // Scalar
+    {
+      const float z = makeNormal(x);
+      result1[2 * index] = z;
+      const float y = zRsqrt(z);
+      result1[2 * index + 1] = y;
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
+      result2[2 * index] = z;
+      const float2 y = zRsqrt2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
+      result3[2 * index] = z;
+      const float3 y = zRsqrt3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
+      result4[2 * index] = z;
+      const float4 y = zRsqrt4(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZrsqrtSubnormal(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = (float)(index + 1) / (float)resolution; // (0, 1]
+    // Scalar
+    {
+      const float z = makeSubnormal(x);
+      result1[2 * index] = z;
+      const float y = zRsqrt(z);
+      result1[2 * index + 1] = y;
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(makeSubnormal(x), makeSubnormal(0.85f * x));
+      result2[2 * index] = z;
+      const float2 y = zRsqrt2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(makeSubnormal(x), makeSubnormal(0.85f * x), makeSubnormal(0.5f * x));
+      result3[2 * index] = z;
+      const float3 y = zRsqrt3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(makeSubnormal(x), makeSubnormal(0.85f * x), makeSubnormal(0.5f * x), makeSubnormal(0.35f * x));
+      result4[2 * index] = z;
+      const float4 y = zRsqrt4(z);
+      result4[2 * index + 1] = y;
     }
   }
 }

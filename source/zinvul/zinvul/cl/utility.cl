@@ -12,6 +12,67 @@
 
 #include "types.cl"
 
+//! Check a condition has false
+int32b zHasFalse2(const int2 c)
+{
+  const int32b result = (c.x & c.y) == 0;
+  return result;
+}
+
+//! Check a condition has false
+int32b zHasFalse3(const int3 c)
+{
+  const int32b result = (c.x & c.y & c.z) == 0;
+  return result;
+}
+
+//! Check a condition has false
+int32b zHasFalse4(const int4 c)
+{
+  const int32b result = (c.x & c.y & c.z & c.w) == 0;
+  return result;
+}
+
+//! Check a condition has true
+int32b zHasTrue2(const int2 c)
+{
+  const int32b result = (c.x | c.y) != 0;
+  return result;
+}
+
+//! Check a condition has true
+int32b zHasTrue3(const int3 c)
+{
+  const int32b result = (c.x | c.y | c.z) != 0;
+  return result;
+}
+
+//! Check a condition has true
+int32b zHasTrue4(const int4 c)
+{
+  const int32b result = (c.x | c.y | c.z | c.w) != 0;
+  return result;
+}
+
+#if defined(ZINVUL_CPU)
+//! Write the result of the format to stdout
+#define zPrint(format, value) printf(format, value)
+#else
+#define zPrint(format, value)
+#endif
+
+#if defined(Z_DEBUG_MODE) && defined(ZINVUL_CPU)
+#define zAssert(condition, message) assertError(condition, message)
+#define zAssert2(c, message) assertError(!zHasFalse2(c), message)
+#define zAssert3(c, message) assertError(!zHasFalse3(c), message)
+#define zAssert4(c, message) assertError(!zHasFalse4(c), message)
+#else
+#define zAssert(condition, message)
+#define zAssert2(c, message)
+#define zAssert3(c, message)
+#define zAssert4(c, message)
+#endif
+
 /*!
   */
 uint32b zGetGlobalId(const uint32b dimension)
@@ -411,6 +472,69 @@ int4 zU4ToI4(const uint4 value)
 {
   const int4 result = zMakeInt4((int32b)value.x, (int32b)value.y,
                                 (int32b)value.z, (int32b)value.w);
+  return result;
+}
+
+//! Broadcast a int value
+int2 zBroadcast2(const int32b value)
+{
+  const int2 result = zMakeInt2(value, value);
+  return result;
+}
+
+//! Broadcast a int value
+int3 zBroadcast3(const int32b value)
+{
+  const int3 result = zMakeInt3(value, value, value);
+  return result;
+}
+
+//! Broadcast a int value
+int4 zBroadcast4(const int32b value)
+{
+  const int4 result = zMakeInt4(value, value, value, value);
+  return result;
+}
+
+//! Broadcast a uint value
+uint2 zBroadcastU2(const uint32b value)
+{
+  const uint2 result = zMakeUInt2(value, value);
+  return result;
+}
+
+//! Broadcast a uint value
+uint3 zBroadcastU3(const uint32b value)
+{
+  const uint3 result = zMakeUInt3(value, value, value);
+  return result;
+}
+
+//! Broadcast a uint value
+uint4 zBroadcastU4(const uint32b value)
+{
+  const uint4 result = zMakeUInt4(value, value, value, value);
+  return result;
+}
+
+//! Broadcast a float value
+float2 zBroadcastF2(const float value)
+{
+  const float2 result = zMakeFloat2(value, value);
+  return result;
+}
+
+//! Broadcast a float value
+float3 zBroadcastF3(const float value)
+{
+  const float3 result = zMakeFloat3(value, value, value);
+  return result;
+}
+
+//! Broadcast a float value
+float4 zBroadcastF4(const float value)
+{
+  const float4 result = zMakeFloat4(value, value, value, value);
   return result;
 }
 

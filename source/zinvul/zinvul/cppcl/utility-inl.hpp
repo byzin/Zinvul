@@ -13,6 +13,8 @@
 #include "utility.hpp"
 // Standard C++ library
 #include <cstddef>
+#include <cstdio>
+#include <cstdlib>
 #include <type_traits>
 #include <utility>
 // Zisc
@@ -25,6 +27,25 @@
 namespace zinvul {
 
 namespace cl {
+
+/*!
+  */
+inline
+void assertError(const bool condition, const char* message) noexcept
+{
+  if (condition) {
+    std::fprintf(stderr, message);
+    std::abort();
+  }
+}
+
+/*!
+  */
+template <typename Type> inline
+void printf(const char* format, const Type& value) noexcept
+{
+  std::printf(format, value);
+}
 
 namespace inner {
 
