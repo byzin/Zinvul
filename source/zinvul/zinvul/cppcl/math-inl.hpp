@@ -111,6 +111,24 @@ auto radians(const Vector<Type, kN>& d) noexcept
 }
 
 template <typename Float, std::size_t kN> inline
+auto log(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::log(x[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto log2(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::log2(x[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
 auto sqrt(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
@@ -275,6 +293,32 @@ Type radians(const Type& d) noexcept
   else {
     return inner::radians(d);
   }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN log(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type)
+    return std::log(x);
+  else
+    return inner::log(x);
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN log2(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type)
+    return std::log2(x);
+  else
+    return inner::log2(x);
 }
 
 /*!

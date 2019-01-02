@@ -75,7 +75,17 @@ Type min(const Type& x, const Type& y) noexcept;
 template <typename Type>
 Type radians(const Type& d) noexcept;
 
-// Power function
+// Exponential functions
+
+//! Compute natural logarithm of the given number
+template <typename FloatN>
+FloatN log(const FloatN& x) noexcept;
+
+//! Compute base2 logarithm of the given number
+template <typename FloatN>
+FloatN log2(const FloatN& x) noexcept;
+
+// Power functions
 
 //! Compute inverse square root
 template <typename FloatN>

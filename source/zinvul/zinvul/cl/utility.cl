@@ -452,6 +452,29 @@ uint4 zI4ToU4(const int4 value)
   return result;
 }
 
+//! Convert int2 to float2
+float2 zI2ToF2(const int2 value)
+{
+  const float2 result = zMakeFloat2((float)value.x, (float)value.y);
+  return result;
+}
+
+//! Convert int3 to float3
+float3 zI3ToF3(const int3 value)
+{
+  const float3 result = zMakeFloat3((float)value.x, (float)value.y,
+                                    (float)value.z);
+  return result;
+}
+
+//! Convert int4 to float4
+float4 zI4ToF4(const int4 value)
+{
+  const float4 result = zMakeFloat4((float)value.x, (float)value.y,
+                                    (float)value.z, (float)value.w);
+  return result;
+}
+
 //! Convert uint2 to int2
 int2 zU2ToI2(const uint2 value)
 {

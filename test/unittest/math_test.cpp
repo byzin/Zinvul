@@ -1675,3 +1675,379 @@ TEST(MathTest, ZrsqrtSubnormalTest)
   }
   FAIL();
 }
+
+TEST(MathTest, LogTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 10000u;
+
+    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1_buffer->setSize(2 * (resolution + 2));
+    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2_buffer->setSize(2 * resolution);
+    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3_buffer->setSize(2 * resolution);
+    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4_buffer->setSize(2 * resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testLog, 1);
+    kernel->run(*result1_buffer, *result2_buffer, *result3_buffer, *result4_buffer,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(2 * (resolution + 2));
+      result1_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution + 2; ++i) {
+        const float z = results[2 * i];
+        const float expected = std::log(z);
+        const float result = results[2 * i + 1];
+        if (i == resolution + 1)
+          EXPECT_TRUE(std::isnan(result)) << "log(" << z << ") is wrong.";
+        else
+          EXPECT_FLOAT_EQ(expected, result) << "log(" << z << ") is wrong.";
+      }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(2 * resolution);
+      result2_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "log(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(2 * resolution);
+      result3_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "log(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(2 * resolution);
+      result4_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "log(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ZlogTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 10000u;
+
+    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1_buffer->setSize(2 * (resolution + 2));
+    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2_buffer->setSize(2 * resolution);
+    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3_buffer->setSize(2 * resolution);
+    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4_buffer->setSize(2 * resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testZlog, 1);
+    kernel->run(*result1_buffer, *result2_buffer, *result3_buffer, *result4_buffer,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(2 * (resolution + 2));
+      result1_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution + 2; ++i) {
+        const float z = results[2 * i];
+        const float expected = std::log(z);
+        const float result = results[2 * i + 1];
+        if (i == resolution + 1)
+          EXPECT_TRUE(std::isnan(result)) << "zLog(" << z << ") is wrong.";
+        else
+          EXPECT_FLOAT_EQ(expected, result) << "zLog(" << z << ") is wrong.";
+      }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(2 * resolution);
+      result2_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zLogF2(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(2 * resolution);
+      result3_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zLogF3(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(2 * resolution);
+      result4_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zLogF4(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, Log2Test)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 10000u;
+
+    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1_buffer->setSize(2 * (resolution + 2));
+    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2_buffer->setSize(2 * resolution);
+    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3_buffer->setSize(2 * resolution);
+    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4_buffer->setSize(2 * resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testLog2, 1);
+    kernel->run(*result1_buffer, *result2_buffer, *result3_buffer, *result4_buffer,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(2 * (resolution + 2));
+      result1_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution + 2; ++i) {
+        const float z = results[2 * i];
+        const float expected = std::log2(z);
+        const float result = results[2 * i + 1];
+        if (i == resolution + 1)
+          EXPECT_TRUE(std::isnan(result)) << "log2(" << z << ") is wrong.";
+        else
+          EXPECT_FLOAT_EQ(expected, result) << "log2(" << z << ") is wrong.";
+      }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(2 * resolution);
+      result2_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log2(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "log2(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(2 * resolution);
+      result3_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log2(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "log2(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(2 * resolution);
+      result4_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log2(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "log2(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, Zlog2Test)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 10000u;
+
+    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1_buffer->setSize(2 * (resolution + 2));
+    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2_buffer->setSize(2 * resolution);
+    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3_buffer->setSize(2 * resolution);
+    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4_buffer->setSize(2 * resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testZlog2, 1);
+    kernel->run(*result1_buffer, *result2_buffer, *result3_buffer, *result4_buffer,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(2 * (resolution + 2));
+      result1_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution + 2; ++i) {
+        const float z = results[2 * i];
+        const float expected = std::log2(z);
+        const float result = results[2 * i + 1];
+        if (i == resolution + 1)
+          EXPECT_TRUE(std::isnan(result)) << "zLog2(" << z << ") is wrong.";
+        else
+          EXPECT_FLOAT_EQ(expected, result) << "zLog2(" << z << ") is wrong.";
+      }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(2 * resolution);
+      result2_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log2(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zLog2F2(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(2 * resolution);
+      result3_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log2(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zLog2F3(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(2 * resolution);
+      result4_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::log2(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "zLog2F4(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}

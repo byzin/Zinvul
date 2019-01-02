@@ -91,6 +91,37 @@ float4 zAbsF4(const float4 x)
   return result;
 }
 
+//! Check if the given two values are almost same. \todo Support subnormal
+#define ZINVUL_IS_ALMOST_SAME_IMPL(FType, IType, absolute, lhs, rhs) \
+  const FType e = (4.0f * FLT_EPSILON) * absolute(lhs + rhs); \
+  const FType v = absolute(lhs - rhs); \
+  const IType result = (v <= e); \
+  return result
+
+//! Check if the given two values are almost same
+int32b isAlmostSame(const float lhs, const float rhs)
+{
+  ZINVUL_IS_ALMOST_SAME_IMPL(float, int32b, zAbsF, lhs, rhs);
+}
+
+//! Check if the given two values are almost same
+int2 isAlmostSame2(const float2 lhs, const float2 rhs)
+{
+  ZINVUL_IS_ALMOST_SAME_IMPL(float2, int2, zAbsF2, lhs, rhs);
+}
+
+//! Check if the given two values are almost same
+int3 isAlmostSame3(const float3 lhs, const float3 rhs)
+{
+  ZINVUL_IS_ALMOST_SAME_IMPL(float3, int3, zAbsF3, lhs, rhs);
+}
+
+//! Check if the given two values are almost same
+int4 isAlmostSame4(const float4 lhs, const float4 rhs)
+{
+  ZINVUL_IS_ALMOST_SAME_IMPL(float4, int4, zAbsF4, lhs, rhs);
+}
+
 //! Return y if x < y, otherwise it returns x
 int32b zMax(const int32b x, const int32b y)
 {
@@ -459,118 +490,10 @@ float4 zRadiansF4(const float4 d)
   return radian;
 }
 
-// Power functions
-
-//! Compute approximate inverse square root
-#define ZINVUL_APPROXIMATE_INV_SQRT_IMPL(FType, IType, x) \
-  union Float \
-  { \
-    FType value_; \
-    IType data_; \
-  }; \
-  union Float z = {x}; \
-  z.data_ = 0x5f376908 - (z.data_ >> 1); \
-  return z.value_
-
-//! Compute approximate inverse square root
-float zApproxRsqrt(const float x)
-{
-  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float, int32b, x);
-}
-
-//! Compute approximate inverse square root
-float2 zApproxRsqrt2(const float2 x)
-{
-  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float2, int2, x);
-}
-
-//! Compute approximate inverse square root
-float3 zApproxRsqrt3(const float3 x)
-{
-  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float3, int3, x);
-}
-
-//! Compute approximate inverse square root
-float4 zApproxRsqrt4(const float4 x)
-{
-  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float4, int4, x);
-}
-
-//! Compute inverse square root. \todo Support subnormal
-#define ZINVUL_INV_SQRT_IMPL(FType, x, selectF, approxRsqrt, assertE) \
-  const FType z = selectF(x, x * 4.294967296e+09f, x < 2.328306437e-10f); \
-  FType y = approxRsqrt(z); \
-  { \
-    const FType halfx = -0.5f * z; \
-    y = y * (halfx * y * y + 1.5008789f); \
-    y = y * (halfx * y * y + 1.5000006f); \
-    const FType hh = halfx * y * y + 0.5f; \
-    y = fma(y, hh, y); \
-  } \
-  y = selectF(y, y * 6.553600000e+04f, x < 2.328306437e-10f); \
-  return y
-
-//! Compute inverse square root
-float zRsqrt(const float x)
-{
-  ZINVUL_INV_SQRT_IMPL(float, x, zSelectF, zApproxRsqrt, zAssert);
-}
-
-//! Compute inverse square root
-float2 zRsqrt2(const float2 x)
-{
-  ZINVUL_INV_SQRT_IMPL(float2, x, zSelectF2, zApproxRsqrt2, zAssert2);
-}
-
-//! Compute inverse square root
-float3 zRsqrt3(const float3 x)
-{
-  ZINVUL_INV_SQRT_IMPL(float3, x, zSelectF3, zApproxRsqrt3, zAssert3);
-}
-
-//! Compute inverse square root
-float4 zRsqrt4(const float4 x)
-{
-  ZINVUL_INV_SQRT_IMPL(float4, x, zSelectF4, zApproxRsqrt4, zAssert4);
-}
-
-//! Compute square root
-#define ZINVUL_SQRT_IMPL(FType, IType, x, invSqrt, selectF) \
-  FType y = x * invSqrt(x); \
-  { \
-    const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
-    y = selectF(y, x, is_special); \
-  } \
-  return y
-
-//! Compute square root
-float zSqrt(const float x)
-{
-  ZINVUL_SQRT_IMPL(float, int32b, x, zRsqrt, zSelectF);
-}
-
-//! Compute square root
-float2 zSqrt2(const float2 x)
-{
-  ZINVUL_SQRT_IMPL(float2, int2, x, zRsqrt2, zSelectF2);
-}
-
-//! Compute square root
-float3 zSqrt3(const float3 x)
-{
-  ZINVUL_SQRT_IMPL(float3, int3, x, zRsqrt3, zSelectF3);
-}
-
-//! Compute square root
-float4 zSqrt4(const float4 x)
-{
-  ZINVUL_SQRT_IMPL(float4, int4, x, zRsqrt4, zSelectF4);
-}
-
 // Floating point manipulation functions
 
 //! \todo Support subnormal value
-#define ZINVUL_FREXP_IMPL(FType, UType, IType, zero, uToI, selectI, selectF, x, e) \
+#define ZINVUL_FREXP_IMPL(FType, UType, IType, uToI, broadcast, selectI, selectF, x, e) \
   union Float \
   { \
     FType value_; \
@@ -581,7 +504,7 @@ float4 zSqrt4(const float4 x)
   { \
     IType expt = uToI((y.data_ & zExponentBitMaskF) >> zSignificandBitSizeF) - \
                  (zExponentBiasF - 1); \
-    expt = selectI(expt, zero, is_special); \
+    expt = selectI(expt, broadcast(0), is_special); \
     *e = expt; \
   } \
   y.data_ = (y.data_ & ~zExponentBitMaskF) | 0x3f000000u; \
@@ -591,28 +514,25 @@ float4 zSqrt4(const float4 x)
 //! Decompose a number into significand and a power of 2
 float zFrexp(const float x, __private int32b* e)
 {
-  ZINVUL_FREXP_IMPL(float, uint32b, int32b, 0, (int32b), zSelect, zSelectF, x, e);
+  ZINVUL_FREXP_IMPL(float, uint32b, int32b, (int32b),, zSelect, zSelectF, x, e);
 }
 
 //! Decompose a number into significand and a power of 2
 float2 zFrexp2(const float2 x, __private int2* e)
 {
-  const int2 zero = zBroadcast2(0);
-  ZINVUL_FREXP_IMPL(float2, uint2, int2, zero, zU2ToI2, zSelect2, zSelectF2, x, e);
+  ZINVUL_FREXP_IMPL(float2, uint2, int2, zU2ToI2, zBroadcast2, zSelect2, zSelectF2, x, e);
 }
 
 //! Decompose a number into significand and a power of 2
 float3 zFrexp3(const float3 x, __private int3* e)
 {
-  const int3 zero = zBroadcast3(0);
-  ZINVUL_FREXP_IMPL(float3, uint3, int3, zero, zU3ToI3, zSelect3, zSelectF3, x, e);
+  ZINVUL_FREXP_IMPL(float3, uint3, int3, zU3ToI3, zBroadcast3, zSelect3, zSelectF3, x, e);
 }
 
 //! Decompose a number into significand and a power of 2
 float4 zFrexp4(const float4 x, __private int4* e)
 {
-  const int4 zero = zBroadcast4(0);
-  ZINVUL_FREXP_IMPL(float4, uint4, int4, zero, zU4ToI4, zSelect4, zSelectF4, x, e);
+  ZINVUL_FREXP_IMPL(float4, uint4, int4, zU4ToI4, zBroadcast4, zSelect4, zSelectF4, x, e);
 }
 
 //! \todo Support subnormal value
@@ -655,6 +575,200 @@ float3 zLdexp3(const float3 x, const int3 e)
 float4 zLdexp4(const float4 x, const int4 e)
 {
   ZINVUL_LDEXP_IMPL(float4, uint4, int4, zI4ToU4, zSelectF4, x, e);
+}
+
+// Exponential functions
+
+//! Compute natural logarithm of the given number. \todo Support subnormal
+#define ZINVUL_LOG_IMPL(FType, IType, iToF, broadcast, broadcastF, selectI, selectF, hasFalse, isSame, fracExp, x, is_base2) \
+  IType e = broadcast(0); \
+  FType z = fracExp(x, &e); \
+  { \
+    const IType is_special = (x <= 0.0f) || isinf(x) || isnan(x); \
+    z = selectF(z, broadcastF(1.0f), is_special); \
+  } \
+  { \
+    const IType c = z < 0.7071f; \
+    e = selectI(e, e - 1, c); \
+    z = selectF(z, 2.0f * z, c); \
+  } \
+  z = (z - 1.0f) / (z + 1.0f); \
+  FType y = broadcastF(0.0f); \
+  { \
+    FType pre_y = z; \
+    FType t = z; \
+    for (size_t i = 1; hasFalse(isSame(y, pre_y)); ++i) { \
+      pre_y = y; \
+      t = t * z * z; \
+      y = y + t / (float)(2 * i + 1); \
+    } \
+  } \
+  y = 2.0f * (z + y); \
+  if (is_base2) \
+    y = iToF(e) + y / M_LN2_F; \
+  else \
+    y = M_LN2_F * iToF(e) + y; \
+  { \
+    y = selectF(y, broadcastF(-INFINITY), x == 0.0f); \
+    y = selectF(y, broadcastF(INFINITY), isinf(x)); \
+    y = selectF(y, broadcastF(NAN), (x < 0.0f) || isnan(x)); \
+  } \
+  return y
+
+//! Compute natural logarithm of the given number
+float zLog(float x)
+{
+  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, !, isAlmostSame, zFrexp, x, 0);
+}
+
+//! Compute natural logarithm of the given number
+float2 zLogF2(const float2 x)
+{
+  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zHasFalse2, isAlmostSame2, zFrexp2, x, 0);
+}
+
+//! Compute natural logarithm of the given number
+float3 zLogF3(const float3 x)
+{
+  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zHasFalse3, isAlmostSame3, zFrexp3, x, 0);
+}
+
+//! Compute natural logarithm of the given number
+float4 zLogF4(const float4 x)
+{
+  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zHasFalse4, isAlmostSame4, zFrexp4, x, 0);
+}
+
+//! Compute base 2 logarithm of the given number
+float zLog2(const float x)
+{
+  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, !, isAlmostSame, zFrexp, x, 1);
+}
+
+//! Compute base 2 logarithm of the given number
+float2 zLog2F2(const float2 x)
+{
+  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zHasFalse2, isAlmostSame2, zFrexp2, x, 1);
+}
+
+//! Compute base 2 logarithm of the given number
+float3 zLog2F3(const float3 x)
+{
+  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zHasFalse3, isAlmostSame3, zFrexp3, x, 1);
+}
+
+//! Compute base 2 logarithm of the given number
+float4 zLog2F4(const float4 x)
+{
+  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zHasFalse4, isAlmostSame4, zFrexp4, x, 1);
+}
+
+// Power functions
+
+//! Compute approximate inverse square root
+#define ZINVUL_APPROXIMATE_INV_SQRT_IMPL(FType, IType, x) \
+  union Float \
+  { \
+    FType value_; \
+    IType data_; \
+  }; \
+  union Float z = {x}; \
+  z.data_ = 0x5f376908 - (z.data_ >> 1); \
+  return z.value_
+
+//! Compute approximate inverse square root
+float zApproxRsqrt(const float x)
+{
+  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float, int32b, x);
+}
+
+//! Compute approximate inverse square root
+float2 zApproxRsqrt2(const float2 x)
+{
+  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float2, int2, x);
+}
+
+//! Compute approximate inverse square root
+float3 zApproxRsqrt3(const float3 x)
+{
+  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float3, int3, x);
+}
+
+//! Compute approximate inverse square root
+float4 zApproxRsqrt4(const float4 x)
+{
+  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float4, int4, x);
+}
+
+//! Compute inverse square root. \todo Support subnormal
+#define ZINVUL_INV_SQRT_IMPL(FType, selectF, approxRsqrt, x) \
+  const FType z = selectF(x, x * 4.294967296e+09f, x < 2.328306437e-10f); \
+  FType y = approxRsqrt(z); \
+  { \
+    const FType halfx = -0.5f * z; \
+    y = y * (halfx * y * y + 1.5008789f); \
+    y = y * (halfx * y * y + 1.5000006f); \
+    const FType hh = halfx * y * y + 0.5f; \
+    y = fma(y, hh, y); \
+  } \
+  y = selectF(y, y * 6.553600000e+04f, x < 2.328306437e-10f); \
+  return y
+
+//! Compute inverse square root
+float zRsqrt(const float x)
+{
+  ZINVUL_INV_SQRT_IMPL(float, zSelectF, zApproxRsqrt, x);
+}
+
+//! Compute inverse square root
+float2 zRsqrt2(const float2 x)
+{
+  ZINVUL_INV_SQRT_IMPL(float2, zSelectF2, zApproxRsqrt2, x);
+}
+
+//! Compute inverse square root
+float3 zRsqrt3(const float3 x)
+{
+  ZINVUL_INV_SQRT_IMPL(float3, zSelectF3, zApproxRsqrt3, x);
+}
+
+//! Compute inverse square root
+float4 zRsqrt4(const float4 x)
+{
+  ZINVUL_INV_SQRT_IMPL(float4, zSelectF4, zApproxRsqrt4, x);
+}
+
+//! Compute square root
+#define ZINVUL_SQRT_IMPL(FType, IType, selectF, invSqrt, x) \
+  FType y = x * invSqrt(x); \
+  { \
+    const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
+    y = selectF(y, x, is_special); \
+  } \
+  return y
+
+//! Compute square root
+float zSqrt(const float x)
+{
+  ZINVUL_SQRT_IMPL(float, int32b, zSelectF, zRsqrt, x);
+}
+
+//! Compute square root
+float2 zSqrt2(const float2 x)
+{
+  ZINVUL_SQRT_IMPL(float2, int2, zSelectF2, zRsqrt2, x);
+}
+
+//! Compute square root
+float3 zSqrt3(const float3 x)
+{
+  ZINVUL_SQRT_IMPL(float3, int3, zSelectF3, zRsqrt3, x);
+}
+
+//! Compute square root
+float4 zSqrt4(const float4 x)
+{
+  ZINVUL_SQRT_IMPL(float4, int4, zSelectF4, zRsqrt4, x);
 }
 
 #endif /* ZINVUL_MATH_CL */
