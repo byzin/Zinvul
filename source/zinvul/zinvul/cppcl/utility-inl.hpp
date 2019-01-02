@@ -34,7 +34,7 @@ inline
 void assertError(const bool condition, const char* message) noexcept
 {
   if (condition) {
-    std::fprintf(stderr, message);
+    std::fprintf(stderr, "%s", message);
     std::abort();
   }
 }

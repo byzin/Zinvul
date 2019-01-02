@@ -20,7 +20,7 @@ float makeNormal(const float x)
 {
   const int bias = zExponentBiasF;
   const float k = 2.0f * zAbsF(x) - 1.0f;
-  const int e = zClampF((int)(k * (float)bias), -bias + 1, bias);
+  const int e = zClamp((int)(k * (float)bias), -bias + 1, bias);
   const float s = (x < 0.0f) ? -1.0f : 1.0f;
   const float m = 0.499f * zAbsF(x) + 0.5f;
   float f = zLdexp(s * m, e);
