@@ -19,12 +19,12 @@
 float makeNormal(const float x)
 {
   const int bias = zExponentBiasF;
-  const float k = 2.0f * zAbsF(x) - 1.0f;
+  const float k = 0.98f * (2.0f * zAbsF(x) - 1.0f);
   const int e = zClamp((int)(k * (float)bias), -bias + 1, bias);
   const float s = (x < 0.0f) ? -1.0f : 1.0f;
   const float m = 0.499f * zAbsF(x) + 0.5f;
-  float f = zLdexp(s * m, e);
-  f = (x == 0.0f) ? 0.0f : zClampF(f, FLT_MIN, FLT_MAX);
+  float f = zLdexp(m, e);
+  f = (x == 0.0f) ? 0.0f : s * zClampF(f, FLT_MIN, FLT_MAX);
   return f;
 }
 
@@ -508,6 +508,65 @@ kernel void testZrsqrtSubnormal(
       const float4 z = zMakeFloat4(makeSubnormal(x), makeSubnormal(0.85f * x), makeSubnormal(0.5f * x), makeSubnormal(0.35f * x));
       result4[2 * index] = z;
       const float4 y = zRsqrt4(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZcbrt(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = (float)(2 * index) / (float)resolution - 1.0f; // [-1, 1)
+    // Scalar
+    {
+      const float z = makeNormal(x);
+      result1[2 * index] = z;
+      const float y = zCbrt(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = zCbrt(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = zCbrt(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
+      result2[2 * index] = z;
+      const float2 y = zCbrt2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
+      result3[2 * index] = z;
+      const float3 y = zCbrt3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
+      result4[2 * index] = z;
+      const float4 y = zCbrt4(z);
       result4[2 * index + 1] = y;
     }
   }

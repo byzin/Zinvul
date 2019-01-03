@@ -672,9 +672,9 @@ float4 zLog2F4(const float4 x)
     FType value_; \
     IType data_; \
   }; \
-  union Float z = {x}; \
-  z.data_ = 0x5f376908 - (z.data_ >> 1); \
-  return z.value_
+  union Float y = {x}; \
+  y.data_ = 0x5f376908 - (y.data_ >> 1); \
+  return y.value_
 
 //! Compute approximate inverse square root
 float zApproxRsqrt(const float x)
@@ -769,6 +769,82 @@ float3 zSqrt3(const float3 x)
 float4 zSqrt4(const float4 x)
 {
   ZINVUL_SQRT_IMPL(float4, int4, zSelectF4, zRsqrt4, x);
+}
+
+//! Compute approximate cubic root
+#define ZINVUL_APPROXIMATE_CBRT_IMPL(FType, IType, selectF, absoluteF, x) \
+  union Float \
+  { \
+    FType value_; \
+    IType data_; \
+  }; \
+  union Float y = {absoluteF(x)}; \
+  y.data_ = (y.data_ >> 2) + (y.data_ >> 4); \
+  y.data_ = y.data_ + (y.data_ >> 4); \
+  y.data_ = y.data_ + (y.data_ >> 8); \
+  y.data_ = 0x2a5137a0 + y.data_; \
+  return selectF(y.value_, -y.value_, x < 0.0f);
+
+//! Compute approximate cubic root
+float zApproxCbrt(const float x)
+{
+  ZINVUL_APPROXIMATE_CBRT_IMPL(float, int32b, zSelectF, zAbsF, x);
+}
+
+//! Compute approximate cubic root
+float2 zApproxCbrt2(const float2 x)
+{
+  ZINVUL_APPROXIMATE_CBRT_IMPL(float2, int2, zSelectF2, zAbsF2, x);
+}
+
+//! Compute approximate cubic root
+float3 zApproxCbrt3(const float3 x)
+{
+  ZINVUL_APPROXIMATE_CBRT_IMPL(float3, int3, zSelectF3, zAbsF3, x);
+}
+
+//! Compute approximate cubic root
+float4 zApproxCbrt4(const float4 x)
+{
+  ZINVUL_APPROXIMATE_CBRT_IMPL(float4, int4, zSelectF4, zAbsF4, x);
+}
+
+//! Compute cubic root
+#define ZINVUL_CBRT_IMPL(FType, IType, broadcastF, selectF, hasFalse, isSame, approxCbrt, x) \
+  const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
+  const FType z = selectF(x, broadcastF(1.0f), is_special); \
+  FType y = approxCbrt(z); \
+  const FType a = 1.5f * z; \
+  for (FType pre_y = z; hasFalse(isSame(y, pre_y));) { \
+    pre_y = y; \
+    const FType t = fma(2.0f * y, y * y, z); \
+    y = y * (0.5f + a / t); \
+  } \
+  y = selectF(y, x, is_special); \
+  return y
+
+//! Compute cubic root
+float zCbrt(const float x)
+{
+  ZINVUL_CBRT_IMPL(float, int32b,, zSelectF, !, isAlmostSame, zApproxCbrt, x);
+}
+
+//! Compute cubic root
+float2 zCbrt2(const float2 x)
+{
+  ZINVUL_CBRT_IMPL(float2, int2, zBroadcastF2, zSelectF2, zHasFalse2, isAlmostSame2, zApproxCbrt2, x);
+}
+
+//! Compute cubic root
+float3 zCbrt3(const float3 x)
+{
+  ZINVUL_CBRT_IMPL(float3, int3, zBroadcastF3, zSelectF3, zHasFalse3, isAlmostSame3, zApproxCbrt3, x);
+}
+
+//! Compute cubic root
+float4 zCbrt4(const float4 x)
+{
+  ZINVUL_CBRT_IMPL(float4, int4, zBroadcastF4, zSelectF4, zHasFalse4, isAlmostSame4, zApproxCbrt4, x);
 }
 
 #endif /* ZINVUL_MATH_CL */
