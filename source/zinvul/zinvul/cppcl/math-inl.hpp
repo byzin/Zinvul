@@ -129,6 +129,15 @@ auto log2(const Vector<Float, kN>& x) noexcept
 }
 
 template <typename Float, std::size_t kN> inline
+auto pow(const Vector<Float, kN>& base, const Vector<Float, kN>& e) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::pow(base[i], e[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
 auto sqrt(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
@@ -319,6 +328,19 @@ FloatN log2(const FloatN& x) noexcept
     return std::log2(x);
   else
     return inner::log2(x);
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN pow(const FloatN& base, const FloatN& e) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type)
+    return std::pow(base, e);
+  else
+    return inner::pow(base, e);
 }
 
 /*!

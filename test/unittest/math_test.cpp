@@ -832,7 +832,7 @@ TEST(MathTest, FrLdexpTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(3 * (resolution + 2));
@@ -983,7 +983,7 @@ TEST(MathTest, ZFrLdexpTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(3 * (resolution + 2));
@@ -1118,6 +1118,97 @@ TEST(MathTest, ZFrLdexpTest)
   }
 }
 
+TEST(MathTest, PowTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1000000u;
+
+    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1_buffer->setSize(7 * (resolution + 2));
+    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2_buffer->setSize(2 * resolution);
+    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3_buffer->setSize(2 * resolution);
+    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4_buffer->setSize(2 * resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testPow, 1);
+    kernel->run(*result1_buffer, *result2_buffer, *result3_buffer, *result4_buffer,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(7 * (resolution + 2));
+      result1_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const float z = results[7 * i];
+        const float expected = std::pow(2.0f, z);
+        const float result = results[7 * i + 1];
+        EXPECT_FLOAT_EQ(expected, result) << "pow(2," << z << ") is wrong.";
+      }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(2 * resolution);
+      result2_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::pow(2.0f, z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "pow(2," << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(2 * resolution);
+      result3_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::pow(2.0f, z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "pow(2," << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(2 * resolution);
+      result4_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = std::pow(2.0f, z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "pow(2," << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 TEST(MathTest, SqrtTest)
 {
   using zisc::cast;
@@ -1128,7 +1219,7 @@ TEST(MathTest, SqrtTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(2 * (resolution + 2));
@@ -1222,7 +1313,7 @@ TEST(MathTest, ZsqrtTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(2 * (resolution + 2));
@@ -1316,7 +1407,7 @@ TEST(MathTest, RsqrtTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(2 * resolution);
@@ -1501,7 +1592,7 @@ TEST(MathTest, ZrsqrtTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(2 * resolution);
@@ -1686,7 +1777,7 @@ TEST(MathTest, ZcbrtTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(2 * (resolution + 2));
@@ -1780,7 +1871,7 @@ TEST(MathTest, LogTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(2 * (resolution + 2));
@@ -1874,7 +1965,7 @@ TEST(MathTest, ZlogTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(2 * (resolution + 2));
@@ -1968,7 +2059,7 @@ TEST(MathTest, Log2Test)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(2 * (resolution + 2));
@@ -2062,7 +2153,7 @@ TEST(MathTest, Zlog2Test)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 10000u;
+    constexpr uint32b resolution = 1000000u;
 
     auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
     result1_buffer->setSize(2 * (resolution + 2));

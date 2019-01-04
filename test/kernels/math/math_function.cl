@@ -283,6 +283,92 @@ kernel void testSqrt(
 
 /*!
   */
+kernel void testPow(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = (float)(2 * index) / (float)resolution - 1.0f; // [-1, 1)
+    x = x * 100.0f;
+    x = (x < 0.0f) ? -zLog2(zAbsF(x)) : zLog2(zAbsF(x));
+    // Scalar
+    {
+      const float z = x;
+      result1[7 * index] = z;
+      {
+        const float y = pow(0.0f, z);
+        result1[7 * index + 1] = y;
+      }
+      {
+        const float y = pow(1.0f, z);
+        result1[7 * index + 2] = y;
+      }
+      {
+        const float y = pow(2.0f, z);
+        result1[7 * index + 3] = y;
+      }
+      {
+        const float y = pow(0.5f, z);
+        result1[7 * index + 4] = y;
+      }
+      {
+        const float y = pow(INFINITY, z);
+        result1[7 * index + 5] = y;
+      }
+      {
+        const float y = pow(-INFINITY, z);
+        result1[7 * index + 6] = y;
+      }
+    }
+//    if (index == 0) {
+//      {
+//        const uint i = resolution;
+//        const float z = INFINITY;
+//        result1[2 * i] = z;
+//        const float y = sqrt(z);
+//        result1[2 * i + 1] = y;
+//      }
+//      {
+//        const uint i = resolution + 1;
+//        const float z = NAN;
+//        result1[2 * i] = z;
+//        const float y = sqrt(z);
+//        result1[2 * i + 1] = y;
+//      }
+//    }
+    // Vector2
+    {
+      const float2 b = zMakeFloat2(2.0f, 2.0f);
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = pow(b, z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 b = zMakeFloat3(2.0f, 2.0f, 2.0f);
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = pow(b, z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 b = zMakeFloat4(2.0f, 2.0f, 2.0f, 2.0f);
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = pow(b, z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
 kernel void testZsqrt(
     global float* result1,
     global float2* result2,

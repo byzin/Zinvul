@@ -87,6 +87,10 @@ FloatN log2(const FloatN& x) noexcept;
 
 // Power functions
 
+//! Raise a number to the given power
+template <typename FloatN>
+FloatN pow(const FloatN& base, const FloatN& e) noexcept;
+
 //! Compute inverse square root
 template <typename FloatN>
 FloatN rsqrt(const FloatN& x) noexcept;

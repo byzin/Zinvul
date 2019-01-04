@@ -580,13 +580,9 @@ float4 zLdexp4(const float4 x, const int4 e)
 // Exponential functions
 
 //! Compute natural logarithm of the given number. \todo Support subnormal
-#define ZINVUL_LOG_IMPL(FType, IType, iToF, broadcast, broadcastF, selectI, selectF, hasFalse, isSame, fracExp, x, is_base2) \
+#define ZINVUL_LOG_IMPL(FType, IType, iToF, broadcast, broadcastF, selectI, selectF, fracExp, x, is_base2) \
   IType e = broadcast(0); \
   FType z = fracExp(x, &e); \
-  { \
-    const IType is_special = (x <= 0.0f) || isinf(x) || isnan(x); \
-    z = selectF(z, broadcastF(1.0f), is_special); \
-  } \
   { \
     const IType c = z < 0.7071f; \
     e = selectI(e, e - 1, c); \
@@ -595,10 +591,8 @@ float4 zLdexp4(const float4 x, const int4 e)
   z = (z - 1.0f) / (z + 1.0f); \
   FType y = broadcastF(0.0f); \
   { \
-    FType pre_y = z; \
     FType t = z; \
-    for (size_t i = 1; hasFalse(isSame(y, pre_y)); ++i) { \
-      pre_y = y; \
+    for (size_t i = 1; i < 4; ++i) { \
       t = t * z * z; \
       y = y + t / (float)(2 * i + 1); \
     } \
@@ -610,7 +604,7 @@ float4 zLdexp4(const float4 x, const int4 e)
     y = M_LN2_F * iToF(e) + y; \
   { \
     y = selectF(y, broadcastF(-INFINITY), x == 0.0f); \
-    y = selectF(y, broadcastF(INFINITY), isinf(x)); \
+    y = selectF(y, x, isinf(x)); \
     y = selectF(y, broadcastF(NAN), (x < 0.0f) || isnan(x)); \
   } \
   return y
@@ -618,49 +612,49 @@ float4 zLdexp4(const float4 x, const int4 e)
 //! Compute natural logarithm of the given number
 float zLog(float x)
 {
-  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, !, isAlmostSame, zFrexp, x, 0);
+  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, zFrexp, x, 0);
 }
 
 //! Compute natural logarithm of the given number
 float2 zLogF2(const float2 x)
 {
-  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zHasFalse2, isAlmostSame2, zFrexp2, x, 0);
+  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zFrexp2, x, 0);
 }
 
 //! Compute natural logarithm of the given number
 float3 zLogF3(const float3 x)
 {
-  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zHasFalse3, isAlmostSame3, zFrexp3, x, 0);
+  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zFrexp3, x, 0);
 }
 
 //! Compute natural logarithm of the given number
 float4 zLogF4(const float4 x)
 {
-  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zHasFalse4, isAlmostSame4, zFrexp4, x, 0);
+  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zFrexp4, x, 0);
 }
 
 //! Compute base 2 logarithm of the given number
 float zLog2(const float x)
 {
-  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, !, isAlmostSame, zFrexp, x, 1);
+  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, zFrexp, x, 1);
 }
 
 //! Compute base 2 logarithm of the given number
 float2 zLog2F2(const float2 x)
 {
-  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zHasFalse2, isAlmostSame2, zFrexp2, x, 1);
+  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zFrexp2, x, 1);
 }
 
 //! Compute base 2 logarithm of the given number
 float3 zLog2F3(const float3 x)
 {
-  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zHasFalse3, isAlmostSame3, zFrexp3, x, 1);
+  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zFrexp3, x, 1);
 }
 
 //! Compute base 2 logarithm of the given number
 float4 zLog2F4(const float4 x)
 {
-  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zHasFalse4, isAlmostSame4, zFrexp4, x, 1);
+  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zFrexp4, x, 1);
 }
 
 // Power functions
@@ -810,15 +804,16 @@ float4 zApproxCbrt4(const float4 x)
 }
 
 //! Compute cubic root
-#define ZINVUL_CBRT_IMPL(FType, IType, broadcastF, selectF, hasFalse, isSame, approxCbrt, x) \
+#define ZINVUL_CBRT_IMPL(FType, IType, broadcastF, selectF, approxCbrt, x) \
   const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
   const FType z = selectF(x, broadcastF(1.0f), is_special); \
   FType y = approxCbrt(z); \
-  const FType a = 1.5f * z; \
-  for (FType pre_y = z; hasFalse(isSame(y, pre_y));) { \
-    pre_y = y; \
-    const FType t = fma(2.0f * y, y * y, z); \
-    y = y * (0.5f + a / t); \
+  { \
+    const FType a = 1.5f * z; \
+    for (size_t i = 0; i < 2; ++i) { \
+      const FType t = fma(2.0f * y, y * y, z); \
+      y = y * (0.5f + a / t); \
+    } \
   } \
   y = selectF(y, x, is_special); \
   return y
@@ -826,25 +821,25 @@ float4 zApproxCbrt4(const float4 x)
 //! Compute cubic root
 float zCbrt(const float x)
 {
-  ZINVUL_CBRT_IMPL(float, int32b,, zSelectF, !, isAlmostSame, zApproxCbrt, x);
+  ZINVUL_CBRT_IMPL(float, int32b,, zSelectF, zApproxCbrt, x);
 }
 
 //! Compute cubic root
 float2 zCbrt2(const float2 x)
 {
-  ZINVUL_CBRT_IMPL(float2, int2, zBroadcastF2, zSelectF2, zHasFalse2, isAlmostSame2, zApproxCbrt2, x);
+  ZINVUL_CBRT_IMPL(float2, int2, zBroadcastF2, zSelectF2, zApproxCbrt2, x);
 }
 
 //! Compute cubic root
 float3 zCbrt3(const float3 x)
 {
-  ZINVUL_CBRT_IMPL(float3, int3, zBroadcastF3, zSelectF3, zHasFalse3, isAlmostSame3, zApproxCbrt3, x);
+  ZINVUL_CBRT_IMPL(float3, int3, zBroadcastF3, zSelectF3, zApproxCbrt3, x);
 }
 
 //! Compute cubic root
 float4 zCbrt4(const float4 x)
 {
-  ZINVUL_CBRT_IMPL(float4, int4, zBroadcastF4, zSelectF4, zHasFalse4, isAlmostSame4, zApproxCbrt4, x);
+  ZINVUL_CBRT_IMPL(float4, int4, zBroadcastF4, zSelectF4, zApproxCbrt4, x);
 }
 
 #endif /* ZINVUL_MATH_CL */
