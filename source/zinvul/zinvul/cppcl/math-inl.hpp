@@ -111,6 +111,15 @@ auto radians(const Vector<Type, kN>& d) noexcept
 }
 
 template <typename Float, std::size_t kN> inline
+auto exp(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::exp(x[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
 auto log(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
@@ -152,6 +161,60 @@ auto rsqrt(const Vector<Float, kN>& x) noexcept
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
     result[i] = zisc::invert(std::sqrt(x[i]));
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto sin(const Vector<Float, kN>& theta) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::sin(theta[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto cos(const Vector<Float, kN>& theta) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::cos(theta[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto tan(const Vector<Float, kN>& theta) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::tan(theta[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto asin(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::asin(x[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto acos(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::acos(x[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto atan(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::atan(x[i]);
   return result;
 }
 
@@ -307,6 +370,19 @@ Type radians(const Type& d) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN exp(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type)
+    return std::exp(x);
+  else
+    return inner::exp(x);
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN log(const FloatN& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
@@ -367,6 +443,84 @@ FloatN sqrt(const FloatN& x) noexcept
     return std::sqrt(x);
   else
     return inner::sqrt(x);
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN sin(const FloatN& theta) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type)
+    return std::sin(theta);
+  else
+    return inner::sin(theta);
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN cos(const FloatN& theta) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type)
+    return std::cos(theta);
+  else
+    return inner::cos(theta);
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN tan(const FloatN& theta) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type)
+    return std::tan(theta);
+  else
+    return inner::tan(theta);
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN asin(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type)
+    return std::asin(x);
+  else
+    return inner::asin(x);
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN acos(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type)
+    return std::acos(x);
+  else
+    return inner::acos(x);
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN atan(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type)
+    return std::atan(x);
+  else
+    return inner::atan(x);
 }
 
 /*!

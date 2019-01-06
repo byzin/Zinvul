@@ -498,6 +498,29 @@ int4 zU4ToI4(const uint4 value)
   return result;
 }
 
+//! Convert float2 to int2
+int2 zF2ToI2(const float2 value)
+{
+  const int2 result = zMakeInt2((int32b)value.x, (int32b)value.y);
+  return result;
+}
+
+//! Convert float3 to int3
+int3 zF3ToI3(const float3 value)
+{
+  const int3 result = zMakeInt3((int32b)value.x, (int32b)value.y,
+                                (int32b)value.z);
+  return result;
+}
+
+//! Convert float3 to int3
+int4 zF4ToI4(const float4 value)
+{
+  const int4 result = zMakeInt4((int32b)value.x, (int32b)value.y,
+                                (int32b)value.z, (int32b)value.w);
+  return result;
+}
+
 //! Broadcast a int value
 int2 zBroadcast2(const int32b value)
 {

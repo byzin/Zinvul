@@ -77,6 +77,10 @@ Type radians(const Type& d) noexcept;
 
 // Exponential functions
 
+//! Return e raised to the given power
+template <typename FloatN>
+FloatN exp(const FloatN& x) noexcept;
+
 //! Compute natural logarithm of the given number
 template <typename FloatN>
 FloatN log(const FloatN& x) noexcept;
@@ -98,6 +102,32 @@ FloatN rsqrt(const FloatN& x) noexcept;
 //! Compute square root
 template <typename FloatN>
 FloatN sqrt(const FloatN& x) noexcept;
+
+//! Trigonometric functions
+
+//! Compute sine
+template <typename FloatN>
+FloatN sin(const FloatN& theta) noexcept;
+
+//! Compute cosine
+template <typename FloatN>
+FloatN cos(const FloatN& theta) noexcept;
+
+//! Compute tangent
+template <typename FloatN>
+FloatN tan(const FloatN& theta) noexcept;
+
+//! Compute arc sine
+template <typename FloatN>
+FloatN asin(const FloatN& x) noexcept;
+
+//! Compute arc cosine
+template <typename FloatN>
+FloatN acos(const FloatN& x) noexcept;
+
+//! Compute arc tangent
+template <typename FloatN>
+FloatN atan(const FloatN& x) noexcept;
 
 // Floating point manipulation functions
 

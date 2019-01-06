@@ -20,10 +20,10 @@
 #define zInvPiF (1.0f / 3.141592741f)
 #define zSignBitMaskF 0x80000000u
 #define zExponentBitMaskF 0x7f800000u
-#define zExponentBitSizeF 8u
+#define zExponentBitSizeF 8
 #define zExponentBiasF 127
 #define zSignificandBitMaskF 0x7fffffu
-#define zSignificandBitSizeF 23u
+#define zSignificandBitSizeF 23
 
 // Basic operations
 
@@ -120,6 +120,62 @@ int3 isAlmostSame3(const float3 lhs, const float3 rhs)
 int4 isAlmostSame4(const float4 lhs, const float4 rhs)
 {
   ZINVUL_IS_ALMOST_SAME_IMPL(float4, int4, zAbsF4, lhs, rhs);
+}
+
+//! Check if the given value is odd
+int32b isOdd(const int32b value)
+{
+  const int32b result = (value & 1) == 1;
+  return result;
+}
+
+//! Check if the given value is odd
+int2 isOdd2(const int2 value)
+{
+  const int2 result = (value & 1) == 1;
+  return result;
+}
+
+//! Check if the given value is odd
+int3 isOdd3(const int3 value)
+{
+  const int3 result = (value & 1) == 1;
+  return result;
+}
+
+//! Check if the given value is odd
+int4 isOdd4(const int4 value)
+{
+  const int4 result = (value & 1) == 1;
+  return result;
+}
+
+//! Check if the given value is odd
+int32b isOddU(const uint32b value)
+{
+  const int32b result = (value & 1u) == 1u;
+  return result;
+}
+
+//! Check if the given value is odd
+int2 isOddU2(const uint2 value)
+{
+  const int2 result = (value & 1u) == 1u;
+  return result;
+}
+
+//! Check if the given value is odd
+int3 isOddU3(const uint3 value)
+{
+  const int3 result = (value & 1u) == 1u;
+  return result;
+}
+
+//! Check if the given value is odd
+int4 isOddU4(const uint4 value)
+{
+  const int4 result = (value & 1u) == 1u;
+  return result;
 }
 
 //! Return y if x < y, otherwise it returns x
@@ -502,7 +558,7 @@ float4 zRadiansF4(const float4 d)
   union Float y = {x}; \
   const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
   { \
-    IType expt = uToI((y.data_ & zExponentBitMaskF) >> zSignificandBitSizeF) - \
+    IType expt = (uToI(y.data_ & zExponentBitMaskF) >> zSignificandBitSizeF) - \
                  (zExponentBiasF - 1); \
     expt = selectI(expt, broadcast(0), is_special); \
     *e = expt; \
@@ -536,17 +592,14 @@ float4 zFrexp4(const float4 x, __private int4* e)
 }
 
 //! \todo Support subnormal value
-#define ZINVUL_LDEXP_IMPL(FType, UType, IType, iToU, selectF, x, e) \
+#define ZINVUL_LDEXP_IMPL(FType, IType, selectF, x, e) \
   union Float \
   { \
+    IType data_; \
     FType value_; \
-    UType data_; \
   }; \
-  union Float y = {x}; \
-  { \
-    const UType expt_bits = iToU(e + (zExponentBiasF - 1)) << zSignificandBitSizeF; \
-    y.data_ = (y.data_ & ~zExponentBitMaskF) | expt_bits; \
-  } \
+  union Float y = {(e + zExponentBiasF) << zSignificandBitSizeF}; \
+  y.value_ = x * y.value_; \
   { \
     const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
     y.value_ = selectF(y.value_, x, is_special); \
@@ -556,28 +609,104 @@ float4 zFrexp4(const float4 x, __private int4* e)
 //! Multiply a number by 2 raised to a power
 float zLdexp(const float x, const int32b e)
 {
-  ZINVUL_LDEXP_IMPL(float, uint32b, int32b, (uint32b), zSelectF, x, e);
+  ZINVUL_LDEXP_IMPL(float, int32b, zSelectF, x, e);
 }
 
 //! Multiply a number by 2 raised to a power
 float2 zLdexp2(const float2 x, const int2 e)
 {
-  ZINVUL_LDEXP_IMPL(float2, uint2, int2, zI2ToU2, zSelectF2, x, e);
+  ZINVUL_LDEXP_IMPL(float2, int2, zSelectF2, x, e);
 }
 
 //! Multiply a number by 2 raised to a power
 float3 zLdexp3(const float3 x, const int3 e)
 {
-  ZINVUL_LDEXP_IMPL(float3, uint3, int3, zI3ToU3, zSelectF3, x, e);
+  ZINVUL_LDEXP_IMPL(float3, int3, zSelectF3, x, e);
 }
 
 //! Multiply a number by 2 raised to a power
 float4 zLdexp4(const float4 x, const int4 e)
 {
-  ZINVUL_LDEXP_IMPL(float4, uint4, int4, zI4ToU4, zSelectF4, x, e);
+  ZINVUL_LDEXP_IMPL(float4, int4, zSelectF4, x, e);
+}
+
+// Nearest integer floating point operations
+
+//! Return nearest integer
+int32b zRint(float x)
+{
+  x = zSelectF(x + 0.5f, x - 0.5f, x < 0.0f);
+  const int32b result = (int32b)x;
+  return result;
+}
+
+//! Return nearest integer
+int2 zRint2(float2 x)
+{
+  x = zSelectF2(x + 0.5f, x - 0.5f, x < 0.0f);
+  const int2 result = zF2ToI2(x);
+  return result;
+}
+
+//! Return nearest integer
+int3 zRint3(float3 x)
+{
+  x = zSelectF3(x + 0.5f, x - 0.5f, x < 0.0f);
+  const int3 result = zF3ToI3(x);
+  return result;
+}
+
+//! Return nearest integer
+int4 zRint4(float4 x)
+{
+  x = zSelectF4(x + 0.5f, x - 0.5f, x < 0.0f);
+  const int4 result = zF4ToI4(x);
+  return result;
 }
 
 // Exponential functions
+
+//! Return e raised to the given power
+#define ZINVUL_EXP_IMPL(FType, IType, iToF, broadcastF, selectF, loadExp, roundInt, x) \
+  const IType q = roundInt(x * (1.0f / M_LN2_F)); \
+  FType z = fma(iToF(q), broadcastF(-0.693145751953125f), x); \
+  z = fma(iToF(q), broadcastF(-1.428606765330187045e-06f), z); \
+  FType y = broadcastF(0.0f); \
+  { \
+    FType t = z; \
+    for (size_t i = 2; i < 7; ++i) { \
+      t = t * (z / (float)i); \
+      y = y + t; \
+    } \
+  } \
+  y = 1.0f + z + y; \
+  y = loadExp(y, q); \
+  y = selectF(y, broadcastF(0.0f), x == -INFINITY); \
+  return y
+
+//! Return e raised to the given power
+float zExp(const float x)
+{
+  ZINVUL_EXP_IMPL(float, int32b, (float),, zSelectF, zLdexp, zRint, x);
+}
+
+//! Return e raised to the given power
+float2 zExp2(const float2 x)
+{
+  ZINVUL_EXP_IMPL(float2, int2, zI2ToF2, zBroadcastF2, zSelectF2, zLdexp2, zRint2, x);
+}
+
+//! Return e raised to the given power
+float3 zExp3(const float3 x)
+{
+  ZINVUL_EXP_IMPL(float3, int3, zI3ToF3, zBroadcastF3, zSelectF3, zLdexp3, zRint3, x);
+}
+
+//! Return e raised to the given power
+float4 zExp4(const float4 x)
+{
+  ZINVUL_EXP_IMPL(float4, int4, zI4ToF4, zBroadcastF4, zSelectF4, zLdexp4, zRint4, x);
+}
 
 //! Compute natural logarithm of the given number. \todo Support subnormal
 #define ZINVUL_LOG_IMPL(FType, IType, iToF, broadcast, broadcastF, selectI, selectF, fracExp, x, is_base2) \
@@ -610,7 +739,7 @@ float4 zLdexp4(const float4 x, const int4 e)
   return y
 
 //! Compute natural logarithm of the given number
-float zLog(float x)
+float zLog(const float x)
 {
   ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, zFrexp, x, 0);
 }
@@ -658,6 +787,67 @@ float4 zLog2F4(const float4 x)
 }
 
 // Power functions
+
+//! Raise a number to the given power
+float zPow(const float base, const float expt)
+{
+  //! \todo Implement custom pow function
+  return pow(base, expt);
+}
+
+//! Raise a number to the given power
+float2 zPow2(const float2 base, const float2 expt)
+{
+  return pow(base, expt);
+}
+
+//! Raise a number to the given power
+float3 zPow3(const float3 base, const float3 expt)
+{
+  return pow(base, expt);
+}
+
+//! Raise a number to the given power
+float4 zPow4(const float4 base, const float4 expt)
+{
+  return pow(base, expt);
+}
+
+//! Raise a number to the given integer power
+#define ZINVUL_POWN_IMPL(FType, IType, UType, selectF, broadcastF, absolute, hasTrue, isOdd, base, expt) \
+  FType y = base; \
+  FType b = selectF(base, 1.0f / base, expt < 0); \
+  for (UType e = absolute(expt - 1); hasTrue(0u < e); e = e >> 1u) { \
+    y = selectF(y, y * b, isOdd(e)); \
+    b = selectF(b, b * b, 1u < e); \
+  } \
+  y = selectF(y, broadcastF(1.0f), expt == 0); \
+  y = selectF(y, 1.0f / base, ((base == 0.0f) || (isinf(base))) && (expt < 0)); \
+  return y
+
+//! Raise a number to the given integer power
+float zPown(const float base, const int32b expt)
+{
+  ZINVUL_POWN_IMPL(float, int32b, uint32b, zSelectF,, zAbs,, isOddU, base, expt);
+}
+
+//! Raise a number to the given integer power
+float2 zPown2(const float2 base, const int2 expt)
+{
+  ZINVUL_POWN_IMPL(float2, int2, uint2, zSelectF2, zBroadcastF2, zAbs2, zHasTrue2, isOddU2, base, expt);
+}
+
+//! Raise a number to the given integer power
+float3 zPown3(const float3 base, const int3 expt)
+{
+  ZINVUL_POWN_IMPL(float3, int3, uint3, zSelectF3, zBroadcastF3, zAbs3, zHasTrue3, isOddU3, base, expt);
+}
+
+//! Raise a number to the given integer power
+float4 zPown4(const float4 base, const int4 expt)
+{
+  ZINVUL_POWN_IMPL(float4, int4, uint4, zSelectF4, zBroadcastF4, zAbs4, zHasTrue4, isOddU4, base, expt);
+}
 
 //! Compute approximate inverse square root
 #define ZINVUL_APPROXIMATE_INV_SQRT_IMPL(FType, IType, x) \
@@ -840,6 +1030,234 @@ float3 zCbrt3(const float3 x)
 float4 zCbrt4(const float4 x)
 {
   ZINVUL_CBRT_IMPL(float4, int4, zBroadcastF4, zSelectF4, zApproxCbrt4, x);
+}
+
+// Trigonometric functions
+
+//! Compute sine
+#define ZINVUL_SINCOS_IMPL(FType, IType, iToF, fToI, broadcastF, selectF, absoluteF, squareRoot, theta, trigonometric_type) \
+  FType a = absoluteF(theta); \
+  const IType q = fToI((4.0f / zPiF) * a); \
+  { \
+    const FType r = iToF(q + (q & 1)); \
+    a = fma(r, broadcastF(-0.25f * 3.140625f), a); \
+    a = fma(r, broadcastF(-0.25f * 0.0009670257568359375f), a); \
+    a = fma(r, broadcastF(-0.25f * 6.2771141529083251953e-07f), a); \
+    a = fma(r, broadcastF(-0.25f * 1.2154201256553420762e-10f), a); \
+  } \
+  FType c = broadcastF(0.0f); \
+  { \
+    a = 0.125f * a; \
+    a = a * a; \
+    FType t = broadcastF(-2.0f); \
+    for (size_t i = 1; i < 4; ++i) { \
+      t = -t * a / (float)((2 * i) * (2 * i - 1)); \
+      c = c + t; \
+    } \
+    for (size_t i = 0; i < 3; ++i) \
+      c = (4.0f - c) * c; \
+    c = 0.5f * c; \
+  } \
+  FType s = squareRoot((2.0f - c) * c); \
+  c = 1.0f - c; \
+  const IType condition = ((q + 1) & 2) != 0; \
+  if (trigonometric_type == 0) { \
+    s = selectF(s, c, condition); \
+    s = selectF(s, -s, ((q & 4) != 0) != (theta < 0.0f)); \
+    return s; \
+  } \
+  else if (trigonometric_type == 1) {\
+    c = selectF(c, s, condition); \
+    c = selectF(c, -c, ((q + 2) & 4) != 0); \
+    return c; \
+  } \
+  else { \
+    a = s; \
+    s = selectF(s, c, condition); \
+    c = selectF(c, a, condition); \
+    s = selectF(s, -s, ((q & 4) != 0) != (theta < 0.0f)); \
+    c = selectF(c, -c, ((q + 2) & 4) != 0); \
+    return s / c; \
+  }
+
+//! Compute sine
+float zSin(const float theta)
+{
+  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 0);
+}
+
+//! Compute sine
+float2 zSin2(const float2 theta)
+{
+  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 0);
+}
+
+//! Compute sine
+float3 zSin3(const float3 theta)
+{
+  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 0);
+}
+
+//! Compute sine
+float4 zSin4(const float4 theta)
+{
+  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 0);
+}
+
+//! Compute cosine
+float zCos(const float theta)
+{
+  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 1);
+}
+
+//! Compute cosine
+float2 zCos2(const float2 theta)
+{
+  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 1);
+}
+
+//! Compute cosine
+float3 zCos3(const float3 theta)
+{
+  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 1);
+}
+
+//! Compute cosine
+float4 zCos4(const float4 theta)
+{
+  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 1);
+}
+
+//! Compute tangent
+float zTan(const float theta)
+{
+  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 2);
+}
+
+//! Compute tangent
+float2 zTan2(const float2 theta)
+{
+  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 2);
+}
+
+//! Compute tangent
+float3 zTan3(const float3 theta)
+{
+  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 2);
+}
+
+//! Compute tangent
+float4 zTan4(const float4 theta)
+{
+  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 2);
+}
+
+//! Compute arc tangent
+#define ZINVUL_ATAN_IMPL(FType, IType, iToF, selectI, selectF, broadcast, broadcastF, absoluteF, squareRoot, x) \
+  FType z = absoluteF(x); \
+  z = selectF(z, 1.0f / z, z < 1.0f); \
+  IType n = selectI(broadcast(1), broadcast(2), z < 4.294967040e+09f); \
+  n = selectI(broadcast(0), n, z < 1.844674297e+19f); \
+  z = z + selectF(broadcastF(0.0f), squareRoot(fma(z, z, broadcastF(1.0f))), 1 <= n); \
+  z = z + selectF(broadcastF(0.0f), squareRoot(fma(z, z, broadcastF(1.0f))), 2 <= n); \
+  z = 1.0f / z; \
+  FType y = z / (1.0f + z * z); \
+  { \
+    const FType k = y; \
+    FType t = k; \
+    for (size_t i = 1; i < 5; ++i) { \
+      const float s = (float)(2 * i * i) / (float)((2 * i + 1) * i); \
+      t = (t * z * k) * s; \
+      y = y + t; \
+    } \
+  } \
+  y = y * iToF(broadcast(1) << n); \
+  y = selectF(y, (0.5f * zPiF) - y, 1.0f < absoluteF(x)); \
+  y = selectF(y, -y, x < 0.0f); \
+  return y
+
+//! Compute arc tangent
+float zAtan(const float x)
+{
+  ZINVUL_ATAN_IMPL(float, int32b, (float), zSelect, zSelectF,,, zAbsF, zSqrt, x);
+}
+
+//! Compute arc tangent
+float2 zAtan2(const float2 x)
+{
+  ZINVUL_ATAN_IMPL(float2, int2, zI2ToF2, zSelect2, zSelectF2, zBroadcast2, zBroadcastF2, zAbsF2, zSqrt2, x);
+}
+
+//! Compute arc tangent
+float3 zAtan3(const float3 x)
+{
+  ZINVUL_ATAN_IMPL(float3, int3, zI3ToF3, zSelect3, zSelectF3, zBroadcast3, zBroadcastF3, zAbsF3, zSqrt3, x);
+}
+
+//! Compute arc tangent
+float4 zAtan4(const float4 x)
+{
+  ZINVUL_ATAN_IMPL(float4, int4, zI4ToF4, zSelect4, zSelectF4, zBroadcast4, zBroadcastF4, zAbsF4, zSqrt4, x);
+}
+
+//! Compute arc sine
+#define ZINVUL_ASIN_IMPL(FType, squareRoot, arctan, x) \
+  const FType z = x / squareRoot((1.0f + x) * (1.0f - x)); \
+  const FType y = arctan(z); \
+  return y
+
+//! Compute arc sine
+float zAsin(const float x)
+{
+  ZINVUL_ASIN_IMPL(float, zSqrt, zAtan, x);
+}
+
+//! Compute arc sine
+float2 zAsin2(const float2 x)
+{
+  ZINVUL_ASIN_IMPL(float2, zSqrt2, zAtan2, x);
+}
+
+//! Compute arc sine
+float3 zAsin3(const float3 x)
+{
+  ZINVUL_ASIN_IMPL(float3, zSqrt3, zAtan3, x);
+}
+
+//! Compute arc sine
+float4 zAsin4(const float4 x)
+{
+  ZINVUL_ASIN_IMPL(float4, zSqrt4, zAtan4, x);
+}
+
+//! Compute arc cosine
+#define ZINVUL_ACOS_IMPL(FType, selectF, broadcastF, squareRoot, arctan, x) \
+  const FType z = squareRoot((1.0f + x) * (1.0f - x)) / x; \
+  const FType y = arctan(z) + selectF(broadcastF(0.0f), broadcastF(zPiF), x < 0.0f); \
+  return y
+
+//! Compute arc cosine
+float zAcos(const float x)
+{
+  ZINVUL_ACOS_IMPL(float, zSelectF,, zSqrt, zAtan, x);
+}
+
+//! Compute arc cosine
+float2 zAcos2(const float2 x)
+{
+  ZINVUL_ACOS_IMPL(float2, zSelectF2, zBroadcastF2, zSqrt2, zAtan2, x);
+}
+
+//! Compute arc cosine
+float3 zAcos3(const float3 x)
+{
+  ZINVUL_ACOS_IMPL(float3, zSelectF3, zBroadcastF3, zSqrt3, zAtan3, x);
+}
+
+//! Compute arc cosine
+float4 zAcos4(const float4 x)
+{
+  ZINVUL_ACOS_IMPL(float4, zSelectF4, zBroadcastF4, zSqrt4, zAtan4, x);
 }
 
 #endif /* ZINVUL_MATH_CL */

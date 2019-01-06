@@ -283,6 +283,197 @@ kernel void testSqrt(
 
 /*!
   */
+kernel void testZpow(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = (float)(2 * index) / (float)resolution - 1.0f; // [-1, 1)
+    x = x * 100.0f;
+    x = (x < 0.0f) ? -zLog2(zAbsF(x)) : zLog2(zAbsF(x));
+    // Scalar
+    {
+      const float z = x;
+      result1[9 * index] = z;
+      {
+        const float y = zPow(0.0f, z);
+        result1[9 * index + 1] = y;
+      }
+      {
+        const float y = zPow(1.0f, z);
+        result1[9 * index + 2] = y;
+      }
+      {
+        const float y = zPow(-1.0f, z);
+        result1[9 * index + 3] = y;
+      }
+      {
+        const float y = zPow(2.0f, z);
+        result1[9 * index + 4] = y;
+      }
+      {
+        const float y = zPow(0.5f, z);
+        result1[9 * index + 5] = y;
+      }
+      {
+        const float y = zPow(INFINITY, z);
+        result1[9 * index + 6] = y;
+      }
+      {
+        const float y = zPow(-INFINITY, z);
+        result1[9 * index + 7] = y;
+      }
+      {
+        const float y = zPow(NAN, z);
+        result1[9 * index + 8] = y;
+      }
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = -INFINITY;
+        result1[9 * i] = z;
+        {
+          const float y = zPow(0.0f, z);
+          result1[9 * i + 1] = y;
+        }
+        {
+          const float y = zPow(1.0f, z);
+          result1[9 * i + 2] = y;
+        }
+        {
+          const float y = zPow(-1.0f, z);
+          result1[9 * i + 3] = y;
+        }
+        {
+          const float y = zPow(2.0f, z);
+          result1[9 * i + 4] = y;
+        }
+        {
+          const float y = zPow(0.5f, z);
+          result1[9 * i + 5] = y;
+        }
+        {
+          const float y = zPow(INFINITY, z);
+          result1[9 * i + 6] = y;
+        }
+        {
+          const float y = zPow(-INFINITY, z);
+          result1[9 * i + 7] = y;
+        }
+        {
+          const float y = zPow(NAN, z);
+          result1[9 * i + 8] = y;
+        }
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = INFINITY;
+        result1[9 * i] = z;
+        {
+          const float y = zPow(0.0f, z);
+          result1[9 * i + 1] = y;
+        }
+        {
+          const float y = zPow(1.0f, z);
+          result1[9 * i + 2] = y;
+        }
+        {
+          const float y = zPow(-1.0f, z);
+          result1[9 * i + 3] = y;
+        }
+        {
+          const float y = zPow(2.0f, z);
+          result1[9 * i + 4] = y;
+        }
+        {
+          const float y = zPow(0.5f, z);
+          result1[9 * i + 5] = y;
+        }
+        {
+          const float y = zPow(INFINITY, z);
+          result1[9 * i + 6] = y;
+        }
+        {
+          const float y = zPow(-INFINITY, z);
+          result1[9 * i + 7] = y;
+        }
+        {
+          const float y = zPow(NAN, z);
+          result1[9 * i + 8] = y;
+        }
+      }
+      {
+        const uint i = resolution + 2;
+        const float z = NAN;
+        result1[9 * i] = z;
+        {
+          const float y = zPow(0.0f, z);
+          result1[9 * i + 1] = y;
+        }
+        {
+          const float y = zPow(1.0f, z);
+          result1[9 * i + 2] = y;
+        }
+        {
+          const float y = zPow(-1.0f, z);
+          result1[9 * i + 3] = y;
+        }
+        {
+          const float y = zPow(2.0f, z);
+          result1[9 * i + 4] = y;
+        }
+        {
+          const float y = zPow(0.5f, z);
+          result1[9 * i + 5] = y;
+        }
+        {
+          const float y = zPow(INFINITY, z);
+          result1[9 * i + 6] = y;
+        }
+        {
+          const float y = zPow(-INFINITY, z);
+          result1[9 * i + 7] = y;
+        }
+        {
+          const float y = zPow(NAN, z);
+          result1[9 * i + 8] = y;
+        }
+      }
+    }
+    // Vector2
+    {
+      const float2 b = zMakeFloat2(2.0f, 2.0f);
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = zPow2(b, z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 b = zMakeFloat3(2.0f, 2.0f, 2.0f);
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = zPow3(b, z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 b = zMakeFloat4(2.0f, 2.0f, 2.0f, 2.0f);
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = zPow4(b, z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
 kernel void testPow(
     global float* result1,
     global float2* result2,
@@ -298,48 +489,153 @@ kernel void testPow(
     // Scalar
     {
       const float z = x;
-      result1[7 * index] = z;
+      result1[9 * index] = z;
       {
         const float y = pow(0.0f, z);
-        result1[7 * index + 1] = y;
+        result1[9 * index + 1] = y;
       }
       {
         const float y = pow(1.0f, z);
-        result1[7 * index + 2] = y;
+        result1[9 * index + 2] = y;
+      }
+      {
+        const float y = pow(-1.0f, z);
+        result1[9 * index + 3] = y;
       }
       {
         const float y = pow(2.0f, z);
-        result1[7 * index + 3] = y;
+        result1[9 * index + 4] = y;
       }
       {
         const float y = pow(0.5f, z);
-        result1[7 * index + 4] = y;
+        result1[9 * index + 5] = y;
       }
       {
         const float y = pow(INFINITY, z);
-        result1[7 * index + 5] = y;
+        result1[9 * index + 6] = y;
       }
       {
         const float y = pow(-INFINITY, z);
-        result1[7 * index + 6] = y;
+        result1[9 * index + 7] = y;
+      }
+      {
+        const float y = pow(NAN, z);
+        result1[9 * index + 8] = y;
       }
     }
-//    if (index == 0) {
-//      {
-//        const uint i = resolution;
-//        const float z = INFINITY;
-//        result1[2 * i] = z;
-//        const float y = sqrt(z);
-//        result1[2 * i + 1] = y;
-//      }
-//      {
-//        const uint i = resolution + 1;
-//        const float z = NAN;
-//        result1[2 * i] = z;
-//        const float y = sqrt(z);
-//        result1[2 * i + 1] = y;
-//      }
-//    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = -INFINITY;
+        result1[9 * i] = z;
+        {
+          const float y = pow(0.0f, z);
+          result1[9 * i + 1] = y;
+        }
+        {
+          const float y = pow(1.0f, z);
+          result1[9 * i + 2] = y;
+        }
+        {
+          const float y = pow(-1.0f, z);
+          result1[9 * i + 3] = y;
+        }
+        {
+          const float y = pow(2.0f, z);
+          result1[9 * i + 4] = y;
+        }
+        {
+          const float y = pow(0.5f, z);
+          result1[9 * i + 5] = y;
+        }
+        {
+          const float y = pow(INFINITY, z);
+          result1[9 * i + 6] = y;
+        }
+        {
+          const float y = pow(-INFINITY, z);
+          result1[9 * i + 7] = y;
+        }
+        {
+          const float y = pow(NAN, z);
+          result1[9 * i + 8] = y;
+        }
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = INFINITY;
+        result1[9 * i] = z;
+        {
+          const float y = pow(0.0f, z);
+          result1[9 * i + 1] = y;
+        }
+        {
+          const float y = pow(1.0f, z);
+          result1[9 * i + 2] = y;
+        }
+        {
+          const float y = pow(-1.0f, z);
+          result1[9 * i + 3] = y;
+        }
+        {
+          const float y = pow(2.0f, z);
+          result1[9 * i + 4] = y;
+        }
+        {
+          const float y = pow(0.5f, z);
+          result1[9 * i + 5] = y;
+        }
+        {
+          const float y = pow(INFINITY, z);
+          result1[9 * i + 6] = y;
+        }
+        {
+          const float y = pow(-INFINITY, z);
+          result1[9 * i + 7] = y;
+        }
+        {
+          const float y = pow(NAN, z);
+          result1[9 * i + 8] = y;
+        }
+      }
+      {
+        const uint i = resolution + 2;
+        const float z = NAN;
+        result1[9 * i] = z;
+        {
+          const float y = pow(0.0f, z);
+          result1[9 * i + 1] = y;
+        }
+        {
+          const float y = pow(1.0f, z);
+          result1[9 * i + 2] = y;
+        }
+        {
+          const float y = pow(-1.0f, z);
+          result1[9 * i + 3] = y;
+        }
+        {
+          const float y = pow(2.0f, z);
+          result1[9 * i + 4] = y;
+        }
+        {
+          const float y = pow(0.5f, z);
+          result1[9 * i + 5] = y;
+        }
+        {
+          const float y = pow(INFINITY, z);
+          result1[9 * i + 6] = y;
+        }
+        {
+          const float y = pow(-INFINITY, z);
+          result1[9 * i + 7] = y;
+        }
+        {
+          const float y = pow(NAN, z);
+          result1[9 * i + 8] = y;
+        }
+      }
+    }
     // Vector2
     {
       const float2 b = zMakeFloat2(2.0f, 2.0f);
@@ -369,6 +665,82 @@ kernel void testPow(
 
 /*!
   */
+kernel void testZpown(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b x = (int32b)index - (int32b)resolution / 2;
+    // Scalar
+    {
+      const int32b z = x;
+      result1[9 * index] = (float)z;
+      {
+        const float y = zPown(0.0f, z);
+        result1[9 * index + 1] = y;
+      }
+      {
+        const float y = zPown(1.0f, z);
+        result1[9 * index + 2] = y;
+      }
+      {
+        const float y = zPown(-1.0f, z);
+        result1[9 * index + 3] = y;
+      }
+      {
+        const float y = zPown(2.0f, z);
+        result1[9 * index + 4] = y;
+      }
+      {
+        const float y = zPown(0.5f, z);
+        result1[9 * index + 5] = y;
+      }
+      {
+        const float y = zPown(INFINITY, z);
+        result1[9 * index + 6] = y;
+      }
+      {
+        const float y = zPown(-INFINITY, z);
+        result1[9 * index + 7] = y;
+      }
+      {
+        const float y = zPown(NAN, z);
+        result1[9 * index + 8] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 b = zMakeFloat2(2.0f, 2.0f);
+      const int2 z = zBroadcast2(x);
+      result2[2 * index] = zI2ToF2(z);
+      const float2 y = zPown2(b, z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 b = zMakeFloat3(2.0f, 2.0f, 2.0f);
+      const int3 z = zBroadcast3(x);
+      result3[2 * index] = zI3ToF3(z);
+      const float3 y = zPown3(b, z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 b = zMakeFloat4(2.0f, 2.0f, 2.0f, 2.0f);
+      const int4 z = zBroadcast4(x);
+      result4[2 * index] = zI4ToF4(z);
+      const float4 y = zPown4(b, z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
 kernel void testZsqrt(
     global float* result1,
     global float2* result2,
@@ -377,7 +749,6 @@ kernel void testZsqrt(
     const uint32b resolution)
 {
   const uint32b index = zGetGlobalIdX();
-  const uint32b offset = 100u;
   if (index < resolution) {
     const float x = (float)(index + 1) / (float)resolution; // (0, 1]
     // Scalar
@@ -660,6 +1031,142 @@ kernel void testZcbrt(
 
 /*!
   */
+kernel void testExp(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = (float)(2 * index) / (float)resolution - 1.0f; // [-1, 1)
+    x = x * 100.0f;
+    x = (x < 0.0f) ? -zLog2(zAbsF(x)) : zLog2(zAbsF(x));
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = exp(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = exp(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = -INFINITY;
+        result1[2 * i] = z;
+        const float y = exp(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 2;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = exp(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = exp(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = exp(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = exp(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZexp(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = (float)(2 * index) / (float)resolution - 1.0f; // [-1, 1)
+    x = x * 100.0f;
+    x = (x == 0.0f) ? x : ((x < 0.0f) ? -zLog2(zAbsF(x)) : zLog2(zAbsF(x)));
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = zExp(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = zExp(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = -INFINITY;
+        result1[2 * i] = z;
+        const float y = zExp(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 2;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = zExp(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = zExp2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = zExp3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = zExp4(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
 kernel void testLog(
     global float* result1,
     global float2* result2,
@@ -889,6 +1396,734 @@ kernel void testZlog2(
       const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
       result4[2 * index] = z;
       const float4 y = zLog2F4(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testSin(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    x = (4.0f * zPiF) * x;
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = sin(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = sin(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = sin(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = sin(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = sin(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = sin(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZsin(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    x = (4.0f * zPiF) * x;
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = zSin(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = zSin(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = zSin(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = zSin2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = zSin3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = zSin4(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testCos(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    x = (4.0f * zPiF) * x;
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = cos(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = cos(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = cos(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = cos(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = cos(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = cos(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZcos(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    x = (4.0f * zPiF) * x;
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = zCos(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = zCos(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = zCos(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = zCos2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = zCos3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = zCos4(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testTan(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    x = (4.0f * zPiF) * x;
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = tan(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = tan(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = tan(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = tan(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = tan(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = tan(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZtan(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    x = (4.0f * zPiF) * x;
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = zTan(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = zTan(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = zTan(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = zTan2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = zTan3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = zTan4(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testAsin(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = asin(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = asin(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = asin(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = asin(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = asin(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = asin(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZasin(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = zAsin(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = zAsin(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = zAsin(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = zAsin2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = zAsin3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = zAsin4(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testAcos(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = acos(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = acos(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = acos(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = acos(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = acos(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = acos(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZacos(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    // Scalar
+    {
+      const float z = x;
+      result1[2 * index] = z;
+      const float y = zAcos(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = zAcos(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = zAcos(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[2 * index] = z;
+      const float2 y = zAcos2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[2 * index] = z;
+      const float3 y = zAcos3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[2 * index] = z;
+      const float4 y = zAcos4(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testAtan(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    // Scalar
+    {
+      const float z = makeNormal(x);
+      result1[2 * index] = z;
+      const float y = atan(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = -INFINITY;
+        result1[2 * i] = z;
+        const float y = atan(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = atan(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 2;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = atan(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
+      result2[2 * index] = z;
+      const float2 y = atan(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
+      result3[2 * index] = z;
+      const float3 y = atan(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
+      result4[2 * index] = z;
+      const float4 y = atan(z);
+      result4[2 * index + 1] = y;
+    }
+  }
+}
+
+/*!
+  */
+kernel void testZatan(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    // Scalar
+    {
+      const float z = makeNormal(x);
+      result1[2 * index] = z;
+      const float y = zAtan(z);
+      result1[2 * index + 1] = y;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = -INFINITY;
+        result1[2 * i] = z;
+        const float y = zAtan(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = INFINITY;
+        result1[2 * i] = z;
+        const float y = zAtan(z);
+        result1[2 * i + 1] = y;
+      }
+      {
+        const uint i = resolution + 2;
+        const float z = NAN;
+        result1[2 * i] = z;
+        const float y = zAtan(z);
+        result1[2 * i + 1] = y;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
+      result2[2 * index] = z;
+      const float2 y = zAtan2(z);
+      result2[2 * index + 1] = y;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
+      result3[2 * index] = z;
+      const float3 y = zAtan3(z);
+      result3[2 * index + 1] = y;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
+      result4[2 * index] = z;
+      const float4 y = zAtan4(z);
       result4[2 * index + 1] = y;
     }
   }
