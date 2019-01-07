@@ -60,6 +60,13 @@ function(initZinvulOption)
   set(option_description "Use built-in 'cbrt' instead of the Zinvul funcs.")
   setBooleanOption(ZINVUL_MATH_BUILTIN_CBRT OFF ${option_description})
 
+  set(option_description "Use built-in 'sin', 'cos' and 'tan' instead of the Zinvul funcs.")
+  if(Z_MAC)
+    setBooleanOption(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC ON ${option_description})
+  else()
+    setBooleanOption(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC OFF ${option_description})
+  endif()
+
   set(option_description "Use built-in 'asin', 'acos' and 'atan' instead of the Zinvul funcs.")
   if(Z_MAC)
     setBooleanOption(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC ON ${option_description})
