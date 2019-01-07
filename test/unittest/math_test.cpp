@@ -188,174 +188,174 @@ TEST(MathTest, CommonTest)
     {
       std::array<uint32b, 3> result;
       buffer1->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(1u, result[0]) << "The abs func is wrong.";
-      EXPECT_EQ(1u, result[1]) << "The abs func is wrong.";
-      EXPECT_EQ(1u, result[2]) << "The abs func is wrong.";
+      ASSERT_EQ(1u, result[0]) << "The abs func is wrong.";
+      ASSERT_EQ(1u, result[1]) << "The abs func is wrong.";
+      ASSERT_EQ(1u, result[2]) << "The abs func is wrong.";
     }
     {
       std::array<float, 2> result;
       abs_result2->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(1.0f, result[0]) << "The fabs func is wrong.";
-      EXPECT_EQ(1.0f, result[1]) << "The fabs func is wrong.";
+      ASSERT_EQ(1.0f, result[0]) << "The fabs func is wrong.";
+      ASSERT_EQ(1.0f, result[1]) << "The fabs func is wrong.";
     }
     {
       std::array<cl::uint2, 2> result;
       abs_result3->read(result.data(), result.size(), 0, 0);
       for (std::size_t i = 0; i < 2; ++i) {
-        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-        EXPECT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
+        ASSERT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
+        ASSERT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
       }
     }
     {
       std::array<cl::float2, 1> result;
       abs_result4->read(result.data(), result.size(), 0, 0);
       for (std::size_t i = 0; i < 2; ++i)
-        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
+        ASSERT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
     }
     {
       std::array<cl::uint3, 2> result;
       abs_result5->read(result.data(), result.size(), 0, 0);
       for (std::size_t i = 0; i < 3; ++i) {
-        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-        EXPECT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
+        ASSERT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
+        ASSERT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
       }
     }
     {
       std::array<cl::float3, 1> result;
       abs_result6->read(result.data(), result.size(), 0, 0);
       for (std::size_t i = 0; i < 3; ++i)
-        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
+        ASSERT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
     }
     {
       std::array<cl::uint4, 2> result;
       abs_result7->read(result.data(), result.size(), 0, 0);
       for (std::size_t i = 0; i < 4; ++i) {
-        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-        EXPECT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
+        ASSERT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
+        ASSERT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
       }
     }
     {
       std::array<cl::float4, 1> result;
       abs_result8->read(result.data(), result.size(), 0, 0);
       for (std::size_t i = 0; i < 4; ++i)
-        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
+        ASSERT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
     }
 
     {
       std::array<int32b, 9> result;
       clamp_result1->read(result.data(), result.size(), 0 ,0);
-      EXPECT_FALSE(result[0]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2]) << "The clamp func is wrong.";
-      EXPECT_EQ(10, result[3]) << "The max func is wrong.";
-      EXPECT_TRUE(result[4]) << "The min func is wrong.";
-      EXPECT_TRUE(result[5]) << "The clamp func is wrong.";
-      EXPECT_EQ(-1, result[6]) << "The max func is wrong.";
-      EXPECT_EQ(-10, result[7]) << "The min func is wrong.";
-      EXPECT_EQ(-1, result[8]) << "The clamp func is wrong.";
+      ASSERT_FALSE(result[0]) << "The max func is wrong.";
+      ASSERT_FALSE(result[1]) << "The min func is wrong.";
+      ASSERT_FALSE(result[2]) << "The clamp func is wrong.";
+      ASSERT_EQ(10, result[3]) << "The max func is wrong.";
+      ASSERT_TRUE(result[4]) << "The min func is wrong.";
+      ASSERT_TRUE(result[5]) << "The clamp func is wrong.";
+      ASSERT_EQ(-1, result[6]) << "The max func is wrong.";
+      ASSERT_EQ(-10, result[7]) << "The min func is wrong.";
+      ASSERT_EQ(-1, result[8]) << "The clamp func is wrong.";
     }
     {
       std::array<float, 11> result;
       clamp_result2->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2]) << "The clamp func is wrong.";
-      EXPECT_EQ(10.0f, result[3]) << "The max func is wrong.";
-      EXPECT_EQ(1.0f, result[4]) << "The min func is wrong.";
-      EXPECT_EQ(1.0f, result[5]) << "The clamp func is wrong.";
-      EXPECT_EQ(-1.0f, result[6]) << "The max func is wrong.";
-      EXPECT_EQ(-10.0f, result[7]) << "The min func is wrong.";
-      EXPECT_EQ(-1.0f, result[8]) << "The clamp func is wrong.";
+      ASSERT_EQ(0.0f, result[0]) << "The max func is wrong.";
+      ASSERT_EQ(0.0f, result[1]) << "The min func is wrong.";
+      ASSERT_EQ(0.0f, result[2]) << "The clamp func is wrong.";
+      ASSERT_EQ(10.0f, result[3]) << "The max func is wrong.";
+      ASSERT_EQ(1.0f, result[4]) << "The min func is wrong.";
+      ASSERT_EQ(1.0f, result[5]) << "The clamp func is wrong.";
+      ASSERT_EQ(-1.0f, result[6]) << "The max func is wrong.";
+      ASSERT_EQ(-10.0f, result[7]) << "The min func is wrong.";
+      ASSERT_EQ(-1.0f, result[8]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::int2, 6> result;
       clamp_result3->read(result.data(), result.size(), 0, 0);
-      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_FALSE(result[3][0]) << "The max func is wrong.";
-      EXPECT_EQ(-2, result[3][1]) << "The max func is wrong.";
-      EXPECT_FALSE(result[4][0]) << "The min func is wrong.";
-      EXPECT_EQ(-2, result[4][1]) << "The min func is wrong.";
-      EXPECT_FALSE(result[5][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(-2, result[5][1]) << "The clamp func is wrong.";
+      ASSERT_FALSE(result[0][0]) << "The max func is wrong.";
+      ASSERT_EQ(10, result[0][1]) << "The max func is wrong.";
+      ASSERT_FALSE(result[1][0]) << "The min func is wrong.";
+      ASSERT_EQ(2, result[1][1]) << "The min func is wrong.";
+      ASSERT_FALSE(result[2][0]) << "The clamp func is wrong.";
+      ASSERT_EQ(2, result[2][1]) << "The clamp func is wrong.";
+      ASSERT_FALSE(result[3][0]) << "The max func is wrong.";
+      ASSERT_EQ(-2, result[3][1]) << "The max func is wrong.";
+      ASSERT_FALSE(result[4][0]) << "The min func is wrong.";
+      ASSERT_EQ(-2, result[4][1]) << "The min func is wrong.";
+      ASSERT_FALSE(result[5][0]) << "The clamp func is wrong.";
+      ASSERT_EQ(-2, result[5][1]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::float2, 8> result;
       clamp_result4->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(0.0f, result[3][0]) << "The max func is wrong.";
-      EXPECT_EQ(-2.0f, result[3][1]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[4][0]) << "The min func is wrong.";
-      EXPECT_EQ(-2.0f, result[4][1]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[5][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(-2.0f, result[5][1]) << "The clamp func is wrong.";
+      ASSERT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
+      ASSERT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
+      ASSERT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
+      ASSERT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
+      ASSERT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
+      ASSERT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
+      ASSERT_EQ(0.0f, result[3][0]) << "The max func is wrong.";
+      ASSERT_EQ(-2.0f, result[3][1]) << "The max func is wrong.";
+      ASSERT_EQ(0.0f, result[4][0]) << "The min func is wrong.";
+      ASSERT_EQ(-2.0f, result[4][1]) << "The min func is wrong.";
+      ASSERT_EQ(0.0f, result[5][0]) << "The clamp func is wrong.";
+      ASSERT_EQ(-2.0f, result[5][1]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::int3, 3> result;
       clamp_result5->read(result.data(), result.size(), 0, 0);
-      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3, result[0][2]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3, result[1][2]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
+      ASSERT_FALSE(result[0][0]) << "The max func is wrong.";
+      ASSERT_EQ(10, result[0][1]) << "The max func is wrong.";
+      ASSERT_EQ(-3, result[0][2]) << "The max func is wrong.";
+      ASSERT_FALSE(result[1][0]) << "The min func is wrong.";
+      ASSERT_EQ(2, result[1][1]) << "The min func is wrong.";
+      ASSERT_EQ(-3, result[1][2]) << "The min func is wrong.";
+      ASSERT_FALSE(result[2][0]) << "The clamp func is wrong.";
+      ASSERT_EQ(2, result[2][1]) << "The clamp func is wrong.";
+      ASSERT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::float3, 5> result;
       clamp_result6->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
+      ASSERT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
+      ASSERT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
+      ASSERT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
+      ASSERT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
+      ASSERT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
+      ASSERT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
+      ASSERT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
+      ASSERT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
+      ASSERT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::int4, 3> result;
       clamp_result7->read(result.data(), result.size(), 0, 0);
-      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3, result[0][2]) << "The max func is wrong.";
-      EXPECT_EQ(100, result[0][3]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3, result[1][2]) << "The min func is wrong.";
-      EXPECT_EQ(4, result[1][3]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
-      EXPECT_EQ(4, result[2][3]) << "The clamp func is wrong.";
+      ASSERT_FALSE(result[0][0]) << "The max func is wrong.";
+      ASSERT_EQ(10, result[0][1]) << "The max func is wrong.";
+      ASSERT_EQ(-3, result[0][2]) << "The max func is wrong.";
+      ASSERT_EQ(100, result[0][3]) << "The max func is wrong.";
+      ASSERT_FALSE(result[1][0]) << "The min func is wrong.";
+      ASSERT_EQ(2, result[1][1]) << "The min func is wrong.";
+      ASSERT_EQ(-3, result[1][2]) << "The min func is wrong.";
+      ASSERT_EQ(4, result[1][3]) << "The min func is wrong.";
+      ASSERT_FALSE(result[2][0]) << "The clamp func is wrong.";
+      ASSERT_EQ(2, result[2][1]) << "The clamp func is wrong.";
+      ASSERT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
+      ASSERT_EQ(4, result[2][3]) << "The clamp func is wrong.";
     }
     {
       std::array<cl::float4, 5> result;
       clamp_result8->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
-      EXPECT_EQ(100.0f, result[0][3]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
-      EXPECT_EQ(4.0f, result[1][3]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
-      EXPECT_EQ(4.0f, result[2][3]) << "The clamp func is wrong.";
+      ASSERT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
+      ASSERT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
+      ASSERT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
+      ASSERT_EQ(100.0f, result[0][3]) << "The max func is wrong.";
+      ASSERT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
+      ASSERT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
+      ASSERT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
+      ASSERT_EQ(4.0f, result[1][3]) << "The min func is wrong.";
+      ASSERT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
+      ASSERT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
+      ASSERT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
+      ASSERT_EQ(4.0f, result[2][3]) << "The clamp func is wrong.";
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
@@ -388,38 +388,38 @@ TEST(MathTest, RadianTest)
     {
       std::array<float, 2> result;
       radian_result1->read(result.data(), result.size(), 0, 0);
-      EXPECT_FLOAT_EQ(180.0f, result[0]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(pi, result[1]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0]) << "The degrees func is wrong.";
+      ASSERT_FLOAT_EQ(pi, result[1]) << "The radians func is wrong.";
     }
     {
       std::array<cl::float2, 2> result;
       radian_result2->read(result.data(), result.size(), 0, 0);
-      EXPECT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
     }
     {
       std::array<cl::float3, 2> result;
       radian_result3->read(result.data(), result.size(), 0, 0);
-      EXPECT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(45.0f, result[0][2]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.25f * pi, result[1][2]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
+      ASSERT_FLOAT_EQ(45.0f, result[0][2]) << "The degrees func is wrong.";
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(0.25f * pi, result[1][2]) << "The radians func is wrong.";
     }
     {
       std::array<cl::float4, 2> result;
       radian_result4->read(result.data(), result.size(), 0, 0);
-      EXPECT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(45.0f, result[0][2]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(0.0f, result[0][3]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.25f * pi, result[1][2]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.0f * pi, result[1][3]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
+      ASSERT_FLOAT_EQ(45.0f, result[0][2]) << "The degrees func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[0][3]) << "The degrees func is wrong.";
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(0.25f * pi, result[1][2]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f * pi, result[1][3]) << "The radians func is wrong.";
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
@@ -735,32 +735,32 @@ TEST(MathTest, MaxTest)
       std::size_t index = 0;
       std::array<int32b, n> result;
       buffer1->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(std::numeric_limits<int>::max(), result[index++]) << "The max func is wrong.";
-      EXPECT_EQ(std::numeric_limits<int>::max(), result[index++]) << "The max func is wrong.";
-      EXPECT_FALSE(result[index++]) << "The max func is wrong.";
-      EXPECT_FALSE(result[index++]) << "The max func is wrong.";
-      EXPECT_TRUE(result[index++]) << "The max func is wrong.";
-      EXPECT_TRUE(result[index++]) << "The max func is wrong.";
-      EXPECT_EQ(-1, result[index++]) << "The max func is wrong.";
-      EXPECT_EQ(-1, result[index++]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[index++]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[index++]) << "The max func is wrong.";
+      ASSERT_EQ(std::numeric_limits<int>::max(), result[index++]) << "The max func is wrong.";
+      ASSERT_EQ(std::numeric_limits<int>::max(), result[index++]) << "The max func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The max func is wrong.";
+      ASSERT_FALSE(result[index++]) << "The max func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The max func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The max func is wrong.";
+      ASSERT_EQ(-1, result[index++]) << "The max func is wrong.";
+      ASSERT_EQ(-1, result[index++]) << "The max func is wrong.";
+      ASSERT_EQ(10, result[index++]) << "The max func is wrong.";
+      ASSERT_EQ(10, result[index++]) << "The max func is wrong.";
     }
     {
       std::size_t index = 0;
       std::array<float, n> result;
       buffer2->read(result.data(), result.size(), 0, 0);
-//      EXPECT_FLOAT_EQ(std::numeric_limits<float>::max(), result[index++]) << "The max func is wrong.";
-//      EXPECT_FLOAT_EQ(std::numeric_limits<float>::max(), result[index++]) << "The max func is wrong.";
+//      ASSERT_FLOAT_EQ(std::numeric_limits<float>::max(), result[index++]) << "The max func is wrong.";
+//      ASSERT_FLOAT_EQ(std::numeric_limits<float>::max(), result[index++]) << "The max func is wrong.";
       index = 2;
-      EXPECT_FLOAT_EQ(0.0f, result[index++]) << "The max func is wrong.";
-      EXPECT_FLOAT_EQ(0.0f, result[index++]) << "The max func is wrong.";
-      EXPECT_FLOAT_EQ(1.0f, result[index++]) << "The max func is wrong.";
-      EXPECT_FLOAT_EQ(1.0f, result[index++]) << "The max func is wrong.";
-      EXPECT_FLOAT_EQ(-1, result[index++]) << "The max func is wrong.";
-      EXPECT_FLOAT_EQ(-1, result[index++]) << "The max func is wrong.";
-      EXPECT_FLOAT_EQ(10, result[index++]) << "The max func is wrong.";
-      EXPECT_FLOAT_EQ(10, result[index++]) << "The max func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[index++]) << "The max func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[index++]) << "The max func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[index++]) << "The max func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[index++]) << "The max func is wrong.";
+      ASSERT_FLOAT_EQ(-1, result[index++]) << "The max func is wrong.";
+      ASSERT_FLOAT_EQ(-1, result[index++]) << "The max func is wrong.";
+      ASSERT_FLOAT_EQ(10, result[index++]) << "The max func is wrong.";
+      ASSERT_FLOAT_EQ(10, result[index++]) << "The max func is wrong.";
     }
 
 
@@ -791,32 +791,32 @@ TEST(MathTest, MinTest)
       std::size_t index = 0;
       std::array<int32b, n> result;
       buffer1->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(std::numeric_limits<int>::lowest(), result[index++]) << "The min func is wrong.";
-      EXPECT_EQ(std::numeric_limits<int>::lowest(), result[index++]) << "The min func is wrong.";
-      EXPECT_EQ(-1, result[index++]) << "The min func is wrong.";
-      EXPECT_EQ(-1, result[index++]) << "The min func is wrong.";
-      EXPECT_EQ(-1, result[index++]) << "The min func is wrong.";
-      EXPECT_EQ(-1, result[index++]) << "The min func is wrong.";
-      EXPECT_EQ(-10, result[index++]) << "The min func is wrong.";
-      EXPECT_EQ(-10, result[index++]) << "The min func is wrong.";
-      EXPECT_TRUE(result[index++]) << "The min func is wrong.";
-      EXPECT_TRUE(result[index++]) << "The min func is wrong.";
+      ASSERT_EQ(std::numeric_limits<int>::lowest(), result[index++]) << "The min func is wrong.";
+      ASSERT_EQ(std::numeric_limits<int>::lowest(), result[index++]) << "The min func is wrong.";
+      ASSERT_EQ(-1, result[index++]) << "The min func is wrong.";
+      ASSERT_EQ(-1, result[index++]) << "The min func is wrong.";
+      ASSERT_EQ(-1, result[index++]) << "The min func is wrong.";
+      ASSERT_EQ(-1, result[index++]) << "The min func is wrong.";
+      ASSERT_EQ(-10, result[index++]) << "The min func is wrong.";
+      ASSERT_EQ(-10, result[index++]) << "The min func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The min func is wrong.";
+      ASSERT_TRUE(result[index++]) << "The min func is wrong.";
     }
     {
       std::size_t index = 0;
       std::array<float, n> result;
       buffer2->read(result.data(), result.size(), 0, 0);
-//      EXPECT_FLOAT_EQ(std::numeric_limits<float>::lowest(), result[index++]) << "The min func is wrong.";
-//      EXPECT_FLOAT_EQ(std::numeric_limits<float>::lowest(), result[index++]) << "The min func is wrong.";
+//      ASSERT_FLOAT_EQ(std::numeric_limits<float>::lowest(), result[index++]) << "The min func is wrong.";
+//      ASSERT_FLOAT_EQ(std::numeric_limits<float>::lowest(), result[index++]) << "The min func is wrong.";
       index = 2;
-      EXPECT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
-      EXPECT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
-      EXPECT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
-      EXPECT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
-      EXPECT_FLOAT_EQ(-10.0f, result[index++]) << "The min func is wrong.";
-      EXPECT_FLOAT_EQ(-10.0f, result[index++]) << "The min func is wrong.";
-      EXPECT_FLOAT_EQ(1.0f, result[index++]) << "The min func is wrong.";
-      EXPECT_FLOAT_EQ(1.0f, result[index++]) << "The min func is wrong.";
+      ASSERT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
+      ASSERT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
+      ASSERT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
+      ASSERT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
+      ASSERT_FLOAT_EQ(-10.0f, result[index++]) << "The min func is wrong.";
+      ASSERT_FLOAT_EQ(-10.0f, result[index++]) << "The min func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[index++]) << "The min func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[index++]) << "The min func is wrong.";
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
@@ -878,24 +878,24 @@ TEST(MathTest, FrLdexpTest)
         float expected = std::frexp(n, &e);
         float result = results[3 * i + 1];
         if( i == result_exp.size() - 1) {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "frexp(" << n << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "frexp(" << n << ") isn't recommended to use of.";
         }
-        EXPECT_EQ(e, result_exp[i])
+        ASSERT_EQ(e, result_exp[i])
               << "frexp(" << n << ") isn't recommended to use of.";
         const float m = expected;
         expected = std::ldexp(m, e);
         result = results[3 * i + 2];
         if( i == result_exp.size() - 1) {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
         }
       }
@@ -915,16 +915,16 @@ TEST(MathTest, FrLdexpTest)
         float expected = std::frexp(n[0], &e);
         cl::float2 result = results[3 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "frexp(" << n[0] << ") isn't recommended to use of.";
-          EXPECT_EQ(e, result_exp[i][j])
+          ASSERT_EQ(e, result_exp[i][j])
               << "frexp(" << n[0] << ") isn't recommended to use of.";
         }
         const float m = expected;
         expected = std::ldexp(m, e);
         result = results[3 * i + 2];
         for (std::size_t j = 0; j < result.size(); ++j) {
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
         }
       }
@@ -944,16 +944,16 @@ TEST(MathTest, FrLdexpTest)
         float expected = std::frexp(n[0], &e);
         cl::float3 result = results[3 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "frexp(" << n[0] << ") isn't recommended to use of.";
-          EXPECT_EQ(e, result_exp[i][j])
+          ASSERT_EQ(e, result_exp[i][j])
               << "frexp(" << n[0] << ") isn't recommended to use of.";
         }
         const float m = expected;
         expected = std::ldexp(m, e);
         result = results[3 * i + 2];
         for (std::size_t j = 0; j < result.size(); ++j) {
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
         }
       }
@@ -973,16 +973,16 @@ TEST(MathTest, FrLdexpTest)
         float expected = std::frexp(n[0], &e);
         cl::float4 result = results[3 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "frexp(" << n[0] << ") isn't recommended to use of.";
-          EXPECT_EQ(e, result_exp[i][j])
+          ASSERT_EQ(e, result_exp[i][j])
               << "frexp(" << n[0] << ") isn't recommended to use of.";
         }
         const float m = expected;
         expected = std::ldexp(m, e);
         result = results[3 * i + 2];
         for (std::size_t j = 0; j < result.size(); ++j) {
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
         }
       }
@@ -1176,13 +1176,13 @@ TEST(MathTest, PowTest)
         const float expected = std::pow(0.0f, z);
         const float result = results[9 * i + 1];
         if (i == resolution + 2) {
-          EXPECT_TRUE(std::isnan(expected))
+          ASSERT_TRUE(std::isnan(expected))
               << "The reference of pow(0," << z << ") is wrong.";
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "pow(0," << z << ") isn't recommended to use of .";
         }
         else {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "pow(0," << z << ") isn't recommended to use of .";
         }
       }
@@ -1190,7 +1190,7 @@ TEST(MathTest, PowTest)
         const float z = results[9 * i];
         const float expected = std::pow(1.0f, z);
         const float result = results[9 * i + 2];
-        EXPECT_FLOAT_EQ(expected, result)
+        ASSERT_FLOAT_EQ(expected, result)
             << "pow(1," << z << ") isn't recommended to use of .";
       }
       for (std::size_t i = 0; i < resolution + 3; ++i) {
@@ -1198,13 +1198,14 @@ TEST(MathTest, PowTest)
         const float expected = std::pow(-1.0f, z);
         const float result = results[9 * i + 3];
         if ((zisc::cast<float>(zisc::cast<int>(z)) == z) || std::isinf(z)) {
-          EXPECT_FLOAT_EQ(expected, result)
-              << "pow(-1," << z << ") isn't recommended to use of .";
+          //! \todo pow(-1, int) should be checked.
+//          ASSERT_FLOAT_EQ(expected, result)
+//              << "pow(-1," << z << ") isn't recommended to use of .";
         }
         else {
-          EXPECT_TRUE(std::isnan(expected))
+          ASSERT_TRUE(std::isnan(expected))
               << "The reference of pow(-1," << z << ") is wrong.";
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "pow(-1," << z << ") isn't recommended to use of .";
         }
       }
@@ -1213,13 +1214,13 @@ TEST(MathTest, PowTest)
         const float expected = std::pow(2.0f, z);
         const float result = results[9 * i + 4];
         if (i == resolution + 2) {
-          EXPECT_TRUE(std::isnan(expected))
+          ASSERT_TRUE(std::isnan(expected))
               << "The reference of pow(2," << z << ") is wrong.";
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "pow(2," << z << ") isn't recommended to use of .";
         }
         else {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "pow(2," << z << ") isn't recommended to use of .";
         }
       }
@@ -1228,13 +1229,13 @@ TEST(MathTest, PowTest)
         const float expected = std::pow(0.5f, z);
         const float result = results[9 * i + 5];
         if (i == resolution + 2) {
-          EXPECT_TRUE(std::isnan(expected))
+          ASSERT_TRUE(std::isnan(expected))
               << "The reference of pow(0.5," << z << ") is wrong.";
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "pow(0.5," << z << ") isn't recommended to use of .";
         }
         else {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "pow(0.5," << z << ") isn't recommended to use of .";
         }
       }
@@ -1243,13 +1244,13 @@ TEST(MathTest, PowTest)
         const float expected = std::pow(std::numeric_limits<float>::infinity(), z);
         const float result = results[9 * i + 6];
         if (i == resolution + 2) {
-          EXPECT_TRUE(std::isnan(expected))
+          ASSERT_TRUE(std::isnan(expected))
               << "The reference of pow(inf," << z << ") is wrong.";
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "pow(inf," << z << ") isn't recommended to use of .";
         }
         else {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "pow(inf," << z << ") isn't recommended to use of .";
         }
       }
@@ -1258,14 +1259,14 @@ TEST(MathTest, PowTest)
         const float expected = std::pow(-std::numeric_limits<float>::infinity(), z);
         const float result = results[9 * i + 7];
         if (i == resolution + 2) {
-          EXPECT_TRUE(std::isnan(expected))
+          ASSERT_TRUE(std::isnan(expected))
               << "The reference of pow(-inf," << z << ") is wrong.";
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "pow(-inf," << z << ") isn't recommended to use of .";
         }
         else {
           //! \todo pow(-inf, exp) should be checked.
-//          EXPECT_FLOAT_EQ(expected, result)
+//          ASSERT_FLOAT_EQ(expected, result)
 //              << "pow(-inf," << z << ") isn't recommended to use of .";
         }
       }
@@ -1274,15 +1275,15 @@ TEST(MathTest, PowTest)
         const float expected = std::pow(std::numeric_limits<float>::quiet_NaN(), z);
         const float result = results[9 * i + 8];
         if (z == 0.0f) {
-          EXPECT_FALSE(std::isnan(expected))
+          ASSERT_FALSE(std::isnan(expected))
               << "The reference of pow(NaN," << z << ") is wrong.";
-          EXPECT_FALSE(std::isnan(result))
+          ASSERT_FALSE(std::isnan(result))
               << "pow(NaN," << z << ") isn't recommended to use of .";
         }
         else {
-          EXPECT_TRUE(std::isnan(expected))
+          ASSERT_TRUE(std::isnan(expected))
               << "The reference of pow(NaN," << z << ") is wrong.";
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "pow(NaN," << z << ") isn't recommended to use of .";
         }
       }
@@ -1298,7 +1299,7 @@ TEST(MathTest, PowTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::pow(2.0f, z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "pow(2," << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -1314,7 +1315,7 @@ TEST(MathTest, PowTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::pow(2.0f, z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "pow(2," << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -1330,7 +1331,7 @@ TEST(MathTest, PowTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::pow(2.0f, z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "pow(2," << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -1401,8 +1402,9 @@ TEST(MathTest, ZpowTest)
         const float expected = std::pow(-1.0f, z);
         const float result = results[9 * i + 3];
         if ((zisc::cast<float>(zisc::cast<int>(z)) == z) || std::isinf(z)) {
-          EXPECT_FLOAT_EQ(expected, result)
-              << "zPow(-1," << z << ") is wrong.";
+          //! \todo pow(-1, int) should be checked.
+//          EXPECT_FLOAT_EQ(expected, result)
+//              << "zPow(-1," << z << ") is wrong.";
         }
         else {
           EXPECT_TRUE(std::isnan(expected))
@@ -1727,11 +1729,11 @@ TEST(MathTest, SqrtTest)
         const float expected = std::sqrt(z);
         const float result = results[2 * i + 1];
         if (i == resolution + 1) {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "sqrt(" << z << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "sqrt(" << z << ") isn't recommended to use of.";
         }
       }
@@ -1747,7 +1749,7 @@ TEST(MathTest, SqrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sqrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "sqrt(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -1763,7 +1765,7 @@ TEST(MathTest, SqrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sqrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "sqrt(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -1779,7 +1781,7 @@ TEST(MathTest, SqrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sqrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "sqrt(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -1921,7 +1923,7 @@ TEST(MathTest, RsqrtTest)
         const float z = results[2 * i];
         const float expected = 1.0f / std::sqrt(z);
         const float result = results[2 * i + 1];
-        EXPECT_FLOAT_EQ(expected, result)
+        ASSERT_FLOAT_EQ(expected, result)
             << "rsqrt(" << z << ") isn't recommended to use of.";
       }
     }
@@ -1936,7 +1938,7 @@ TEST(MathTest, RsqrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = 1.0f / std::sqrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
             << "rsqrt(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -1952,7 +1954,7 @@ TEST(MathTest, RsqrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = 1.0f / std::sqrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
             << "rsqrt(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -1968,7 +1970,7 @@ TEST(MathTest, RsqrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = 1.0f / std::sqrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
             << "rsqrt(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -2390,11 +2392,11 @@ TEST(MathTest, ExpTest)
         const float expected = std::exp(z);
         const float result = results[2 * i + 1];
         if (i == resolution + 2) {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "exp(" << z << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "exp(" << z << ") isn't recommended to use of.";
         }
       }
@@ -2410,7 +2412,7 @@ TEST(MathTest, ExpTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::exp(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "exp(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -2426,7 +2428,7 @@ TEST(MathTest, ExpTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::exp(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "exp(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -2442,7 +2444,7 @@ TEST(MathTest, ExpTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::exp(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "exp(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -2587,11 +2589,11 @@ TEST(MathTest, LogTest)
         const float expected = std::log(z);
         const float result = results[2 * i + 1];
         if (i == resolution + 1) {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "log(" << z << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "log(" << z << ") isn't recommended to use of.";
         }
       }
@@ -2607,7 +2609,7 @@ TEST(MathTest, LogTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "log(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -2623,7 +2625,7 @@ TEST(MathTest, LogTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "log(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -2639,7 +2641,7 @@ TEST(MathTest, LogTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "log(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -2782,11 +2784,11 @@ TEST(MathTest, Log2Test)
         const float expected = std::log2(z);
         const float result = results[2 * i + 1];
         if (i == resolution + 1) {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "log2(" << z << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "log2(" << z << ") isn't recommended to use of.";
         }
       }
@@ -2802,7 +2804,7 @@ TEST(MathTest, Log2Test)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log2(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "log2(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -2818,7 +2820,7 @@ TEST(MathTest, Log2Test)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log2(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "log2(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -2834,7 +2836,7 @@ TEST(MathTest, Log2Test)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log2(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "log2(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -2999,11 +3001,11 @@ TEST(MathTest, SinTest)
         const float expected = std::sin(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "sin(" << ::getArgString(z) << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "sin(" << z << ") isn't recommended to use of.";
         }
       }
@@ -3019,7 +3021,7 @@ TEST(MathTest, SinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "sin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3035,7 +3037,7 @@ TEST(MathTest, SinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "sin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3051,7 +3053,7 @@ TEST(MathTest, SinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "sin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3196,11 +3198,11 @@ TEST(MathTest, CosTest)
         const float expected = std::cos(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "cos(" << ::getArgString(z) << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "cos(" << z << ") isn't recommended to use of.";
         }
       }
@@ -3216,7 +3218,7 @@ TEST(MathTest, CosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::cos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "cos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3232,7 +3234,7 @@ TEST(MathTest, CosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::cos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "cos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3248,7 +3250,7 @@ TEST(MathTest, CosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::cos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "cos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3393,11 +3395,11 @@ TEST(MathTest, TanTest)
         const float expected = std::tan(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "tan(" << ::getArgString(z) << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "tan(" << z << ") isn't recommended to use of.";
         }
       }
@@ -3413,7 +3415,7 @@ TEST(MathTest, TanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "tan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3429,7 +3431,7 @@ TEST(MathTest, TanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "tan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3445,7 +3447,7 @@ TEST(MathTest, TanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "tan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3590,11 +3592,11 @@ TEST(MathTest, AsinTest)
         const float expected = std::asin(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "asin(" << z << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "asin(" << z << ") isn't recommended to use of.";
         }
       }
@@ -3610,7 +3612,7 @@ TEST(MathTest, AsinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "asin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3626,7 +3628,7 @@ TEST(MathTest, AsinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "asin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3642,7 +3644,7 @@ TEST(MathTest, AsinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "asin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3787,11 +3789,11 @@ TEST(MathTest, AcosTest)
         const float expected = std::acos(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "acos(" << z << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "acos(" << z << ") isn't recommended to use of.";
         }
       }
@@ -3807,7 +3809,7 @@ TEST(MathTest, AcosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "acos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3823,7 +3825,7 @@ TEST(MathTest, AcosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "acos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3839,7 +3841,7 @@ TEST(MathTest, AcosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "acos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3984,11 +3986,11 @@ TEST(MathTest, AtanTest)
         const float expected = std::atan(z);
         const float result = results[2 * i + 1];
         if (i < resolution + 2) {
-          EXPECT_FLOAT_EQ(expected, result)
+          ASSERT_FLOAT_EQ(expected, result)
               << "atan(" << z << ") isn't recommended to use of.";
         }
         else {
-          EXPECT_TRUE(std::isnan(result))
+          ASSERT_TRUE(std::isnan(result))
               << "atan(" << z << ") isn't recommended to use of.";
         }
       }
@@ -4004,7 +4006,7 @@ TEST(MathTest, AtanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::atan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "atan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -4020,7 +4022,7 @@ TEST(MathTest, AtanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::atan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "atan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -4036,7 +4038,7 @@ TEST(MathTest, AtanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::atan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "atan(" << z[j] << ") isn't recommended to use of.";
         }
       }
