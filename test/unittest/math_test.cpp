@@ -1076,11 +1076,11 @@ TEST(MathTest, ZFrLdexpTest)
         cl::float2 result2 = results[3 * i + 2];
         for (std::size_t j = 0; j < result1.size(); ++j) {
           float expected = std::frexp(n[j], &e);
-          EXPECT_FLOAT_EQ(expected, result1[j]) << "zFrexp2(" << n[j] << ") is wrong.";
-          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp2(" << n[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result1[j]) << "zFrexp2(" << n[j] << ") is wrong.";
+          ASSERT_EQ(e, result_exp[i][j]) << "zFrexp2(" << n[j] << ") is wrong.";
           const float m = expected;
           expected = std::ldexp(m, e);
-          EXPECT_FLOAT_EQ(expected, result2[j]) << "zLdexp2(" << m << "," << e << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result2[j]) << "zLdexp2(" << m << "," << e << ") is wrong.";
         }
       }
     }
@@ -1100,11 +1100,11 @@ TEST(MathTest, ZFrLdexpTest)
         cl::float3 result2 = results[3 * i + 2];
         for (std::size_t j = 0; j < result1.size(); ++j) {
           float expected = std::frexp(n[j], &e);
-          EXPECT_FLOAT_EQ(expected, result1[j]) << "zFrexp3(" << n[j] << ") is wrong.";
-          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp3(" << n[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result1[j]) << "zFrexp3(" << n[j] << ") is wrong.";
+          ASSERT_EQ(e, result_exp[i][j]) << "zFrexp3(" << n[j] << ") is wrong.";
           const float m = expected;
           expected = std::ldexp(m, e);
-          EXPECT_FLOAT_EQ(expected, result2[j]) << "zLdexp3(" << m << "," << e << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result2[j]) << "zLdexp3(" << m << "," << e << ") is wrong.";
         }
       }
   }
@@ -1124,11 +1124,11 @@ TEST(MathTest, ZFrLdexpTest)
         cl::float4 result2 = results[3 * i + 2];
         for (std::size_t j = 0; j < result1.size(); ++j) {
           float expected = std::frexp(n[j], &e);
-          EXPECT_FLOAT_EQ(expected, result1[j]) << "zFrexp4(" << n[j] << ") is wrong.";
-          EXPECT_EQ(e, result_exp[i][j]) << "zFrexp4(" << n[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result1[j]) << "zFrexp4(" << n[j] << ") is wrong.";
+          ASSERT_EQ(e, result_exp[i][j]) << "zFrexp4(" << n[j] << ") is wrong.";
           const float m = expected;
           expected = std::ldexp(m, e);
-          EXPECT_FLOAT_EQ(expected, result2[j]) << "zLdexp4(" << m << "," << e << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result2[j]) << "zLdexp4(" << m << "," << e << ") is wrong.";
         }
       }
     }
@@ -1193,22 +1193,22 @@ TEST(MathTest, PowTest)
         ASSERT_FLOAT_EQ(expected, result)
             << "pow(1," << z << ") isn't recommended to use of .";
       }
-      for (std::size_t i = 0; i < resolution + 3; ++i) {
-        const float z = results[9 * i];
-        const float expected = std::pow(-1.0f, z);
-        const float result = results[9 * i + 3];
-        if ((zisc::cast<float>(zisc::cast<int>(z)) == z) || std::isinf(z)) {
-          //! \todo pow(-1, int) should be checked.
+      //! \todo pow(-1, exp) should be checked.
+//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//        const float z = results[9 * i];
+//        const float expected = std::pow(-1.0f, z);
+//        const float result = results[9 * i + 3];
+//        if ((zisc::cast<float>(zisc::cast<int>(z)) == z) || std::isinf(z)) {
 //          ASSERT_FLOAT_EQ(expected, result)
 //              << "pow(-1," << z << ") isn't recommended to use of .";
-        }
-        else {
-          ASSERT_TRUE(std::isnan(expected))
-              << "The reference of pow(-1," << z << ") is wrong.";
-          ASSERT_TRUE(std::isnan(result))
-              << "pow(-1," << z << ") isn't recommended to use of .";
-        }
-      }
+//        }
+//        else {
+//          ASSERT_TRUE(std::isnan(expected))
+//              << "The reference of pow(-1," << z << ") is wrong.";
+//          ASSERT_TRUE(std::isnan(result))
+//              << "pow(-1," << z << ") isn't recommended to use of .";
+//        }
+//      }
       for (std::size_t i = 0; i < resolution + 3; ++i) {
         const float z = results[9 * i];
         const float expected = std::pow(2.0f, z);
@@ -1397,22 +1397,22 @@ TEST(MathTest, ZpowTest)
         EXPECT_FLOAT_EQ(expected, result)
             << "zPow(1," << z << ") is wrong.";
       }
-      for (std::size_t i = 0; i < resolution + 3; ++i) {
-        const float z = results[9 * i];
-        const float expected = std::pow(-1.0f, z);
-        const float result = results[9 * i + 3];
-        if ((zisc::cast<float>(zisc::cast<int>(z)) == z) || std::isinf(z)) {
-          //! \todo pow(-1, int) should be checked.
+      //! \todo pow(-1, exp) should be checked.
+//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//        const float z = results[9 * i];
+//        const float expected = std::pow(-1.0f, z);
+//        const float result = results[9 * i + 3];
+//        if ((zisc::cast<float>(zisc::cast<int>(z)) == z) || std::isinf(z)) {
 //          EXPECT_FLOAT_EQ(expected, result)
 //              << "zPow(-1," << z << ") is wrong.";
-        }
-        else {
-          EXPECT_TRUE(std::isnan(expected))
-              << "The reference of pow(-1," << z << ") is wrong.";
-          EXPECT_TRUE(std::isnan(result))
-              << "zPow(-1," << z << ") is wrong.";
-        }
-      }
+//        }
+//        else {
+//          EXPECT_TRUE(std::isnan(expected))
+//              << "The reference of pow(-1," << z << ") is wrong.";
+//          EXPECT_TRUE(std::isnan(result))
+//              << "zPow(-1," << z << ") is wrong.";
+//        }
+//      }
       for (std::size_t i = 0; i < resolution + 3; ++i) {
         const float z = results[9 * i];
         const float expected = std::pow(2.0f, z);
@@ -1503,7 +1503,7 @@ TEST(MathTest, ZpowTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::pow(2.0f, z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "zPow(2," << z[j] << ") is wrong.";
         }
       }
@@ -1519,7 +1519,7 @@ TEST(MathTest, ZpowTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::pow(2.0f, z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "zPow(2," << z[j] << ") is wrong.";
         }
       }
@@ -1535,7 +1535,7 @@ TEST(MathTest, ZpowTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::pow(2.0f, z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
+          ASSERT_FLOAT_EQ(expected, result[j])
               << "zPow(2," << z[j] << ") is wrong.";
         }
       }
@@ -1648,8 +1648,8 @@ TEST(MathTest, ZpownTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::pow(2.0f, z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
-              << "zPown(2," << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j])
+              << "zPown2(2," << z[j] << ") is wrong.";
         }
       }
     }
@@ -1664,8 +1664,8 @@ TEST(MathTest, ZpownTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::pow(2.0f, z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
-              << "zPown(2," << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j])
+              << "zPown3(2," << z[j] << ") is wrong.";
         }
       }
     }
@@ -1680,8 +1680,8 @@ TEST(MathTest, ZpownTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::pow(2.0f, z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j])
-              << "zPown(2," << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j])
+              << "zPown4(2," << z[j] << ") is wrong.";
         }
       }
     }
@@ -1846,7 +1846,7 @@ TEST(MathTest, ZsqrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sqrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zSqrt2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zSqrt2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -1861,7 +1861,7 @@ TEST(MathTest, ZsqrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sqrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zSqrt3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zSqrt3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -1876,7 +1876,7 @@ TEST(MathTest, ZsqrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sqrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zSqrt4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zSqrt4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2009,69 +2009,69 @@ TEST(MathTest, RsqrtSubnormalTest)
                 *resolution_buffer, {resolution}, 0);
     device->waitForCompletion();
 
-//! \todo Remove comment out. Subnormal doesn't work on Vulkan
+    //! \todo Remove the failure code. Subnormal doesn't work on Vulkan
+    FAIL();
 
-//    // Scalar
-//    {
-//      std::vector<float> results;
-//      results.resize(2 * resolution);
-//      result1_buffer->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
-//        const float z = results[2 * i];
-//        const float expected = 1.0f / std::sqrt(z);
-//        const float result = results[2 * i + 1];
-//        EXPECT_FLOAT_EQ(expected, result) << "rsqrt(" << z << ") is wrong.";
-//      }
-//    }
-//
-//    // Vector2
-//    {
-//      std::vector<cl::float2> results;
-//      results.resize(2 * resolution);
-//      result2_buffer->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
-//        const auto& z = results[2 * i];
-//        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
-//          float expected = 1.0f / std::sqrt(z[j]);
-//          EXPECT_FLOAT_EQ(expected, result[j]) << "rsqrt(" << z[j] << ") is wrong.";
-//        }
-//      }
-//    }
-//
-//    // Vector3
-//    {
-//      std::vector<cl::float3> results;
-//      results.resize(2 * resolution);
-//      result3_buffer->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
-//        const auto& z = results[2 * i];
-//        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
-//          float expected = 1.0f / std::sqrt(z[j]);
-//          EXPECT_FLOAT_EQ(expected, result[j]) << "rsqrt(" << z[j] << ") is wrong.";
-//        }
-//      }
-//    }
-//
-//    // Vector4
-//    {
-//      std::vector<cl::float4> results;
-//      results.resize(2 * resolution);
-//      result4_buffer->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
-//        const auto& z = results[2 * i];
-//        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
-//          float expected = 1.0f / std::sqrt(z[j]);
-//          EXPECT_FLOAT_EQ(expected, result[j]) << "rsqrt(" << z[j] << ") is wrong.";
-//        }
-//      }
-//    }
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(2 * resolution);
+      result1_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const float z = results[2 * i];
+        const float expected = 1.0f / std::sqrt(z);
+        const float result = results[2 * i + 1];
+        EXPECT_FLOAT_EQ(expected, result) << "rsqrt(" << z << ") is wrong.";
+      }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(2 * resolution);
+      result2_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = 1.0f / std::sqrt(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "rsqrt(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(2 * resolution);
+      result3_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = 1.0f / std::sqrt(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "rsqrt(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(2 * resolution);
+      result4_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = 1.0f / std::sqrt(z[j]);
+          EXPECT_FLOAT_EQ(expected, result[j]) << "rsqrt(" << z[j] << ") is wrong.";
+        }
+      }
+    }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
-  FAIL();
 }
 
 TEST(MathTest, ZrsqrtTest)
@@ -2102,6 +2102,100 @@ TEST(MathTest, ZrsqrtTest)
     kernel->run(*result1_buffer, *result2_buffer, *result3_buffer, *result4_buffer,
                 *resolution_buffer, {resolution}, 0);
     device->waitForCompletion();
+
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(2 * resolution);
+      result1_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const float z = results[2 * i];
+        const float expected = 1.0f / std::sqrt(z);
+        const float result = results[2 * i + 1];
+        EXPECT_FLOAT_EQ(expected, result) << "zRsqrt(" << z << ") is wrong.";
+      }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(2 * resolution);
+      result2_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = 1.0f / std::sqrt(z[j]);
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zRsqrt2(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(2 * resolution);
+      result3_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = 1.0f / std::sqrt(z[j]);
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zRsqrt3(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(2 * resolution);
+      result4_buffer->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const auto& z = results[2 * i];
+        const auto& result = results[2 * i + 1];
+        for (std::size_t j = 0; j < result.size(); ++j) {
+          float expected = 1.0f / std::sqrt(z[j]);
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zRsqrt4(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ZrsqrtSubnormalTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 10000u;
+
+    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1_buffer->setSize(2 * resolution);
+    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2_buffer->setSize(2 * resolution);
+    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3_buffer->setSize(2 * resolution);
+    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4_buffer->setSize(2 * resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testZrsqrtSubnormal, 1);
+    kernel->run(*result1_buffer, *result2_buffer, *result3_buffer, *result4_buffer,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    //! \todo Remove the failure code. Subnormal doesn't work on Vulkan
+    FAIL();
 
     // Scalar
     {
@@ -2165,100 +2259,6 @@ TEST(MathTest, ZrsqrtTest)
   }
 }
 
-TEST(MathTest, ZrsqrtSubnormalTest)
-{
-  using zisc::cast;
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 10000u;
-
-    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    result1_buffer->setSize(2 * resolution);
-    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    result2_buffer->setSize(2 * resolution);
-    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    result3_buffer->setSize(2 * resolution);
-    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    result4_buffer->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    resolution_buffer->setSize(1);
-    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
-
-    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testZrsqrtSubnormal, 1);
-    kernel->run(*result1_buffer, *result2_buffer, *result3_buffer, *result4_buffer,
-                *resolution_buffer, {resolution}, 0);
-    device->waitForCompletion();
-
-//! \todo Remove comment out. Subnormal doesn't work on Vulkan
-
-//    // Scalar
-//    {
-//      std::vector<float> results;
-//      results.resize(2 * resolution);
-//      result1_buffer->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
-//        const float z = results[2 * i];
-//        const float expected = 1.0f / std::sqrt(z);
-//        const float result = results[2 * i + 1];
-//        EXPECT_FLOAT_EQ(expected, result) << "zRsqrt(" << z << ") is wrong.";
-//      }
-//    }
-//
-//    // Vector2
-//    {
-//      std::vector<cl::float2> results;
-//      results.resize(2 * resolution);
-//      result2_buffer->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
-//        const auto& z = results[2 * i];
-//        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
-//          float expected = 1.0f / std::sqrt(z[j]);
-//          EXPECT_FLOAT_EQ(expected, result[j]) << "zRsqrt2(" << z[j] << ") is wrong.";
-//        }
-//      }
-//    }
-//
-//    // Vector3
-//    {
-//      std::vector<cl::float3> results;
-//      results.resize(2 * resolution);
-//      result3_buffer->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
-//        const auto& z = results[2 * i];
-//        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
-//          float expected = 1.0f / std::sqrt(z[j]);
-//          EXPECT_FLOAT_EQ(expected, result[j]) << "zRsqrt3(" << z[j] << ") is wrong.";
-//        }
-//      }
-//    }
-//
-//    // Vector4
-//    {
-//      std::vector<cl::float4> results;
-//      results.resize(2 * resolution);
-//      result4_buffer->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
-//        const auto& z = results[2 * i];
-//        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
-//          float expected = 1.0f / std::sqrt(z[j]);
-//          EXPECT_FLOAT_EQ(expected, result[j]) << "zRsqrt4(" << z[j] << ") is wrong.";
-//        }
-//      }
-//    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-  FAIL();
-}
-
 TEST(MathTest, ZcbrtTest)
 {
   using zisc::cast;
@@ -2314,7 +2314,7 @@ TEST(MathTest, ZcbrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::cbrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zCbrt2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zCbrt2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2329,7 +2329,7 @@ TEST(MathTest, ZcbrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::cbrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zCbrt3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zCbrt3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2344,7 +2344,7 @@ TEST(MathTest, ZcbrtTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::cbrt(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zCbrt4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zCbrt4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2511,7 +2511,7 @@ TEST(MathTest, ZexpTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::exp(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zExp2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zExp2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2526,7 +2526,7 @@ TEST(MathTest, ZexpTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::exp(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zExp3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zExp3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2541,7 +2541,7 @@ TEST(MathTest, ZexpTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::exp(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zExp4(" << z[j] << ") is wrong";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zExp4(" << z[j] << ") is wrong";
         }
       }
     }
@@ -2706,7 +2706,7 @@ TEST(MathTest, ZlogTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zLogF2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zLogF2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2721,7 +2721,7 @@ TEST(MathTest, ZlogTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zLogF3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zLogF3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2736,7 +2736,7 @@ TEST(MathTest, ZlogTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zLogF4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zLogF4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2901,7 +2901,7 @@ TEST(MathTest, Zlog2Test)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log2(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zLog2F2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zLog2F2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2916,7 +2916,7 @@ TEST(MathTest, Zlog2Test)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log2(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zLog2F3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zLog2F3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -2931,7 +2931,7 @@ TEST(MathTest, Zlog2Test)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::log2(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zLog2F4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zLog2F4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3120,7 +3120,7 @@ TEST(MathTest, ZsinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zSin2(" << ::getArgString(z[j]) << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zSin2(" << ::getArgString(z[j]) << ") is wrong.";
         }
       }
     }
@@ -3135,7 +3135,7 @@ TEST(MathTest, ZsinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zSin3(" << ::getArgString(z[j]) << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zSin3(" << ::getArgString(z[j]) << ") is wrong.";
         }
       }
     }
@@ -3150,7 +3150,7 @@ TEST(MathTest, ZsinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::sin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zSin4(" << ::getArgString(z[j]) << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zSin4(" << ::getArgString(z[j]) << ") is wrong.";
         }
       }
     }
@@ -3317,7 +3317,7 @@ TEST(MathTest, ZcosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::cos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zCos2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zCos2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3332,7 +3332,7 @@ TEST(MathTest, ZcosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::cos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zCos3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zCos3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3347,7 +3347,7 @@ TEST(MathTest, ZcosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::cos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zCos4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zCos4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3514,7 +3514,7 @@ TEST(MathTest, ZtanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zTan2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zTan2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3529,7 +3529,7 @@ TEST(MathTest, ZtanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zTan3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zTan3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3544,7 +3544,7 @@ TEST(MathTest, ZtanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zTan4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zTan4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3711,7 +3711,7 @@ TEST(MathTest, ZasinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zAsin2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zAsin2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3726,7 +3726,7 @@ TEST(MathTest, ZasinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zAsin3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zAsin3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3741,7 +3741,7 @@ TEST(MathTest, ZasinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zAsin4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zAsin4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3908,7 +3908,7 @@ TEST(MathTest, ZacosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zAcos2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zAcos2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3923,7 +3923,7 @@ TEST(MathTest, ZacosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zAcos3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zAcos3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3938,7 +3938,7 @@ TEST(MathTest, ZacosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zAcos4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zAcos4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -4105,7 +4105,7 @@ TEST(MathTest, ZatanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::atan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zAtan2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zAtan2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -4120,7 +4120,7 @@ TEST(MathTest, ZatanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::atan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zAtan3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zAtan3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -4135,7 +4135,7 @@ TEST(MathTest, ZatanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::atan(z[j]);
-          EXPECT_FLOAT_EQ(expected, result[j]) << "zAtan4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result[j]) << "zAtan4(" << z[j] << ") is wrong.";
         }
       }
     }

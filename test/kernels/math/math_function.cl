@@ -674,7 +674,9 @@ kernel void testZpown(
 {
   const uint32b index = zGetGlobalIdX();
   if (index < resolution) {
-    const int32b x = (int32b)index - (int32b)resolution / 2;
+    //! \todo conversion from uint to int doesn't work on macOS
+    // const int32b x = (int32b)index - (int32b)resolution / 2;
+    const int32b x = (int32b)((float)index - (float)(resolution >> 1));
     // Scalar
     {
       const int32b z = x;
