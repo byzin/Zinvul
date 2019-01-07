@@ -498,6 +498,29 @@ int4 zU4ToI4(const uint4 value)
   return result;
 }
 
+//! Convert uint2 to float2
+float2 zU2ToF2(const uint2 value)
+{
+  const float2 result = zMakeFloat2((float)value.x, (float)value.y);
+  return result;
+}
+
+//! Convert uint3 to float3
+float3 zU3ToF3(const uint3 value)
+{
+  const float3 result = zMakeFloat3((float)value.x, (float)value.y,
+                                    (float)value.z);
+  return result;
+}
+
+//! Convert uint4 to float4
+float4 zU4ToF4(const uint4 value)
+{
+  const float4 result = zMakeFloat4((float)value.x, (float)value.y,
+                                    (float)value.z, (float)value.w);
+  return result;
+}
+
 //! Convert float2 to int2
 int2 zF2ToI2(const float2 value)
 {
@@ -513,11 +536,34 @@ int3 zF3ToI3(const float3 value)
   return result;
 }
 
-//! Convert float3 to int3
+//! Convert float4 to int4
 int4 zF4ToI4(const float4 value)
 {
   const int4 result = zMakeInt4((int32b)value.x, (int32b)value.y,
                                 (int32b)value.z, (int32b)value.w);
+  return result;
+}
+
+//! Convert float2 to uint2
+uint2 zF2ToU2(const float2 value)
+{
+  const uint2 result = zMakeUInt2((uint32b)value.x, (uint32b)value.y);
+  return result;
+}
+
+//! Convert float3 to uint3
+uint3 zF3ToU3(const float3 value)
+{
+  const uint3 result = zMakeUInt3((uint32b)value.x, (uint32b)value.y,
+                                  (uint32b)value.z);
+  return result;
+}
+
+//! Convert float4 to uint4
+uint4 zF4ToU4(const float4 value)
+{
+  const uint4 result = zMakeUInt4((uint32b)value.x, (uint32b)value.y,
+                                  (uint32b)value.z, (uint32b)value.w);
   return result;
 }
 

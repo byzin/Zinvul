@@ -863,13 +863,14 @@ TEST(MathTest, FrLdexpTest)
                 *resolution_buffer, {resolution}, 0);
     device->waitForCompletion();
 
+    FAIL();
+
     // Scalar
     {
       std::vector<float> results;
       results.resize(3 * (resolution + 2));
       std::vector<int32b> result_exp;
       result_exp.resize(resolution + 2);
-
       result1_buffer->read(results.data(), results.size(), 0, 0);
       result_exp1_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
@@ -877,25 +878,27 @@ TEST(MathTest, FrLdexpTest)
         int e = 0;
         float expected = std::frexp(n, &e);
         float result = results[3 * i + 1];
-        if( i == result_exp.size() - 1) {
-          ASSERT_TRUE(std::isnan(result))
+        if (i == result_exp.size() - 1) {
+          EXPECT_TRUE(std::isnan(result))
               << "frexp(" << n << ") isn't recommended to use of.";
         }
         else {
-          ASSERT_FLOAT_EQ(expected, result)
+          EXPECT_FLOAT_EQ(expected, result)
               << "frexp(" << n << ") isn't recommended to use of.";
         }
-        ASSERT_EQ(e, result_exp[i])
+        if (i < resolution) {
+          EXPECT_EQ(e, result_exp[i])
               << "frexp(" << n << ") isn't recommended to use of.";
+        }
         const float m = expected;
         expected = std::ldexp(m, e);
         result = results[3 * i + 2];
-        if( i == result_exp.size() - 1) {
-          ASSERT_TRUE(std::isnan(result))
+        if (i == result_exp.size() - 1) {
+          EXPECT_TRUE(std::isnan(result))
               << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
         }
         else {
-          ASSERT_FLOAT_EQ(expected, result)
+          EXPECT_FLOAT_EQ(expected, result)
               << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
         }
       }
@@ -912,19 +915,17 @@ TEST(MathTest, FrLdexpTest)
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
         const cl::float2 n = results[3 * i];
         int e = 0;
-        float expected = std::frexp(n[0], &e);
-        cl::float2 result = results[3 * i + 1];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          ASSERT_FLOAT_EQ(expected, result[j])
-              << "frexp(" << n[0] << ") isn't recommended to use of.";
+        cl::float2 result1 = results[3 * i + 1];
+        cl::float2 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j])
+              << "frexp(" << n[j] << ") isn't recommended to use of.";
           ASSERT_EQ(e, result_exp[i][j])
-              << "frexp(" << n[0] << ") isn't recommended to use of.";
-        }
-        const float m = expected;
-        expected = std::ldexp(m, e);
-        result = results[3 * i + 2];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          ASSERT_FLOAT_EQ(expected, result[j])
+              << "frexp(" << n[j] << ") isn't recommended to use of.";
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j])
               << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
         }
       }
@@ -941,23 +942,21 @@ TEST(MathTest, FrLdexpTest)
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
         const cl::float3 n = results[3 * i];
         int e = 0;
-        float expected = std::frexp(n[0], &e);
-        cl::float3 result = results[3 * i + 1];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          ASSERT_FLOAT_EQ(expected, result[j])
-              << "frexp(" << n[0] << ") isn't recommended to use of.";
+        cl::float3 result1 = results[3 * i + 1];
+        cl::float3 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j])
+              << "frexp(" << n[j] << ") isn't recommended to use of.";
           ASSERT_EQ(e, result_exp[i][j])
-              << "frexp(" << n[0] << ") isn't recommended to use of.";
-        }
-        const float m = expected;
-        expected = std::ldexp(m, e);
-        result = results[3 * i + 2];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          ASSERT_FLOAT_EQ(expected, result[j])
+              << "frexp(" << n[j] << ") isn't recommended to use of.";
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j])
               << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
         }
       }
-    }
+  }
 
     // Vector4
     {
@@ -970,19 +969,17 @@ TEST(MathTest, FrLdexpTest)
       for (std::size_t i = 0; i < result_exp.size(); ++i) {
         const cl::float4 n = results[3 * i];
         int e = 0;
-        float expected = std::frexp(n[0], &e);
-        cl::float4 result = results[3 * i + 1];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          ASSERT_FLOAT_EQ(expected, result[j])
-              << "frexp(" << n[0] << ") isn't recommended to use of.";
+        cl::float4 result1 = results[3 * i + 1];
+        cl::float4 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j])
+              << "frexp(" << n[j] << ") isn't recommended to use of.";
           ASSERT_EQ(e, result_exp[i][j])
-              << "frexp(" << n[0] << ") isn't recommended to use of.";
-        }
-        const float m = expected;
-        expected = std::ldexp(m, e);
-        result = results[3 * i + 2];
-        for (std::size_t j = 0; j < result.size(); ++j) {
-          ASSERT_FLOAT_EQ(expected, result[j])
+              << "frexp(" << n[j] << ") isn't recommended to use of.";
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j])
               << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
         }
       }
@@ -3395,7 +3392,8 @@ TEST(MathTest, TanTest)
         const float expected = std::tan(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          ASSERT_FLOAT_EQ(expected, result)
+          const float error = zisc::constant::getUlps(expected + result);
+          ASSERT_NEAR(expected, result, error)
               << "tan(" << ::getArgString(z) << ") isn't recommended to use of.";
         }
         else {
@@ -3415,7 +3413,8 @@ TEST(MathTest, TanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j])
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error)
               << "tan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3431,7 +3430,8 @@ TEST(MathTest, TanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j])
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error)
               << "tan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3447,7 +3447,8 @@ TEST(MathTest, TanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j])
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error)
               << "tan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3496,7 +3497,8 @@ TEST(MathTest, ZtanTest)
         const float expected = std::tan(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          EXPECT_FLOAT_EQ(expected, result) << "zTan(" << ::getArgString(z) << ") is wrong.";
+          const float error = zisc::constant::getUlps(expected + result);
+          EXPECT_NEAR(expected, result, error) << "zTan(" << ::getArgString(z) << ") is wrong.";
         }
         else {
           EXPECT_TRUE(std::isnan(result)) << "zTan(" << z << ") is wrong.";
@@ -3514,7 +3516,8 @@ TEST(MathTest, ZtanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zTan2(" << z[j] << ") is wrong.";
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error) << "zTan2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3529,7 +3532,8 @@ TEST(MathTest, ZtanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zTan3(" << z[j] << ") is wrong.";
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error) << "zTan3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3544,7 +3548,8 @@ TEST(MathTest, ZtanTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zTan4(" << z[j] << ") is wrong.";
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error) << "zTan4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3592,7 +3597,8 @@ TEST(MathTest, AsinTest)
         const float expected = std::asin(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          ASSERT_FLOAT_EQ(expected, result)
+          const float error = zisc::constant::getUlps<3>(expected + result);
+          ASSERT_NEAR(expected, result, error)
               << "asin(" << z << ") isn't recommended to use of.";
         }
         else {
@@ -3612,7 +3618,8 @@ TEST(MathTest, AsinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j])
+          const float error = zisc::constant::getUlps<3>(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error)
               << "asin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3628,7 +3635,8 @@ TEST(MathTest, AsinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j])
+          const float error = zisc::constant::getUlps<3>(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error)
               << "asin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3644,7 +3652,8 @@ TEST(MathTest, AsinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j])
+          const float error = zisc::constant::getUlps<3>(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error)
               << "asin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3693,7 +3702,8 @@ TEST(MathTest, ZasinTest)
         const float expected = std::asin(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          EXPECT_FLOAT_EQ(expected, result) << "zAsin(" << z << ") is wrong.";
+          const float error = zisc::constant::getUlps<3>(expected + result);
+          EXPECT_NEAR(expected, result, error) << "zAsin(" << z << ") is wrong.";
         }
         else {
           EXPECT_TRUE(std::isnan(result)) << "zAsin(" << z << ") is wrong.";
@@ -3711,7 +3721,8 @@ TEST(MathTest, ZasinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zAsin2(" << z[j] << ") is wrong.";
+          const float error = zisc::constant::getUlps<3>(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error) << "zAsin2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3726,7 +3737,8 @@ TEST(MathTest, ZasinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zAsin3(" << z[j] << ") is wrong.";
+          const float error = zisc::constant::getUlps<3>(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error) << "zAsin3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3741,7 +3753,8 @@ TEST(MathTest, ZasinTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zAsin4(" << z[j] << ") is wrong.";
+          const float error = zisc::constant::getUlps<3>(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error) << "zAsin4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3789,7 +3802,8 @@ TEST(MathTest, AcosTest)
         const float expected = std::acos(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          ASSERT_FLOAT_EQ(expected, result)
+          const float error = zisc::constant::getUlps(expected + result);
+          ASSERT_NEAR(expected, result, error)
               << "acos(" << z << ") isn't recommended to use of.";
         }
         else {
@@ -3809,7 +3823,8 @@ TEST(MathTest, AcosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j])
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error)
               << "acos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3825,7 +3840,8 @@ TEST(MathTest, AcosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j])
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error)
               << "acos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3841,7 +3857,8 @@ TEST(MathTest, AcosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j])
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error)
               << "acos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -3890,7 +3907,8 @@ TEST(MathTest, ZacosTest)
         const float expected = std::acos(z);
         const float result = results[2 * i + 1];
         if (i < resolution) {
-          EXPECT_FLOAT_EQ(expected, result) << "zAcos(" << z << ") is wrong.";
+          const float error = zisc::constant::getUlps(expected + result);
+          EXPECT_NEAR(expected, result, error) << "zAcos(" << z << ") is wrong.";
         }
         else {
           EXPECT_TRUE(std::isnan(result)) << "zAcos(" << z << ") is wrong.";
@@ -3908,7 +3926,8 @@ TEST(MathTest, ZacosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zAcos2(" << z[j] << ") is wrong.";
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error) << "zAcos2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3923,7 +3942,8 @@ TEST(MathTest, ZacosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zAcos3(" << z[j] << ") is wrong.";
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error) << "zAcos3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -3938,7 +3958,8 @@ TEST(MathTest, ZacosTest)
         const auto& result = results[2 * i + 1];
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
-          ASSERT_FLOAT_EQ(expected, result[j]) << "zAcos4(" << z[j] << ") is wrong.";
+          const float error = zisc::constant::getUlps(expected + result[j]);
+          ASSERT_NEAR(expected, result[j], error) << "zAcos4(" << z[j] << ") is wrong.";
         }
       }
     }

@@ -15,11 +15,116 @@ function(initZinvulOption)
 
   set(option_description "Enable vulkan backend.")
   setBooleanOption(ZINVUL_ENABLE_VULKAN_BACKEND ON ${option_description})
+
+  set(option_description "Use built-in math funcs instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN OFF ${option_description})
+
+  set(option_description "Use built-in 'abs' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_ABS OFF ${option_description})
+
+  set(option_description "Use built-in 'min' and 'max' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_MINMAX OFF ${option_description})
+
+  set(option_description "Use built-in 'clamp' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_CLAMP OFF ${option_description})
+
+  set(option_description "Use built-in 'degrees' and 'radians' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_RADIAN OFF ${option_description})
+
+  set(option_description "Use built-in 'frexp' and 'ldexp' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_FRLDEXP OFF ${option_description})
+
+  set(option_description "Use built-in 'rint' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_RINT OFF ${option_description})
+
+  set(option_description "Use built-in 'exp' instead of the Zinvul funcs.")
+  if(Z_MAC)
+    setBooleanOption(ZINVUL_MATH_BUILTIN_EXP ON ${option_description})
+  else()
+    setBooleanOption(ZINVUL_MATH_BUILTIN_EXP OFF ${option_description})
+  endif()
+
+  set(option_description "Use built-in 'log' and 'log2' instead of the Zinvul funcs.")
+  if(Z_MAC)
+    setBooleanOption(ZINVUL_MATH_BUILTIN_LOG ON ${option_description})
+  else()
+    setBooleanOption(ZINVUL_MATH_BUILTIN_LOG OFF ${option_description})
+  endif()
+
+  set(option_description "Use built-in 'pow' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_POW OFF ${option_description})
+
+  set(option_description "Use built-in 'sqrt' and 'rsqrt' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_SQRT OFF ${option_description})
+
+  set(option_description "Use built-in 'cbrt' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_CBRT OFF ${option_description})
+
+  set(option_description "Use built-in 'asin', 'acos' and 'atan' instead of the Zinvul funcs.")
+  if(Z_MAC)
+    setBooleanOption(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC ON ${option_description})
+  else()
+    setBooleanOption(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC OFF ${option_description})
+  endif()
 endfunction(initZinvulOption)
 
 
-function(getZinvulOption zinvul_compile_flags zinvul_linker_flags zinvul_definitions)
+function(getZinvulKernelOption zinvul_compile_flags zinvul_definitions)
   set(definitions "")
+
+  # Math
+  if(ZINVUL_MATH_BUILTIN)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_ABS)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_ABS)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_MINMAX)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_MINMAX)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_CLAMP)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_CLAMP)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_RADIAN)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_RADIAN)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_FRLDEXP)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_FRLDEXP)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_RINT)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_RINT)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_EXP)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_EXP)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_LOG)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_LOG)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_POW)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_POW)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_SQRT)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_SQRT)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_CBRT)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_CBRT)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
+  endif()
+
+  # Output variables
+  set(${zinvul_definitions} ${definitions} PARENT_SCOPE)
+endfunction(getZinvulKernelOption)
+
+
+function(getZinvulOption zinvul_compile_flags zinvul_linker_flags zinvul_definitions)
+  set(compile_flags "")
+  set(definitions "")
+  getZinvulKernelOption(compile_flags definitions)
 
   if(ZINVUL_BAKE_KERNELS)
     list(APPEND definitions ZINVUL_BAKE_KERNELS)
@@ -27,7 +132,6 @@ function(getZinvulOption zinvul_compile_flags zinvul_linker_flags zinvul_definit
   if(ZINVUL_ENABLE_VULKAN_BACKEND)
     list(APPEND definitions ZINVUL_ENABLE_VULKAN_BACKEND)
   endif()
-
 
   # Output variables
   set(${zinvul_definitions} ${definitions} PARENT_SCOPE)
@@ -160,6 +264,10 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     list(APPEND kernel_source_files ${cl_file_path})
     # Set clspv options
     set(clspv_options -DZINVUL_VULKAN)
+    getZinvulKernelOption(clspv_compile_flags clspv_definitions)
+    foreach(definition IN LISTS clspv_definitions)
+      list(APPEND clspv_options -D${definition})
+    endforeach(definition)
     if(Z_DEBUG_MODE)
       list(APPEND clspv_options -O0 -DZ_DEBUG_MODE)
     elseif(Z_RELEASE_MODE)

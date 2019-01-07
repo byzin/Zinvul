@@ -54,83 +54,73 @@ kernel void testFrLdexp(
   const uint32b index = zGetGlobalIdX();
   if (index < resolution) {
     const float x = (float)(2 * index) / (float)resolution - 1.0f; // [-1, 1)
-    const float n = makeNormal(x);
     // Scalar
     {
-      const float z = n;
+      const float z = makeNormal(x);
       result1[3 * index] = z;
-      //! \todo Remove comment out. It crashes on AMD
-//      int32b e = 0;
-//      const float m = frexp(z, &e);
-//      result1[3 * index + 1] = m;
-//      result_exp1[index] = e;
-//      const float f = ldexp(m, e);
-//      result1[3 * index + 2] = f;
-      (void)result1;
-      (void)result_exp1;
+      int32b e = 0;
+      const float m = frexp(z, &e);
+      result1[3 * index + 1] = m;
+      result_exp1[index] = e;
+      const float f = ldexp(m, e);
+      result1[3 * index + 2] = f;
     }
     if (index == 0) {
       {
-//        const uint i = resolution;
-//        const float z = INFINITY;
-//        result1[3 * i] = z;
-//        int32b e = 0;
-//        const float m = frexp(z, &e);
-//        result1[3 * i + 1] = m;
-//        result_exp1[i] = e;
-//        const float f = ldexp(m, e);
-//        result1[3 * i + 2] = f;
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[3 * i] = z;
+        int32b e = 0;
+        const float m = frexp(z, &e);
+        result1[3 * i + 1] = m;
+        result_exp1[i] = e;
+        const float f = ldexp(m, e);
+        result1[3 * i + 2] = f;
       }
       {
-//        const uint i = resolution + 1;
-//        const float z = NAN;
-//        result1[3 * i] = z;
-//        int32b e = 0;
-//        const float m = frexp(z, &e);
-//        result1[3 * i + 1] = m;
-//        result_exp1[i] = e;
-//        const float f = ldexp(m, e);
-//        result1[3 * i + 2] = f;
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[3 * i] = z;
+        int32b e = 0;
+        const float m = frexp(z, &e);
+        result1[3 * i + 1] = m;
+        result_exp1[i] = e;
+        const float f = ldexp(m, e);
+        result1[3 * i + 2] = f;
       }
     }
     // Vector2
     {
-//      const float2 z = zMakeFloat2(n, n);
-//      result2[3 * index] = z;
-//      int2 e = zMakeInt2(0, 0);
-//      const float2 m = frexp(z, &e);
-//      result2[3 * index + 1] = m;
-//      result_exp2[index] = e;
-//      const float2 f = ldexp(m, e);
-//      result2[3 * index + 2] = f;
-      (void)result2;
-      (void)result_exp2;
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
+      result2[3 * index] = z;
+      int2 e = zMakeInt2(0, 0);
+      const float2 m = frexp(z, &e);
+      result2[3 * index + 1] = m;
+      result_exp2[index] = e;
+      const float2 f = ldexp(m, e);
+      result2[3 * index + 2] = f;
     }
     // Vector3
     {
-//      const float3 z = zMakeFloat3(n, n, n);
-//      result3[3 * index] = z;
-//      int3 e = zMakeInt3(0, 0, 0);
-//      const float3 m = frexp(z, &e);
-//      result3[3 * index + 1] = m;
-//      result_exp3[index] = e;
-//      const float3 f = ldexp(m, e);
-//      result3[3 * index + 2] = f;
-      (void)result3;
-      (void)result_exp3;
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
+      result3[3 * index] = z;
+      int3 e = zMakeInt3(0, 0, 0);
+      const float3 m = frexp(z, &e);
+      result3[3 * index + 1] = m;
+      result_exp3[index] = e;
+      const float3 f = ldexp(m, e);
+      result3[3 * index + 2] = f;
     }
     // Vector4
     {
-//      const float4 z = zMakeFloat4(n, n, n, n);
-//      result4[3 * index] = z;
-//      int4 e = zMakeInt4(0, 0, 0, 0);
-//      const float4 m = frexp(z, &e);
-//      result4[3 * index + 1] = m;
-//      result_exp4[index] = e;
-//      const float4 f = ldexp(m, e);
-//      result4[3 * index + 2] = f;
-      (void)result4;
-      (void)result_exp4;
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
+      result4[3 * index] = z;
+      int4 e = zMakeInt4(0, 0, 0, 0);
+      const float4 m = frexp(z, &e);
+      result4[3 * index + 1] = m;
+      result_exp4[index] = e;
+      const float4 f = ldexp(m, e);
+      result4[3 * index + 2] = f;
     }
   }
 }
