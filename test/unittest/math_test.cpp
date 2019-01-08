@@ -38,7 +38,7 @@ TEST(MathTest, ConstantValueTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n_int = 16;
-    constexpr std::size_t n_float = 20;
+    constexpr std::size_t n_float = 44;
     auto int_values = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
     int_values->setSize(n_int);
     auto float_values = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
@@ -90,6 +90,14 @@ TEST(MathTest, ConstantValueTest)
       std::array<float, n_float> results;
       float_values->read(results.data(), n_float, 0, 0);
       std::size_t index = 0;
+
+      const float e = std::exp(1.0f);
+      const float log2e = std::log2(e);
+      const float log10e = std::log10(e);
+      const float ln2 = std::log(2.0f);
+      const float ln10 = std::log(10.0f);
+      const float pi = 4.0f * std::atan(1.0f);
+
       EXPECT_FLOAT_EQ(std::numeric_limits<float>::max(), results[index++])
           << "The constant 'MAXFLOAT' is wrong.";
       EXPECT_TRUE(std::isinf(results[index++])) 
@@ -102,34 +110,83 @@ TEST(MathTest, ConstantValueTest)
           << "The constant 'FLT_MIN' is wrong.";
       EXPECT_FLOAT_EQ(std::numeric_limits<float>::epsilon(), results[index++])
           << "The constant 'FLT_EPSILON' is wrong.";
-      EXPECT_FLOAT_EQ(zisc::kE<float>, results[index++])
+      EXPECT_FLOAT_EQ(e, results[index++])
           << "The constant 'M_E_F' is wrong.";
-      EXPECT_FLOAT_EQ(std::log2(zisc::kE<float>), results[index++])
+      EXPECT_FLOAT_EQ(log2e, results[index++])
           << "The constant 'M_LOG2E_F' is wrong.";
-      EXPECT_FLOAT_EQ(std::log10(zisc::kE<float>), results[index++])
+      EXPECT_FLOAT_EQ(log10e, results[index++])
           << "The constant 'M_LOG10E_F' is wrong.";
-      EXPECT_FLOAT_EQ(std::log(2.0f), results[index++])
+      EXPECT_FLOAT_EQ(ln2, results[index++])
           << "The constant 'M_LN2_F' is wrong.";
-      EXPECT_FLOAT_EQ(std::log(10.0f), results[index++])
+      EXPECT_FLOAT_EQ(ln10, results[index++])
           << "The constant 'M_LN10_F' is wrong.";
-      EXPECT_FLOAT_EQ(zisc::kPi<float>, results[index++])
+      EXPECT_FLOAT_EQ(pi, results[index++])
           << "The constant 'M_PI_F' is wrong.";
-      EXPECT_FLOAT_EQ(zisc::kPi<float> / 2.0f, results[index++])
+      EXPECT_FLOAT_EQ(pi / 2.0f, results[index++])
           << "The constant 'M_PI_2_F' is wrong.";
-      EXPECT_FLOAT_EQ(zisc::kPi<float> / 4.0f, results[index++])
+      EXPECT_FLOAT_EQ(pi / 4.0f, results[index++])
           << "The constant 'M_PI_4_F' is wrong.";
-      EXPECT_FLOAT_EQ(1.0f / zisc::kPi<float>, results[index++])
+      EXPECT_FLOAT_EQ(1.0f / pi, results[index++])
           << "The constant 'M_1_PI_F' is wrong.";
-      EXPECT_FLOAT_EQ(2.0f / zisc::kPi<float>, results[index++])
+      EXPECT_FLOAT_EQ(2.0f / pi, results[index++])
           << "The constant 'M_2_PI_F' is wrong.";
-      EXPECT_FLOAT_EQ(2.0f / std::sqrt(zisc::kPi<float>), results[index++])
+      EXPECT_FLOAT_EQ(2.0f / std::sqrt(pi), results[index++])
           << "The constant 'M_2_SQRTPI_F' is wrong.";
       EXPECT_FLOAT_EQ(std::sqrt(2.0f), results[index++])
           << "The constant 'M_SQRT2_F' is wrong.";
       EXPECT_FLOAT_EQ(1.0f / std::sqrt(2.0f), results[index++])
           << "The constant 'M_SQRT1_2_F' is wrong.";
-      EXPECT_FLOAT_EQ(zisc::kPi<float>, results[index++])
+
+      EXPECT_FLOAT_EQ(std::numeric_limits<float>::max(), results[index++])
+          << "The constant 'zFloatMax' is wrong.";
+      EXPECT_FLOAT_EQ(std::numeric_limits<float>::min(), results[index++])
+          << "The constant 'zFloatMin' is wrong.";
+      EXPECT_FLOAT_EQ(std::numeric_limits<float>::epsilon(), results[index++])
+          << "The constant 'zFloatEpsilon' is wrong.";
+      EXPECT_FLOAT_EQ(std::numeric_limits<float>::min() - std::numeric_limits<float>::denorm_min(), results[index++])
+          << "The constant 'zFloatDenormMax' is wrong.";
+      EXPECT_FLOAT_EQ(std::numeric_limits<float>::denorm_min(), results[index++])
+          << "The constant 'zFloatDenormMin' is wrong.";
+      EXPECT_FLOAT_EQ(e, results[index++])
+          << "The constant 'zEF' is wrong.";
+      EXPECT_FLOAT_EQ(1.0f / e, results[index++])
+          << "The constant 'zInvEF' is wrong.";
+      EXPECT_FLOAT_EQ(log2e, results[index++])
+          << "The constant 'zLog2EF' is wrong.";
+      EXPECT_FLOAT_EQ(1.0f / log2e, results[index++])
+          << "The constant 'zInvLog2EF' is wrong.";
+      EXPECT_FLOAT_EQ(log10e, results[index++])
+          << "The constant 'zLog10EF' is wrong.";
+      EXPECT_FLOAT_EQ(1.0f / log10e, results[index++])
+          << "The constant 'zInvLog10EF' is wrong.";
+      EXPECT_FLOAT_EQ(ln2, results[index++])
+          << "The constant 'zLn2F' is wrong.";
+      EXPECT_FLOAT_EQ(1.0f / ln2, results[index++])
+          << "The constant 'zInvLn2F' is wrong.";
+      EXPECT_FLOAT_EQ(ln10, results[index++])
+          << "The constant 'zLn10F' is wrong.";
+      EXPECT_FLOAT_EQ(1.0f / ln10, results[index++])
+          << "The constant 'zInvLn10F' is wrong.";
+      EXPECT_FLOAT_EQ(pi, results[index++])
           << "The constant 'zPiF' is wrong.";
+      EXPECT_FLOAT_EQ(pi / 2.0f, results[index++])
+          << "The constant 'zPi2F' is wrong.";
+      EXPECT_FLOAT_EQ(pi / 4.0f, results[index++])
+          << "The constant 'zPi4F' is wrong.";
+      EXPECT_FLOAT_EQ(1.0f / pi, results[index++])
+          << "The constant 'zInvPi' is wrong.";
+      EXPECT_FLOAT_EQ(2.0f / pi, results[index++])
+          << "The constant 'z2InvPi' is wrong.";
+      EXPECT_FLOAT_EQ(2.0f / std::sqrt(pi), results[index++])
+          << "The constant 'z2InvSqrtPiF' is wrong.";
+      EXPECT_FLOAT_EQ(std::sqrt(2.0f), results[index++])
+          << "The constant 'zSqrt2F' is wrong.";
+      EXPECT_FLOAT_EQ(1.0f / std::sqrt(2.0f), results[index++])
+          << "The constant 'zInvSqrt2F' is wrong.";
+      EXPECT_FLOAT_EQ(std::sqrt(3.0f), results[index++])
+          << "The constant 'zSqrt3F' is wrong.";
+      EXPECT_FLOAT_EQ(1.0f / std::sqrt(3.0f), results[index++])
+          << "The constant 'zInvSqrt3F' is wrong.";
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;

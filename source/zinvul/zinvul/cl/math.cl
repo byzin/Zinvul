@@ -15,9 +15,32 @@
 #include "utility.cl"
 
 // Constants
-#define zDenormMinF 1.401298464e-45f
-#define zPiF 3.141592741f
-#define zInvPiF (1.0f / 3.141592741f)
+#define zFloatMax 3.402823466e+38f
+#define zFloatMin 1.175494351e-38f
+#define zFloatEpsilon 1.192092896e-07f
+#define zFloatDenormMax 1.175494211e-38f
+#define zFloatDenormMin 1.401298464e-45f
+#define zEF 2.718281746e+00f //!< The value of 'e'
+#define zInvEF 3.678794503e-01f //!< The value of '1 / e'
+#define zLog2EF 1.442695022e+00f //!< The value of 'log2(e)'
+#define zInvLog2EF 6.931471825e-01f //!< The value of '1 / log2(e)'
+#define zLog10EF 4.342944920e-01f //!< The value of 'log10(e)'
+#define zInvLog10EF 2.302585125e+00f //!< The value of '1 / log10(e)'
+#define zLn2F 6.931471825e-01f //!< The value of 'log(2)'
+#define zInvLn2F 1.442695022e+00f //!< The value of '1 / log(2)'
+#define zLn10F 2.302585125e+00f //!< The value of 'log(10)'
+#define zInvLn10F 4.342944920e-01f //!< The value of '1 / log(10)'
+#define zPiF 3.141592741e+00f //!< The value of 'pi'
+#define zPi2F 1.570796371e+00f //!< The value of 'pi / 2'
+#define zPi4F 7.853981853e-01f //!< The value of 'pi / 4'
+#define zInvPiF 3.183098733e-01f //!< The value of '1 / pi'
+#define z2InvPiF 6.366197467e-01f //!< The value of '2 / pi'
+#define z2InvSqrtPiF 1.128379226e+00f //!< The value of '2 / sqrt(pi)'
+#define zSqrt2F 1.414213538e+00f //!< The value of 'sqrt(2)'
+#define zInvSqrt2F 7.071067691e-01f //!< The value of '1/sqrt(2)'
+#define zSqrt3F 1.732050776e+00f //!< The value of 'sqrt(3)'
+#define zInvSqrt3F 5.773502588e-01f //!< The value of '1/sqrt(3)'
+
 #define zSignBitMaskF 0x80000000u
 #define zExponentBitMaskF 0x7f800000u
 #define zExponentBitSizeF 8
@@ -125,7 +148,7 @@ float4 zAbsF4(const float4 x)
 
 //! Check if the given two values are almost same. \todo Support subnormal
 #define ZINVUL_IS_ALMOST_SAME_IMPL(FType, IType, absolute, lhs, rhs) \
-  const FType e = (4.0f * FLT_EPSILON) * absolute(lhs + rhs); \
+  const FType e = (4.0f * zFloatEpsilon) * absolute(lhs + rhs); \
   const FType v = absolute(lhs - rhs); \
   const IType result = (v <= e); \
   return result
@@ -936,7 +959,7 @@ int4 zRint4(float4 x)
 
 //! Return e raised to the given power
 #define ZINVUL_EXP_IMPL(FType, IType, iToF, broadcastF, selectF, loadExp, roundInt, x) \
-  const IType q = roundInt(x * (1.0f / M_LN2_F)); \
+  const IType q = roundInt(zInvLn2F * x); \
   FType z = fma(iToF(q), broadcastF(-0.693145751953125f), x); \
   z = fma(iToF(q), broadcastF(-1.428606765330187045e-06f), z); \
   FType y = broadcastF(0.0f); \
@@ -1000,7 +1023,7 @@ float4 zExp4(const float4 x)
   IType e = broadcast(0); \
   FType z = fracExp(x, &e); \
   { \
-    const IType c = z < 0.7071f; \
+    const IType c = z < zInvSqrt2F; \
     e = selectI(e, e - 1, c); \
     z = selectF(z, 2.0f * z, c); \
   } \
@@ -1015,9 +1038,9 @@ float4 zExp4(const float4 x)
   } \
   y = 2.0f * (z + y); \
   if (is_base2) \
-    y = iToF(e) + y / M_LN2_F; \
+    y = iToF(e) + zInvLn2F * y; \
   else \
-    y = M_LN2_F * iToF(e) + y; \
+    y = zLn2F * iToF(e) + y; \
   { \
     y = selectF(y, broadcastF(-INFINITY), x == 0.0f); \
     y = selectF(y, x, isinf(x)); \

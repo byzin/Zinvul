@@ -353,7 +353,31 @@ kernel void testConstantValues(global int32b* int_values, global float* float_va
     float_values[float_index++] = M_SQRT2_F;
     float_values[float_index++] = M_SQRT1_2_F;
     // Zinvul
+    float_values[float_index++] = zFloatMax;
+    float_values[float_index++] = zFloatMin;
+    float_values[float_index++] = zFloatEpsilon;
+    float_values[float_index++] = zFloatDenormMax;
+    float_values[float_index++] = zFloatDenormMin;
+    float_values[float_index++] = zEF;
+    float_values[float_index++] = zInvEF;
+    float_values[float_index++] = zLog2EF;
+    float_values[float_index++] = zInvLog2EF;
+    float_values[float_index++] = zLog10EF;
+    float_values[float_index++] = zInvLog10EF;
+    float_values[float_index++] = zLn2F;
+    float_values[float_index++] = zInvLn2F;
+    float_values[float_index++] = zLn10F;
+    float_values[float_index++] = zInvLn10F;
     float_values[float_index++] = zPiF;
+    float_values[float_index++] = zPi2F;
+    float_values[float_index++] = zPi4F;
+    float_values[float_index++] = zInvPiF;
+    float_values[float_index++] = z2InvPiF;
+    float_values[float_index++] = z2InvSqrtPiF;
+    float_values[float_index++] = zSqrt2F;
+    float_values[float_index++] = zInvSqrt2F;
+    float_values[float_index++] = zSqrt3F;
+    float_values[float_index++] = zInvSqrt3F;
   }
 }
 

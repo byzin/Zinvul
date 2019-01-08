@@ -24,17 +24,16 @@ float makeNormal(const float x)
   const float s = (x < 0.0f) ? -1.0f : 1.0f;
   const float m = 0.499f * zAbsF(x) + 0.5f;
   float f = zLdexp(m, e);
-  f = (x == 0.0f) ? 0.0f : s * zClampF(f, FLT_MIN, FLT_MAX);
+  f = (x == 0.0f) ? 0.0f : s * zClampF(f, zFloatMin, zFloatMax);
   return f;
 }
 
 //! Make a subnormal value
 float makeSubnormal(const float x)
 {
-  const float subnormal_max = FLT_MIN - zDenormMinF;
   const float s = (x < 0.0f) ? -1.0f : 1.0f;
-  float f = (x * x * x * x) * subnormal_max;
-  f = s * zClampF(f, zDenormMinF, subnormal_max);
+  float f = (x * x * x * x) * zFloatDenormMax;
+  f = s * zClampF(f, zFloatDenormMin, zFloatDenormMax);
   return f;
 }
 
