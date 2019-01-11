@@ -50,7 +50,7 @@ kernel void initAtomicTest(global int32b* add_table, global int32b* add_result,
     inc_result[0] = 0;
     dec_result[0] = 0;
     cmpxchg_result[0] = 0;
-    min_result[0] = 0;
+    min_result[0] = 1;
     max_result[0] = 0;
     and_result[0] = 0;
     or_result[0] = 0;
@@ -73,7 +73,7 @@ kernel void testAtomic(global int32b* add_table, global int32b* add_result,
     global int32b* xor_table, global int32b* xor_result,
     const uint32b resolution)
 {
-  const uint index = zGetGlobalIdX();
+  const uint32b index = zGetGlobalIdX();
   if (index < resolution) {
     // atomic_add
     {
@@ -111,15 +111,16 @@ kernel void testAtomic(global int32b* add_table, global int32b* add_result,
     }
     // atomic_min
     {
-      //! \todo Remove commentout. The atomic functions doesn't work on macOS
-//      atomic_min(min_result, -(int32b)(index + 1));
+//      const int32b v = (int32b)(index + 1) - (int32b)(resolution >> 1);
+//      atomic_min(min_result, v);
 //      min_table[index] = 1;
       (void)min_table;
       (void)min_result;
     }
     // atomic_max
     {
-//      atomic_max(max_result, (int32b)(index + 1));
+//      const int32b v = (int32b)(index + 1) - (int32b)(resolution >> 1);
+//      atomic_max(max_result, v);
 //      max_table[index] = 1;
       (void)max_table;
       (void)max_result;

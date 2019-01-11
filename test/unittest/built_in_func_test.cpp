@@ -246,13 +246,15 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
     {
       int32b result;
       min_result->read(&result, 1, 0, 0);
-//      EXPECT_EQ(resolution, -result) << "The 'atomic_min' is wrong.";
+//      constexpr int32b expected = -zisc::cast<int32b>(resolution >> 1) + 1;
+//      EXPECT_EQ(expected, result) << "The 'atomic_min' is wrong.";
     }
     // atomic_max
     {
       int32b result;
       max_result->read(&result, 1, 0, 0);
-//      EXPECT_EQ(resolution, result) << "The 'atomic_max' is wrong.";
+//      constexpr int32b expected = zisc::cast<int32b>(resolution >> 1);
+//      EXPECT_EQ(expected, result) << "The 'atomic_max' is wrong.";
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
