@@ -64,7 +64,7 @@ TEST(RngTest, Cmj64Test)
         const uint32b s = sample / n;
         const uint32b p = seed + sample % n;
         const auto expected = CmjEngine::template generate1D<float>(s, p);
-        ASSERT_FLOAT_EQ(expected, results[sample])
+        EXPECT_FLOAT_EQ(expected, results[sample])
             << "zCmjGenerate1D(" << s << "," << p << ") is wrong.";
       }
     }
@@ -77,7 +77,7 @@ TEST(RngTest, Cmj64Test)
         const uint32b p = seed + sample % n;
         const auto expected = CmjEngine::template generate2D<float>(s, p);
         for (std::size_t i = 0; i < 2; ++i) {
-          ASSERT_FLOAT_EQ(expected[i], results[sample][i])
+          EXPECT_FLOAT_EQ(expected[i], results[sample][i])
               << "zCmjGenerate2D(" << s << "," << p << ") is wrong.";
         }
       }
@@ -127,7 +127,7 @@ TEST(RngTest, Cmj81Test)
         const uint32b s = sample / n;
         const uint32b p = seed + sample % n;
         const auto expected = CmjEngine::template generate1D<float>(s, p);
-        ASSERT_FLOAT_EQ(expected, results[sample])
+        EXPECT_FLOAT_EQ(expected, results[sample])
             << "zCmjGenerate1D(" << s << "," << p << ") is wrong.";
       }
     }
@@ -140,7 +140,7 @@ TEST(RngTest, Cmj81Test)
         const uint32b p = seed + sample % n;
         const auto expected = CmjEngine::template generate2D<float>(s, p);
         for (std::size_t i = 0; i < 2; ++i) {
-          ASSERT_FLOAT_EQ(expected[i], results[sample][i])
+          EXPECT_FLOAT_EQ(expected[i], results[sample][i])
               << "zCmjGenerate2D(" << s << "," << p << ") is wrong.";
         }
       }
