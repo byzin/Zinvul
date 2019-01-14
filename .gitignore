@@ -62,12 +62,14 @@
 !/test/config.cmake
 !/test/googletest
 !/test/kernels/
+!/test/kernels/built_in_func/
+!/test/kernels/built_in_func/*.cl
 !/test/kernels/data/
 !/test/kernels/data/*.cl
 !/test/kernels/math/
 !/test/kernels/math/*.cl
-!/test/kernels/built_in_func/
-!/test/kernels/built_in_func/*.cl
+!/test/kernels/rng/
+!/test/kernels/rng/*.cl
 !/test/unittest/
 !/test/unittest/*.hpp
 !/test/unittest/*.cpp
