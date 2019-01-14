@@ -61,6 +61,11 @@ function(buildUnitTest)
   file(GLOB_RECURSE math_cl_files ${math_dir}/*.cl)
   makeKernelGroup(math math_source_files math_definitions
       SOURCE_FILES ${math_cl_files} INCLUDE_DIRS ${math_dir})
+  # Random
+  set(rng_dir ${__test_root__}/kernels/rng)
+  file(GLOB_RECURSE rng_cl_files ${rng_dir}/*.cl)
+  makeKernelGroup(rng rng_source_files rng_definitions
+      SOURCE_FILES ${rng_cl_files} INCLUDE_DIRS ${rng_dir})
 
   # Build unit tests
   file(GLOB unittest_source_files ${__test_root__}/unittest/*.hpp
@@ -70,7 +75,8 @@ function(buildUnitTest)
                           ${zinvul_source_files}
                           ${data_source_files}
                           ${built_in_func_source_files}
-                          ${math_source_files})
+                          ${math_source_files}
+                          ${rng_source_files})
   source_group(UnitTest FILES ${unittest_source_files})
   # Set unittest properties
   set_target_properties(UnitTest PROPERTIES CXX_STANDARD 17
@@ -102,7 +108,8 @@ function(buildUnitTest)
                                               ${environment_definitions}
                                               ${data_definitions}
                                               ${built_in_func_definitions}
-                                              ${math_definitions})
-  add_dependencies(UnitTest data built_in_func math)
+                                              ${math_definitions}
+                                              ${rng_definitions})
+  add_dependencies(UnitTest data built_in_func math rng)
   setStaticAnalyzer(UnitTest)
 endfunction(buildUnitTest)

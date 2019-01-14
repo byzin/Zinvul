@@ -12,48 +12,6 @@
 
 #include "types.cl"
 
-//! Check a condition has false
-int32b zHasFalse2(const int2 c)
-{
-  const int32b result = (c.x & c.y) == 0;
-  return result;
-}
-
-//! Check a condition has false
-int32b zHasFalse3(const int3 c)
-{
-  const int32b result = (c.x & c.y & c.z) == 0;
-  return result;
-}
-
-//! Check a condition has false
-int32b zHasFalse4(const int4 c)
-{
-  const int32b result = (c.x & c.y & c.z & c.w) == 0;
-  return result;
-}
-
-//! Check a condition has true
-int32b zHasTrue2(const int2 c)
-{
-  const int32b result = (c.x | c.y) != 0;
-  return result;
-}
-
-//! Check a condition has true
-int32b zHasTrue3(const int3 c)
-{
-  const int32b result = (c.x | c.y | c.z) != 0;
-  return result;
-}
-
-//! Check a condition has true
-int32b zHasTrue4(const int4 c)
-{
-  const int32b result = (c.x | c.y | c.z | c.w) != 0;
-  return result;
-}
-
 #if defined(ZINVUL_CPU)
 //! Write the result of the format to stdout
 #define zPrint(format, value) printf(format, value)
@@ -627,6 +585,48 @@ float3 zBroadcastF3(const float value)
 float4 zBroadcastF4(const float value)
 {
   const float4 result = zMakeFloat4(value, value, value, value);
+  return result;
+}
+
+//! Check a condition has false
+int32b zHasFalse2(const int2 c)
+{
+  const int32b result = (c.x & c.y) == 0;
+  return result;
+}
+
+//! Check a condition has false
+int32b zHasFalse3(const int3 c)
+{
+  const int32b result = (c.x & c.y & c.z) == 0;
+  return result;
+}
+
+//! Check a condition has false
+int32b zHasFalse4(const int4 c)
+{
+  const int32b result = (c.x & c.y & c.z & c.w) == 0;
+  return result;
+}
+
+//! Check a condition has true
+int32b zHasTrue2(const int2 c)
+{
+  const int32b result = (c.x | c.y) != 0;
+  return result;
+}
+
+//! Check a condition has true
+int32b zHasTrue3(const int3 c)
+{
+  const int32b result = (c.x | c.y | c.z) != 0;
+  return result;
+}
+
+//! Check a condition has true
+int32b zHasTrue4(const int4 c)
+{
+  const int32b result = (c.x | c.y | c.z | c.w) != 0;
   return result;
 }
 
