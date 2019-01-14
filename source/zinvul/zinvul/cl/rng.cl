@@ -15,7 +15,7 @@
   */
 float zMapTo01F(const uint32b x)
 {
-  const float f = 5.960464478e-08f * (float)(x >> zExponentBitSizeF);
+  const float f = (float)(x >> zExponentBitSizeF) * 5.960464478e-08f; // 2^(-24)
   return f;
 }
 
