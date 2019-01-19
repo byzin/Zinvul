@@ -780,23 +780,17 @@ float4 zRadiansF4(const float4 d)
 // Floating point manipulation functions
 
 //! \todo Support subnormal value
-#define ZINVUL_FREXP_IMPL(FType, UType, IType, uToI, broadcast, selectI, selectF, x, e) \
-  union Float \
-  { \
-    FType value_; \
-    UType data_; \
-  }; \
-  union Float y = {x}; \
+#define ZINVUL_FREXP_IMPL(FType, UType, IType, asFType, asUType, uToI, broadcast, selectI, selectF, x, e) \
   const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
+  UType data = asUType(x); \
   { \
-    IType expt = (uToI(y.data_ & zExponentBitMaskF) >> zSignificandBitSizeF) - \
+    IType expt = (uToI(data & zExponentBitMaskF) >> zSignificandBitSizeF) - \
                  (zExponentBiasF - 1); \
     expt = selectI(expt, broadcast(0), is_special); \
     *e = expt; \
   } \
-  y.data_ = (y.data_ & ~zExponentBitMaskF) | 0x3f000000u; \
-  y.value_ = selectF(y.value_, x, is_special); \
-  return y.value_
+  data = (data & ~zExponentBitMaskF) | 0x3f000000u; \
+  const FType y = selectF(asFType(data), x, is_special)
 
 //! Decompose a number into significand and a power of 2
 float zFrexp(const float x, __private int32b* e)
@@ -805,8 +799,9 @@ float zFrexp(const float x, __private int32b* e)
 //#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
 //  return frexp(x, e);
 //#else
-  ZINVUL_FREXP_IMPL(float, uint32b, int32b, (int32b),, zSelect, zSelectF, x, e);
+  ZINVUL_FREXP_IMPL(float, uint32b, int32b, as_float, as_uint, (int32b),, zSelect, zSelectF, x, e);
 //#endif
+  return y;
 }
 
 //! Decompose a number into significand and a power of 2
@@ -816,8 +811,9 @@ float2 zFrexp2(const float2 x, __private int2* e)
 //#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
 //  return frexp(x, e);
 //#else
-  ZINVUL_FREXP_IMPL(float2, uint2, int2, zU2ToI2, zBroadcast2, zSelect2, zSelectF2, x, e);
+  ZINVUL_FREXP_IMPL(float2, uint2, int2, as_float2, as_uint2, zU2ToI2, zBroadcast2, zSelect2, zSelectF2, x, e);
 //#endif
+  return y;
 }
 
 //! Decompose a number into significand and a power of 2
@@ -827,8 +823,9 @@ float3 zFrexp3(const float3 x, __private int3* e)
 //#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
 //  return frexp(x, e);
 //#else
-  ZINVUL_FREXP_IMPL(float3, uint3, int3, zU3ToI3, zBroadcast3, zSelect3, zSelectF3, x, e);
+  ZINVUL_FREXP_IMPL(float3, uint3, int3, as_float3, as_uint3, zU3ToI3, zBroadcast3, zSelect3, zSelectF3, x, e);
 //#endif
+  return y;
 }
 
 //! Decompose a number into significand and a power of 2
@@ -838,24 +835,19 @@ float4 zFrexp4(const float4 x, __private int4* e)
 //#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
 //  return frexp(x, e);
 //#else
-  ZINVUL_FREXP_IMPL(float4, uint4, int4, zU4ToI4, zBroadcast4, zSelect4, zSelectF4, x, e);
+  ZINVUL_FREXP_IMPL(float4, uint4, int4, as_float4, as_uint4, zU4ToI4, zBroadcast4, zSelect4, zSelectF4, x, e);
 //#endif
+  return y;
 }
 
 //! \todo Support subnormal value
-#define ZINVUL_LDEXP_IMPL(FType, IType, selectF, x, e) \
-  union Float \
-  { \
-    IType data_; \
-    FType value_; \
-  }; \
-  union Float y = {(e + zExponentBiasF) << zSignificandBitSizeF}; \
-  y.value_ = x * y.value_; \
+#define ZINVUL_LDEXP_IMPL(FType, IType, asFType, selectF, x, e) \
+  const IType data = (e + zExponentBiasF) << zSignificandBitSizeF; \
+  FType y = asFType(data) * x; \
   { \
     const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
-    y.value_ = selectF(y.value_, x, is_special); \
+    y = selectF(y, x, is_special); \
   } \
-  return y.value_
 
 //! Multiply a number by 2 raised to a power
 float zLdexp(const float x, const int32b e)
@@ -864,8 +856,9 @@ float zLdexp(const float x, const int32b e)
 //#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
 //  return ldexp(x, e);
 //#else
-  ZINVUL_LDEXP_IMPL(float, int32b, zSelectF, x, e);
+  ZINVUL_LDEXP_IMPL(float, int32b, as_float, zSelectF, x, e);
 //#endif
+  return y;
 }
 
 //! Multiply a number by 2 raised to a power
@@ -875,8 +868,9 @@ float2 zLdexp2(const float2 x, const int2 e)
 //#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
 //  return ldexp(x, e);
 //#else
-  ZINVUL_LDEXP_IMPL(float2, int2, zSelectF2, x, e);
+  ZINVUL_LDEXP_IMPL(float2, int2, as_float2, zSelectF2, x, e);
 //#endif
+  return y;
 }
 
 //! Multiply a number by 2 raised to a power
@@ -886,8 +880,9 @@ float3 zLdexp3(const float3 x, const int3 e)
 //#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
 //  return ldexp(x, e);
 //#else
-  ZINVUL_LDEXP_IMPL(float3, int3, zSelectF3, x, e);
+  ZINVUL_LDEXP_IMPL(float3, int3, as_float3, zSelectF3, x, e);
 //#endif
+  return y;
 }
 
 //! Multiply a number by 2 raised to a power
@@ -897,8 +892,9 @@ float4 zLdexp4(const float4 x, const int4 e)
 //#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
 //  return ldexp(x, e);
 //#else
-  ZINVUL_LDEXP_IMPL(float4, int4, zSelectF4, x, e);
+  ZINVUL_LDEXP_IMPL(float4, int4, as_float4, zSelectF4, x, e);
 //#endif
+  return y;
 }
 
 // Nearest integer floating point operations
@@ -1225,38 +1221,36 @@ float4 zPown4(const float4 base, const int4 expt)
 }
 
 //! Compute approximate inverse square root
-#define ZINVUL_APPROXIMATE_INV_SQRT_IMPL(FType, IType, x) \
-  union Float \
-  { \
-    FType value_; \
-    IType data_; \
-  }; \
-  union Float y = {x}; \
-  y.data_ = 0x5f376908 - (y.data_ >> 1); \
-  return y.value_
+#define ZINVUL_APPROXIMATE_INV_SQRT_IMPL(FType, IType, asFType, asIType, x) \
+  const IType data = 0x5f376908 - (asIType(x) >> 1); \
+  const FType y = asFType(data)
 
 //! Compute approximate inverse square root
 float zApproxRsqrt(const float x)
 {
-  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float, int32b, x);
+  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float, int32b, as_float, as_int, x);
+  return y;
 }
 
 //! Compute approximate inverse square root
 float2 zApproxRsqrt2(const float2 x)
 {
-  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float2, int2, x);
+  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float2, int2, as_float2, as_int2, x);
+  return y;
 }
 
 //! Compute approximate inverse square root
 float3 zApproxRsqrt3(const float3 x)
 {
-  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float3, int3, x);
+  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float3, int3, as_float3, as_int3, x);
+  return y;
 }
 
 //! Compute approximate inverse square root
 float4 zApproxRsqrt4(const float4 x)
 {
-  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float4, int4, x);
+  ZINVUL_APPROXIMATE_INV_SQRT_IMPL(float4, int4, as_float4, as_int4, x);
+  return y;
 }
 
 //! Compute inverse square root. \todo Support subnormal
@@ -1369,41 +1363,41 @@ float4 zSqrt4(const float4 x)
 }
 
 //! Compute approximate cubic root
-#define ZINVUL_APPROXIMATE_CBRT_IMPL(FType, IType, selectF, absoluteF, x) \
-  union Float \
-  { \
-    FType value_; \
-    IType data_; \
-  }; \
-  union Float y = {absoluteF(x)}; \
-  y.data_ = (y.data_ >> 2) + (y.data_ >> 4); \
-  y.data_ = y.data_ + (y.data_ >> 4); \
-  y.data_ = y.data_ + (y.data_ >> 8); \
-  y.data_ = 0x2a5137a0 + y.data_; \
-  return selectF(y.value_, -y.value_, x < 0.0f);
+#define ZINVUL_APPROXIMATE_CBRT_IMPL(FType, IType, asFType, asIType, selectF, absoluteF, x) \
+  IType data = asIType(absoluteF(x)); \
+  data = (data >> 2) + (data >> 4); \
+  data = data + (data >> 4); \
+  data = data + (data >> 8); \
+  data = 0x2a5137a0 + data; \
+  FType y = asFType(data); \
+  y = selectF(y, -y, x < 0.0f)
 
 //! Compute approximate cubic root
 float zApproxCbrt(const float x)
 {
-  ZINVUL_APPROXIMATE_CBRT_IMPL(float, int32b, zSelectF, zAbsF, x);
+  ZINVUL_APPROXIMATE_CBRT_IMPL(float, int32b, as_float, as_int, zSelectF, zAbsF, x);
+  return y;
 }
 
 //! Compute approximate cubic root
 float2 zApproxCbrt2(const float2 x)
 {
-  ZINVUL_APPROXIMATE_CBRT_IMPL(float2, int2, zSelectF2, zAbsF2, x);
+  ZINVUL_APPROXIMATE_CBRT_IMPL(float2, int2, as_float2, as_int2, zSelectF2, zAbsF2, x);
+  return y;
 }
 
 //! Compute approximate cubic root
 float3 zApproxCbrt3(const float3 x)
 {
-  ZINVUL_APPROXIMATE_CBRT_IMPL(float3, int3, zSelectF3, zAbsF3, x);
+  ZINVUL_APPROXIMATE_CBRT_IMPL(float3, int3, as_float3, as_int3, zSelectF3, zAbsF3, x);
+  return y;
 }
 
 //! Compute approximate cubic root
 float4 zApproxCbrt4(const float4 x)
 {
-  ZINVUL_APPROXIMATE_CBRT_IMPL(float4, int4, zSelectF4, zAbsF4, x);
+  ZINVUL_APPROXIMATE_CBRT_IMPL(float4, int4, as_float4, as_int4, zSelectF4, zAbsF4, x);
+  return y;
 }
 
 //! Compute cubic root
