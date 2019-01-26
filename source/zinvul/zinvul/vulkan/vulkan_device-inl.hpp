@@ -309,13 +309,15 @@ std::string VulkanDevice::getVendorName(const uint32b id) noexcept
 inline
 uint32b VulkanDevice::getVendorSubgroupSize(const uint32b id) noexcept
 {
+  // Common subgroup size: 32 (NVidia, Intel), 64 (AMD)
   uint32b subgroup_size = 1;
   switch (id) {
    case zisc::cast<uint32b>(VendorId::kAmd): {
     subgroup_size = 64;
     break;
    }
-   case zisc::cast<uint32b>(VendorId::kNvidia): {
+   case zisc::cast<uint32b>(VendorId::kNvidia):
+   case zisc::cast<uint32b>(VendorId::kIntel): {
     subgroup_size = 32;
     break;
    }
@@ -781,9 +783,9 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
   {
     const auto& info = physicalDeviceInfo();
     uint32b subgroup_size = info.subgroup_properties_.subgroupSize;
-    subgroup_size = (subgroup_size == 0)
-        ? getVendorSubgroupSize(info.properties_.vendorID)
-        : subgroup_size;
+    subgroup_size = zisc::isInClosedBounds(subgroup_size, 1u, 128u)
+        ? subgroup_size
+        : getVendorSubgroupSize(info.properties_.vendorID);
     initWorkgroupSize(subgroup_size);
   }
 
