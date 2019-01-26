@@ -334,7 +334,7 @@ kernel void testAtomicCmpxchgNegative(global int32b* result, global int32b* tabl
 
 /*!
   */
-kernel void testAtomicCmpxchgUInt(global uint32b* result, global int32b* table, const uint32b resolution)
+kernel void testAtomicCmpxchgUint(global uint32b* result, global int32b* table, const uint32b resolution)
 {
   const uint32b index = zGetGlobalIdX();
   if (index < resolution) {

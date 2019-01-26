@@ -417,6 +417,928 @@ TEST(BuiltInFuncTest, AtomicAddUintTest)
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
+
+TEST(BuiltInFuncTest, AtomicSubPositiveTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicSubPositive, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_sub
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << "The 'atomic_sub' is wrong.";
+
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const int32b expected = -zisc::cast<int32b>(resolution);
+      EXPECT_EQ(expected, result) << "The 'atomic_sub' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicSubNegativeTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicSubNegative, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_sub
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << "The 'atomic_sub' is wrong.";
+
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const int32b expected = zisc::cast<int32b>(resolution);
+      EXPECT_EQ(expected, result) << "The 'atomic_sub' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicSubUintTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const uint32b init = resolution;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicSubUint, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_sub
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << "The 'atomic_sub' is wrong.";
+
+      uint32b result;
+      result_buff->read(&result, 1, 0, 0);
+      EXPECT_FALSE(result) << "The 'atomic_sub' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicXchgPositiveTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicXchgPositive, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_xchg
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      int32b last_one = static_cast<int32b>(resolution);
+      for (std::size_t i = 0; i < table.size(); ++i) {
+        if (!table[i]) {
+          if (last_one == static_cast<int32b>(resolution))
+            last_one = zisc::cast<int32b>(i);
+          else
+            FAIL();
+        }
+      }
+
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      EXPECT_EQ(last_one, result) << "The 'atomic_xchg' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicXchgNegativeTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicXchgNegative, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_xchg
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      int32b last_one = static_cast<int32b>(resolution);
+      for (std::size_t i = 0; i < table.size(); ++i) {
+        if (!table[i]) {
+          if (last_one == static_cast<int32b>(resolution))
+            last_one = zisc::cast<int32b>(i);
+          else
+            FAIL();
+        }
+      }
+      last_one = -last_one;
+
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      EXPECT_EQ(last_one, result) << "The 'atomic_xchg' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicXchgUintTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const uint32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicXchgUint, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_xchg
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      uint32b last_one = resolution;
+      for (std::size_t i = 0; i < table.size(); ++i) {
+        if (!table[i]) {
+          if (last_one == resolution)
+            last_one = zisc::cast<uint32b>(i);
+          else
+            FAIL();
+        }
+      }
+
+      uint32b result;
+      result_buff->read(&result, 1, 0, 0);
+      EXPECT_EQ(last_one, result) << "The 'atomic_xchg' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicIncTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicInc, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_inc
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << "The 'atomic_inc' is wrong.";
+
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const int32b expected = zisc::cast<int32b>(resolution);
+      EXPECT_EQ(expected, result) << "The 'atomic_inc' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicIncUintTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const uint32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicIncUint, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_inc
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << "The 'atomic_inc' is wrong.";
+
+      uint32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const uint32b expected = resolution;
+      EXPECT_EQ(expected, result) << "The 'atomic_inc' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicDecTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicDec, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_inc
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << "The 'atomic_dec' is wrong.";
+
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const int32b expected = -zisc::cast<int32b>(resolution);
+      EXPECT_EQ(expected, result) << "The 'atomic_dec' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicDecUintTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const uint32b init = resolution;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicDecUint, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_inc
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << "The 'atomic_dec' is wrong.";
+
+      uint32b result;
+      result_buff->read(&result, 1, 0, 0);
+      EXPECT_FALSE(result) << "The 'atomic_dec' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicCmpxchgPositiveTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicCmpxchgPositive, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_cmpxchg
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << "The 'atomic_cmpxchg' is wrong.";
+
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const int32b expected = zisc::cast<int32b>(resolution);
+      EXPECT_EQ(expected, result) << "The 'atomic_cmpxchg' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicCmpxchgNegativeTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicCmpxchgNegative, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_cmpxchg
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << "The 'atomic_cmpxchg' is wrong.";
+
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const int32b expected = -zisc::cast<int32b>(resolution);
+      EXPECT_EQ(expected, result) << "The 'atomic_cmpxchg' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicCmpxchgUintTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const uint32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution);
+      std::fill(init.begin(), init.end(), 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicCmpxchgUint, 1);
+    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_cmpxchg
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << "The 'atomic_cmpxchg' is wrong.";
+
+      uint32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const uint32b expected = resolution;
+      EXPECT_EQ(expected, result) << "The 'atomic_cmpxchg' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicMinPositiveTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = std::numeric_limits<int32b>::max();
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMinPositive, 1);
+    kernel->run(*result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_min
+    {
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const int32b expected = 0;
+      EXPECT_EQ(expected, result) << "The 'atomic_min' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicMinNegativeTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMinNegative, 1);
+    kernel->run(*result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_min
+    {
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const int32b expected = -zisc::cast<int32b>(resolution - 1);
+      EXPECT_EQ(expected, result) << "The 'atomic_min' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicMinUintTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const uint32b init = std::numeric_limits<uint32b>::max();
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMinUint, 1);
+    kernel->run(*result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_min
+    {
+      uint32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const uint32b expected = 0;
+      EXPECT_EQ(expected, result) << "The 'atomic_min' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicMaxPositiveTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = -1;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMaxPositive, 1);
+    kernel->run(*result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_max
+    {
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const int32b expected = zisc::cast<int32b>(resolution - 1);
+      EXPECT_EQ(expected, result) << "The 'atomic_max' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicMaxNegativeTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const int32b init = std::numeric_limits<int32b>::min();
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMaxNegative, 1);
+    kernel->run(*result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_max
+    {
+      int32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const int32b expected = 0;
+      EXPECT_EQ(expected, result) << "The 'atomic_max' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, AtomicMaxUintTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    result_buff->setSize(1);
+    {
+      const uint32b init = 0;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMaxUint, 1);
+    kernel->run(*result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    // atomic_max
+    {
+      uint32b result;
+      result_buff->read(&result, 1, 0, 0);
+      const uint32b expected = resolution - 1;
+      EXPECT_EQ(expected, result) << "The 'atomic_max' is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 TEST(BuiltInFuncTest, RelationalFunctionTest)
 {
   using namespace zinvul;
