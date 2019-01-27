@@ -419,6 +419,206 @@ TEST(MathTest, CommonTest)
   }
 }
 
+TEST(MathTest, MixTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result1->setSize(3);
+    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result2->setSize(6);
+    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result3->setSize(6);
+    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result4->setSize(6);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testMix, 1);
+    kernel->run(*mix_result1, *mix_result2, *mix_result3, *mix_result4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<float, 3> result;
+      mix_result1->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[2]) << "The mix func is wrong.";
+    }
+    {
+      std::array<cl::float2, 6> result;
+      mix_result2->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[3][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The mix func is wrong.";
+    }
+    {
+      std::array<cl::float3, 6> result;
+      mix_result3->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << "The mix func is wrong.";
+    }
+    {
+      std::array<cl::float4, 6> result;
+      mix_result4->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-4.0f, result[0][3]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][3]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(4.0f, result[2][3]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-4.0f, result[3][3]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[4][3]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << "The mix func is wrong.";
+      ASSERT_FLOAT_EQ(4.0f, result[5][3]) << "The mix func is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ZmixTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result1->setSize(3);
+    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result2->setSize(6);
+    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result3->setSize(6);
+    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result4->setSize(6);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testZmix, 1);
+    kernel->run(*mix_result1, *mix_result2, *mix_result3, *mix_result4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<float, 3> result;
+      mix_result1->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[2]) << "The zMix is wrong.";
+    }
+    {
+      std::array<cl::float2, 6> result;
+      mix_result2->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[3][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The zMix is wrong.";
+    }
+    {
+      std::array<cl::float3, 6> result;
+      mix_result3->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << "The zMix is wrong.";
+    }
+    {
+      std::array<cl::float4, 6> result;
+      mix_result4->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-4.0f, result[0][3]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[1][3]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(4.0f, result[2][3]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-4.0f, result[3][3]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[4][3]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << "The zMix is wrong.";
+      ASSERT_FLOAT_EQ(4.0f, result[5][3]) << "The zMix is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 TEST(MathTest, RadianTest)
 {
   using namespace zinvul;

@@ -71,6 +71,10 @@ Type max(const Type& x, const Type& y) noexcept;
 template <typename Type>
 Type min(const Type& x, const Type& y) noexcept;
 
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+template <typename Type1, typename Type2>
+Type1 mix(const Type1& x, const Type1& y, const Type2& a) noexcept;
+
 //! Convert degrees to radians. (pi / 180) * degrees
 template <typename Type>
 Type radians(const Type& d) noexcept;

@@ -352,6 +352,15 @@ Type min(const Type& x, const Type& y) noexcept
 
 /*!
   */
+template <typename Type1, typename Type2> inline
+Type1 mix(const Type1& x, const Type1& y, const Type2& a) noexcept
+{
+  const Type1 result = x + a * (y - x);
+  return result;
+}
+
+/*!
+  */
 template <typename Type> inline
 Type radians(const Type& d) noexcept
 {

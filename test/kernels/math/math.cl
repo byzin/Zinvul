@@ -133,6 +133,236 @@ kernel void testCommon(global uint32b* abs_result1, global float* abs_result2,
 
 /*!
   */
+__kernel void testMix(
+    __global float* mix_result1, __global float2* mix_result2,
+    __global float3* mix_result3, __global float4* mix_result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    {
+      const float x = -1.0f;
+      const float y = 1.0f;
+      {
+        const float a = 0.0f;
+        mix_result1[0] = mix(x, y, a);
+      }
+      {
+        const float a = 0.5f;
+        mix_result1[1] = mix(x, y, a);
+      }
+      {
+        const float a = 1.0f;
+        mix_result1[2] = mix(x, y, a);
+      }
+    }
+    // float2
+    {
+      const float2 x = zMakeFloat2(-1.0f, -2.0f);
+      const float2 y = zMakeFloat2(1.0f, 2.0f);
+      {
+        const float a = 0.0f;
+        mix_result2[0] = mix(x, y, a);
+      }
+      {
+        const float a = 0.5f;
+        mix_result2[1] = mix(x, y, a);
+      }
+      {
+        const float a = 1.0f;
+        mix_result2[2] = mix(x, y, a);
+      }
+      {
+        const float2 a = zMakeFloat2(0.0f, 1.0f);
+        mix_result2[3] = mix(x, y, a);
+      }
+      {
+        const float2 a = zMakeFloat2(0.5f, 1.0f);
+        mix_result2[4] = mix(x, y, a);
+      }
+      {
+        const float2 a = zMakeFloat2(1.0f, 0.0f);
+        mix_result2[5] = mix(x, y, a);
+      }
+    }
+    // float3
+    {
+      const float3 x = zMakeFloat3(-1.0f, -2.0f, -3.0f);
+      const float3 y = zMakeFloat3(1.0f, 2.0f, 3.0f);
+      {
+        const float a = 0.0f;
+        mix_result3[0] = mix(x, y, a);
+      }
+      {
+        const float a = 0.5f;
+        mix_result3[1] = mix(x, y, a);
+      }
+      {
+        const float a = 1.0f;
+        mix_result3[2] = mix(x, y, a);
+      }
+      {
+        const float3 a = zMakeFloat3(0.0f, 0.5f, 1.0f);
+        mix_result3[3] = mix(x, y, a);
+      }
+      {
+        const float3 a = zMakeFloat3(0.5f, 1.0f, 0.0f);
+        mix_result3[4] = mix(x, y, a);
+      }
+      {
+        const float3 a = zMakeFloat3(1.0f, 0.0f, 0.5f);
+        mix_result3[5] = mix(x, y, a);
+      }
+    }
+    // float4
+    {
+      const float4 x = zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f);
+      const float4 y = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
+      {
+        const float a = 0.0f;
+        mix_result4[0] = mix(x, y, a);
+      }
+      {
+        const float a = 0.5f;
+        mix_result4[1] = mix(x, y, a);
+      }
+      {
+        const float a = 1.0f;
+        mix_result4[2] = mix(x, y, a);
+      }
+      {
+        const float4 a = zMakeFloat4(0.0f, 0.5f, 1.0f, 0.0f);
+        mix_result4[3] = mix(x, y, a);
+      }
+      {
+        const float4 a = zMakeFloat4(0.5f, 1.0f, 0.0f, 0.5f);
+        mix_result4[4] = mix(x, y, a);
+      }
+      {
+        const float4 a = zMakeFloat4(1.0f, 0.0f, 0.5f, 1.0f);
+        mix_result4[5] = mix(x, y, a);
+      }
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testZmix(
+    __global float* mix_result1, __global float2* mix_result2,
+    __global float3* mix_result3, __global float4* mix_result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    {
+      const float x = -1.0f;
+      const float y = 1.0f;
+      {
+        const float a = 0.0f;
+        mix_result1[0] = zMixF(x, y, a);
+      }
+      {
+        const float a = 0.5f;
+        mix_result1[1] = zMixF(x, y, a);
+      }
+      {
+        const float a = 1.0f;
+        mix_result1[2] = zMixF(x, y, a);
+      }
+    }
+    // float2
+    {
+      const float2 x = zMakeFloat2(-1.0f, -2.0f);
+      const float2 y = zMakeFloat2(1.0f, 2.0f);
+      {
+        const float a = 0.0f;
+        mix_result2[0] = zMixF2F(x, y, a);
+      }
+      {
+        const float a = 0.5f;
+        mix_result2[1] = zMixF2F(x, y, a);
+      }
+      {
+        const float a = 1.0f;
+        mix_result2[2] = zMixF2F(x, y, a);
+      }
+      {
+        const float2 a = zMakeFloat2(0.0f, 1.0f);
+        mix_result2[3] = zMixF2(x, y, a);
+      }
+      {
+        const float2 a = zMakeFloat2(0.5f, 1.0f);
+        mix_result2[4] = zMixF2(x, y, a);
+      }
+      {
+        const float2 a = zMakeFloat2(1.0f, 0.0f);
+        mix_result2[5] = zMixF2(x, y, a);
+      }
+    }
+    // float3
+    {
+      const float3 x = zMakeFloat3(-1.0f, -2.0f, -3.0f);
+      const float3 y = zMakeFloat3(1.0f, 2.0f, 3.0f);
+      {
+        const float a = 0.0f;
+        mix_result3[0] = zMixF3F(x, y, a);
+      }
+      {
+        const float a = 0.5f;
+        mix_result3[1] = zMixF3F(x, y, a);
+      }
+      {
+        const float a = 1.0f;
+        mix_result3[2] = zMixF3F(x, y, a);
+      }
+      {
+        const float3 a = zMakeFloat3(0.0f, 0.5f, 1.0f);
+        mix_result3[3] = zMixF3(x, y, a);
+      }
+      {
+        const float3 a = zMakeFloat3(0.5f, 1.0f, 0.0f);
+        mix_result3[4] = zMixF3(x, y, a);
+      }
+      {
+        const float3 a = zMakeFloat3(1.0f, 0.0f, 0.5f);
+        mix_result3[5] = zMixF3(x, y, a);
+      }
+    }
+    // float4
+    {
+      const float4 x = zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f);
+      const float4 y = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
+      {
+        const float a = 0.0f;
+        mix_result4[0] = zMixF4F(x, y, a);
+      }
+      {
+        const float a = 0.5f;
+        mix_result4[1] = zMixF4F(x, y, a);
+      }
+      {
+        const float a = 1.0f;
+        mix_result4[2] = zMixF4F(x, y, a);
+      }
+      {
+        const float4 a = zMakeFloat4(0.0f, 0.5f, 1.0f, 0.0f);
+        mix_result4[3] = zMixF4(x, y, a);
+      }
+      {
+        const float4 a = zMakeFloat4(0.5f, 1.0f, 0.0f, 0.5f);
+        mix_result4[4] = zMixF4(x, y, a);
+      }
+      {
+        const float4 a = zMakeFloat4(1.0f, 0.0f, 0.5f, 1.0f);
+        mix_result4[5] = zMixF4(x, y, a);
+      }
+    }
+  }
+}
+
+/*!
+  */
 kernel void testRadian(
     global float* radian_result1, global float2* radian_result2,
     global float3* radian_result3, global float4* radian_result4)

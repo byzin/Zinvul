@@ -549,6 +549,85 @@ float4 zMinF4(const float4 x, const float4 y)
   return result;
 }
 
+#define ZINVUL_MIX_IMPL(x, y, a) (x + a * (y - x))
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float zMixF(const float x, const float y, const float a)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
+  const float result = mix(x, y, a);
+#else
+  const float result = ZINVUL_MIX_IMPL(x, y, a);
+#endif
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float2 zMixF2(const float2 x, const float2 y, const float2 a)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
+  const float2 result = mix(x, y, a);
+#else
+  const float2 result = ZINVUL_MIX_IMPL(x, y, a);
+#endif
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float2 zMixF2F(const float2 x, const float2 y, const float a)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
+  const float2 result = mix(x, y, a);
+#else
+  const float2 result = ZINVUL_MIX_IMPL(x, y, a);
+#endif
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float3 zMixF3(const float3 x, const float3 y, const float3 a)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
+  const float3 result = mix(x, y, a);
+#else
+  const float3 result = ZINVUL_MIX_IMPL(x, y, a);
+#endif
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float3 zMixF3F(const float3 x, const float3 y, const float a)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
+  const float3 result = mix(x, y, a);
+#else
+  const float3 result = ZINVUL_MIX_IMPL(x, y, a);
+#endif
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float4 zMixF4(const float4 x, const float4 y, const float4 a)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
+  const float4 result = mix(x, y, a);
+#else
+  const float4 result = ZINVUL_MIX_IMPL(x, y, a);
+#endif
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float4 zMixF4F(const float4 x, const float4 y, const float a)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
+  const float4 result = mix(x, y, a);
+#else
+  const float4 result = ZINVUL_MIX_IMPL(x, y, a);
+#endif
+  return result;
+}
+
 //! Return min(max(x, minval), maxval)
 int32b zClamp(const int32b x, const int32b minval, const int32b maxval)
 {
