@@ -4,7 +4,9 @@
   */
 
 // Standard C++ library
+#include <algorithm>
 #include <cstddef>
+#include <cstring>
 #include <iostream>
 #include <string>
 // GoogleTest
@@ -66,6 +68,19 @@ TEST(ZinvulTest, VulkanDeviceTest)
       std::cout << "  HeapType[" << i << "]" << std::endl;
       std::cout << "    HeapType: " << vk::to_string(memory_properties.memoryHeaps[i].flags) << std::endl;
       std::cout << "    HeapSize: " << to_gb_size(memory_properties.memoryHeaps[i].size) << " GB" << std::endl;
+    }
+    {
+      std::cout << "  Extensions" << std::endl;
+      auto extensions = info.extension_properties_;
+      auto cmp = [](const vk::ExtensionProperties& lhs,
+                    const vk::ExtensionProperties& rhs)
+      {
+        return std::strcmp(lhs.extensionName, rhs.extensionName) < 0;
+      };
+      std::sort(extensions.begin(), extensions.end(), cmp);
+      for (const auto& ext : extensions) {
+        std::cout << "    " << ext.extensionName << ": " << to_version_string(ext.specVersion) << std::endl;
+      }
     }
   }
 }

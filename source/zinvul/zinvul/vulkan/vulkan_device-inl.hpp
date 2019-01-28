@@ -600,6 +600,13 @@ auto VulkanDevice::getPhysicalDeviceInfo(const vk::PhysicalDevice& device) noexc
   device_info.properties_ = properties2.properties;
   // Device features
   device_info.features_ = device.getFeatures();
+  // Extension properties
+  {
+    auto [result, properties] = device.enumerateDeviceExtensionProperties();
+    ZISC_ASSERT(result == vk::Result::eSuccess,
+                "Vulkan device failed to get extension properties.");
+    device_info.extension_properties_ = properties;
+  }
   // Memory properties
   device_info.memory_properties_ = device.getMemoryProperties();
   return device_info;

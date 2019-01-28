@@ -53,6 +53,7 @@ class VulkanDevice : public Device
   struct PhysicalDeviceInfo
   {
     std::vector<vk::QueueFamilyProperties> queue_family_list_;
+    std::vector<vk::ExtensionProperties> extension_properties_;
     vk::PhysicalDeviceProperties properties_;
     vk::PhysicalDeviceFeatures features_;
     vk::PhysicalDeviceSubgroupProperties subgroup_properties_;
