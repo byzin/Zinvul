@@ -11,6 +11,7 @@
 #define ZINVUL_BUILT_IN_FUNC_TEST_ATOMIC_CL
 
 // Zinvul
+#include "zinvul/cl/atomic.cl"
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
@@ -184,6 +185,39 @@ kernel void testAtomicAddUint(global uint32b* result, global int32b* table, cons
 
 /*!
   */
+kernel void testZatomicAddPositive(global int32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b i = zAtomicAdd(result, 1);
+    table[i] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicAddNegative(global int32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b i = zAtomicAdd(result, -1);
+    table[-i] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicAddUint(global uint32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const uint32b i = zAtomicAddU(result, 1u);
+    table[i] = 1;
+  }
+}
+
+/*!
+  */
 kernel void testAtomicSubPositive(global int32b* result, global int32b* table, const uint32b resolution)
 {
   const uint32b index = zGetGlobalIdX();
@@ -211,6 +245,39 @@ kernel void testAtomicSubUint(global uint32b* result, global int32b* table, cons
   const uint32b index = zGetGlobalIdX();
   if (index < resolution) {
     const uint32b i = atomic_sub(result, 1u);
+    table[i - 1] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicSubPositive(global int32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b i = zAtomicSub(result, 1);
+    table[-i] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicSubNegative(global int32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b i = zAtomicSub(result, -1);
+    table[i] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicSubUint(global uint32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const uint32b i = zAtomicSubU(result, 1u);
     table[i - 1] = 1;
   }
 }
@@ -256,6 +323,45 @@ kernel void testAtomicXchgUint(global uint32b* result, global int32b* table, con
 
 /*!
   */
+kernel void testZatomicXchgPositive(global int32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b v = (int)(index + 1);
+    const int32b i = zAtomicXchg(result, v);
+    if (i < (int)resolution)
+      table[i] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicXchgNegative(global int32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b v = -(int)(index + 1);
+    const int32b i = zAtomicXchg(result, v);
+    if (-(int)resolution < i)
+      table[-i] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicXchgUint(global uint32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const uint32b v = index + 1;
+    const uint32b i = zAtomicXchgU(result, v);
+    if (i < resolution)
+      table[i] = 1;
+  }
+}
+
+/*!
+  */
 kernel void testAtomicInc(global int32b* result, global int32b* table, const uint32b resolution)
 {
   const uint32b index = zGetGlobalIdX();
@@ -278,6 +384,28 @@ kernel void testAtomicIncUint(global uint32b* result, global int32b* table, cons
 
 /*!
   */
+kernel void testZatomicInc(global int32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b i = zAtomicInc(result);
+    table[i] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicIncUint(global uint32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const uint32b i = zAtomicIncU(result);
+    table[i] = 1;
+  }
+}
+
+/*!
+  */
 kernel void testAtomicDec(global int32b* result, global int32b* table, const uint32b resolution)
 {
   const uint32b index = zGetGlobalIdX();
@@ -294,6 +422,28 @@ kernel void testAtomicDecUint(global uint32b* result, global int32b* table, cons
   const uint32b index = zGetGlobalIdX();
   if (index < resolution) {
     const uint32b i = atomic_dec(result);
+    table[i - 1] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicDec(global int32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b i = zAtomicDec(result);
+    table[-i] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicDecUint(global uint32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const uint32b i = zAtomicDecU(result);
     table[i - 1] = 1;
   }
 }
@@ -351,6 +501,57 @@ kernel void testAtomicCmpxchgUint(global uint32b* result, global int32b* table, 
 
 /*!
   */
+kernel void testZatomicCmpxchgPositive(global int32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    int32b i = *result;
+    int32b c = 0;
+    do {
+      c = i;
+      const int32b v = c + 1;
+      i = zAtomicCmpxchg(result, c, v);
+    } while (i != c);
+    table[i] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicCmpxchgNegative(global int32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    int32b i = *result;
+    int32b c = 0;
+    do {
+      c = i;
+      const int32b v = c - 1;
+      i = zAtomicCmpxchg(result, c, v);
+    } while (i != c);
+    table[-i] = 1;
+  }
+}
+
+/*!
+  */
+kernel void testZatomicCmpxchgUint(global uint32b* result, global int32b* table, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    uint32b i = *result;
+    uint32b c = 0;
+    do {
+      c = i;
+      const uint32b v = c + 1;
+      i = zAtomicCmpxchgU(result, c, v);
+    } while (i != c);
+    table[i] = 1;
+  }
+}
+
+/*!
+  */
 kernel void testAtomicMinPositive(global int32b* result, const uint32b resolution)
 {
   const uint32b index = zGetGlobalIdX();
@@ -384,6 +585,39 @@ kernel void testAtomicMinUint(global uint32b* result, const uint32b resolution)
 
 /*!
   */
+kernel void testZatomicMinPositive(global int32b* result, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b v = (int32b)index;
+    zAtomicMin(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testZatomicMinNegative(global int32b* result, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b v = -(int32b)index;
+    zAtomicMin(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testZatomicMinUint(global uint32b* result, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const uint32b v = index;
+    zAtomicMinU(result, v);
+  }
+}
+
+/*!
+  */
 kernel void testAtomicMaxPositive(global int32b* result, const uint32b resolution)
 {
   const uint32b index = zGetGlobalIdX();
@@ -412,6 +646,127 @@ kernel void testAtomicMaxUint(global uint32b* result, const uint32b resolution)
   if (index < resolution) {
     const uint32b v = index;
     atomic_max(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testZatomicMaxPositive(global int32b* result, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b v = (int32b)index;
+    zAtomicMax(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testZatomicMaxNegative(global int32b* result, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const int32b v = -(int32b)index;
+    zAtomicMax(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testZatomicMaxUint(global uint32b* result, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const uint32b v = index;
+    zAtomicMaxU(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testAtomicAnd(global int32b* result)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < 32) {
+    const int32b v = ~(1 << (int32b)index);
+    atomic_and(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testAtomicAndUint(global uint32b* result)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < 32) {
+    const uint32b v = ~(1u << index);
+    atomic_and(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testZatomicAnd(global int32b* result)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < 32) {
+    const int32b v = ~(1 << (int32b)index);
+    zAtomicAnd(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testZatomicAndUint(global uint32b* result)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < 32) {
+    const uint32b v = ~(1u << index);
+    zAtomicAndU(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testAtomicOr(global int32b* result)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < 32) {
+    const int32b v = 1 << (int32b)index;
+    atomic_or(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testAtomicOrUint(global uint32b* result)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < 32) {
+    const uint32b v = 1 << index;
+    atomic_or(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testZatomicOr(global int32b* result)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < 32) {
+    const int32b v = 1 << (int32b)index;
+    zAtomicOr(result, v);
+  }
+}
+
+/*!
+  */
+kernel void testZatomicOrUint(global uint32b* result)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < 32) {
+    const uint32b v = 1 << index;
+    zAtomicOrU(result, v);
   }
 }
 
