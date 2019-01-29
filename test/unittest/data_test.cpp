@@ -999,3 +999,63 @@ TEST(DataTest, RelationalOperationsTest)
   }
 }
 
+TEST(DataTest, Int8PointerTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 128;
+
+    auto buffer0 = makeBuffer<int8b>(device.get(), BufferUsage::kDeviceDst);
+    buffer0->setSize(resolution);
+    {
+      std::array<int8b, resolution> init;
+      for (std::size_t i = 0; i < init.size(); ++i)
+        init[i] = zisc::cast<int8b>(i);
+      buffer0->write(init.data(), init.size(), 0, 0);
+    }
+
+    auto buffer1 = makeBuffer<uint8b>(device.get(), BufferUsage::kDeviceDst);
+    buffer1->setSize(resolution);
+    {
+      std::array<uint8b, resolution> init;
+      for (std::size_t i = 0; i < init.size(); ++i)
+        init[i] = zisc::cast<uint8b>(i);
+      buffer1->write(init.data(), init.size(), 0, 0);
+    }
+
+    auto buffer2 = makeBuffer<int8b>(device.get(), BufferUsage::kDeviceSrc);
+    buffer2->setSize(resolution);
+
+    auto buffer3 = makeBuffer<uint8b>(device.get(), BufferUsage::kDeviceSrc);
+    buffer3->setSize(resolution);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testInt8Pointer, 1);
+    kernel->run(*buffer0, *buffer1, *buffer2, *buffer3, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<int8b, resolution> results;
+      buffer2->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const int8b expected = -zisc::cast<int8b>(i);
+        ASSERT_EQ(expected, results[i]) << i << ": int8b pointer is wrong.";
+      }
+    }
+    {
+      std::array<uint8b, resolution> results;
+      buffer3->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const uint8b expected = zisc::cast<uint8b>(2 * i);
+        ASSERT_EQ(expected, results[i]) << i << ": uint8b pointer is wrong.";
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}

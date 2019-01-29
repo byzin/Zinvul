@@ -212,4 +212,24 @@ __kernel void testVariablePointer(global Ray1* ray1_table, global Ray2* ray2_tab
   }
 }
 
+/*!
+  */
+__kernel void testInt8Pointer(__global int8b* input1, __global uint8b* input2,
+    __global int8b* output1, __global uint8b* output2)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < 128) {
+    {
+      int8b v = input1[index];
+      v = -v;
+      output1[index] = v;
+    }
+    {
+      uint8b v = input2[index];
+      v = 2 * v;
+      output2[index] = v;
+    }
+  }
+}
+
 #endif /* ZINVUL_DATA_TEST_DATA_CL */
