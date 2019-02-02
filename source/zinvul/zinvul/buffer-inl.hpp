@@ -93,6 +93,26 @@ bool Buffer<T>::isSource() const noexcept
 
 /*!
   */
+template <typename T> template <typename DstType> inline
+Buffer<DstType>* Buffer<T>::treatAs() noexcept
+{
+  using DstBuffer = Buffer<DstType>;
+  DstBuffer* dst = zisc::treatAs<DstBuffer*>(this);
+  return dst;
+}
+
+/*!
+  */
+template <typename T> template <typename DstType> inline
+const Buffer<DstType>* Buffer<T>::treatAs() const noexcept
+{
+  using DstBuffer = Buffer<DstType>;
+  const DstBuffer* dst = zisc::treatAs<const DstBuffer*>(this);
+  return dst;
+}
+
+/*!
+  */
 template <typename T> inline
 BufferUsage Buffer<T>::usage() const noexcept
 {

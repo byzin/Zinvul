@@ -88,6 +88,14 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
   //! Return a size of a buffer
   virtual std::size_t size() const noexcept = 0;
 
+  //! Convert a type of a buffer interface to DstType
+  template <typename DstType>
+  Buffer<DstType>* treatAs() noexcept;
+
+  //! Convert a type of a buffer interface to DstType
+  template <typename DstType>
+  const Buffer<DstType>* treatAs() const noexcept;
+
   //! Return usage flag
   BufferUsage usage() const noexcept;
 

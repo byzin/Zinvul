@@ -214,21 +214,364 @@ __kernel void testVariablePointer(global Ray1* ray1_table, global Ray2* ray2_tab
 
 /*!
   */
-__kernel void testInt8Pointer(__global int8b* input1, __global uint8b* input2,
-    __global int8b* output1, __global uint8b* output2)
+__kernel void testInt8Pointer(__global int8b* input, __global int8b* output)
 {
   const uint32b index = zGetGlobalIdX();
   if (index < 128) {
     {
-      int8b v = input1[index];
+      int8b v = input[index];
       v = -v;
-      output1[index] = v;
+      output[index] = v;
     }
+  }
+}
+
+/*!
+  */
+__kernel void testUint8Pointer(__global uint8b* input, __global uint8b* output)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < 128) {
     {
-      uint8b v = input2[index];
+      uint8b v = input[index];
       v = 2 * v;
-      output2[index] = v;
+      output[index] = v;
     }
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint8bToUint32b(__global uint8b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(uint32b) / sizeof(uint8b);
+    __global uint32b* data = (__global uint32b*)(buffer + offset * index);
+    *data = index;
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint16bToUint32b(__global uint16b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(uint32b) / sizeof(uint16b);
+    __global uint32b* data = (__global uint32b*)(buffer + offset * index);
+    *data = index;
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint8bToUint2(__global uint8b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(uint2) / sizeof(uint8b);
+    __global uint2* data = (__global uint2*)(buffer + offset * index);
+    const uint32b v = 2 * index;
+    *data = zMakeUInt2(v, v + 1);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint16bToUint2(__global uint16b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(uint2) / sizeof(uint16b);
+    __global uint2* data = (__global uint2*)(buffer + offset * index);
+    const uint32b v = 2 * index;
+    *data = zMakeUInt2(v, v + 1);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint32bToUint2(__global uint32b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(uint2) / sizeof(uint32b);
+    __global uint2* data = (__global uint2*)(buffer + offset * index);
+    const uint32b v = 2 * index;
+    *data = zMakeUInt2(v, v + 1);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint8bToUint4(__global uint8b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(uint4) / sizeof(uint8b);
+    __global uint4* data = (__global uint4*)(buffer + offset * index);
+    const uint32b v = 4 * index;
+    *data = zMakeUInt4(v, v + 1, v + 2, v + 3);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint16bToUint4(__global uint16b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(uint4) / sizeof(uint16b);
+    __global uint4* data = (__global uint4*)(buffer + offset * index);
+    const uint32b v = 4 * index;
+    *data = zMakeUInt4(v, v + 1, v + 2, v + 3);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint32bToUint4(__global uint32b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(uint4) / sizeof(uint32b);
+    __global uint4* data = (__global uint4*)(buffer + offset * index);
+    const uint32b v = 4 * index;
+    *data = zMakeUInt4(v, v + 1, v + 2, v + 3);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint8bToFloat(__global uint8b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(float) / sizeof(uint8b);
+    __global float* data = (__global float*)(buffer + offset * index);
+    *data = (float)index;
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint16bToFloat(__global uint16b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(float) / sizeof(uint16b);
+    __global float* data = (__global float*)(buffer + offset * index);
+    *data = (float)index;
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint32bToFloat(__global uint32b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(float) / sizeof(uint32b);
+    __global float* data = (__global float*)(buffer + offset * index);
+    *data = (float)index;
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint8bToFloat2(__global uint8b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(float2) / sizeof(uint8b);
+    __global float2* data = (__global float2*)(buffer + offset * index);
+    const float v = (float)(2 * index);
+    *data = zMakeFloat2(v, v + 1.0f);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint16bToFloat2(__global uint16b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(float2) / sizeof(uint16b);
+    __global float2* data = (__global float2*)(buffer + offset * index);
+    const float v = (float)(2 * index);
+    *data = zMakeFloat2(v, v + 1.0f);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint32bToFloat2(__global uint32b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(float2) / sizeof(uint32b);
+    __global float2* data = (__global float2*)(buffer + offset * index);
+    const float v = (float)(2 * index);
+    *data = zMakeFloat2(v, v + 1.0f);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint8bToFloat4(__global uint8b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(float4) / sizeof(uint8b);
+    __global float4* data = (__global float4*)(buffer + offset * index);
+    const float v = (float)(4 * index);
+    *data = zMakeFloat4(v, v + 1.0f, v + 2.0f, v + 3.0f);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint16bToFloat4(__global uint16b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(float4) / sizeof(uint16b);
+    __global float4* data = (__global float4*)(buffer + offset * index);
+    const float v = (float)(4 * index);
+    *data = zMakeFloat4(v, v + 1.0f, v + 2.0f, v + 3.0f);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint32bToFloat4(__global uint32b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(float4) / sizeof(uint32b);
+    __global float4* data = (__global float4*)(buffer + offset * index);
+    const float v = (float)(4 * index);
+    *data = zMakeFloat4(v, v + 1.0f, v + 2.0f, v + 3.0f);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint8bToRay(__global uint8b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(Ray1) / sizeof(uint8b);
+    __global Ray1* data = (__global Ray1*)(buffer + offset * index);
+    initRay1G(data);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint16bToRay(__global uint16b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(Ray1) / sizeof(uint16b);
+    __global Ray1* data = (__global Ray1*)(buffer + offset * index);
+    initRay1G(data);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint32bToRay(__global uint32b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(Ray1) / sizeof(uint32b);
+    __global Ray1* data = (__global Ray1*)(buffer + offset * index);
+    initRay1G(data);
+  }
+}
+
+typedef struct __TestData1
+{
+  float4 v1_;
+
+  int2 v2_;
+  short4 v3_;
+
+  float v4_;
+  int v5_;
+  char4 v6_;
+  short2 v7_;
+} TestData1;
+
+void initTestData1G(__global TestData1* data)
+{
+  data->v1_ = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
+  data->v2_ = zMakeInt2(1, 2);
+  data->v3_ = zMakeShort4(1, 2, 3, 4);
+  data->v4_ = 10.0f;
+  data->v5_ = 10;
+  data->v6_ = zMakeChar4(1, 2, 3, 4);
+  data->v7_ = zMakeShort2(-10, 10);
+}
+
+/*!
+  */
+__kernel void testCastUint8bToTestData1(__global uint8b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(TestData1) / sizeof(uint8b);
+    __global TestData1* data = (__global TestData1*)(buffer + offset * index);
+    initTestData1G(data);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint16bToTestData1(__global uint16b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(TestData1) / sizeof(uint16b);
+    __global TestData1* data = (__global TestData1*)(buffer + offset * index);
+    initTestData1G(data);
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint32bToTestData1(__global uint32b* buffer,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = sizeof(TestData1) / sizeof(uint32b);
+    __global TestData1* data = (__global TestData1*)(buffer + offset * index);
+    initTestData1G(data);
   }
 }
 

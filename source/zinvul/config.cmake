@@ -283,8 +283,10 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     endforeach(definition)
     if(Z_DEBUG_MODE)
       list(APPEND clspv_options -O0 -DZ_DEBUG_MODE)
+      list(APPEND clspv_options -enable-implicit-null-checks -enable-value-profiling -no-inline-single)
     elseif(Z_RELEASE_MODE)
       list(APPEND clspv_options -O3 -DZ_RELEASE_MODE)
+      list(APPEND clspv_options -cl-finite-math-only -cl-no-signed-zeros -enable-objc-arc-opts)
     endif()
     if(Z_WINDOWS)
       list(APPEND clspv_options -DZ_WINDOWS)
@@ -293,7 +295,7 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     elseif(Z_MAC)
       list(APPEND clspv_options -DZ_MAC)
     endif()
-    list(APPEND clspv_options -f16bit_storage)
+    list(APPEND clspv_options -cl-denorms-are-zero -f16bit_storage)
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
                                -I ${__zinvul_root__}
                                -o ${spv_file_path} ${cl_file_path})
