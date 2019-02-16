@@ -30,17 +30,6 @@ namespace cl {
 
 /*!
   */
-inline
-void assertError(const bool condition, const char* message) noexcept
-{
-  if (condition) {
-    std::fprintf(stderr, "%s", message);
-    std::abort();
-  }
-}
-
-/*!
-  */
 template <typename Type> inline
 void printf(const char* format, const Type& value) noexcept
 {

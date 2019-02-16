@@ -19,9 +19,6 @@ namespace zinvul {
 
 namespace cl {
 
-//!
-void assertError(const bool condition, const char* message) noexcept;
-
 //! Write the result of the format to stdout
 template <typename Type>
 void printf(const char* format, const Type& value) noexcept;

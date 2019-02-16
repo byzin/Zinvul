@@ -20,10 +20,10 @@
 #endif
 
 #if defined(Z_DEBUG_MODE) && defined(ZINVUL_CPU)
-#define zAssert(condition, message) assertError(condition, message)
-#define zAssert2(c, message) assertError(!zHasFalse2(c), message)
-#define zAssert3(c, message) assertError(!zHasFalse3(c), message)
-#define zAssert4(c, message) assertError(!zHasFalse4(c), message)
+#define zAssert(condition, message) ZISC_ASSERT(condition, message)
+#define zAssert2(c, message) ZISC_ASSERT(!zHasFalse2(c), message)
+#define zAssert3(c, message) ZISC_ASSERT(!zHasFalse3(c), message)
+#define zAssert4(c, message) ZISC_ASSERT(!zHasFalse4(c), message)
 #else
 #define zAssert(condition, message)
 #define zAssert2(c, message)
