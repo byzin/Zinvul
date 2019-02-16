@@ -1634,6 +1634,78 @@ kernel void testZcos(
 
 /*!
   */
+kernel void testZsincos(
+    global float* result1,
+    global float2* result2,
+    global float3* result3,
+    global float4* result4,
+    const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    float x = -1.0f + 2.0f * ((float)(index + 1) / (float)resolution); // [-1, 1)
+    x = (4.0f * zPiF) * x;
+    // Scalar
+    {
+      const float z = x;
+      result1[3 * index] = z;
+      float c = 0.0f;
+      const float y = zSincos(z, &c);
+      result1[3 * index + 1] = y;
+      result1[3 * index + 2] = c;
+    }
+    if (index == 0) {
+      {
+        const uint i = resolution;
+        const float z = INFINITY;
+        result1[3 * i] = z;
+        float c = 0.0f;
+        const float y = zSincos(z, &c);
+        result1[3 * i + 1] = y;
+        result1[3 * i + 2] = c;
+      }
+      {
+        const uint i = resolution + 1;
+        const float z = NAN;
+        result1[3 * i] = z;
+        float c = 0.0f;
+        const float y = zSincos(z, &c);
+        result1[3 * i + 1] = y;
+        result1[3 * i + 2] = c;
+      }
+    }
+    // Vector2
+    {
+      const float2 z = zMakeFloat2(x, 0.85f * x);
+      result2[3 * index] = z;
+      float2 c = zMakeFloat2(0.0f, 0.0f);
+      const float2 y = zSincos2(z, &c);
+      result2[3 * index + 1] = y;
+      result2[3 * index + 2] = c;
+    }
+    // Vector3
+    {
+      const float3 z = zMakeFloat3(x, 0.85f * x, 0.5f * x);
+      result3[3 * index] = z;
+      float3 c = zMakeFloat3(0.0f, 0.0f, 0.0f);
+      const float3 y = zSincos3(z, &c);
+      result3[3 * index + 1] = y;
+      result3[3 * index + 2] = c;
+    }
+    // Vector4
+    {
+      const float4 z = zMakeFloat4(x, 0.85f * x, 0.5f * x, 0.35f * x);
+      result4[3 * index] = z;
+      float4 c = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
+      const float4 y = zSincos4(z, &c);
+      result4[3 * index + 1] = y;
+      result4[3 * index + 2] = c;
+    }
+  }
+}
+
+/*!
+  */
 kernel void testTan(
     global float* result1,
     global float2* result2,

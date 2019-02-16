@@ -117,6 +117,10 @@ FloatN sin(const FloatN& theta) noexcept;
 template <typename FloatN>
 FloatN cos(const FloatN& theta) noexcept;
 
+//! Compute sine and cosine
+template <typename FloatN>
+FloatN sincos(const FloatN& theta, FloatN* cosval) noexcept;
+
 //! Compute tangent
 template <typename FloatN>
 FloatN tan(const FloatN& theta) noexcept;

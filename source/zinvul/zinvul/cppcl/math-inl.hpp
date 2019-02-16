@@ -483,6 +483,15 @@ FloatN cos(const FloatN& theta) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN sincos(const FloatN& theta, FloatN* cosval) noexcept
+{
+  *cosval = cos(theta);
+  return sin(theta);
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN tan(const FloatN& theta) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;

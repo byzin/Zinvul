@@ -1584,7 +1584,6 @@ float4 zCbrt4(const float4 x)
     c = selectF(c, y, condition); \
     s = selectF(s, -s, ((q & 4) != 0) != (theta < 0.0f)); \
     c = selectF(c, -c, ((q + 2) & 4) != 0); \
-    y = s / c; \
   }
 
 //! Compute sine
@@ -1675,6 +1674,66 @@ float4 zCos4(const float4 theta)
   return y;
 }
 
+//! Compute sine and cosine
+float zSincos(const float theta, __private float* cosval)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
+//  const float y = sincos(theta, cosval);
+  *cosval = cos(theta);
+  const float y = sin(theta);
+#else
+  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 2);
+  y = s;
+  *cosval = c;
+#endif
+  return y;
+}
+
+//! Compute sine and cosine
+float2 zSincos2(const float2 theta, __private float2* cosval)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
+//  const float2 y = sincos(theta, cosval);
+  *cosval = cos(theta);
+  const float2 y = sin(theta);
+#else
+  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 2);
+  y = s;
+  *cosval = c;
+#endif
+  return y;
+}
+
+//! Compute sine and cosine
+float3 zSincos3(const float3 theta, __private float3* cosval)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
+//  const float3 y = sincos(theta, cosval);
+  *cosval = cos(theta);
+  const float3 y = sin(theta);
+#else
+  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 2);
+  y = s;
+  *cosval = c;
+#endif
+  return y;
+}
+
+//! Compute sine and cosine
+float4 zSincos4(const float4 theta, __private float4* cosval)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
+//  const float4 y = sincos(theta, cosval);
+  *cosval = cos(theta);
+  const float4 y = sin(theta);
+#else
+  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 2);
+  y = s;
+  *cosval = c;
+#endif
+  return y;
+}
+
 //! Compute tangent
 float zTan(const float theta)
 {
@@ -1682,6 +1741,7 @@ float zTan(const float theta)
   const float y = tan(theta);
 #else
   ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 2);
+  y = s / c;
 #endif
   return y;
 }
@@ -1693,6 +1753,7 @@ float2 zTan2(const float2 theta)
   const float2 y = tan(theta);
 #else
   ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 2);
+  y = s / c;
 #endif
   return y;
 }
@@ -1704,6 +1765,7 @@ float3 zTan3(const float3 theta)
   const float3 y = tan(theta);
 #else
   ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 2);
+  y = s / c;
 #endif
   return y;
 }
@@ -1715,6 +1777,7 @@ float4 zTan4(const float4 theta)
   const float4 y = tan(theta);
 #else
   ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 2);
+  y = s / c;
 #endif
   return y;
 }
