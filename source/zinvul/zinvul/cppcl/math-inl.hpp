@@ -29,6 +29,51 @@ namespace cl {
 
 namespace inner {
 
+template <typename Float, std::size_t kN> inline
+auto sign(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = cl::sign(x[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto ceil(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = cl::ceil(x[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto floor(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = cl::floor(x[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto trunc(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = cl::trunc(x[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto round(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = cl::round(x[i]);
+  return result;
+}
+
 template <typename Integer, std::size_t kN> inline
 auto abs(const Vector<Integer, kN>& x,
          zisc::EnableIfInteger<Integer> = zisc::kEnabler) noexcept
@@ -61,13 +106,12 @@ auto clamp(const Vector<Type, kN>& x,
   return result;
 }
 
-template <typename Type, std::size_t kN> inline
-auto degrees(const Vector<Type, kN>& r) noexcept
+template <typename Float, std::size_t kN> inline
+auto degrees(const Vector<Float, kN>& r) noexcept
 {
-  Vector<Type, kN> result;
-  constexpr Type k = zisc::cast<Type>(180.0 / zisc::kPi<double>);
+  Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = k * r[i];
+    result[i] = cl::degrees(r[i]);
   return result;
 }
 
@@ -78,7 +122,7 @@ auto fma(const Vector<Float, kN>& a,
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::fma(a[i], b[i], c[i]);
+    result[i] = cl::fma(a[i], b[i], c[i]);
   return result;
 }
 
@@ -100,13 +144,12 @@ auto min(const Vector<Type, kN>& x, const Vector<Type, kN>& y) noexcept
   return result;
 }
 
-template <typename Type, std::size_t kN> inline
-auto radians(const Vector<Type, kN>& d) noexcept
+template <typename Float, std::size_t kN> inline
+auto radians(const Vector<Float, kN>& d) noexcept
 {
-  Vector<Type, kN> result;
-  constexpr Type k = zisc::cast<Type>(zisc::kPi<double> / 180.0);
+  Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = k * d[i];
+    result[i] = cl::radians(d[i]);
   return result;
 }
 
@@ -115,7 +158,7 @@ auto exp(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::exp(x[i]);
+    result[i] = cl::exp(x[i]);
   return result;
 }
 
@@ -124,7 +167,7 @@ auto log(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::log(x[i]);
+    result[i] = cl::log(x[i]);
   return result;
 }
 
@@ -133,7 +176,7 @@ auto log2(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::log2(x[i]);
+    result[i] = cl::log2(x[i]);
   return result;
 }
 
@@ -142,7 +185,7 @@ auto pow(const Vector<Float, kN>& base, const Vector<Float, kN>& e) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::pow(base[i], e[i]);
+    result[i] = cl::pow(base[i], e[i]);
   return result;
 }
 
@@ -151,7 +194,7 @@ auto sqrt(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::sqrt(x[i]);
+    result[i] = cl::sqrt(x[i]);
   return result;
 }
 
@@ -160,7 +203,7 @@ auto rsqrt(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = zisc::invert(std::sqrt(x[i]));
+    result[i] = cl::rsqrt(x[i]);
   return result;
 }
 
@@ -169,7 +212,7 @@ auto sin(const Vector<Float, kN>& theta) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::sin(theta[i]);
+    result[i] = cl::sin(theta[i]);
   return result;
 }
 
@@ -178,7 +221,7 @@ auto cos(const Vector<Float, kN>& theta) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::cos(theta[i]);
+    result[i] = cl::cos(theta[i]);
   return result;
 }
 
@@ -187,7 +230,7 @@ auto tan(const Vector<Float, kN>& theta) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::tan(theta[i]);
+    result[i] = cl::tan(theta[i]);
   return result;
 }
 
@@ -196,7 +239,7 @@ auto asin(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::asin(x[i]);
+    result[i] = cl::asin(x[i]);
   return result;
 }
 
@@ -205,7 +248,7 @@ auto acos(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::acos(x[i]);
+    result[i] = cl::acos(x[i]);
   return result;
 }
 
@@ -214,7 +257,7 @@ auto atan(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::atan(x[i]);
+    result[i] = cl::atan(x[i]);
   return result;
 }
 
@@ -225,7 +268,7 @@ auto frexp(const Vector<Float, kN>& x, Vector<Integer, kN>* e) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::frexp(x[i], &(*e)[i]);
+    result[i] = cl::frexp(x[i], &(*e)[i]);
   return result;
 }
 
@@ -236,7 +279,7 @@ auto ldexp(const Vector<Float, kN>& x, const Vector<Integer, kN>& e) noexcept
 {
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::ldexp(x[i], e[i]);
+    result[i] = cl::ldexp(x[i], e[i]);
   return result;
 }
 
@@ -244,14 +287,99 @@ auto ldexp(const Vector<Float, kN>& x, const Vector<Integer, kN>& e) noexcept
 
 /*!
   */
-template <typename Integer> inline
-auto abs(const Integer& x) noexcept
+template <typename FloatN> inline
+FloatN sign(const FloatN& x) noexcept
 {
-  constexpr bool is_scalar_type = std::is_integral_v<Integer>;
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    using UnsignedI = std::make_unsigned_t<Integer>;
-    constexpr auto zero = zisc::cast<Integer>(0);
+    const FloatN zero = zisc::cast<FloatN>(0);
+    const FloatN one = zisc::cast<FloatN>(1);
+    const FloatN y = (x > zero) ? one :
+                     (x < zero) ? -one
+                                : zero;
+    return y;
+  }
+  // Vector
+  else {
+    return inner::sign(x);
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN ceil(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    return std::ceil(x);
+  }
+  // Vector
+  else {
+    return inner::ceil(x);
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN floor(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    return std::floor(x);
+  }
+  // Vector
+  else {
+    return inner::floor(x);
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN trunc(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    return std::trunc(x);
+  }
+  // Vector
+  else {
+    return inner::trunc(x);
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN round(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    return std::round(x);
+  }
+  // Vector
+  else {
+    return inner::round(x);
+  }
+}
+
+/*!
+  */
+template <typename IntegerN> inline
+auto abs(const IntegerN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_integral_v<IntegerN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    using UnsignedI = std::make_unsigned_t<IntegerN>;
+    constexpr auto zero = zisc::cast<IntegerN>(0);
     return zisc::cast<UnsignedI>((x < zero) ? -x : x);
   }
   // Vector
@@ -262,13 +390,13 @@ auto abs(const Integer& x) noexcept
 
 /*!
   */
-template <typename Float> inline
-Float fabs(const Float& x) noexcept
+template <typename FloatN> inline
+FloatN fabs(const FloatN& x) noexcept
 {
-  constexpr bool is_scalar_type = std::is_floating_point_v<Float>;
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    constexpr auto zero = zisc::cast<Float>(0);
+    constexpr auto zero = zisc::cast<FloatN>(0);
     return (x < zero) ? -x : x;
   }
   // Vector
@@ -279,11 +407,11 @@ Float fabs(const Float& x) noexcept
 
 /*!
   */
-template <typename Type> inline
-Type clamp(const Type& x, const Type& minval, const Type& maxval) noexcept
+template <typename TypeN> inline
+TypeN clamp(const TypeN& x, const TypeN& minval, const TypeN& maxval) noexcept
 {
-  constexpr bool is_scalar_type = std::is_integral_v<Type> ||
-                                  std::is_floating_point_v<Type>;
+  constexpr bool is_scalar_type = std::is_integral_v<TypeN> ||
+                                  std::is_floating_point_v<TypeN>;
   // Scalar
   if constexpr (is_scalar_type)
     return min(max(x, minval), maxval);
@@ -293,14 +421,14 @@ Type clamp(const Type& x, const Type& minval, const Type& maxval) noexcept
 
 /*!
   */
-template <typename Type> inline
-Type degrees(const Type& r) noexcept
+template <typename FloatN> inline
+FloatN degrees(const FloatN& r) noexcept
 {
-  constexpr bool is_scalar_type = std::is_integral_v<Type> ||
-                                  std::is_floating_point_v<Type>;
+  constexpr bool is_scalar_type = std::is_integral_v<FloatN> ||
+                                  std::is_floating_point_v<FloatN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    constexpr Type k = zisc::cast<Type>(180.0 / zisc::kPi<double>);
+    constexpr FloatN k = zisc::cast<FloatN>(180.0 / zisc::kPi<double>);
     return k * r;
   }
   else {
@@ -324,11 +452,11 @@ FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept
 
 /*!
   */
-template <typename Type> inline
-Type max(const Type& x, const Type& y) noexcept
+template <typename TypeN> inline
+TypeN max(const TypeN& x, const TypeN& y) noexcept
 {
-  constexpr bool is_scalar_type = std::is_integral_v<Type> ||
-                                  std::is_floating_point_v<Type>;
+  constexpr bool is_scalar_type = std::is_integral_v<TypeN> ||
+                                  std::is_floating_point_v<TypeN>;
   // Scalar
   if constexpr (is_scalar_type)
     return (x < y) ? y : x;
@@ -338,11 +466,11 @@ Type max(const Type& x, const Type& y) noexcept
 
 /*!
   */
-template <typename Type> inline
-Type min(const Type& x, const Type& y) noexcept
+template <typename TypeN> inline
+TypeN min(const TypeN& x, const TypeN& y) noexcept
 {
-  constexpr bool is_scalar_type = std::is_integral_v<Type> ||
-                                  std::is_floating_point_v<Type>;
+  constexpr bool is_scalar_type = std::is_integral_v<TypeN> ||
+                                  std::is_floating_point_v<TypeN>;
   // Scalar
   if constexpr (is_scalar_type)
     return (y < x) ? y : x;
@@ -352,23 +480,23 @@ Type min(const Type& x, const Type& y) noexcept
 
 /*!
   */
-template <typename Type1, typename Type2> inline
-Type1 mix(const Type1& x, const Type1& y, const Type2& a) noexcept
+template <typename TypeN1, typename TypeN2> inline
+TypeN1 mix(const TypeN1& x, const TypeN1& y, const TypeN2& a) noexcept
 {
-  const Type1 result = x + a * (y - x);
+  const TypeN1 result = x + a * (y - x);
   return result;
 }
 
 /*!
   */
-template <typename Type> inline
-Type radians(const Type& d) noexcept
+template <typename FloatN> inline
+FloatN radians(const FloatN& d) noexcept
 {
-  constexpr bool is_scalar_type = std::is_integral_v<Type> ||
-                                  std::is_floating_point_v<Type>;
+  constexpr bool is_scalar_type = std::is_integral_v<FloatN> ||
+                                  std::is_floating_point_v<FloatN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    constexpr Type k = zisc::cast<Type>(zisc::kPi<double> / 180.0);
+    constexpr FloatN k = zisc::cast<FloatN>(zisc::kPi<double> / 180.0);
     return k * d;
   }
   else {

@@ -41,43 +41,65 @@ constexpr float M_2_SQRTPI_F = 1.128379226e+00f;
 constexpr float M_SQRT2_F = 1.414213538e+00f;
 constexpr float M_SQRT1_2_F = 1.0f / M_SQRT2_F;
 
+//! Return 1 if x > 0, -1 if x < 0, otherwise 0
+template <typename FloatN>
+FloatN sign(const FloatN& x) noexcept;
+
+// Nearest integer floating point operations
+
+//! Return the nearest integer not less than the given value
+template <typename FloatN>
+FloatN ceil(const FloatN& x) noexcept;
+
+//! Return the nearest integer not greater than the given value
+template <typename FloatN>
+FloatN floor(const FloatN& x) noexcept;
+
+//! Return the nearest integer not greater in magnitude than the given value
+template <typename FloatN>
+FloatN trunc(const FloatN& x) noexcept;
+
+//! Return the nearest integer, rounding away from zero in halfway cases
+template <typename FloatN>
+FloatN round(const FloatN& x) noexcept;
+
 // Basic operations
 
 //! Return |x|
-template <typename Integer>
-auto abs(const Integer& x) noexcept;
+template <typename IntegerN>
+auto abs(const IntegerN& x) noexcept;
 
 //! Return |x|
-template <typename Type>
-Type fabs(const Type& x) noexcept;
+template <typename FloatN>
+FloatN fabs(const FloatN& x) noexcept;
 
 //! Return min(max(x, minval), maxval)
-template <typename Type>
-Type clamp(const Type& x, const Type& minval, const Type& maxval) noexcept;
+template <typename TypeN>
+TypeN clamp(const TypeN& x, const TypeN& minval, const TypeN& maxval) noexcept;
 
 //! Convert radians to degrees. (180 / pi) * radians
-template <typename Type>
-Type degrees(const Type& r) noexcept;
+template <typename FloatN>
+FloatN degrees(const FloatN& r) noexcept;
 
 //! Fused multiply-add operation
 template <typename FloatN>
 FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept;
 
 //! Return y if x < y, otherwise it returns x
-template <typename Type>
-Type max(const Type& x, const Type& y) noexcept;
+template <typename TypeN>
+TypeN max(const TypeN& x, const TypeN& y) noexcept;
 
 //! Return y if y < x, otherwise it returns x
-template <typename Type>
-Type min(const Type& x, const Type& y) noexcept;
+template <typename TypeN>
+TypeN min(const TypeN& x, const TypeN& y) noexcept;
 
 //! Return the linear blend of x & y implemented as: x + (y - x) * a
-template <typename Type1, typename Type2>
-Type1 mix(const Type1& x, const Type1& y, const Type2& a) noexcept;
+template <typename TypeN1, typename TypeN2>
+TypeN1 mix(const TypeN1& x, const TypeN1& y, const TypeN2& a) noexcept;
 
 //! Convert degrees to radians. (pi / 180) * degrees
-template <typename Type>
-Type radians(const Type& d) noexcept;
+template <typename FloatN>
+FloatN radians(const FloatN& d) noexcept;
 
 // Exponential functions
 
@@ -142,6 +164,10 @@ FloatN atan(const FloatN& x) noexcept;
 //! Decompose a number into significand and power of 2
 template <typename FloatN, typename IntegerN>
 FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
+
+//! Multiplie a number by 2 raised to a power 
+template <typename FloatN, typename IntegerN>
+FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
 
 } // namespace cl
 

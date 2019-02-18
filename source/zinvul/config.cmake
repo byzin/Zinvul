@@ -19,6 +19,12 @@ function(initZinvulOption)
   set(option_description "Use built-in math funcs instead of the Zinvul funcs.")
   setBooleanOption(ZINVUL_MATH_BUILTIN OFF ${option_description})
 
+  set(option_description "Use built-in sign instead of the Zinvul func.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_SIGN OFF ${option_description})
+
+  set(option_description "Use built-in nearest integer operations instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER OFF ${option_description})
+
   set(option_description "Use built-in 'abs' instead of the Zinvul funcs.")
   setBooleanOption(ZINVUL_MATH_BUILTIN_ABS OFF ${option_description})
 
@@ -85,6 +91,12 @@ function(getZinvulKernelOption zinvul_compile_flags zinvul_definitions)
   # Math
   if(ZINVUL_MATH_BUILTIN)
     list(APPEND definitions ZINVUL_MATH_BUILTIN)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_SIGN)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_SIGN)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   endif()
   if(ZINVUL_MATH_BUILTIN_ABS)
     list(APPEND definitions ZINVUL_MATH_BUILTIN_ABS)
