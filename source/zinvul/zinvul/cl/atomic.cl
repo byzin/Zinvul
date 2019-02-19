@@ -14,157 +14,69 @@
 #include "utility.cl"
 
 //! Perform atomic addition
-int32b zAtomicAdd(__global int32b* p, const int32b value)
-{
-  const int32b old = atomic_add(p, value);
-  return old;
-}
+#define zAtomicAdd(p, value) atomic_add(p, value)
 
 //! Perform atomic addition
-uint32b zAtomicAddU(__global uint32b* p, const uint32b value)
-{
-  const uint32b old = atomic_add(p, value);
-  return old;
-}
+#define zAtomicAddU(p, value) atomic_add(p, value)
 
 //! Perform atomic subtraction
-int32b zAtomicSub(__global int32b* p, const int32b value)
-{
-  const int32b old = atomic_sub(p, value);
-  return old;
-}
+#define zAtomicSub(p, value) atomic_sub(p, value)
 
 //! Perform atomic subtraction
-uint32b zAtomicSubU(__global uint32b* p, const uint32b value)
-{
-  const uint32b old = atomic_sub(p, value);
-  return old;
-}
+#define zAtomicSubU(p, value) atomic_sub(p, value)
 
 //! Atomically replace the value
-int32b zAtomicXchg(__global int32b* p, const int32b value)
-{
-  const int32b old = atomic_xchg(p, value);
-  return old;
-}
+#define zAtomicXchg(p, value) atomic_xchg(p, value)
 
 //! Atomically replace the value
-uint32b zAtomicXchgU(__global uint32b* p, const uint32b value)
-{
-  const uint32b old = atomic_xchg(p, value);
-  return old;
-}
+#define zAtomicXchgU(p, value) atomic_xchg(p, value)
 
 //! Perform atomic post-increment
-int32b zAtomicInc(__global int32b* p)
-{
-  const int32b old = atomic_inc(p);
-  return old;
-}
+#define zAtomicInc(p) atomic_inc(p)
 
 //! Perform atomic post-increment
-uint32b zAtomicIncU(__global uint32b* p)
-{
-  const uint32b old = atomic_inc(p);
-  return old;
-}
+#define zAtomicIncU(p) atomic_inc(p)
 
 //! Perform atomic post-decrement
-int32b zAtomicDec(__global int32b* p)
-{
-  const int32b old = atomic_dec(p);
-  return old;
-}
+#define zAtomicDec(p) atomic_dec(p)
 
 //! Perform atomic post-decrement
-uint32b zAtomicDecU(__global uint32b* p)
-{
-  const uint32b old = atomic_dec(p);
-  return old;
-}
+#define zAtomicDecU(p) atomic_dec(p)
 
 //! Atomically compare the values and exchange if equal
-int32b zAtomicCmpxchg(__global int32b* p, const int32b cmp, const int32b value)
-{
-  const int32b old = atomic_cmpxchg(p, cmp, value);
-  return old;
-}
+#define zAtomicCmpxchg(p, cmp, value) atomic_cmpxchg(p, cmp, value)
 
 //! Atomically compare the values and exchange if equal
-uint32b zAtomicCmpxchgU(__global uint32b* p, const uint32b cmp, const uint32b value)
-{
-  const uint32b old = atomic_cmpxchg(p, cmp, value);
-  return old;
-}
+#define zAtomicCmpxchgU(p, cmp, value) atomic_cmpxchg(p, cmp, value)
 
 //! Atomically compute min(old, value)
-int32b zAtomicMin(__global int32b* p, const int32b value)
-{
-  const int32b old = atomic_min(p, value);
-  return old;
-}
+#define zAtomicMin(p, value) atomic_min(p, value)
 
 //! Atomically compute min(old, value)
-uint32b zAtomicMinU(__global uint32b* p, const uint32b value)
-{
-  const uint32b old = atomic_min(p, value);
-  return old;
-}
+#define zAtomicMinU(p, value) atomic_min(p, value)
 
 //! Atomically compute max(old, value)
-int32b zAtomicMax(__global int32b* p, const int32b value)
-{
-  const int32b old = atomic_max(p, value);
-  return old;
-}
+#define zAtomicMax(p, value) atomic_max(p, value)
 
 //! Atomically compute max(old, value)
-uint32b zAtomicMaxU(__global uint32b* p, const uint32b value)
-{
-  const uint32b old = atomic_max(p, value);
-  return old;
-}
+#define zAtomicMaxU(p, value) atomic_max(p, value)
 
 //! Atomically compute (old & value)
-int32b zAtomicAnd(__global int32b* p, const int32b value)
-{
-  const int32b old = atomic_and(p, value);
-  return old;
-}
+#define zAtomicAnd(p, value) atomic_and(p, value)
 
 //! Atomically compute (old & value)
-uint32b zAtomicAndU(__global uint32b* p, const uint32b value)
-{
-  const uint32b old = atomic_and(p, value);
-  return old;
-}
+#define zAtomicAndU(p, value) atomic_and(p, value)
 
 //! Atomically compute (old | value)
-int32b zAtomicOr(__global int32b* p, const int32b value)
-{
-  const int32b old = atomic_or(p, value);
-  return old;
-}
+#define zAtomicOr(p, value) atomic_or(p, value)
 
 //! Atomically compute (old | value)
-uint32b zAtomicOrU(__global uint32b* p, const uint32b value)
-{
-  const uint32b old = atomic_or(p, value);
-  return old;
-}
+#define zAtomicOrU(p, value) atomic_or(p, value)
 
 //! Atomically compute (old ^ value)
-int32b zAtomicXor(__global int32b* p, const int32b value)
-{
-  const int32b old = atomic_xor(p, value);
-  return old;
-}
+#define zAtomicXor(p, value) atomic_xor(p, value)
 
 //! Atomically compute (old ^ value)
-uint32b zAtomicXorU(__global uint32b* p, const uint32b value)
-{
-  const uint32b old = atomic_xor(p, value);
-  return old;
-}
+#define zAtomicXorU(p, value) atomic_xor(p, value)
 
 #endif /* ZINVUL_ATOMIC_CL */

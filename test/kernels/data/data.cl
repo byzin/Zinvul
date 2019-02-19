@@ -529,7 +529,10 @@ void initTestData1G(__global TestData1* data)
 {
   data->v1_ = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
   data->v2_ = zMakeInt2(1, 2);
+#if !defined(Z_MAC)
+  //! \todo Crashes on macOS
   data->v3_ = zMakeShort4(1, 2, 3, 4);
+#endif // Z_MAC
   data->v4_ = 10.0f;
   data->v5_ = 10;
   data->v6_ = zMakeChar4(1, 2, 3, 4);

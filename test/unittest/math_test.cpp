@@ -822,10 +822,10 @@ TEST(MathTest, ZtruncTest)
       for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
         const float x = result[2 * i];
         const float expected = std::trunc(x);
-        ASSERT_FLOAT_EQ(expected, result[2 * i + 1])
-            << "The zTrunc func is wrong.";
+        EXPECT_FLOAT_EQ(expected, result[2 * i + 1])
+            << "The zTrunc func is wrong: " << std::scientific << x;
       }
-      ASSERT_TRUE(std::isnan(result[result.size() - 1]))
+      EXPECT_TRUE(std::isnan(result[result.size() - 1]))
           << "The Ztrunc func is wrong.";
     }
     {
@@ -972,10 +972,10 @@ TEST(MathTest, ZroundTest)
       for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
         const float x = result[2 * i];
         const float expected = std::round(x);
-        ASSERT_FLOAT_EQ(expected, result[2 * i + 1])
-            << "The zTrunc func is wrong.";
+        EXPECT_FLOAT_EQ(expected, result[2 * i + 1])
+            << "The zTrunc func is wrong: " << std::scientific << x;
       }
-      ASSERT_TRUE(std::isnan(result[result.size() - 1]))
+      EXPECT_TRUE(std::isnan(result[result.size() - 1]))
           << "The zRound func is wrong.";
     }
     {
