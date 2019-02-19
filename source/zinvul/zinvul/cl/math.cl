@@ -1177,7 +1177,7 @@ float4 zClampF4(const float4 x, const float4 minval, const float4 maxval)
 //! Return remainder of the floating point division operation by 1
 float zFract(const float x, __private float* iptr)
 {
-#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRACT)
   const float y = fract(x, iptr);
 #else
   ZINVUL_FRACT_IMPL(float, zFloor, zMinF, , x, iptr);
@@ -1188,7 +1188,7 @@ float zFract(const float x, __private float* iptr)
 //! Return remainder of the floating point division operation by 1
 float2 zFract2(const float2 x, __private float2* iptr)
 {
-#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRACT)
   const float2 y = fract(x, iptr);
 #else
   ZINVUL_FRACT_IMPL(float2, zFloor2, zMinF2, zBroadcastF2, x, iptr);
@@ -1199,7 +1199,7 @@ float2 zFract2(const float2 x, __private float2* iptr)
 //! Return remainder of the floating point division operation by 1
 float3 zFract3(const float3 x, __private float3* iptr)
 {
-#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRACT)
   const float3 y = fract(x, iptr);
 #else
   ZINVUL_FRACT_IMPL(float3, zFloor3, zMinF3, zBroadcastF3, x, iptr);
@@ -1210,7 +1210,7 @@ float3 zFract3(const float3 x, __private float3* iptr)
 //! Return remainder of the floating point division operation by 1
 float4 zFract4(const float4 x, __private float4* iptr)
 {
-#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRACT)
   const float4 y = fract(x, iptr);
 #else
   ZINVUL_FRACT_IMPL(float4, zFloor4, zMinF4, zBroadcastF4, x, iptr);
