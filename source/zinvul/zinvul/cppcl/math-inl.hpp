@@ -95,6 +95,24 @@ auto fabs(const Vector<Float, kN>& x,
   return result;
 }
 
+template <typename Float, std::size_t kN> inline
+auto fract(const Vector<Float, kN>& x, Vector<Float, kN>* iptr) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = cl::fract(x[i], &(*iptr)[i]);
+  return result;
+}
+
+template <typename Float, std::size_t kN> inline
+auto fmod(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  Vector<Float, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = cl::fmod(x[i], y[i]);
+  return result;
+}
+
 template <typename Type, std::size_t kN> inline
 auto clamp(const Vector<Type, kN>& x,
            const Vector<Type, kN>& minval,
@@ -402,6 +420,43 @@ FloatN fabs(const FloatN& x) noexcept
   // Vector
   else {
     return inner::fabs(x);
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN fract(const FloatN& x, FloatN* iptr) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    constexpr FloatN k = zisc::cast<FloatN>(0x1.fffffep-1f);
+    const FloatN i = floor(x);
+    const FloatN y = min(x - i, k);
+    *iptr = i;
+    return y;
+  }
+  // Vector
+  else {
+    return inner::fract(x, iptr);
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN fmod(const FloatN& x, const FloatN& y) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    const FloatN z = std::fmod(x, y);
+    return z;
+  }
+  // Vector
+  else {
+    return inner::fmod(x, y);
   }
 }
 

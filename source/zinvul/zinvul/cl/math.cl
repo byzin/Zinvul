@@ -99,7 +99,7 @@ float4 zSign4(const float4 x)
 
 // Nearest integer floating point operations
 
-//! Return the nearest integer not less than the given value
+//! Return the nearest integer not less than the given value. \todo Implement
 #define ZINVUL_ICEIL_IMPL(x) ceil(x)
 
 //! Return the nearest integer not less than the given value
@@ -146,7 +146,7 @@ int4 zICeil4(const float4 x)
   return zF4ToI4(y);
 }
 
-//! Return the nearest integer not less than the given value
+//! Return the nearest integer not less than the given value. \todo Implement
 #define ZINVUL_CEIL_IMPL(x) ceil(x)
 
 //! Return the nearest integer not less than the given value
@@ -193,7 +193,7 @@ float4 zCeil4(const float4 x)
   return y;
 }
 
-//! Return the nearest integer not greater than the given value
+//! Return the nearest integer not greater than the given value. \todo Implement
 #define ZINVUL_IFLOOR_IMPL(x) floor(x)
 
 //! Return the nearest integer not greater than the given value
@@ -240,7 +240,7 @@ int4 zIFloor4(const float4 x)
   return zF4ToI4(y);
 }
 
-//! Return the nearest integer not greater than the given value
+//! Return the nearest integer not greater than the given value. \todo Implement
 #define ZINVUL_FLOOR_IMPL(x) floor(x)
 
 //! Return the nearest integer not greater than the given value
@@ -1166,6 +1166,103 @@ float4 zClampF4(const float4 x, const float4 minval, const float4 maxval)
   const float4 result = zMinF4(zMaxF4(x, minval), maxval);
 #endif
   return result;
+}
+
+//! Return remainder of the floating point division operation by 1
+#define ZINVUL_FRACT_IMPL(FType, floorF, minF, broadcastF, x, iptr) \
+  const FType i = floorF(x); \
+  const FType y = minF(x - i, broadcastF(0x1.fffffep-1f)); \
+  *iptr = i
+
+//! Return remainder of the floating point division operation by 1
+float zFract(const float x, __private float* iptr)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+  const float y = fract(x, iptr);
+#else
+  ZINVUL_FRACT_IMPL(float, zFloor, zMinF, , x, iptr);
+#endif
+  return y;
+}
+
+//! Return remainder of the floating point division operation by 1
+float2 zFract2(const float2 x, __private float2* iptr)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+  const float2 y = fract(x, iptr);
+#else
+  ZINVUL_FRACT_IMPL(float2, zFloor2, zMinF2, zBroadcastF2, x, iptr);
+#endif
+  return y;
+}
+
+//! Return remainder of the floating point division operation by 1
+float3 zFract3(const float3 x, __private float3* iptr)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+  const float3 y = fract(x, iptr);
+#else
+  ZINVUL_FRACT_IMPL(float3, zFloor3, zMinF3, zBroadcastF3, x, iptr);
+#endif
+  return y;
+}
+
+//! Return remainder of the floating point division operation by 1
+float4 zFract4(const float4 x, __private float4* iptr)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+  const float4 y = fract(x, iptr);
+#else
+  ZINVUL_FRACT_IMPL(float4, zFloor4, zMinF4, zBroadcastF4, x, iptr);
+#endif
+  return y;
+}
+
+//! Return remainder of the floating point division operation
+#define ZINVUL_MOD_IMPL(truncF, x, y) (x - y * truncF(x / y))
+
+//! Return remainder of the floating point division operation
+float zMod(const float x, const float y)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+  const float z = fmod(x, y);
+#else
+  const float z = ZINVUL_MOD_IMPL(zTrunc, x, y);
+#endif
+  return z;
+}
+
+//! Return remainder of the floating point division operation
+float2 zMod2(const float2 x, const float2 y)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+  const float2 z = fmod(x, y);
+#else
+  const float2 z = ZINVUL_MOD_IMPL(zTrunc2, x, y);
+#endif
+  return z;
+}
+
+//! Return remainder of the floating point division operation
+float3 zMod3(const float3 x, const float3 y)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+  const float3 z = fmod(x, y);
+#else
+  const float3 z = ZINVUL_MOD_IMPL(zTrunc3, x, y);
+#endif
+  return z;
+}
+
+//! Return remainder of the floating point division operation
+float4 zMod4(const float4 x, const float4 y)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
+  const float4 z = fmod(x, y);
+#else
+  const float4 z = ZINVUL_MOD_IMPL(zTrunc4, x, y);
+#endif
+  return z;
 }
 
 #define ZINVUL_DEGREES_IMPL(r) ((180.0f * zInvPiF) * r);

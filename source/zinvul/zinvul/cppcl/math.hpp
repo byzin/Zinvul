@@ -73,6 +73,14 @@ auto abs(const IntegerN& x) noexcept;
 template <typename FloatN>
 FloatN fabs(const FloatN& x) noexcept;
 
+//! Return the remainder of the floating point division operation by 1
+template <typename FloatN>
+FloatN fract(const FloatN& x, FloatN* iptr) noexcept;
+
+//! Return the remainder of the floating point division operation
+template <typename FloatN>
+FloatN fmod(const FloatN& x, const FloatN& y) noexcept;
+
 //! Return min(max(x, minval), maxval)
 template <typename TypeN>
 TypeN clamp(const TypeN& x, const TypeN& minval, const TypeN& maxval) noexcept;

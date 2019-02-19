@@ -133,6 +133,1058 @@ kernel void testCommon(global uint32b* abs_result1, global float* abs_result2,
 
 /*!
   */
+__kernel void testFract(
+    __global float* result1, __global float* result1i,
+    __global float2* result2, __global float2* result2i,
+    __global float3* result3, __global float3* result3i,
+    __global float4* result4, __global float4* result4i)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    {
+      uint i = 0;
+      float iptr = 0.0f;
+      {
+        const float x = 0.0f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 1.0f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 3.1f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 3.5f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 3.9f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 4.1f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 4.5f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 4.9f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -1.0f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -3.1f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -3.5f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -3.9f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -4.1f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -4.5f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -4.9f;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = INFINITY;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -INFINITY;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = NAN;
+        result1[i++] = x;
+        result1[i++] = fract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+    }
+    // float2
+    {
+      uint i = 0;
+      float2 iptr = zMakeFloat2(0.0f, 0.0f);
+      {
+        const float2 x = zMakeFloat2(0.0f, 0.0f);
+        result2[i++] = x;
+        result2[i++] = fract(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(1.0f, -1.0f);
+        result2[i++] = x;
+        result2[i++] = fract(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(3.1f, -3.1f);
+        result2[i++] = x;
+        result2[i++] = fract(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(3.5f, -3.5f);
+        result2[i++] = x;
+        result2[i++] = fract(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(3.9f, -3.9f);
+        result2[i++] = x;
+        result2[i++] = fract(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(4.1f, -4.1f);
+        result2[i++] = x;
+        result2[i++] = fract(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(4.5f, -4.5f);
+        result2[i++] = x;
+        result2[i++] = fract(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(4.9f, -4.9f);
+        result2[i++] = x;
+        result2[i++] = fract(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+    }
+    // float3
+    {
+      uint i = 0;
+      float3 iptr = zMakeFloat3(0.0f, 0.0f, 0.0f);
+      {
+        const float3 x = zMakeFloat3(0.0f, 0.0f, 0.0f);
+        result3[i++] = x;
+        result3[i++] = fract(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(1.0f, -1.0f, 1.0f);
+        result3[i++] = x;
+        result3[i++] = fract(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(3.1f, -3.1f, 3.1f);
+        result3[i++] = x;
+        result3[i++] = fract(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(3.5f, -3.5f, 3.5f);
+        result3[i++] = x;
+        result3[i++] = fract(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(3.9f, -3.9f, 3.9f);
+        result3[i++] = x;
+        result3[i++] = fract(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(4.1f, -4.1f, 4.1f);
+        result3[i++] = x;
+        result3[i++] = fract(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(4.5f, -4.5f, 4.5f);
+        result3[i++] = x;
+        result3[i++] = fract(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(4.9f, -4.9f, 4.9f);
+        result3[i++] = x;
+        result3[i++] = fract(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+    }
+    // float4
+    {
+      uint i = 0;
+      float4 iptr = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
+      {
+        const float4 x = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
+        result4[i++] = x;
+        result4[i++] = fract(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(1.0f, -1.0f, 5.0f, -5.0f);
+        result4[i++] = x;
+        result4[i++] = fract(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(3.1f, -3.1f, 13.1f, -13.1f);
+        result4[i++] = x;
+        result4[i++] = fract(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(3.5f, -3.5f, 13.5f, -13.5f);
+        result4[i++] = x;
+        result4[i++] = fract(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(3.9f, -3.9f, 13.9f, -13.9f);
+        result4[i++] = x;
+        result4[i++] = fract(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(4.1f, -4.1f, 14.1f, -14.1f);
+        result4[i++] = x;
+        result4[i++] = fract(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(4.5f, -4.5f, 14.5f, -14.5f);
+        result4[i++] = x;
+        result4[i++] = fract(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(4.9f, -4.9f, 14.9f, -14.9f);
+        result4[i++] = x;
+        result4[i++] = fract(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testZfract(
+    __global float* result1, __global float* result1i,
+    __global float2* result2, __global float2* result2i,
+    __global float3* result3, __global float3* result3i,
+    __global float4* result4, __global float4* result4i)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    {
+      uint i = 0;
+      float iptr = 0.0f;
+      {
+        const float x = 0.0f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 1.0f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 3.1f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 3.5f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 3.9f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 4.1f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 4.5f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = 4.9f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -1.0f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -3.1f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -3.5f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -3.9f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -4.1f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -4.5f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -4.9f;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = INFINITY;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = -INFINITY;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+      {
+        const float x = NAN;
+        result1[i++] = x;
+        result1[i++] = zFract(x, &iptr);
+        result1i[i/2-1] = iptr;
+      }
+    }
+    // float2
+    {
+      uint i = 0;
+      float2 iptr = zMakeFloat2(0.0f, 0.0f);
+      {
+        const float2 x = zMakeFloat2(0.0f, 0.0f);
+        result2[i++] = x;
+        result2[i++] = zFract2(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(1.0f, -1.0f);
+        result2[i++] = x;
+        result2[i++] = zFract2(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(3.1f, -3.1f);
+        result2[i++] = x;
+        result2[i++] = zFract2(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(3.5f, -3.5f);
+        result2[i++] = x;
+        result2[i++] = zFract2(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(3.9f, -3.9f);
+        result2[i++] = x;
+        result2[i++] = zFract2(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(4.1f, -4.1f);
+        result2[i++] = x;
+        result2[i++] = zFract2(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(4.5f, -4.5f);
+        result2[i++] = x;
+        result2[i++] = zFract2(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+      {
+        const float2 x = zMakeFloat2(4.9f, -4.9f);
+        result2[i++] = x;
+        result2[i++] = zFract2(x, &iptr);
+        result2i[i/2-1] = iptr;
+      }
+    }
+    // float3
+    {
+      uint i = 0;
+      float3 iptr = zMakeFloat3(0.0f, 0.0f, 0.0f);
+      {
+        const float3 x = zMakeFloat3(0.0f, 0.0f, 0.0f);
+        result3[i++] = x;
+        result3[i++] = zFract3(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(1.0f, -1.0f, 1.0f);
+        result3[i++] = x;
+        result3[i++] = zFract3(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(3.1f, -3.1f, 3.1f);
+        result3[i++] = x;
+        result3[i++] = zFract3(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(3.5f, -3.5f, 3.5f);
+        result3[i++] = x;
+        result3[i++] = zFract3(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(3.9f, -3.9f, 3.9f);
+        result3[i++] = x;
+        result3[i++] = zFract3(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(4.1f, -4.1f, 4.1f);
+        result3[i++] = x;
+        result3[i++] = zFract3(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(4.5f, -4.5f, 4.5f);
+        result3[i++] = x;
+        result3[i++] = zFract3(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+      {
+        const float3 x = zMakeFloat3(4.9f, -4.9f, 4.9f);
+        result3[i++] = x;
+        result3[i++] = zFract3(x, &iptr);
+        result3i[i/2-1] = iptr;
+      }
+    }
+    // float4
+    {
+      uint i = 0;
+      float4 iptr = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
+      {
+        const float4 x = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
+        result4[i++] = x;
+        result4[i++] = zFract4(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(1.0f, -1.0f, 5.0f, -5.0f);
+        result4[i++] = x;
+        result4[i++] = zFract4(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(3.1f, -3.1f, 13.1f, -13.1f);
+        result4[i++] = x;
+        result4[i++] = zFract4(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(3.5f, -3.5f, 13.5f, -13.5f);
+        result4[i++] = x;
+        result4[i++] = zFract4(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(3.9f, -3.9f, 13.9f, -13.9f);
+        result4[i++] = x;
+        result4[i++] = zFract4(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(4.1f, -4.1f, 14.1f, -14.1f);
+        result4[i++] = x;
+        result4[i++] = zFract4(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(4.5f, -4.5f, 14.5f, -14.5f);
+        result4[i++] = x;
+        result4[i++] = zFract4(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+      {
+        const float4 x = zMakeFloat4(4.9f, -4.9f, 14.9f, -14.9f);
+        result4[i++] = x;
+        result4[i++] = zFract4(x, &iptr);
+        result4i[i/2-1] = iptr;
+      }
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testMod(
+    __global float* result1, __global float2* result2,
+    __global float3* result3, __global float4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    {
+      const float y = 1.0f;
+      uint i = 0;
+      {
+        const float x = 0.0f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = 1.0f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = 3.1f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = 3.5f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = 3.9f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = 4.1f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = 4.5f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = 4.9f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = -1.0f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = -3.1f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = -3.5f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = -3.9f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = -4.1f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = -4.5f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = -4.9f;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = INFINITY;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = -INFINITY;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+      {
+        const float x = NAN;
+        result1[i++] = x;
+        result1[i++] = fmod(x, y);
+      }
+    }
+    // float2
+    {
+      const float2 y = zMakeFloat2(1.0f, 2.0f);
+      uint i = 0;
+      {
+        const float2 x = zMakeFloat2(0.0f, 0.0f);
+        result2[i++] = x;
+        result2[i++] = fmod(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(1.0f, -1.0f);
+        result2[i++] = x;
+        result2[i++] = fmod(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(3.1f, -3.1f);
+        result2[i++] = x;
+        result2[i++] = fmod(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(3.5f, -3.5f);
+        result2[i++] = x;
+        result2[i++] = fmod(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(3.9f, -3.9f);
+        result2[i++] = x;
+        result2[i++] = fmod(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(4.1f, -4.1f);
+        result2[i++] = x;
+        result2[i++] = fmod(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(4.5f, -4.5f);
+        result2[i++] = x;
+        result2[i++] = fmod(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(4.9f, -4.9f);
+        result2[i++] = x;
+        result2[i++] = fmod(x, y);
+      }
+    }
+    // float3
+    {
+      const float3 y = zMakeFloat3(1.0f, 2.0f, 3.0f);
+      uint i = 0;
+      {
+        const float3 x = zMakeFloat3(0.0f, 0.0f, 0.0f);
+        result3[i++] = x;
+        result3[i++] = fmod(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(1.0f, -1.0f, 1.0f);
+        result3[i++] = x;
+        result3[i++] = fmod(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(3.1f, -3.1f, 3.1f);
+        result3[i++] = x;
+        result3[i++] = fmod(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(3.5f, -3.5f, 3.5f);
+        result3[i++] = x;
+        result3[i++] = fmod(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(3.9f, -3.9f, 3.9f);
+        result3[i++] = x;
+        result3[i++] = fmod(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(4.1f, -4.1f, 4.1f);
+        result3[i++] = x;
+        result3[i++] = fmod(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(4.5f, -4.5f, 4.5f);
+        result3[i++] = x;
+        result3[i++] = fmod(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(4.9f, -4.9f, 4.9f);
+        result3[i++] = x;
+        result3[i++] = fmod(x, y);
+      }
+    }
+    // float4
+    {
+      const float4 y = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
+      uint i = 0;
+      {
+        const float4 x = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
+        result4[i++] = x;
+        result4[i++] = fmod(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(1.0f, -1.0f, 5.0f, -5.0f);
+        result4[i++] = x;
+        result4[i++] = fmod(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(3.1f, -3.1f, 13.1f, -13.1f);
+        result4[i++] = x;
+        result4[i++] = fmod(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(3.5f, -3.5f, 13.5f, -13.5f);
+        result4[i++] = x;
+        result4[i++] = fmod(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(3.9f, -3.9f, 13.9f, -13.9f);
+        result4[i++] = x;
+        result4[i++] = fmod(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(4.1f, -4.1f, 14.1f, -14.1f);
+        result4[i++] = x;
+        result4[i++] = fmod(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(4.5f, -4.5f, 14.5f, -14.5f);
+        result4[i++] = x;
+        result4[i++] = fmod(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(4.9f, -4.9f, 14.9f, -14.9f);
+        result4[i++] = x;
+        result4[i++] = fmod(x, y);
+      }
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testZmod(
+    __global float* result1, __global float2* result2,
+    __global float3* result3, __global float4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    {
+      const float y = 1.0f;
+      uint i = 0;
+      {
+        const float x = 0.0f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = 1.0f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = 3.1f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = 3.5f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = 3.9f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = 4.1f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = 4.5f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = 4.9f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = -1.0f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = -3.1f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = -3.5f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = -3.9f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = -4.1f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = -4.5f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = -4.9f;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = INFINITY;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = -INFINITY;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+      {
+        const float x = NAN;
+        result1[i++] = x;
+        result1[i++] = zMod(x, y);
+      }
+    }
+    // float2
+    {
+      const float2 y = zMakeFloat2(1.0f, 2.0f);
+      uint i = 0;
+      {
+        const float2 x = zMakeFloat2(0.0f, 0.0f);
+        result2[i++] = x;
+        result2[i++] = zMod2(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(1.0f, -1.0f);
+        result2[i++] = x;
+        result2[i++] = zMod2(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(3.1f, -3.1f);
+        result2[i++] = x;
+        result2[i++] = zMod2(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(3.5f, -3.5f);
+        result2[i++] = x;
+        result2[i++] = zMod2(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(3.9f, -3.9f);
+        result2[i++] = x;
+        result2[i++] = zMod2(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(4.1f, -4.1f);
+        result2[i++] = x;
+        result2[i++] = zMod2(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(4.5f, -4.5f);
+        result2[i++] = x;
+        result2[i++] = zMod2(x, y);
+      }
+      {
+        const float2 x = zMakeFloat2(4.9f, -4.9f);
+        result2[i++] = x;
+        result2[i++] = zMod2(x, y);
+      }
+    }
+    // float3
+    {
+      const float3 y = zMakeFloat3(1.0f, 2.0f, 3.0f);
+      uint i = 0;
+      {
+        const float3 x = zMakeFloat3(0.0f, 0.0f, 0.0f);
+        result3[i++] = x;
+        result3[i++] = zMod3(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(1.0f, -1.0f, 1.0f);
+        result3[i++] = x;
+        result3[i++] = zMod3(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(3.1f, -3.1f, 3.1f);
+        result3[i++] = x;
+        result3[i++] = zMod3(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(3.5f, -3.5f, 3.5f);
+        result3[i++] = x;
+        result3[i++] = zMod3(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(3.9f, -3.9f, 3.9f);
+        result3[i++] = x;
+        result3[i++] = zMod3(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(4.1f, -4.1f, 4.1f);
+        result3[i++] = x;
+        result3[i++] = zMod3(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(4.5f, -4.5f, 4.5f);
+        result3[i++] = x;
+        result3[i++] = zMod3(x, y);
+      }
+      {
+        const float3 x = zMakeFloat3(4.9f, -4.9f, 4.9f);
+        result3[i++] = x;
+        result3[i++] = zMod3(x, y);
+      }
+    }
+    // float4
+    {
+      const float4 y = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
+      uint i = 0;
+      {
+        const float4 x = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
+        result4[i++] = x;
+        result4[i++] = zMod4(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(1.0f, -1.0f, 5.0f, -5.0f);
+        result4[i++] = x;
+        result4[i++] = zMod4(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(3.1f, -3.1f, 13.1f, -13.1f);
+        result4[i++] = x;
+        result4[i++] = zMod4(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(3.5f, -3.5f, 13.5f, -13.5f);
+        result4[i++] = x;
+        result4[i++] = zMod4(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(3.9f, -3.9f, 13.9f, -13.9f);
+        result4[i++] = x;
+        result4[i++] = zMod4(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(4.1f, -4.1f, 14.1f, -14.1f);
+        result4[i++] = x;
+        result4[i++] = zMod4(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(4.5f, -4.5f, 14.5f, -14.5f);
+        result4[i++] = x;
+        result4[i++] = zMod4(x, y);
+      }
+      {
+        const float4 x = zMakeFloat4(4.9f, -4.9f, 14.9f, -14.9f);
+        result4[i++] = x;
+        result4[i++] = zMod4(x, y);
+      }
+    }
+  }
+}
+
+/*!
+  */
 __kernel void testCeil(
     __global float* result1, __global float2* result2,
     __global float3* result3, __global float4* result4)
