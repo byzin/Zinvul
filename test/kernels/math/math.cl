@@ -133,6 +133,382 @@ kernel void testCommon(global uint32b* abs_result1, global float* abs_result2,
 
 /*!
   */
+__kernel void testClz(
+    __global int32b* result1,
+    __global int2* result2,
+    __global int3* result3,
+    __global int4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    for (int i = 0; i < 32; ++i) {
+      int x = 0;
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      result1[i] = clz(x);
+    }
+    // vector2
+    for (int i = 0; i < 32; ++i) {
+      int2 x = zMakeInt2(0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      result2[i] = clz(x);
+    }
+    // vector3
+    for (int i = 0; i < 32; ++i) {
+      int3 x = zMakeInt3(0, 0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      x.z = x.z / 3;
+      result3[i] = clz(x);
+    }
+    // vector4
+    for (int i = 0; i < 32; ++i) {
+      int4 x = zMakeInt4(0, 0, 0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      x.z = x.z / 3;
+      x.w = x.w / 5;
+      result4[i] = clz(x);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testClzU(
+    __global uint32b* result1,
+    __global uint2* result2,
+    __global uint3* result3,
+    __global uint4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    for (uint i = 0u; i < 32u; ++i) {
+      uint x = 0u;
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      result1[i] = clz(x);
+    }
+    // vector2
+    for (uint i = 0u; i < 32u; ++i) {
+      uint2 x = zMakeUInt2(0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      result2[i] = clz(x);
+    }
+    // vector3
+    for (uint i = 0u; i < 32u; ++i) {
+      uint3 x = zMakeUInt3(0u, 0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      x.z = x.z / 3u;
+      result3[i] = clz(x);
+    }
+    // vector4
+    for (uint i = 0u; i < 32u; ++i) {
+      uint4 x = zMakeUInt4(0u, 0u, 0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      x.z = x.z / 3u;
+      x.w = x.w / 5u;
+      result4[i] = clz(x);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testZclz(
+    __global int32b* result1,
+    __global int2* result2,
+    __global int3* result3,
+    __global int4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    for (int i = 0; i < 32; ++i) {
+      int x = 0;
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      result1[i] = zClz(x);
+    }
+    // vector2
+    for (int i = 0; i < 32; ++i) {
+      int2 x = zMakeInt2(0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      result2[i] = zClz2(x);
+    }
+    // vector3
+    for (int i = 0; i < 32; ++i) {
+      int3 x = zMakeInt3(0, 0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      x.z = x.z / 3;
+      result3[i] = zClz3(x);
+    }
+    // vector4
+    for (int i = 0; i < 32; ++i) {
+      int4 x = zMakeInt4(0, 0, 0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      x.z = x.z / 3;
+      x.w = x.w / 5;
+      result4[i] = zClz4(x);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testZclzU(
+    __global uint32b* result1,
+    __global uint2* result2,
+    __global uint3* result3,
+    __global uint4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    for (uint i = 0u; i < 32u; ++i) {
+      uint x = 0u;
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      result1[i] = zClzU(x);
+    }
+    // vector2
+    for (uint i = 0u; i < 32u; ++i) {
+      uint2 x = zMakeUInt2(0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      result2[i] = zClzU2(x);
+    }
+    // vector3
+    for (uint i = 0u; i < 32u; ++i) {
+      uint3 x = zMakeUInt3(0u, 0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      x.z = x.z / 3u;
+      result3[i] = zClzU3(x);
+    }
+    // vector4
+    for (uint i = 0u; i < 32u; ++i) {
+      uint4 x = zMakeUInt4(0u, 0u, 0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      x.z = x.z / 3u;
+      x.w = x.w / 5u;
+      result4[i] = zClzU4(x);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testPopcount(
+    __global int32b* result1,
+    __global int2* result2,
+    __global int3* result3,
+    __global int4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    for (int i = 0; i < 32; ++i) {
+      int x = 0;
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      result1[i] = popcount(x);
+    }
+    // vector2
+    for (int i = 0; i < 32; ++i) {
+      int2 x = zMakeInt2(0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      result2[i] = popcount(x);
+    }
+    // vector3
+    for (int i = 0; i < 32; ++i) {
+      int3 x = zMakeInt3(0, 0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      x.z = x.z / 3;
+      result3[i] = popcount(x);
+    }
+    // vector4
+    for (int i = 0; i < 32; ++i) {
+      int4 x = zMakeInt4(0, 0, 0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      x.z = x.z / 3;
+      x.w = x.w / 5;
+      result4[i] = popcount(x);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testPopcountU(
+    __global uint32b* result1,
+    __global uint2* result2,
+    __global uint3* result3,
+    __global uint4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    for (uint i = 0u; i < 32u; ++i) {
+      uint x = 0u;
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      result1[i] = popcount(x);
+    }
+    // vector2
+    for (uint i = 0u; i < 32u; ++i) {
+      uint2 x = zMakeUInt2(0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      result2[i] = popcount(x);
+    }
+    // vector3
+    for (uint i = 0u; i < 32u; ++i) {
+      uint3 x = zMakeUInt3(0u, 0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      x.z = x.z / 3u;
+      result3[i] = popcount(x);
+    }
+    // vector4
+    for (uint i = 0u; i < 32u; ++i) {
+      uint4 x = zMakeUInt4(0u, 0u, 0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      x.z = x.z / 3u;
+      x.w = x.w / 5u;
+      result4[i] = popcount(x);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testZpopcount(
+    __global int32b* result1,
+    __global int2* result2,
+    __global int3* result3,
+    __global int4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    for (int i = 0; i < 32; ++i) {
+      int x = 0;
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      result1[i] = zPopcount(x);
+    }
+    // vector2
+    for (int i = 0; i < 32; ++i) {
+      int2 x = zMakeInt2(0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      result2[i] = zPopcount2(x);
+    }
+    // vector3
+    for (int i = 0; i < 32; ++i) {
+      int3 x = zMakeInt3(0, 0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      x.z = x.z / 3;
+      result3[i] = zPopcount3(x);
+    }
+    // vector4
+    for (int i = 0; i < 32; ++i) {
+      int4 x = zMakeInt4(0, 0, 0, 0);
+      for (int j = 0; j < i; ++j)
+        x = (x << 1) | 1;
+      x.y = x.y / 2;
+      x.z = x.z / 3;
+      x.w = x.w / 5;
+      result4[i] = zPopcount4(x);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testZpopcountU(
+    __global uint32b* result1,
+    __global uint2* result2,
+    __global uint3* result3,
+    __global uint4* result4)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    // scalar
+    for (uint i = 0u; i < 32u; ++i) {
+      uint x = 0u;
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      result1[i] = zPopcountU(x);
+    }
+    // vector2
+    for (uint i = 0u; i < 32u; ++i) {
+      uint2 x = zMakeUInt2(0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      result2[i] = zPopcountU2(x);
+    }
+    // vector3
+    for (uint i = 0u; i < 32u; ++i) {
+      uint3 x = zMakeUInt3(0u, 0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      x.z = x.z / 3u;
+      result3[i] = zPopcountU3(x);
+    }
+    // vector4
+    for (uint i = 0u; i < 32u; ++i) {
+      uint4 x = zMakeUInt4(0u, 0u, 0u, 0u);
+      for (uint j = 0u; j < i; ++j)
+        x = (x << 1u) | 1u;
+      x.y = x.y / 2u;
+      x.z = x.z / 3u;
+      x.w = x.w / 5u;
+      result4[i] = zPopcountU4(x);
+    }
+  }
+}
+
+/*!
+  */
 __kernel void testFract(
     __global float* result1, __global float* result1i,
     __global float2* result2, __global float2* result2i,

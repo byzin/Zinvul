@@ -1477,6 +1477,190 @@ float4 zLdexp4(const float4 x, const int4 e)
   return y;
 }
 
+// Integer
+
+//! Return the number of leading 0-bits
+#define ZINVUL_CLZ_IMPL(x) clz(x)
+
+//! Return the number of leading 0-bits
+int32b zClz(const int32b x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
+  const int32b y = clz(x);
+#else
+  const int32b y = ZINVUL_CLZ_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int2 zClz2(const int2 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
+  const int2 y = clz(x);
+#else
+  const int2 y = ZINVUL_CLZ_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int3 zClz3(const int3 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
+  const int3 y = clz(x);
+#else
+  const int3 y = ZINVUL_CLZ_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int4 zClz4(const int4 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
+  const int4 y = clz(x);
+#else
+  const int4 y = ZINVUL_CLZ_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint32b zClzU(const uint32b x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
+  const uint32b y = clz(x);
+#else
+  const uint32b y = ZINVUL_CLZ_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint2 zClzU2(const uint2 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
+  const uint2 y = clz(x);
+#else
+  const uint2 y = ZINVUL_CLZ_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint3 zClzU3(const uint3 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
+  const uint3 y = clz(x);
+#else
+  const uint3 y = ZINVUL_CLZ_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint4 zClzU4(const uint4 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
+  const uint4 y = clz(x);
+#else
+  const uint4 y = ZINVUL_CLZ_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+#define ZINVUL_POPCOUNT_IMPL(x) popcount(x)
+
+//! Return the number of leading 0-bits
+int32b zPopcount(const int32b x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
+  const int32b y = popcount(x);
+#else
+  const int32b y = ZINVUL_POPCOUNT_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int2 zPopcount2(const int2 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
+  const int2 y = popcount(x);
+#else
+  const int2 y = ZINVUL_POPCOUNT_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int3 zPopcount3(const int3 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
+  const int3 y = popcount(x);
+#else
+  const int3 y = ZINVUL_POPCOUNT_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int4 zPopcount4(const int4 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
+  const int4 y = popcount(x);
+#else
+  const int4 y = ZINVUL_POPCOUNT_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint32b zPopcountU(const uint32b x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
+  const uint32b y = popcount(x);
+#else
+  const uint32b y = ZINVUL_POPCOUNT_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint2 zPopcountU2(const uint2 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
+  const uint2 y = popcount(x);
+#else
+  const uint2 y = ZINVUL_POPCOUNT_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint3 zPopcountU3(const uint3 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
+  const uint3 y = popcount(x);
+#else
+  const uint3 y = ZINVUL_POPCOUNT_IMPL(x);
+#endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint4 zPopcountU4(const uint4 x)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
+  const uint4 y = popcount(x);
+#else
+  const uint4 y = ZINVUL_POPCOUNT_IMPL(x);
+#endif
+  return y;
+}
+
 // Exponential functions
 
 //! Return e raised to the given power

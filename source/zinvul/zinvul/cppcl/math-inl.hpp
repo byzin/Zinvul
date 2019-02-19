@@ -14,6 +14,7 @@
 // Standard C++ library
 #include <cmath>
 #include <cstddef>
+#include <limits>
 #include <type_traits>
 // Zisc
 #include "zisc/math.hpp"
@@ -298,6 +299,43 @@ auto ldexp(const Vector<Float, kN>& x, const Vector<Integer, kN>& e) noexcept
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
     result[i] = cl::ldexp(x[i], e[i]);
+  return result;
+}
+
+/*!
+  */
+template <typename Integer> inline
+constexpr Integer getClzMsb() noexcept
+{
+  using zisc::cast;
+  if constexpr (std::is_signed_v<Integer>) {
+    return std::numeric_limits<Integer>::min();
+  }
+  else {
+    const Integer msb = cast<Integer>(0b01) << cast<Integer>(8 * sizeof(Integer) - 1);
+    return msb;
+  }
+}
+
+/*!
+  */
+template <typename Integer, std::size_t kN> inline
+auto clz(const Vector<Integer, kN>& x) noexcept
+{
+  Vector<Integer, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = cl::clz(x[i]);
+  return result;
+}
+
+/*!
+  */
+template <typename Integer, std::size_t kN> inline
+auto popcount(const Vector<Integer, kN>& x) noexcept
+{
+  Vector<Integer, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = cl::popcount(x[i]);
   return result;
 }
 
@@ -753,6 +791,50 @@ FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept
   }
   else {
     return inner::ldexp(x, e);
+  }
+}
+
+/*!
+  */
+template <typename IntegerN> inline
+IntegerN clz(const IntegerN& x) noexcept
+{
+  using zisc::cast;
+  constexpr bool is_scalar_type = std::is_integral_v<IntegerN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    IntegerN result = 0;
+    constexpr IntegerN n = cast<IntegerN>(8 * sizeof(IntegerN));
+    constexpr IntegerN bit = inner::getClzMsb<IntegerN>();
+    for (IntegerN i = 0, b = x; (i < n) && ((b & bit) != bit); ++i, b = b << 1)
+      ++result;
+    return result;
+  }
+  else {
+    return inner::clz(x);
+  }
+}
+
+/*!
+  */
+template <typename IntegerN> inline
+IntegerN popcount(const IntegerN& x) noexcept
+{
+  using zisc::cast;
+  constexpr bool is_scalar_type = std::is_integral_v<IntegerN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    IntegerN result = 0;
+    constexpr IntegerN n = cast<IntegerN>(8 * sizeof(IntegerN));
+    constexpr IntegerN bit = cast<IntegerN>(0b01);
+    for (IntegerN i = 0, b = x; i < n; ++i, b = b >> 1) {
+      if ((b & bit) == bit)
+        ++result;
+    }
+    return result;
+  }
+  else {
+    return inner::popcount(x);
   }
 }
 

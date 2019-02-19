@@ -419,6 +419,678 @@ TEST(MathTest, CommonTest)
   }
 }
 
+TEST(MathTest, ClzTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testClz, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<int32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const int32b expected = cl::clz(x);
+        ASSERT_EQ(expected, result[i])
+            << "The clz func is wrong: " << x;
+      }
+    }
+    {
+      std::array<cl::int2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The clz func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The clz func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The clz func is wrong: " << x;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ClzUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testClzU, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<uint32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const uint32b expected = cl::clz(x);
+        ASSERT_EQ(expected, result[i])
+            << "The clz func is wrong: " << x;
+      }
+    }
+    {
+      std::array<cl::uint2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The clz func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The clz func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The clz func is wrong: " << x;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ZclzTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testZclz, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<int32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const int32b expected = cl::clz(x);
+        ASSERT_EQ(expected, result[i])
+            << "The zClz func is wrong: " << x;
+      }
+    }
+    {
+      std::array<cl::int2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zClz2 func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zClz3 func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zClz4 func is wrong: " << x;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ZclzUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testZclzU, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<uint32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const uint32b expected = cl::clz(x);
+        ASSERT_EQ(expected, result[i])
+            << "The zClzU func is wrong: " << x;
+      }
+    }
+    {
+      std::array<cl::uint2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zClzU2 func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zClzU3 func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zClzU4 func is wrong: " << x;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, PopcountTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testPopcount, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<int32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const int32b expected = cl::popcount(x);
+        ASSERT_EQ(expected, result[i])
+            << "The popcount func is wrong: " << x;
+      }
+    }
+    {
+      std::array<cl::int2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The popcount func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The popcount func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The popcount func is wrong: " << x;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, PopcountUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testPopcountU, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<uint32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const uint32b expected = cl::popcount(x);
+        ASSERT_EQ(expected, result[i])
+            << "The popcount func is wrong: " << x;
+      }
+    }
+    {
+      std::array<cl::uint2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The popcount func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The popcount func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The popcount func is wrong: " << x;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ZpopcountTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testZpopcount, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<int32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const int32b expected = cl::popcount(x);
+        ASSERT_EQ(expected, result[i])
+            << "The zPopcount func is wrong: " << x;
+      }
+    }
+    {
+      std::array<cl::int2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zPopcount2 func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zPopcount3 func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zPopcount4 func is wrong: " << x;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ZpopcountUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testZpopcountU, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<uint32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const uint32b expected = cl::popcount(x);
+        ASSERT_EQ(expected, result[i])
+            << "The zPopcountU func is wrong: " << x;
+      }
+    }
+    {
+      std::array<cl::uint2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zPopcountU2 func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zPopcountU3 func is wrong: " << x;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j])
+              << "The zPopcountU4 func is wrong: " << x;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 TEST(MathTest, FractTest)
 {
   using namespace zinvul;

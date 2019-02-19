@@ -177,6 +177,16 @@ FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
 template <typename FloatN, typename IntegerN>
 FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
 
+// Integer
+
+//! Return the number of leading 0-bits
+template <typename IntegerN>
+IntegerN clz(const IntegerN& x) noexcept;
+
+//! Return the number of non-zero bits
+template <typename IntegerN>
+IntegerN popcount(const IntegerN& x) noexcept;
+
 } // namespace cl
 
 } // namespace zinvul
