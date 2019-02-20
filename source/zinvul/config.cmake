@@ -337,17 +337,16 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
                                -I ${__zinvul_root__}
                                -o ${spv_file_path} ${cl_file_path})
-    if(Z_DEBUG_MODE)
-      set(descriptor_map_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.csv)
-      list(APPEND clspv_commands -descriptormap=${descriptor_map_path})
-      # SPIRV-dis
-      find_program(spirv_dis "spirv-dis")
-      if(spirv_dis)
-        set(dis_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.txt)
-        set(spirv_dis_command COMMAND ${spirv_dis} ${spv_file_path} -o ${dis_file_path})
-      else()
-        message(WARNING "The `spirv-dis` command not found.")
-      endif()
+    # Descriptor map
+    set(descriptor_map_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.csv)
+    list(APPEND clspv_commands -descriptormap=${descriptor_map_path})
+    # SPIRV-dis
+    find_program(spirv_dis "spirv-dis")
+    if(spirv_dis)
+      set(dis_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.txt)
+      set(spirv_dis_command COMMAND ${spirv_dis} ${spv_file_path} -o ${dis_file_path})
+    else()
+      message(WARNING "The `spirv-dis` command not found.")
     endif()
     if(ZINVUL_BAKE_KERNELS)
       list(APPEND clspv_commands COMMAND
