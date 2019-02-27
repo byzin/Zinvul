@@ -359,7 +359,7 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     # Bake spir-v kernels
     if(ZINVUL_BAKE_KERNELS)
       list(APPEND clspv_commands COMMAND
-          ${Python_EXECUTABLE}
+          ${Python3_EXECUTABLE}
           ${__zinvul_root__}/python/bake_spirv_command.py
           ${kernel_group_name}
           ${spv_file_path}
