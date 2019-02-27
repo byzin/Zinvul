@@ -31,8 +31,8 @@
 !/source/zinvul/
 !/source/zinvul/*.dox
 !/source/zinvul/*.cmake
-!/source/zinvul/cmake/
-!/source/zinvul/cmake/*.cmake
+!/source/zinvul/python/
+!/source/zinvul/python/*.py
 !/source/zinvul/template/
 !/source/zinvul/template/*.hpp.in
 !/source/zinvul/template/*.cpp.in

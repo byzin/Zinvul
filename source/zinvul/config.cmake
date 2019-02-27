@@ -103,6 +103,7 @@ endfunction(initZinvulOption)
 
 
 function(getZinvulKernelOption zinvul_compile_flags zinvul_definitions)
+  set(compile_flags "")
   set(definitions "")
 
   # Math
@@ -168,6 +169,7 @@ function(getZinvulKernelOption zinvul_compile_flags zinvul_definitions)
   endif()
 
   # Output variables
+  set(${zinvul_compile_flags} ${compile_flags} PARENT_SCOPE)
   set(${zinvul_definitions} ${definitions} PARENT_SCOPE)
 endfunction(getZinvulKernelOption)
 
@@ -275,7 +277,7 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
   # Parse arguments
   set(options "")
   set(one_value_args "")
-  set(multi_value_args SOURCE_FILES INCLUDE_DIRS)
+  set(multi_value_args SOURCE_FILES INCLUDE_DIRS DEFINITIONS)
   cmake_parse_arguments(PARSE_ARGV 3 ZINVUL "${options}" "${one_value_args}" "${multi_value_args}")
   if(NOT ZINVUL_SOURCE_FILES)
     message(FATAL_ERROR "The kernel group '${kernel_group_name}' has no source.")
@@ -296,7 +298,7 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
 
   # C++ backend
   getCppAddressQualifiersCode(define_cpp_address_qualifiers_code undefine_cpp_address_qualifiers_code)
-  set(definitions "")
+  set(definitions "" ${ZINVUL_DEFINITIONS})
   set(kernel_hpp_file_path ${PROJECT_BINARY_DIR}/include/zinvul/${kernel_group_name}.hpp)
   configure_file(${__zinvul_root__}/template/kernel_group.hpp.in
                  ${kernel_hpp_file_path}
@@ -314,29 +316,35 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
                    @ONLY)
     list(APPEND kernel_source_files ${cl_file_path})
     # Set clspv options
-    set(clspv_options -DZINVUL_VULKAN)
+    set(clspv_options -D=ZINVUL_VULKAN)
     getZinvulKernelOption(clspv_compile_flags clspv_definitions)
-    foreach(definition IN LISTS clspv_definitions)
-      list(APPEND clspv_options -D${definition})
+    foreach(compile_flag IN LISTS clspv_compile_flags)
+      list(APPEND clspv_options ${compile_flag})
+    endforeach(compile_flag)
+    foreach(include_dir IN LISTS ZINVUL_INCLUDE_DIRS)
+      list(APPEND clspv_options -I=${include_dir})
+    endforeach(include_dir)
+    foreach(definition IN LISTS definitions clspv_definitions)
+      list(APPEND clspv_options -D=${definition})
     endforeach(definition)
     if(Z_DEBUG_MODE)
-      list(APPEND clspv_options -O0 -DZ_DEBUG_MODE)
+      list(APPEND clspv_options -O=0 -D=Z_DEBUG_MODE)
       list(APPEND clspv_options -enable-implicit-null-checks -enable-value-profiling -no-inline-single)
     elseif(Z_RELEASE_MODE)
-      list(APPEND clspv_options -O3 -DZ_RELEASE_MODE)
+      list(APPEND clspv_options -O=3 -D=Z_RELEASE_MODE)
       list(APPEND clspv_options -cl-finite-math-only -cl-no-signed-zeros -enable-objc-arc-opts)
     endif()
     if(Z_WINDOWS)
-      list(APPEND clspv_options -DZ_WINDOWS)
+      list(APPEND clspv_options -D=Z_WINDOWS)
     elseif(Z_LINUX)
-      list(APPEND clspv_options -DZ_LINUX)
+      list(APPEND clspv_options -D=Z_LINUX)
     elseif(Z_MAC)
-      list(APPEND clspv_options -DZ_MAC)
+      list(APPEND clspv_options -D=Z_MAC)
     endif()
     list(APPEND clspv_options -cl-denorms-are-zero -f16bit_storage)
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
-                               -I ${__zinvul_root__}
-                               -o ${spv_file_path} ${cl_file_path})
+                               -I=${__zinvul_root__}
+                               -o=${spv_file_path} ${cl_file_path})
     # Descriptor map
     set(descriptor_map_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.csv)
     list(APPEND clspv_commands -descriptormap=${descriptor_map_path})
@@ -348,16 +356,15 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     else()
       message(WARNING "The `spirv-dis` command not found.")
     endif()
+    # Bake spir-v kernels
     if(ZINVUL_BAKE_KERNELS)
       list(APPEND clspv_commands COMMAND
-          ${CMAKE_COMMAND}
-          -DKERNEL_GROUP_NAME=${kernel_group_name}
-          -DBAKED_SPIRV_TEMPLATE_PATH=${__zinvul_root__}/template/baked_spirv.hpp.in
-          -DSPIRV_PATH=${spv_file_path}
-          -DBAKED_SPIRV_PATH=${baked_spv_file_path}
-          -DFILE_TYPE=SpirV
-          -P ${__zinvul_root__}/cmake/bake_command.cmake)
-      list(APPEND kernel_source_files ${baked_spv_file_path})
+          ${Python_EXECUTABLE}
+          ${__zinvul_root__}/python/bake_spirv_command.py
+          ${kernel_group_name}
+          ${spv_file_path}
+          ${baked_spv_file_path})
+#      list(APPEND kernel_source_files ${baked_spv_file_path})
     endif()
     add_custom_command(OUTPUT ${spv_file_path}
       ${clspv_commands}

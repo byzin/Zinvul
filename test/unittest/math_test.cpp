@@ -28,6 +28,9 @@
 // Test
 #include "test.hpp"
 
+#define ASSERT_FLOAT_NEAR(val1, val2, abs_error) ASSERT_NEAR(static_cast<double>(val1), static_cast<double>(val2), static_cast<double>(abs_error))
+#define EXPECT_FLOAT_NEAR(val1, val2, abs_error) EXPECT_NEAR(static_cast<double>(val1), static_cast<double>(val2), static_cast<double>(abs_error))
+
 TEST(MathTest, ConstantValueTest)
 {
   using namespace zinvul;
@@ -5449,7 +5452,7 @@ TEST(MathTest, TanTest)
         const float result = results[2 * i + 1];
         if (i < resolution) {
           const float error = zisc::constant::getUlps(expected + result);
-          ASSERT_NEAR(expected, result, error)
+          ASSERT_FLOAT_NEAR(expected, result, error)
               << "tan(" << ::getArgString(z) << ") isn't recommended to use of.";
         }
         else {
@@ -5470,7 +5473,7 @@ TEST(MathTest, TanTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error)
+          ASSERT_FLOAT_NEAR(expected, result[j], error)
               << "tan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -5487,7 +5490,7 @@ TEST(MathTest, TanTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error)
+          ASSERT_FLOAT_NEAR(expected, result[j], error)
               << "tan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -5504,7 +5507,7 @@ TEST(MathTest, TanTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error)
+          ASSERT_FLOAT_NEAR(expected, result[j], error)
               << "tan(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -5554,7 +5557,7 @@ TEST(MathTest, ZtanTest)
         const float result = results[2 * i + 1];
         if (i < resolution) {
           const float error = zisc::constant::getUlps(expected + result);
-          EXPECT_NEAR(expected, result, error) << "zTan(" << ::getArgString(z) << ") is wrong.";
+          EXPECT_FLOAT_NEAR(expected, result, error) << "zTan(" << ::getArgString(z) << ") is wrong.";
         }
         else {
           EXPECT_TRUE(std::isnan(result)) << "zTan(" << z << ") is wrong.";
@@ -5573,7 +5576,7 @@ TEST(MathTest, ZtanTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error) << "zTan2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_NEAR(expected, result[j], error) << "zTan2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -5589,7 +5592,7 @@ TEST(MathTest, ZtanTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error) << "zTan3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_NEAR(expected, result[j], error) << "zTan3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -5605,7 +5608,7 @@ TEST(MathTest, ZtanTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::tan(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error) << "zTan4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_NEAR(expected, result[j], error) << "zTan4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -5654,7 +5657,7 @@ TEST(MathTest, AsinTest)
         const float result = results[2 * i + 1];
         if (i < resolution) {
           const float error = zisc::constant::getUlps<3>(expected + result);
-          ASSERT_NEAR(expected, result, error)
+          ASSERT_FLOAT_NEAR(expected, result, error)
               << "asin(" << z << ") isn't recommended to use of.";
         }
         else {
@@ -5675,7 +5678,7 @@ TEST(MathTest, AsinTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
           const float error = zisc::constant::getUlps<3>(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error)
+          ASSERT_FLOAT_NEAR(expected, result[j], error)
               << "asin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -5692,7 +5695,7 @@ TEST(MathTest, AsinTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
           const float error = zisc::constant::getUlps<3>(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error)
+          ASSERT_FLOAT_NEAR(expected, result[j], error)
               << "asin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -5709,7 +5712,7 @@ TEST(MathTest, AsinTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
           const float error = zisc::constant::getUlps<3>(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error)
+          ASSERT_FLOAT_NEAR(expected, result[j], error)
               << "asin(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -5759,7 +5762,7 @@ TEST(MathTest, ZasinTest)
         const float result = results[2 * i + 1];
         if (i < resolution) {
           const float error = zisc::constant::getUlps<3>(expected + result);
-          EXPECT_NEAR(expected, result, error) << "zAsin(" << z << ") is wrong.";
+          EXPECT_FLOAT_NEAR(expected, result, error) << "zAsin(" << z << ") is wrong.";
         }
         else {
           EXPECT_TRUE(std::isnan(result)) << "zAsin(" << z << ") is wrong.";
@@ -5778,7 +5781,7 @@ TEST(MathTest, ZasinTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
           const float error = zisc::constant::getUlps<3>(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error) << "zAsin2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_NEAR(expected, result[j], error) << "zAsin2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -5794,7 +5797,7 @@ TEST(MathTest, ZasinTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
           const float error = zisc::constant::getUlps<3>(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error) << "zAsin3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_NEAR(expected, result[j], error) << "zAsin3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -5810,7 +5813,7 @@ TEST(MathTest, ZasinTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::asin(z[j]);
           const float error = zisc::constant::getUlps<3>(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error) << "zAsin4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_NEAR(expected, result[j], error) << "zAsin4(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -5859,7 +5862,7 @@ TEST(MathTest, AcosTest)
         const float result = results[2 * i + 1];
         if (i < resolution) {
           const float error = zisc::constant::getUlps(expected + result);
-          ASSERT_NEAR(expected, result, error)
+          ASSERT_FLOAT_NEAR(expected, result, error)
               << "acos(" << z << ") isn't recommended to use of.";
         }
         else {
@@ -5880,7 +5883,7 @@ TEST(MathTest, AcosTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error)
+          ASSERT_FLOAT_NEAR(expected, result[j], error)
               << "acos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -5897,7 +5900,7 @@ TEST(MathTest, AcosTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error)
+          ASSERT_FLOAT_NEAR(expected, result[j], error)
               << "acos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -5914,7 +5917,7 @@ TEST(MathTest, AcosTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error)
+          ASSERT_FLOAT_NEAR(expected, result[j], error)
               << "acos(" << z[j] << ") isn't recommended to use of.";
         }
       }
@@ -5964,7 +5967,7 @@ TEST(MathTest, ZacosTest)
         const float result = results[2 * i + 1];
         if (i < resolution) {
           const float error = zisc::constant::getUlps(expected + result);
-          EXPECT_NEAR(expected, result, error) << "zAcos(" << z << ") is wrong.";
+          EXPECT_FLOAT_NEAR(expected, result, error) << "zAcos(" << z << ") is wrong.";
         }
         else {
           EXPECT_TRUE(std::isnan(result)) << "zAcos(" << z << ") is wrong.";
@@ -5983,7 +5986,7 @@ TEST(MathTest, ZacosTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error) << "zAcos2(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_NEAR(expected, result[j], error) << "zAcos2(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -5999,7 +6002,7 @@ TEST(MathTest, ZacosTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error) << "zAcos3(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_NEAR(expected, result[j], error) << "zAcos3(" << z[j] << ") is wrong.";
         }
       }
     }
@@ -6015,7 +6018,7 @@ TEST(MathTest, ZacosTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::acos(z[j]);
           const float error = zisc::constant::getUlps(expected + result[j]);
-          ASSERT_NEAR(expected, result[j], error) << "zAcos4(" << z[j] << ") is wrong.";
+          ASSERT_FLOAT_NEAR(expected, result[j], error) << "zAcos4(" << z[j] << ") is wrong.";
         }
       }
     }

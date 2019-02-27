@@ -11,6 +11,7 @@ Version: 0.0.1
 ### Build tools ###
 
 * [CMake](https://cmake.org/) (version 3.10 or later)
+* [Python3](https://www.python.org/)
 
 ## Acknowledgement ##
 

@@ -63,6 +63,9 @@ find_package(Threads REQUIRED)
 # Vulkan
 if(ZINVUL_ENABLE_VULKAN_BACKEND)
   find_package(Vulkan REQUIRED)
+  if(ZINVUL_BAKE_KERNELS)
+    find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  endif()
   set(vma_include_dir ${PROJECT_SOURCE_DIR}/source/dependencies/VulkanMemoryAllocator/src)
 endif()
 

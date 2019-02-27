@@ -9,6 +9,12 @@
 set(__test_root__ ${CMAKE_CURRENT_LIST_DIR})
 
 
+function(initTestOption)
+  set(option_description "Add casting-to-int8-pointer tests.")
+  setBooleanOption(ZINVUL_TEST_INT8_POINTER OFF ${option_description})
+endfunction(initTestOption)
+
+
 function(getTestWarningOption test_warning_flags)
   set(warning_flags "")
 
@@ -21,6 +27,7 @@ function(getTestWarningOption test_warning_flags)
                                 -Wno-old-style-cast
                                 -Wno-padded
                                 -Wno-weak-vtables
+                                -Wno-zero-as-null-pointer-constant
                                 )
     elseif(Z_GCC)
       list(APPEND warning_flags -Wno-restrict
@@ -39,6 +46,8 @@ function(getTestWarningOption test_warning_flags)
 endfunction(getTestWarningOption)
 
 function(buildUnitTest)
+  initTestOption()
+
   # Load GoogleTest
   include(${zisc_path}/cmake/googletest.cmake)
   set(gtest_project_root ${__test_root__}/googletest)
@@ -47,10 +56,13 @@ function(buildUnitTest)
 
   # Test kernels
   # Data
+  if(ZINVUL_TEST_INT8_POINTER)
+    list(APPEND data_definitions ZINVUL_TEST_INT8_POINTER)
+  endif()
   set(data_dir ${__test_root__}/kernels/data)
   file(GLOB_RECURSE data_cl_files ${data_dir}/*.cl)
   makeKernelGroup(data data_source_files data_definitions
-      SOURCE_FILES ${data_cl_files} INCLUDE_DIRS ${data_dir})
+    SOURCE_FILES ${data_cl_files} INCLUDE_DIRS ${data_dir} DEFINITIONS ${data_definitions})
   # Built-in functions
   set(built_in_func_dir ${__test_root__}/kernels/built_in_func)
   file(GLOB_RECURSE built_in_func_cl_files ${built_in_func_dir}/*.cl)
@@ -93,11 +105,11 @@ function(buildUnitTest)
                                               ${PROJECT_BINARY_DIR}/include
                                               ${zisc_include_dirs}
                                               ${zinvul_include_dirs})
-  target_include_directories(UnitTest SYSTEM PRIVATE ${Vulkan_INCLUDE_DIRS}
+  target_include_directories(UnitTest SYSTEM PRIVATE Vulkan::Vulkan
                                                      ${vma_include_dir}
                                                      ${gtest_include_dir})
   target_link_libraries(UnitTest PRIVATE ${CMAKE_THREAD_LIBS_INIT}
-                                         ${Vulkan_LIBRARIES}
+                                         Vulkan::Vulkan
                                          ${cxx_linker_flags}
                                          ${zisc_linker_flags}
                                          ${zinvul_linker_flags}
