@@ -26,26 +26,22 @@ def main():
   baked_spirv_code += "  http://opensource.org/licenses/mit-license.php\n"
   baked_spirv_code += "  */\n"
   baked_spirv_code += "\n"
-  baked_spirv_code += "#ifndef ZINVUL_BAKED_" + args.kernel_group_name.upper() + "_SPIRV_HPP\n"
-  baked_spirv_code += "#define ZINVUL_BAKED_" + args.kernel_group_name.upper() + "_SPIRV_HPP\n"
+  baked_spirv_code += "#ifndef ZINVUL_BAKED_" + args.kernel_group_name + "_SPIRV_HPP\n"
+  baked_spirv_code += "#define ZINVUL_BAKED_" + args.kernel_group_name + "_SPIRV_HPP\n"
   baked_spirv_code += "\n"
 
   # Baked SPIR-V code
-  baked_spirv_code += "zisc::pmr::vector<uint32b> spirv_code{mem_resource};\n"
-  baked_spirv_code += "spirv_code = {\n"
   with open(args.spirv_file_path, 'rb') as spirv:
-    byte_position = 0
+    position = 0
+    code_list = []
     for spirv_code in spirv.read():
-      baked_spirv_code += "static_cast<uint32b>(" + str(spirv_code) + "u)"
-      baked_spirv_code += "<<" + str(8 * byte_position) + "u"
-      byte_position = byte_position + 1
-      if byte_position == 4:
-        baked_spirv_code += ","
-        byte_position = 0
-      else:
-        baked_spirv_code += "|"
-  baked_spirv_code += "};\n"
-  baked_spirv_code += "return spirv_code;\n"
+      code_list.append(spirv_code)
+      if len(code_list) == 4:
+        baked_spirv_code += "to_4byte({}u,{}u,{}u,{}u),\n".format(code_list[0],
+                                                                  code_list[1],
+                                                                  code_list[2],
+                                                                  code_list[3])
+        code_list.clear()
 
   # Footer
   baked_spirv_code += "\n"

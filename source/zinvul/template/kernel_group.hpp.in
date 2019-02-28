@@ -58,6 +58,7 @@ class KernelGroup : public zinvul::KernelGroup
   zisc::pmr::vector<uint32b> __getKernelSpirvCode(
       zisc::pmr::memory_resource* mem_resource) const noexcept override
   {
+    zisc::pmr::vector<uint32b> spirv_code{mem_resource};
 #ifndef ZINVUL_BAKE_KERNELS
     std::ifstream spirv_file{"@spv_file_path@", std::ios_base::binary};
     ZISC_ASSERT(spirv_file.is_open(), "The SPIR-V file doesn't exist.");
@@ -71,13 +72,22 @@ class KernelGroup : public zinvul::KernelGroup
       spirv_file.clear();
       spirv_file.seekg(0, std::ios_base::beg);
     }
-    zisc::pmr::vector<uint32b> spirv_code{mem_resource};
     spirv_code.resize(zisc::cast<std::size_t>(spirv_size / 4));
     spirv_file.read(reinterpret_cast<char*>(spirv_code.data()), spirv_size);
-    return spirv_code;
 #else // ZINVUL_BAKE_KERNELS
+    const auto to_4byte = [](const uint32b byte1,
+                             const uint32b byte2,
+                             const uint32b byte3,
+                             const uint32b byte4)
+    {
+      const uint32b b = byte1 | (byte2 << 8u) | (byte3 << 16u) | (byte4 << 24u);
+      return b;
+    };
+    spirv_code = {
 #include "@baked_spv_file_path@"
+        };
 #endif // ZINVUL_BAKE_KERNELS
+    return spirv_code;
   }
 };
 
