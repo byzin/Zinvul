@@ -34,13 +34,14 @@ def main():
   with open(args.spirv_file_path, 'rb') as spirv:
     position = 0
     code_list = []
+    bytes_code_format = "to_4byte(0x{:02x}u,0x{:02x}u,0x{:02x}u,0x{:02x}u),\n"
     for spirv_code in spirv.read():
       code_list.append(spirv_code)
       if len(code_list) == 4:
-        baked_spirv_code += "to_4byte({}u,{}u,{}u,{}u),\n".format(code_list[0],
-                                                                  code_list[1],
-                                                                  code_list[2],
-                                                                  code_list[3])
+        baked_spirv_code += bytes_code_format.format(code_list[0],
+                                                     code_list[1],
+                                                     code_list[2],
+                                                     code_list[3])
         code_list.clear()
 
   # Footer
