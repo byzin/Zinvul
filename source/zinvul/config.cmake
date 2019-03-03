@@ -19,6 +19,9 @@ function(initZinvulOption)
   set(option_description "Use built-in math funcs instead of the Zinvul funcs.")
   setBooleanOption(ZINVUL_MATH_BUILTIN OFF ${option_description})
 
+  set(option_description "Use built-in `select{ instead of the Zinvul func.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_SELECT OFF ${option_description})
+
   set(option_description "Use built-in 'sign' instead of the Zinvul func.")
   if(Z_MAC)
     setBooleanOption(ZINVUL_MATH_BUILTIN_SIGN ON ${option_description})
@@ -106,6 +109,10 @@ function(getZinvulKernelOption zinvul_compile_flags zinvul_definitions)
   set(compile_flags "")
   set(definitions "")
 
+  # Relational
+  if(ZINVUL_MATH_BUILTIN_SELECT)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_SELECT)
+  endif()
   # Math
   if(ZINVUL_MATH_BUILTIN)
     list(APPEND definitions ZINVUL_MATH_BUILTIN)

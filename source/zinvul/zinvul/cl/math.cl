@@ -10,7 +10,6 @@
 #ifndef ZINVUL_MATH_CL
 #define ZINVUL_MATH_CL
 
-#include "relational.cl"
 #include "types.cl"
 #include "utility.cl"
 
@@ -48,10 +47,290 @@
 #define zSignificandBitMaskF 0x7fffffu
 #define zSignificandBitSizeF 23
 
+//! Return c ? b : a
+#define ZINVUL_SELECT_IMPL(a, b, c) (c ? b : a)
+
+#if defined(ZINVUL_CPU)
+
+//! Return c ? b : a
+#define ZINVUL_SELECT2_IMPL(makeVec2, a, b, c) \
+    makeVec2(ZINVUL_SELECT_IMPL(a.x, b.x, c.x), \
+             ZINVUL_SELECT_IMPL(a.y, b.y, c.y))
+
+//! Return c ? b : a
+#define ZINVUL_SELECT3_IMPL(makeVec3, a, b, c) \
+    makeVec3(ZINVUL_SELECT_IMPL(a.x, b.x, c.x), \
+             ZINVUL_SELECT_IMPL(a.y, b.y, c.y), \
+             ZINVUL_SELECT_IMPL(a.z, b.z, c.z))
+
+//! Return c ? b : a
+#define ZINVUL_SELECT4_IMPL(makeVec4, a, b, c) \
+    makeVec4(ZINVUL_SELECT_IMPL(a.x, b.x, c.x), \
+             ZINVUL_SELECT_IMPL(a.y, b.y, c.y), \
+             ZINVUL_SELECT_IMPL(a.z, b.z, c.z), \
+             ZINVUL_SELECT_IMPL(a.w, b.w, c.w))
+
+#else // ZINVUL_CPU
+
+//! Return c ? b : a
+#define ZINVUL_SELECT2_IMPL(makeVec2, a, b, c) ZINVUL_SELECT_IMPL(a, b, c)
+
+//! Return c ? b : a
+#define ZINVUL_SELECT3_IMPL(makeVec3, a, b, c) ZINVUL_SELECT_IMPL(a, b, c)
+
+//! Return c ? b : a
+#define ZINVUL_SELECT4_IMPL(makeVec4, a, b, c) ZINVUL_SELECT_IMPL(a, b, c)
+
+#endif // ZINVUL_CPU
+
+//! Return c ? b : a
+int32b zSelectImpl(const int32b a, const int32b b, const int32b c)
+{
+  const int32b result = ZINVUL_SELECT_IMPL(a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+int32b zSelect(const int32b a, const int32b b, const int32b c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const int32b result = select(a, b, c)
+#else 
+  const int32b result = zSelectImpl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+int2 zSelect2Impl(const int2 a, const int2 b, const int2 c)
+{
+  const int2 result = ZINVUL_SELECT2_IMPL(zMakeInt2, a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+int2 zSelect2(const int2 a, const int2 b, const int2 c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const int2 result = select(a, b, c);
+#else
+  const int2 result = zSelect2Impl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+int3 zSelect3Impl(const int3 a, const int3 b, const int3 c)
+{
+  const int3 result = ZINVUL_SELECT3_IMPL(zMakeInt3, a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+int3 zSelect3(const int3 a, const int3 b, const int3 c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const int3 result = select(a, b, c);
+#else
+  const int3 result = zSelect3Impl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+int4 zSelect4Impl(const int4 a, const int4 b, const int4 c)
+{
+  const int4 result = ZINVUL_SELECT4_IMPL(zMakeInt4, a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+int4 zSelect4(const int4 a, const int4 b, const int4 c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const int4 result = select(a, b, c);
+#else
+  const int4 result = zSelect4Impl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+uint32b zSelectUImpl(const uint32b a, const uint32b b, const int32b c)
+{
+  const uint32b result = ZINVUL_SELECT_IMPL(a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+uint32b zSelectU(const uint32b a, const uint32b b, const int32b c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const uint32b result = select(a, b, c);
+#else
+  const uint32b result = zSelectUImpl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+uint2 zSelectU2Impl(const uint2 a, const uint2 b, const int2 c)
+{
+  const uint2 result = ZINVUL_SELECT2_IMPL(zMakeUInt2, a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+uint2 zSelectU2(const uint2 a, const uint2 b, const int2 c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const uint2 result = select(a, b, c);
+#else
+  const uint2 result = zSelectU2Impl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+uint3 zSelectU3Impl(const uint3 a, const uint3 b, const int3 c)
+{
+  const uint3 result = ZINVUL_SELECT3_IMPL(zMakeUInt3, a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+uint3 zSelectU3(const uint3 a, const uint3 b, const int3 c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const uint3 result = select(a, b, c);
+#else
+  const uint3 result = zSelectU3Impl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+uint4 zSelectU4Impl(const uint4 a, const uint4 b, const int4 c)
+{
+  const uint4 result = ZINVUL_SELECT4_IMPL(zMakeUInt4, a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+uint4 zSelectU4(const uint4 a, const uint4 b, const int4 c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const uint4 result = select(a, b, c);
+#else
+  const uint4 result = zSelectU4Impl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+float zSelectFImpl(const float a, const float b, const int32b c)
+{
+  const float result = ZINVUL_SELECT_IMPL(a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+float2 zSelectF2Impl(const float2 a, const float2 b, const int2 c)
+{
+  const float2 result = ZINVUL_SELECT2_IMPL(zMakeFloat2, a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+float3 zSelectF3Impl(const float3 a, const float3 b, const int3 c)
+{
+  const float3 result = ZINVUL_SELECT3_IMPL(zMakeFloat3, a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+float4 zSelectF4Impl(const float4 a, const float4 b, const int4 c)
+{
+  const float4 result = ZINVUL_SELECT4_IMPL(zMakeFloat4, a, b, c);
+  return result;
+}
+
+//! Return c ? b : a
+float zSelectF(const float a, const float b, const int32b c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const float result = select(a, b, c);
+#else
+  const float result = zSelectFImpl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+float2 zSelectF2(const float2 a, const float2 b, const int2 c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const float2 result = select(a, b, c);
+#else
+  const float2 result = zSelectF2Impl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+float3 zSelectF3(const float3 a, const float3 b, const int3 c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const float3 result = select(a, b, c);
+#else
+  const float3 result = zSelectF3Impl(a, b, c);
+#endif
+  return result;
+}
+
+//! Return c ? b : a
+float4 zSelectF4(const float4 a, const float4 b, const int4 c)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SELECT)
+  const float4 result = select(a, b, c);
+#else
+  const float4 result = zSelectF4Impl(a, b, c);
+#endif
+  return result;
+}
+
 //! Return 1 if x > 0, -1 if x < 0, otherwise 0
 #define ZINVUL_SIGN_IMPL(FType, selectF, broadcastF, x) \
   FType y = selectF(broadcastF(0.0f), broadcastF(1.0f), 0.0f < x); \
   y = selectF(y, broadcastF(-1.0f), x < 0.0f)
+
+//! Return 1 if x > 0, -1 if x < 0, otherwise 0
+float zSignImpl(const float x)
+{
+  ZINVUL_SIGN_IMPL(float, zSelectF, , x);
+  return y;
+}
+
+//! Return 1 if x > 0, -1 if x < 0, otherwise 0
+float2 zSign2Impl(const float2 x)
+{
+  ZINVUL_SIGN_IMPL(float2, zSelectF2, zBroadcastF2, x);
+  return y;
+}
+
+//! Return 1 if x > 0, -1 if x < 0, otherwise 0
+float3 zSign3Impl(const float3 x)
+{
+  ZINVUL_SIGN_IMPL(float3, zSelectF3, zBroadcastF3, x);
+  return y;
+}
+
+//! Return 1 if x > 0, -1 if x < 0, otherwise 0
+float4 zSign4Impl(const float4 x)
+{
+  ZINVUL_SIGN_IMPL(float4, zSelectF4, zBroadcastF4, x);
+  return y;
+}
 
 //! Return 1 if x > 0, -1 if x < 0, otherwise 0
 float zSign(const float x)
@@ -59,7 +338,7 @@ float zSign(const float x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SIGN)
   const float y = sign(x);
 #else
-  ZINVUL_SIGN_IMPL(float, zSelectF, , x);
+  const float y = zSignImpl(x);
 #endif
   return y;
 }
@@ -70,7 +349,7 @@ float2 zSign2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SIGN)
   const float2 y = sign(x);
 #else
-  ZINVUL_SIGN_IMPL(float2, zSelectF2, zBroadcastF2, x);
+  const float2 y = zSign2Impl(x);
 #endif
   return y;
 }
@@ -81,7 +360,7 @@ float3 zSign3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SIGN)
   const float3 y = sign(x);
 #else
-  ZINVUL_SIGN_IMPL(float3, zSelectF3, zBroadcastF3, x);
+  const float3 y = zSign3Impl(x);
 #endif
   return y;
 }
@@ -92,7 +371,7 @@ float4 zSign4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SIGN)
   const float4 y = sign(x);
 #else
-  ZINVUL_SIGN_IMPL(float4, zSelectF4, zBroadcastF4, x);
+  const float4 y = zSign4Impl(x);
 #endif
   return y;
 }
@@ -103,51 +382,115 @@ float4 zSign4(const float4 x)
 #define ZINVUL_ICEIL_IMPL(x) ceil(x)
 
 //! Return the nearest integer not less than the given value
+int32b zICeilImpl(const float x)
+{
+  const float f = ZINVUL_ICEIL_IMPL(x);
+  const int32b y = (int32b)f;
+  return y;
+}
+
+//! Return the nearest integer not less than the given value
+int2 zICeil2Impl(const float2 x)
+{
+  const float2 f = ZINVUL_ICEIL_IMPL(x);
+  const int2 y = zF2ToI2(f);
+  return y;
+}
+
+//! Return the nearest integer not less than the given value
+int3 zICeil3Impl(const float3 x)
+{
+  const float3 f = ZINVUL_ICEIL_IMPL(x);
+  const int3 y = zF3ToI3(f);
+  return y;
+}
+
+//! Return the nearest integer not less than the given value
+int4 zICeil4Impl(const float4 x)
+{
+  const float4 f = ZINVUL_ICEIL_IMPL(x);
+  const int4 y = zF4ToI4(f);
+  return y;
+}
+
+//! Return the nearest integer not less than the given value
 int32b zICeil(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float y = ceil(x);
+  const float f = ceil(x);
+  const int32b y = (int32b)f;
 #else
-  const float y = ZINVUL_ICEIL_IMPL(x);
+  const int32b y = zICeilImpl(x);
 #endif
-  return (int32b)y;
+  return y;
 }
 
 //! Return the nearest integer not less than the given value
 int2 zICeil2(const float2 x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float2 y = ceil(x);
+  const float2 f = ceil(x);
+  const int2 y = zF2ToI2(f);
 #else
-  const float2 y = ZINVUL_ICEIL_IMPL(x);
+  const int2 y = zICeil2Impl(x);
 #endif
-  return zF2ToI2(y);
+  return y;
 }
 
 //! Return the nearest integer not less than the given value
 int3 zICeil3(const float3 x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float3 y = ceil(x);
+  const float3 f = ceil(x);
+  const int3 y = zF3ToI3(f);
 #else
-  const float3 y = ZINVUL_ICEIL_IMPL(x);
+  const int3 y = zICeil3Impl(x);
 #endif
-  return zF3ToI3(y);
+  return y;
 }
 
 //! Return the nearest integer not less than the given value
 int4 zICeil4(const float4 x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float4 y = ceil(x);
+  const float4 f = ceil(x);
+  const int4 y = zF4ToI4(f);
 #else
-  const float4 y = ZINVUL_ICEIL_IMPL(x);
+  const int4 y = zICeil4Impl(x);
 #endif
-  return zF4ToI4(y);
+  return y;
 }
 
 //! Return the nearest integer not less than the given value. \todo Implement
 #define ZINVUL_CEIL_IMPL(x) ceil(x)
+
+//! Return the nearest integer not less than the given value
+float zCeilImpl(const float x)
+{
+  const float y = ZINVUL_CEIL_IMPL(x);
+  return y;
+}
+
+//! Return the nearest integer not less than the given value
+float2 zCeil2Impl(const float2 x)
+{
+  const float2 y = ZINVUL_CEIL_IMPL(x);
+  return y;
+}
+
+//! Return the nearest integer not less than the given value
+float3 zCeil3Impl(const float3 x)
+{
+  const float3 y = ZINVUL_CEIL_IMPL(x);
+  return y;
+}
+
+//! Return the nearest integer not less than the given value
+float4 zCeil4Impl(const float4 x)
+{
+  const float4 y = ZINVUL_CEIL_IMPL(x);
+  return y;
+}
 
 //! Return the nearest integer not less than the given value
 float zCeil(const float x)
@@ -155,7 +498,7 @@ float zCeil(const float x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float y = ceil(x);
 #else
-  const float y = ZINVUL_CEIL_IMPL(x);
+  const float y = zCeilImpl(x);
 #endif
   return y;
 }
@@ -166,7 +509,7 @@ float2 zCeil2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float2 y = ceil(x);
 #else
-  const float2 y = ZINVUL_CEIL_IMPL(x);
+  const float2 y = zCeil2Impl(x);
 #endif
   return y;
 }
@@ -177,7 +520,7 @@ float3 zCeil3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float3 y = ceil(x);
 #else
-  const float3 y = ZINVUL_CEIL_IMPL(x);
+  const float3 y = zCeil3Impl(x);
 #endif
   return y;
 }
@@ -188,7 +531,7 @@ float4 zCeil4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float4 y = ceil(x);
 #else
-  const float4 y = ZINVUL_CEIL_IMPL(x);
+  const float4 y = zCeil4Impl(x);
 #endif
   return y;
 }
@@ -197,36 +540,71 @@ float4 zCeil4(const float4 x)
 #define ZINVUL_IFLOOR_IMPL(x) floor(x)
 
 //! Return the nearest integer not greater than the given value
+int32b zIFloorImpl(const float x)
+{
+  const float f = ZINVUL_IFLOOR_IMPL(x);
+  const int32b y = (int32b)f;
+  return y;
+}
+
+//! Return the nearest integer not greater than the given value
+int2 zIFloor2Impl(const float2 x)
+{
+  const float2 f = ZINVUL_IFLOOR_IMPL(x);
+  const int2 y = zF2ToI2(f);
+  return y;
+}
+
+//! Return the nearest integer not greater than the given value
+int3 zIFloor3Impl(const float3 x)
+{
+  const float3 f = ZINVUL_IFLOOR_IMPL(x);
+  const int3 y = zF3ToI3(f);
+  return y;
+}
+
+//! Return the nearest integer not greater than the given value
+int4 zIFloor4Impl(const float4 x)
+{
+  const float4 f = ZINVUL_IFLOOR_IMPL(x);
+  const int4 y = zF4ToI4(f);
+  return y;
+}
+
+//! Return the nearest integer not greater than the given value
 int32b zIFloor(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float y = floor(x);
+  const float f = floor(x);
+  const int32b y = (int32b)f;
 #else
-  const float y = ZINVUL_IFLOOR_IMPL(x);
+  const int32b y = zIFloorImpl(x);
 #endif
-  return (int32b)y;
+  return y;
 }
 
 //! Return the nearest integer not greater than the given value
 int2 zIFloor2(const float2 x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float2 y = floor(x);
+  const float2 f = floor(x);
+  const int2 y = zF2ToI2(f);
 #else
-  const float2 y = ZINVUL_IFLOOR_IMPL(x);
+  const int2 y = zIFloor2Impl(x);
 #endif
-  return zF2ToI2(y);
+  return y;
 }
 
 //! Return the nearest integer not greater than the given value
 int3 zIFloor3(const float3 x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float3 y = floor(x);
+  const float3 f = floor(x);
+  const int3 y = zF3ToI3(f);
 #else
-  const float3 y = ZINVUL_IFLOOR_IMPL(x);
+  const int3 y = zIFloor3Impl(x);
 #endif
-  return zF3ToI3(y);
+  return y;
 }
 
 //! Return the nearest integer not greater than the given value
@@ -244,12 +622,40 @@ int4 zIFloor4(const float4 x)
 #define ZINVUL_FLOOR_IMPL(x) floor(x)
 
 //! Return the nearest integer not greater than the given value
+float zFloorImpl(const float x)
+{
+  const float y = ZINVUL_FLOOR_IMPL(x);
+  return y;
+}
+
+//! Return the nearest integer not greater than the given value
+float2 zFloor2Impl(const float2 x)
+{
+  const float2 y = ZINVUL_FLOOR_IMPL(x);
+  return y;
+}
+
+//! Return the nearest integer not greater than the given value
+float3 zFloor3Impl(const float3 x)
+{
+  const float3 y = ZINVUL_FLOOR_IMPL(x);
+  return y;
+}
+
+//! Return the nearest integer not greater than the given value
+float4 zFloor4Impl(const float4 x)
+{
+  const float4 y = ZINVUL_FLOOR_IMPL(x);
+  return y;
+}
+
+//! Return the nearest integer not greater than the given value
 float zFloor(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float y = floor(x);
 #else
-  const float y = ZINVUL_FLOOR_IMPL(x);
+  const float y = zFloorImpl(x);
 #endif
   return y;
 }
@@ -260,7 +666,7 @@ float2 zFloor2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float2 y = floor(x);
 #else
-  const float2 y = ZINVUL_FLOOR_IMPL(x);
+  const float2 y = zFloor2Impl(x);
 #endif
   return y;
 }
@@ -271,7 +677,7 @@ float3 zFloor3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float3 y = floor(x);
 #else
-  const float3 y = ZINVUL_FLOOR_IMPL(x);
+  const float3 y = zFloor3Impl(x);
 #endif
   return y;
 }
@@ -282,7 +688,7 @@ float4 zFloor4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float4 y = floor(x);
 #else
-  const float4 y = ZINVUL_FLOOR_IMPL(x);
+  const float4 y = zFloor4Impl(x);
 #endif
   return y;
 }
@@ -317,12 +723,40 @@ int4 zITrunc4(const float4 x)
   y = selectF(y, x, isinf(x) || isnan(x))
 
 //! Return the nearest integer not greater in magnitude than the given value
+float zTruncImpl(const float x)
+{
+  ZINVUL_TRUNC_IMPL(float, (float), zSelectF, zITrunc, x);
+  return y;
+}
+
+//! Return the nearest integer not greater in magnitude than the given value
+float2 zTrunc2Impl(const float2 x)
+{
+  ZINVUL_TRUNC_IMPL(float2, zI2ToF2, zSelectF2, zITrunc2, x);
+  return y;
+}
+
+//! Return the nearest integer not greater in magnitude than the given value
+float3 zTrunc3Impl(const float3 x)
+{
+  ZINVUL_TRUNC_IMPL(float3, zI3ToF3, zSelectF3, zITrunc3, x);
+  return y;
+}
+
+//! Return the nearest integer not greater in magnitude than the given value
+float4 zTrunc4Impl(const float4 x)
+{
+  ZINVUL_TRUNC_IMPL(float4, zI4ToF4, zSelectF4, zITrunc4, x);
+  return y;
+}
+
+//! Return the nearest integer not greater in magnitude than the given value
 float zTrunc(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float y = trunc(x);
 #else
-  ZINVUL_TRUNC_IMPL(float, (float), zSelectF, zITrunc, x);
+  const float y = zTruncImpl(x);
 #endif
   return y;
 }
@@ -333,7 +767,7 @@ float2 zTrunc2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float2 y = trunc(x);
 #else
-  ZINVUL_TRUNC_IMPL(float2, zI2ToF2, zSelectF2, zITrunc2, x);
+  const float2 y = zTrunc2Impl(x);
 #endif
   return y;
 }
@@ -344,7 +778,7 @@ float3 zTrunc3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float3 y = trunc(x);
 #else
-  ZINVUL_TRUNC_IMPL(float3, zI3ToF3, zSelectF3, zITrunc3, x);
+  const float3 y = zTrunc3Impl(x);
 #endif
   return y;
 }
@@ -355,7 +789,7 @@ float4 zTrunc4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float4 y = trunc(x);
 #else
-  ZINVUL_TRUNC_IMPL(float4, zI4ToF4, zSelectF4, zITrunc4, x);
+  const float4 y = zTrunc4Impl(x);
 #endif
   return y;
 }
@@ -364,47 +798,83 @@ float4 zTrunc4(const float4 x)
 #define ZINVUL_IROUND_IMPL(getSign, x) (getSign(x) * 0.5f + x);
 
 //! Return the nearest integer, rounding away from zero in halfway cases
+int32b zIRoundImpl(const float x)
+{
+  const float f = ZINVUL_IROUND_IMPL(zSign, x);
+  const int32b y = (int32b)f;
+  return y;
+}
+
+//! Return the nearest integer, rounding away from zero in halfway cases
+int2 zIRound2Impl(const float2 x)
+{
+  const float2 f = ZINVUL_IROUND_IMPL(zSign2, x);
+  const int2 y = zF2ToI2(f);
+  return y;
+}
+
+//! Return the nearest integer, rounding away from zero in halfway cases
+int3 zIRound3Impl(const float3 x)
+{
+  const float3 f = ZINVUL_IROUND_IMPL(zSign3, x);
+  const int3 y = zF3ToI3(f);
+  return y;
+}
+
+//! Return the nearest integer, rounding away from zero in halfway cases
+int4 zIRound4Impl(const float4 x)
+{
+  const float4 f = ZINVUL_IROUND_IMPL(zSign4, x);
+  const int4 y = zF4ToI4(f);
+  return y;
+}
+
+//! Return the nearest integer, rounding away from zero in halfway cases
 int32b zIRound(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float y = round(x);
+  const float f = round(x);
+  const int32b y = (int32b)f;
 #else
-  const float y = ZINVUL_IROUND_IMPL(zSign, x);
+  const int32b y = zIRoundImpl(x);
 #endif
-  return (int32b)y;
+  return y;
 }
 
 //! Return the nearest integer, rounding away from zero in halfway cases
 int2 zIRound2(const float2 x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float2 y = round(x);
+  const float2 f = round(x);
+  const int2 y = zF2ToI2(f);
 #else
-  const float2 y = ZINVUL_IROUND_IMPL(zSign2, x);
+  const int2 y = zIRound2Impl(x);
 #endif
-  return zF2ToI2(y);
+  return y;
 }
 
 //! Return the nearest integer, rounding away from zero in halfway cases
 int3 zIRound3(const float3 x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float3 y = round(x);
+  const float3 f = round(x);
+  const int3 y = zF3ToI3(f);
 #else
-  const float3 y = ZINVUL_IROUND_IMPL(zSign3, x);
+  const int3 y = zIRound3Impl(x);
 #endif
-  return zF3ToI3(y);
+  return y;
 }
 
 //! Return the nearest integer, rounding away from zero in halfway cases
 int4 zIRound4(const float4 x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
-  const float4 y = round(x);
+  const float4 f = round(x);
+  const int4 y = zF4ToI4(f);
 #else
-  const float4 y = ZINVUL_IROUND_IMPL(zSign4, x);
+  const int4 y = zIRound4Impl(x);
 #endif
-  return zF4ToI4(y);
+  return y;
 }
 
 //! Return the nearest integer, rounding away from zero in halfway cases
@@ -413,12 +883,40 @@ int4 zIRound4(const float4 x)
   y = selectF(y, x, isinf(x) || isnan(x))
 
 //! Return the nearest integer, rounding away from zero in halfway cases
+float zRoundImpl(const float x)
+{
+  ZINVUL_ROUND_IMPL(float, (float), zSelectF, zIRound, x);
+  return y;
+}
+
+//! Return the nearest integer, rounding away from zero in halfway cases
+float2 zRound2Impl(const float2 x)
+{
+  ZINVUL_ROUND_IMPL(float2, zI2ToF2, zSelectF2, zIRound2, x);
+  return y;
+}
+
+//! Return the nearest integer, rounding away from zero in halfway cases
+float3 zRound3Impl(const float3 x)
+{
+  ZINVUL_ROUND_IMPL(float3, zI3ToF3, zSelectF3, zIRound3, x);
+  return y;
+}
+
+//! Return the nearest integer, rounding away from zero in halfway cases
+float4 zRound4Impl(const float4 x)
+{
+  ZINVUL_ROUND_IMPL(float4, zI4ToF4, zSelectF4, zIRound4, x);
+  return y;
+}
+
+//! Return the nearest integer, rounding away from zero in halfway cases
 float zRound(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float y = round(x);
 #else
-  ZINVUL_ROUND_IMPL(float, (float), zSelectF, zIRound, x);
+  const float y = zRoundImpl(x);
 #endif
   return y;
 }
@@ -429,7 +927,7 @@ float2 zRound2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float2 y = round(x);
 #else
-  ZINVUL_ROUND_IMPL(float2, zI2ToF2, zSelectF2, zIRound2, x);
+  const float2 y = zRound2Impl(x);
 #endif
   return y;
 }
@@ -440,7 +938,7 @@ float3 zRound3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float3 y = round(x);
 #else
-  ZINVUL_ROUND_IMPL(float3, zI3ToF3, zSelectF3, zIRound3, x);
+  const float3 y = zRound3Impl(x);
 #endif
   return y;
 }
@@ -451,7 +949,7 @@ float4 zRound4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_NEAREST_INTEGER)
   const float4 y = round(x);
 #else
-  ZINVUL_ROUND_IMPL(float4, zI4ToF4, zSelectF4, zIRound4, x);
+  const float4 y = zRound4Impl(x);
 #endif
   return y;
 }
@@ -467,12 +965,40 @@ int32b zIsNegative(const int32b x)
 }
 
 //! Return |x|
+uint32b zAbsImpl(const int32b x)
+{
+  const uint32b result = (uint32b)zSelect(x, -x, x < 0);
+  return result;
+}
+
+//! Return |x|
+uint2 zAbs2Impl(const int2 x)
+{
+  const uint2 result = zI2ToU2(zSelect2(x, -x, x < 0));
+  return result;
+}
+
+//! Return |x|
+uint3 zAbs3Impl(const int3 x)
+{
+  const uint3 result = zI3ToU3(zSelect3(x, -x, x < 0));
+  return result;
+}
+
+//! Return |x|
+uint4 zAbs4Impl(const int4 x)
+{
+  const uint4 result = zI4ToU4(zSelect4(x, -x, x < 0));
+  return result;
+}
+
+//! Return |x|
 uint32b zAbs(const int32b x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_ABS)
   const uint32b result = abs(x);
 #else
-  const uint32b result = (uint32b)zSelect(x, -x, x < 0);
+  const uint32b result = zAbsImpl(x);
 #endif
   return result;
 }
@@ -483,7 +1009,7 @@ uint2 zAbs2(const int2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_ABS)
   const uint2 result = abs(x);
 #else
-  const uint2 result = zI2ToU2(zSelect2(x, -x, x < 0));
+  const uint2 result = zAbs2Impl(x);
 #endif
   return result;
 }
@@ -494,7 +1020,7 @@ uint3 zAbs3(const int3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_ABS)
   const uint3 result = abs(x);
 #else
-  const uint3 result = zI3ToU3(zSelect3(x, -x, x < 0));
+  const uint3 result = zAbs3Impl(x);
 #endif
   return result;
 }
@@ -505,8 +1031,36 @@ uint4 zAbs4(const int4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_ABS)
   const uint4 result = abs(x);
 #else
-  const uint4 result = zI4ToU4(zSelect4(x, -x, x < 0));
+  const uint4 result = zAbs4Impl(x);
 #endif
+  return result;
+}
+
+//! Return |x|
+float zAbsFImpl(const float x)
+{
+  const float result = zSelectF(x, -x, x < 0.0f);
+  return result;
+}
+
+//! Return |x|
+float2 zAbsF2Impl(const float2 x)
+{
+  const float2 result = zSelectF2(x, -x, x < 0.0f);
+  return result;
+}
+
+//! Return |x|
+float3 zAbsF3Impl(const float3 x)
+{
+  const float3 result = zSelectF3(x, -x, x < 0.0f);
+  return result;
+}
+
+//! Return |x|
+float4 zAbsF4Impl(const float4 x)
+{
+  const float4 result = zSelectF4(x, -x, x < 0.0f);
   return result;
 }
 
@@ -516,7 +1070,7 @@ float zAbsF(const float x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_ABS)
   const float result = fabs(x);
 #else
-  const float result = zSelectF(x, -x, x < 0.0f);
+  const float result = zAbsFImpl(x);
 #endif
   return result;
 }
@@ -527,7 +1081,7 @@ float2 zAbsF2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_ABS)
   const float2 result = fabs(x);
 #else
-  const float2 result = zSelectF2(x, -x, x < 0.0f);
+  const float2 result = zAbsF2Impl(x);
 #endif
   return result;
 }
@@ -538,7 +1092,7 @@ float3 zAbsF3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_ABS)
   const float3 result = fabs(x);
 #else
-  const float3 result = zSelectF3(x, -x, x < 0.0f);
+  const float3 result = zAbsF3Impl(x);
 #endif
   return result;
 }
@@ -549,7 +1103,7 @@ float4 zAbsF4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_ABS)
   const float4 result = fabs(x);
 #else
-  const float4 result = zSelectF4(x, -x, x < 0.0f);
+  const float4 result = zAbsF4Impl(x);
 #endif
   return result;
 }
@@ -559,85 +1113,142 @@ float4 zAbsF4(const float4 x)
   const FType e = (4.0f * zFloatEpsilon) * absolute(lhs + rhs); \
   const FType v = absolute(lhs - rhs); \
   const IType result = (v <= e); \
-  return result
 
 //! Check if the given two values are almost same
-int32b isAlmostSame(const float lhs, const float rhs)
+int32b zIsAlmostSame(const float lhs, const float rhs)
 {
   ZINVUL_IS_ALMOST_SAME_IMPL(float, int32b, zAbsF, lhs, rhs);
+  return result;
 }
 
 //! Check if the given two values are almost same
-int2 isAlmostSame2(const float2 lhs, const float2 rhs)
+int2 zIsAlmostSame2(const float2 lhs, const float2 rhs)
 {
   ZINVUL_IS_ALMOST_SAME_IMPL(float2, int2, zAbsF2, lhs, rhs);
+  return result;
 }
 
 //! Check if the given two values are almost same
-int3 isAlmostSame3(const float3 lhs, const float3 rhs)
+int3 zIsAlmostSame3(const float3 lhs, const float3 rhs)
 {
   ZINVUL_IS_ALMOST_SAME_IMPL(float3, int3, zAbsF3, lhs, rhs);
+  return result;
 }
 
 //! Check if the given two values are almost same
-int4 isAlmostSame4(const float4 lhs, const float4 rhs)
+int4 zIsAlmostSame4(const float4 lhs, const float4 rhs)
 {
   ZINVUL_IS_ALMOST_SAME_IMPL(float4, int4, zAbsF4, lhs, rhs);
+  return result;
 }
 
 //! Check if the given value is odd
-int32b isOdd(const int32b value)
+int32b zIsOdd(const int32b value)
 {
   const int32b result = (value & 1) == 1;
   return result;
 }
 
 //! Check if the given value is odd
-int2 isOdd2(const int2 value)
+int2 zIsOdd2(const int2 value)
 {
   const int2 result = (value & 1) == 1;
   return result;
 }
 
 //! Check if the given value is odd
-int3 isOdd3(const int3 value)
+int3 zIsOdd3(const int3 value)
 {
   const int3 result = (value & 1) == 1;
   return result;
 }
 
 //! Check if the given value is odd
-int4 isOdd4(const int4 value)
+int4 zIsOdd4(const int4 value)
 {
   const int4 result = (value & 1) == 1;
   return result;
 }
 
 //! Check if the given value is odd
-int32b isOddU(const uint32b value)
+int32b zIsOddU(const uint32b value)
 {
   const int32b result = (value & 1u) == 1u;
   return result;
 }
 
 //! Check if the given value is odd
-int2 isOddU2(const uint2 value)
+int2 zIsOddU2(const uint2 value)
 {
   const int2 result = (value & 1u) == 1u;
   return result;
 }
 
 //! Check if the given value is odd
-int3 isOddU3(const uint3 value)
+int3 zIsOddU3(const uint3 value)
 {
   const int3 result = (value & 1u) == 1u;
   return result;
 }
 
 //! Check if the given value is odd
-int4 isOddU4(const uint4 value)
+int4 zIsOddU4(const uint4 value)
 {
   const int4 result = (value & 1u) == 1u;
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+int32b zMaxImpl(const int32b x, const int32b y)
+{
+#if defined(ZINVUL_VULKAN) && defined(Z_MAC)
+  //! \todo Optimize zMax on macOS
+  const int32b x_is_negative = zIsNegative(x);
+  const int32b y_is_negative = zIsNegative(y);
+  const int32b result = (x_is_negative && y_is_negative) ? zSelect(x, y, -y < -x) :
+                        (x_is_negative || y_is_negative) ? zSelect(x, y, y_is_negative < x_is_negative ) :
+                                                           zSelect(x, y, x < y);
+#else
+  const int32b result = zSelect(x, y, x < y);
+#endif
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+int2 zMax2Impl(const int2 x, const int2 y)
+{
+#if defined(ZINVUL_VULKAN) && defined(Z_MAC)
+  //! \todo Optimize zMax on macOS
+  const int2 result = zMakeInt2(zMaxImpl(x.x, y.x), zMaxImpl(x.y, y.y));
+#else
+  const int2 result = zSelect2(x, y, x < y);
+#endif
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+int3 zMax3Impl(const int3 x, const int3 y)
+{
+#if defined(ZINVUL_VULKAN) && defined(Z_MAC)
+  //! \todo Optimize zMax on macOS
+  const int3 result = zMakeInt3(zMaxImpl(x.x, y.x), zMaxImpl(x.y, y.y),
+                                zMaxImpl(x.z, y.z));
+#else
+  const int3 result = zSelect3(x, y, x < y);
+#endif
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+int4 zMax4Impl(const int4 x, const int4 y)
+{
+#if defined(ZINVUL_VULKAN) && defined(Z_MAC)
+  //! \todo Optimize zMax on macOS
+  const int4 result = zMakeInt4(zMaxImpl(x.x, y.x), zMaxImpl(x.y, y.y),
+                                zMaxImpl(x.z, y.z), zMaxImpl(x.w, y.w));
+#else
+  const int4 result = zSelect4(x, y, x < y);
+#endif
   return result;
 }
 
@@ -647,19 +1258,11 @@ int32b zMax(const int32b x, const int32b y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const int32b result = max(x, y);
 #else
-  #if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int32b x_is_negative = zIsNegative(x);
-  const int32b y_is_negative = zIsNegative(y);
-  const int32b result = (x_is_negative && y_is_negative) ? zSelect(x, y, -y < -x) :
-                        (x_is_negative || y_is_negative) ? zSelect(x, y, y_is_negative < x_is_negative ) :
-                                                           zSelect(x, y, x < y);
-  #else
-  const int32b result = zSelect(x, y, x < y);
-  #endif
+  const int32b result = zMaxImpl(x, y);
 #endif
   return result;
 }
+
 
 //! Return y if x < y, otherwise it returns x
 int2 zMax2(const int2 x, const int2 y)
@@ -667,12 +1270,7 @@ int2 zMax2(const int2 x, const int2 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const int2 result = max(x, y);
 #else
-  #if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int2 result = zMakeInt2(zMax(x.x, y.x), zMax(x.y, y.y));
-  #else
-  const int2 result = zSelect2(x, y, x < y);
-  #endif
+  const int2 result = zMax2Impl(x, y);
 #endif
   return result;
 }
@@ -683,13 +1281,7 @@ int3 zMax3(const int3 x, const int3 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const int3 result = max(x, y);
 #else
-  #if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int3 result = zMakeInt3(zMax(x.x, y.x), zMax(x.y, y.y),
-                                zMax(x.z, y.z));
-  #else
-  const int3 result = zSelect3(x, y, x < y);
-  #endif
+  const int3 result = zMax3Impl(x, y);
 #endif
   return result;
 }
@@ -700,14 +1292,36 @@ int4 zMax4(const int4 x, const int4 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const int4 result = max(x, y);
 #else
-  #if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int4 result = zMakeInt4(zMax(x.x, y.x), zMax(x.y, y.y),
-                                zMax(x.z, y.z), zMax(x.w, y.w));
-  #else
-  const int4 result = zSelect4(x, y, x < y);
-  #endif
+  const int4 result = zMax4Impl(x, y);
 #endif
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+uint32b zMaxUImpl(const uint32b x, const uint32b y)
+{
+  const uint32b result = zSelectU(x, y, x < y);
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+uint2 zMaxU2Impl(const uint2 x, const uint2 y)
+{
+  const uint2 result = zSelectU2(x, y, x < y);
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+uint3 zMaxU3Impl(const uint3 x, const uint3 y)
+{
+  const uint3 result = zSelectU3(x, y, x < y);
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+uint4 zMaxU4Impl(const uint4 x, const uint4 y)
+{
+  const uint4 result = zSelectU4(x, y, x < y);
   return result;
 }
 
@@ -717,7 +1331,7 @@ uint32b zMaxU(const uint32b x, const uint32b y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const uint32b result = max(x, y);
 #else
-  const uint32b result = zSelectU(x, y, x < y);
+  const uint32b result = zMaxUImpl(x, y);
 #endif
   return result;
 }
@@ -728,7 +1342,7 @@ uint2 zMaxU2(const uint2 x, const uint2 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const uint2 result = max(x, y);
 #else
-  const uint2 result = zSelectU2(x, y, x < y);
+  const uint2 result = zMaxU2Impl(x, y);
 #endif
   return result;
 }
@@ -739,7 +1353,7 @@ uint3 zMaxU3(const uint3 x, const uint3 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const uint3 result = max(x, y);
 #else
-  const uint3 result = zSelectU3(x, y, x < y);
+  const uint3 result = zMaxU3Impl(x, y);
 #endif
   return result;
 }
@@ -750,18 +1364,45 @@ uint4 zMaxU4(const uint4 x, const uint4 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const uint4 result = max(x, y);
 #else
-  const uint4 result = zSelectU4(x, y, x < y);
+  const uint4 result = zMaxU4Impl(x, y);
 #endif
   return result;
 }
 
+//! Return y if x < y, otherwise it returns x
+float zMaxFImpl(const float x, const float y)
+{
+  const float result = zSelectF(x, y, x < y);
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+float2 zMaxF2Impl(const float2 x, const float2 y)
+{
+  const float2 result = zSelectF2(x, y, x < y);
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+float3 zMaxF3Impl(const float3 x, const float3 y)
+{
+  const float3 result = zSelectF3(x, y, x < y);
+  return result;
+}
+
+//! Return y if x < y, otherwise it returns x
+float4 zMaxF4Impl(const float4 x, const float4 y)
+{
+  const float4 result = zSelectF4(x, y, x < y);
+  return result;
+}
 //! Return y if x < y, otherwise it returns x
 float zMaxF(const float x, const float y)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const float result = max(x, y);
 #else
-  const float result = zSelectF(x, y, x < y);
+  const float result = zMaxFImpl(x, y);
 #endif
   return result;
 }
@@ -772,7 +1413,7 @@ float2 zMaxF2(const float2 x, const float2 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const float2 result = max(x, y);
 #else
-  const float2 result = zSelectF2(x, y, x < y);
+  const float2 result = zMaxF2Impl(x, y);
 #endif
   return result;
 }
@@ -783,7 +1424,7 @@ float3 zMaxF3(const float3 x, const float3 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const float3 result = max(x, y);
 #else
-  const float3 result = zSelectF3(x, y, x < y);
+  const float3 result = zMaxF3Impl(x, y);
 #endif
   return result;
 }
@@ -794,7 +1435,7 @@ float4 zMaxF4(const float4 x, const float4 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const float4 result = max(x, y);
 #else
-  const float4 result = zSelectF4(x, y, x < y);
+  const float4 result = zMaxF4Impl(x, y);
 #endif
   return result;
 }
@@ -1905,28 +2546,28 @@ float4 zPow4(const float4 base, const float4 expt)
 //! Raise a number to the given integer power
 float zPown(const float base, const int32b expt)
 {
-  ZINVUL_POWN_IMPL(float, int32b, uint32b, zSelectF,, zAbs,, isOddU, base, expt);
+  ZINVUL_POWN_IMPL(float, int32b, uint32b, zSelectF,, zAbs,, zIsOddU, base, expt);
   return y;
 }
 
 //! Raise a number to the given integer power
 float2 zPown2(const float2 base, const int2 expt)
 {
-  ZINVUL_POWN_IMPL(float2, int2, uint2, zSelectF2, zBroadcastF2, zAbs2, zHasTrue2, isOddU2, base, expt);
+  ZINVUL_POWN_IMPL(float2, int2, uint2, zSelectF2, zBroadcastF2, zAbs2, zHasTrue2, zIsOddU2, base, expt);
   return y;
 }
 
 //! Raise a number to the given integer power
 float3 zPown3(const float3 base, const int3 expt)
 {
-  ZINVUL_POWN_IMPL(float3, int3, uint3, zSelectF3, zBroadcastF3, zAbs3, zHasTrue3, isOddU3, base, expt);
+  ZINVUL_POWN_IMPL(float3, int3, uint3, zSelectF3, zBroadcastF3, zAbs3, zHasTrue3, zIsOddU3, base, expt);
   return y;
 }
 
 //! Raise a number to the given integer power
 float4 zPown4(const float4 base, const int4 expt)
 {
-  ZINVUL_POWN_IMPL(float4, int4, uint4, zSelectF4, zBroadcastF4, zAbs4, zHasTrue4, isOddU4, base, expt);
+  ZINVUL_POWN_IMPL(float4, int4, uint4, zSelectF4, zBroadcastF4, zAbs4, zHasTrue4, zIsOddU4, base, expt);
   return y;
 }
 
