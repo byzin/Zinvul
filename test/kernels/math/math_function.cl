@@ -39,176 +39,122 @@ float makeSubnormal(const float x)
 
 /*!
   */
-kernel void testFrLdexp(
-    global float* result1,
-    global int32b* result_exp1,
-    global float2* result2,
-    global int2* result_exp2,
-    global float3* result3,
-    global int3* result_exp3,
-    global float4* result4,
-    global int4* result_exp4,
+#define ZINVUL_TEST_FRLDEXP(frexp1, ldexp1, frexp2, ldexp2, frexp3, ldexp3, frexp4, ldexp4, results1, results_exp1, results2, results_exp2, results3, results_exp3, results4, results_exp4, resolution) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index < resolution) { \
+    const float x = (float)(2 * index) / (float)resolution - 1.0f; \
+    { \
+      const float z = makeNormal(x); \
+      results1[3 * index] = z; \
+      int32b e = 0; \
+      const float m = frexp1(z, &e); \
+      results1[3 * index + 1] = m; \
+      results_exp1[index] = e; \
+      const float f = ldexp1(m, e); \
+      results1[3 * index + 2] = f; \
+    } \
+    if (index == 0) { \
+      { \
+        const uint i = resolution; \
+        const float z = INFINITY; \
+        results1[3 * i] = z; \
+        int32b e = 0; \
+        const float m = frexp1(z, &e); \
+        results1[3 * i + 1] = m; \
+        results_exp1[i] = e; \
+        const float f = ldexp1(m, e); \
+        results1[3 * i + 2] = f; \
+      } \
+      { \
+        const uint i = resolution + 1; \
+        const float z = NAN; \
+        results1[3 * i] = z; \
+        int32b e = 0; \
+        const float m = frexp1(z, &e); \
+        results1[3 * i + 1] = m; \
+        results_exp1[i] = e; \
+        const float f = ldexp1(m, e); \
+        results1[3 * i + 2] = f; \
+      } \
+    } \
+    { \
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x)); \
+      results2[3 * index] = z; \
+      int2 e = zMakeInt2(0, 0); \
+      const float2 m = frexp2(z, &e); \
+      results2[3 * index + 1] = m; \
+      results_exp2[index] = e; \
+      const float2 f = ldexp2(m, e); \
+      results2[3 * index + 2] = f; \
+    } \
+    { \
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x)); \
+      results3[3 * index] = z; \
+      int3 e = zMakeInt3(0, 0, 0); \
+      const float3 m = frexp3(z, &e); \
+      results3[3 * index + 1] = m; \
+      results_exp3[index] = e; \
+      const float3 f = ldexp3(m, e); \
+      results3[3 * index + 2] = f; \
+    } \
+    { \
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x)); \
+      results4[3 * index] = z; \
+      int4 e = zMakeInt4(0, 0, 0, 0); \
+      const float4 m = frexp4(z, &e); \
+      results4[3 * index + 1] = m; \
+      results_exp4[index] = e; \
+      const float4 f = ldexp4(m, e); \
+      results4[3 * index + 2] = f; \
+    } \
+  }
+
+/*!
+  */
+__kernel void testFrLdexp(global float* results1,
+    global int32b* results_exp1,
+    global float2* results2,
+    global int2* results_exp2,
+    global float3* results3,
+    global int3* results_exp3,
+    global float4* results4,
+    global int4* results_exp4,
     const uint32b resolution)
 {
-  const uint32b index = zGetGlobalIdX();
-  if (index < resolution) {
-    const float x = (float)(2 * index) / (float)resolution - 1.0f; // [-1, 1)
-    // Scalar
-    {
-      const float z = makeNormal(x);
-      result1[3 * index] = z;
-      int32b e = 0;
-      const float m = frexp(z, &e);
-      result1[3 * index + 1] = m;
-      result_exp1[index] = e;
-      const float f = ldexp(m, e);
-      result1[3 * index + 2] = f;
-    }
-    if (index == 0) {
-      {
-        const uint i = resolution;
-        const float z = INFINITY;
-        result1[3 * i] = z;
-        int32b e = 0;
-        const float m = frexp(z, &e);
-        result1[3 * i + 1] = m;
-        result_exp1[i] = e;
-        const float f = ldexp(m, e);
-        result1[3 * i + 2] = f;
-      }
-      {
-        const uint i = resolution + 1;
-        const float z = NAN;
-        result1[3 * i] = z;
-        int32b e = 0;
-        const float m = frexp(z, &e);
-        result1[3 * i + 1] = m;
-        result_exp1[i] = e;
-        const float f = ldexp(m, e);
-        result1[3 * i + 2] = f;
-      }
-    }
-    // Vector2
-    {
-      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
-      result2[3 * index] = z;
-      int2 e = zMakeInt2(0, 0);
-      const float2 m = frexp(z, &e);
-      result2[3 * index + 1] = m;
-      result_exp2[index] = e;
-      const float2 f = ldexp(m, e);
-      result2[3 * index + 2] = f;
-    }
-    // Vector3
-    {
-      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
-      result3[3 * index] = z;
-      int3 e = zMakeInt3(0, 0, 0);
-      const float3 m = frexp(z, &e);
-      result3[3 * index + 1] = m;
-      result_exp3[index] = e;
-      const float3 f = ldexp(m, e);
-      result3[3 * index + 2] = f;
-    }
-    // Vector4
-    {
-      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
-      result4[3 * index] = z;
-      int4 e = zMakeInt4(0, 0, 0, 0);
-      const float4 m = frexp(z, &e);
-      result4[3 * index + 1] = m;
-      result_exp4[index] = e;
-      const float4 f = ldexp(m, e);
-      result4[3 * index + 2] = f;
-    }
-  }
+  ZINVUL_TEST_FRLDEXP(frexp, ldexp, frexp, ldexp, frexp, ldexp, frexp, ldexp,
+      results1, results_exp1, results2, results_exp2, results3, results_exp3, results4, results_exp4, resolution);
 }
 
 /*!
   */
-kernel void testZFrLdexp(
-    global float* result1,
-    global int32b* result_exp1,
-    global float2* result2,
-    global int2* result_exp2,
-    global float3* result3,
-    global int3* result_exp3,
-    global float4* result4,
-    global int4* result_exp4,
+__kernel void testzFrLdexpImpl(global float* results1,
+    global int32b* results_exp1,
+    global float2* results2,
+    global int2* results_exp2,
+    global float3* results3,
+    global int3* results_exp3,
+    global float4* results4,
+    global int4* results_exp4,
     const uint32b resolution)
 {
-  const uint32b index = zGetGlobalIdX();
-  if (index < resolution) {
-    const float x = (float)(2 * index) / (float)resolution - 1.0f; // [-1, 1)
-    // Scalar
-    {
-      const float z = makeNormal(x);
-      result1[3 * index] = z;
-      int32b e = 0;
-      const float m = zFrexp(z, &e);
-      result1[3 * index + 1] = m;
-      result_exp1[index] = e;
-      const float f = zLdexp(m, e);
-      result1[3 * index + 2] = f;
-    }
-    if (index == 0) {
-      {
-        const uint i = resolution;
-        const float z = INFINITY;
-        result1[3 * i] = z;
-        int32b e = 0;
-        const float m = zFrexp(z, &e);
-        result1[3 * i + 1] = m;
-        result_exp1[i] = e;
-        const float f = zLdexp(m, e);
-        result1[3 * i + 2] = f;
-      }
-      {
-        const uint i = resolution + 1;
-        const float z = NAN;
-        result1[3 * i] = z;
-        int32b e = 0;
-        const float m = zFrexp(z, &e);
-        result1[3 * i + 1] = m;
-        result_exp1[i] = e;
-        const float f = zLdexp(m, e);
-        result1[3 * i + 2] = f;
-      }
-    }
-    // Vector2
-    {
-      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x));
-      result2[3 * index] = z;
-      int2 e = zMakeInt2(0, 0);
-      const float2 m = zFrexp2(z, &e);
-      result2[3 * index + 1] = m;
-      result_exp2[index] = e;
-      const float2 f = zLdexp2(m, e);
-      result2[3 * index + 2] = f;
-    }
-    // Vector3
-    {
-      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x));
-      result3[3 * index] = z;
-      int3 e = zMakeInt3(0, 0, 0);
-      const float3 m = zFrexp3(z, &e);
-      result3[3 * index + 1] = m;
-      result_exp3[index] = e;
-      const float3 f = zLdexp3(m, e);
-      result3[3 * index + 2] = f;
-    }
-    // Vector4
-    {
-      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x));
-      result4[3 * index] = z;
-      int4 e = zMakeInt4(0, 0, 0, 0);
-      const float4 m = zFrexp4(z, &e);
-      result4[3 * index + 1] = m;
-      result_exp4[index] = e;
-      const float4 f = zLdexp4(m, e);
-      result4[3 * index + 2] = f;
-    }
-  }
+  ZINVUL_TEST_FRLDEXP(zFrexpImpl, zLdexpImpl, zFrexp2Impl, zLdexp2Impl, zFrexp3Impl, zLdexp3Impl, zFrexp4Impl, zLdexp4Impl,
+      results1, results_exp1, results2, results_exp2, results3, results_exp3, results4, results_exp4, resolution);
+}
+
+/*!
+  */
+__kernel void testzFrLdexp(global float* results1,
+    global int32b* results_exp1,
+    global float2* results2,
+    global int2* results_exp2,
+    global float3* results3,
+    global int3* results_exp3,
+    global float4* results4,
+    global int4* results_exp4,
+    const uint32b resolution)
+{
+  ZINVUL_TEST_FRLDEXP(zFrexp, zLdexp, zFrexp2, zLdexp2, zFrexp3, zLdexp3, zFrexp4, zLdexp4,
+      results1, results_exp1, results2, results_exp2, results3, results_exp3, results4, results_exp4, resolution);
 }
 
 /*!

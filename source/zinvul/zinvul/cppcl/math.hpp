@@ -82,8 +82,8 @@ template <typename FloatN>
 FloatN fmod(const FloatN& x, const FloatN& y) noexcept;
 
 //! Return min(max(x, minval), maxval)
-template <typename TypeN>
-TypeN clamp(const TypeN& x, const TypeN& minval, const TypeN& maxval) noexcept;
+template <typename Type1N, typename Type2N>
+Type1N clamp(const Type1N& x, const Type2N& minval, const Type2N& maxval) noexcept;
 
 //! Convert radians to degrees. (180 / pi) * radians
 template <typename FloatN>

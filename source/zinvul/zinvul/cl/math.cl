@@ -956,14 +956,6 @@ float4 zRound4(const float4 x)
 
 // Basic operations
 
-//! Check if the x is negative
-int32b zIsNegative(const int32b x)
-{
-  const int32b sign_bit = INT_MIN;
-  const int32b result = (x & sign_bit) == sign_bit;
-  return result;
-}
-
 //! Return |x|
 uint32b zAbsImpl(const int32b x)
 {
@@ -1201,65 +1193,35 @@ int4 zIsOddU4(const uint4 value)
 //! Return y if x < y, otherwise it returns x
 int32b zMaxImpl(const int32b x, const int32b y)
 {
-#if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int32b x_is_negative = zIsNegative(x);
-  const int32b y_is_negative = zIsNegative(y);
-  const int32b result = (x_is_negative && y_is_negative) ? zSelect(x, y, -y < -x) :
-                        (x_is_negative || y_is_negative) ? zSelect(x, y, y_is_negative < x_is_negative ) :
-                                                           zSelect(x, y, x < y);
-#else
   const int32b result = zSelect(x, y, x < y);
-#endif
   return result;
 }
 
 //! Return y if x < y, otherwise it returns x
 int2 zMax2Impl(const int2 x, const int2 y)
 {
-#if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int2 result = zMakeInt2(zMaxImpl(x.x, y.x), zMaxImpl(x.y, y.y));
-#else
   const int2 result = zSelect2(x, y, x < y);
-#endif
   return result;
 }
 
 //! Return y if x < y, otherwise it returns x
 int3 zMax3Impl(const int3 x, const int3 y)
 {
-#if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int3 result = zMakeInt3(zMaxImpl(x.x, y.x), zMaxImpl(x.y, y.y),
-                                zMaxImpl(x.z, y.z));
-#else
   const int3 result = zSelect3(x, y, x < y);
-#endif
   return result;
 }
 
 //! Return y if x < y, otherwise it returns x
 int4 zMax4Impl(const int4 x, const int4 y)
 {
-#if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int4 result = zMakeInt4(zMaxImpl(x.x, y.x), zMaxImpl(x.y, y.y),
-                                zMaxImpl(x.z, y.z), zMaxImpl(x.w, y.w));
-#else
   const int4 result = zSelect4(x, y, x < y);
-#endif
   return result;
 }
 
 //! Return y if x < y, otherwise it returns x
 int32b zMax(const int32b x, const int32b y)
 {
-#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
-  const int32b result = max(x, y);
-#else
   const int32b result = zMaxImpl(x, y);
-#endif
   return result;
 }
 
@@ -1441,21 +1403,40 @@ float4 zMaxF4(const float4 x, const float4 y)
 }
 
 //! Return y if y < x, otherwise it returns x
+int32b zMinImpl(const int32b x, const int32b y)
+{
+  const int32b result = zSelect(x, y, y < x);
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+int2 zMin2Impl(const int2 x, const int2 y)
+{
+  const int2 result = zSelect2(x, y, y < x);
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+int3 zMin3Impl(const int3 x, const int3 y)
+{
+  const int3 result = zSelect3(x, y, y < x);
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+int4 zMin4Impl(const int4 x, const int4 y)
+{
+  const int4 result = zSelect4(x, y, y < x);
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
 int32b zMin(const int32b x, const int32b y)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const int32b result = min(x, y);
 #else
-  #if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int32b x_is_negative = zIsNegative(x);
-  const int32b y_is_negative = zIsNegative(y);
-  const int32b result = (x_is_negative && y_is_negative) ? zSelect(x, y, -x < -y) :
-                        (x_is_negative || y_is_negative) ? zSelect(x, y, x_is_negative < y_is_negative) :
-                                                           zSelect(x, y, y < x);
-  #else
-  const int32b result = zSelect(x, y, y < x);
-  #endif
+  const int32b result = zMinImpl(x, y);
 #endif
   return result;
 }
@@ -1466,12 +1447,7 @@ int2 zMin2(const int2 x, const int2 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const int2 result = min(x, y);
 #else
-  #if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int2 result = zMakeInt2(zMin(x.x, y.x), zMin(x.y, y.y));
-  #else
-  const int2 result = zSelect2(x, y, y < x);
-  #endif
+  const int2 result = zMin2Impl(x, y);
 #endif
   return result;
 }
@@ -1482,13 +1458,7 @@ int3 zMin3(const int3 x, const int3 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const int3 result = min(x, y);
 #else
-  #if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int3 result = zMakeInt3(zMin(x.x, y.x), zMin(x.y, y.y),
-                                zMin(x.z, y.z));
-  #else
-  const int3 result = zSelect3(x, y, y < x);
-  #endif
+  const int3 result = zMin3Impl(x, y);
 #endif
   return result;
 }
@@ -1499,14 +1469,36 @@ int4 zMin4(const int4 x, const int4 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const int4 result = min(x, y);
 #else
-  #if defined(ZINVUL_VULKAN) && defined(Z_MAC)
-  //! \todo Optimize zMax on macOS
-  const int4 result = zMakeInt4(zMin(x.x, y.x), zMin(x.y, y.y),
-                                zMin(x.z, y.z), zMin(x.w, y.w));
-  #else
-  const int4 result = zSelect4(x, y, y < x);
-  #endif
+  const int4 result = zMin4Impl(x, y);
 #endif
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+uint32b zMinUImpl(const uint32b x, const uint32b y)
+{
+  const uint32b result = zSelectU(x, y, y < x);
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+uint2 zMinU2Impl(const uint2 x, const uint2 y)
+{
+  const uint2 result = zSelectU2(x, y, y < x);
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+uint3 zMinU3Impl(const uint3 x, const uint3 y)
+{
+  const uint3 result = zSelectU3(x, y, y < x);
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+uint4 zMinU4Impl(const uint4 x, const uint4 y)
+{
+  const uint4 result = zSelectU4(x, y, y < x);
   return result;
 }
 
@@ -1516,7 +1508,7 @@ uint32b zMinU(const uint32b x, const uint32b y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const uint32b result = min(x, y);
 #else
-  const uint32b result = zSelectU(x, y, y < x);
+  const uint32b result = zMinUImpl(x, y);
 #endif
   return result;
 }
@@ -1527,7 +1519,7 @@ uint2 zMinU2(const uint2 x, const uint2 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const uint2 result = min(x, y);
 #else
-  const uint2 result = zSelectU2(x, y, y < x);
+  const uint2 result = zMinU2Impl(x, y);
 #endif
   return result;
 }
@@ -1538,7 +1530,7 @@ uint3 zMinU3(const uint3 x, const uint3 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const uint3 result = min(x, y);
 #else
-  const uint3 result = zSelectU3(x, y, y < x);
+  const uint3 result = zMinU3Impl(x, y);
 #endif
   return result;
 }
@@ -1549,8 +1541,36 @@ uint4 zMinU4(const uint4 x, const uint4 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const uint4 result = min(x, y);
 #else
-  const uint4 result = zSelectU4(x, y, y < x);
+  const uint4 result = zMinU4Impl(x, y);
 #endif
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+float zMinFImpl(const float x, const float y)
+{
+  const float result = zSelectF(x, y, y < x);
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+float2 zMinF2Impl(const float2 x, const float2 y)
+{
+  const float2 result = zSelectF2(x, y, y < x);
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+float3 zMinF3Impl(const float3 x, const float3 y)
+{
+  const float3 result = zSelectF3(x, y, y < x);
+  return result;
+}
+
+//! Return y if y < x, otherwise it returns x
+float4 zMinF4Impl(const float4 x, const float4 y)
+{
+  const float4 result = zSelectF4(x, y, y < x);
   return result;
 }
 
@@ -1560,7 +1580,7 @@ float zMinF(const float x, const float y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const float result = min(x, y);
 #else
-  const float result = zSelectF(x, y, y < x);
+  const float result = zMinFImpl(x, y);
 #endif
   return result;
 }
@@ -1571,7 +1591,7 @@ float2 zMinF2(const float2 x, const float2 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const float2 result = min(x, y);
 #else
-  const float2 result = zSelectF2(x, y, y < x);
+  const float2 result = zMinF2Impl(x, y);
 #endif
   return result;
 }
@@ -1582,7 +1602,7 @@ float3 zMinF3(const float3 x, const float3 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const float3 result = min(x, y);
 #else
-  const float3 result = zSelectF3(x, y, y < x);
+  const float3 result = zMinF3Impl(x, y);
 #endif
   return result;
 }
@@ -1593,7 +1613,7 @@ float4 zMinF4(const float4 x, const float4 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MINMAX)
   const float4 result = min(x, y);
 #else
-  const float4 result = zSelectF4(x, y, y < x);
+  const float4 result = zMinF4Impl(x, y);
 #endif
   return result;
 }
@@ -1601,12 +1621,61 @@ float4 zMinF4(const float4 x, const float4 y)
 #define ZINVUL_MIX_IMPL(x, y, a) (x + a * (y - x))
 
 //! Return the linear blend of x & y implemented as: x + (y - x) * a
+float zMixImpl(const float x, const float y, const float a)
+{
+  const float result = ZINVUL_MIX_IMPL(x, y, a);
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float2 zMix2Impl(const float2 x, const float2 y, const float2 a)
+{
+  const float2 result = ZINVUL_MIX_IMPL(x, y, a);
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float2 zMix2FImpl(const float2 x, const float2 y, const float a)
+{
+  const float2 result = ZINVUL_MIX_IMPL(x, y, a);
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float3 zMix3Impl(const float3 x, const float3 y, const float3 a)
+{
+  const float3 result = ZINVUL_MIX_IMPL(x, y, a);
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float3 zMix3FImpl(const float3 x, const float3 y, const float a)
+{
+  const float3 result = ZINVUL_MIX_IMPL(x, y, a);
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float4 zMix4Impl(const float4 x, const float4 y, const float4 a)
+{
+  const float4 result = ZINVUL_MIX_IMPL(x, y, a);
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+float4 zMix4FImpl(const float4 x, const float4 y, const float a)
+{
+  const float4 result = ZINVUL_MIX_IMPL(x, y, a);
+  return result;
+}
+
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
 float zMix(const float x, const float y, const float a)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
   const float result = mix(x, y, a);
 #else
-  const float result = ZINVUL_MIX_IMPL(x, y, a);
+  const float result = zMixImpl(x, y, a);
 #endif
   return result;
 }
@@ -1617,7 +1686,7 @@ float2 zMix2(const float2 x, const float2 y, const float2 a)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
   const float2 result = mix(x, y, a);
 #else
-  const float2 result = ZINVUL_MIX_IMPL(x, y, a);
+  const float2 result = zMix2Impl(x, y, a);
 #endif
   return result;
 }
@@ -1628,7 +1697,7 @@ float2 zMix2F(const float2 x, const float2 y, const float a)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
   const float2 result = mix(x, y, a);
 #else
-  const float2 result = ZINVUL_MIX_IMPL(x, y, a);
+  const float2 result = zMix2FImpl(x, y, a);
 #endif
   return result;
 }
@@ -1639,7 +1708,7 @@ float3 zMix3(const float3 x, const float3 y, const float3 a)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
   const float3 result = mix(x, y, a);
 #else
-  const float3 result = ZINVUL_MIX_IMPL(x, y, a);
+  const float3 result = zMix3Impl(x, y, a);
 #endif
   return result;
 }
@@ -1650,7 +1719,7 @@ float3 zMix3F(const float3 x, const float3 y, const float a)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
   const float3 result = mix(x, y, a);
 #else
-  const float3 result = ZINVUL_MIX_IMPL(x, y, a);
+  const float3 result = zMix3FImpl(x, y, a);
 #endif
   return result;
 }
@@ -1661,7 +1730,7 @@ float4 zMix4(const float4 x, const float4 y, const float4 a)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
   const float4 result = mix(x, y, a);
 #else
-  const float4 result = ZINVUL_MIX_IMPL(x, y, a);
+  const float4 result = zMix4Impl(x, y, a);
 #endif
   return result;
 }
@@ -1672,8 +1741,38 @@ float4 zMix4F(const float4 x, const float4 y, const float a)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MIX)
   const float4 result = mix(x, y, a);
 #else
-  const float4 result = ZINVUL_MIX_IMPL(x, y, a);
+  const float4 result = zMix4FImpl(x, y, a);
 #endif
+  return result;
+}
+
+#define ZINVUL_CLAMP_IMPL(zmin, zmax, x, minval, maxval) zmin(zmax(x, minval), maxval)
+
+//! Return min(max(x, minval), maxval)
+int32b zClampImpl(const int32b x, const int32b minval, const int32b maxval)
+{
+  const int32b result = ZINVUL_CLAMP_IMPL(zMin, zMax, x, minval, maxval);
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+int2 zClamp2Impl(const int2 x, const int2 minval, const int2 maxval)
+{
+  const int2 result = ZINVUL_CLAMP_IMPL(zMin2, zMax2, x, minval, maxval);
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+int3 zClamp3Impl(const int3 x, const int3 minval, const int3 maxval)
+{
+  const int3 result = ZINVUL_CLAMP_IMPL(zMin3, zMax3, x, minval, maxval);
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+int4 zClamp4Impl(const int4 x, const int4 minval, const int4 maxval)
+{
+  const int4 result = ZINVUL_CLAMP_IMPL(zMin4, zMax4, x, minval, maxval);
   return result;
 }
 
@@ -1683,7 +1782,7 @@ int32b zClamp(const int32b x, const int32b minval, const int32b maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const int32b result = clamp(x, minval, maxval);
 #else
-  const int32b result = zMin(zMax(x, minval), maxval);
+  const int32b result = zClampImpl(x, minval, maxval);
 #endif
   return result;
 }
@@ -1694,7 +1793,7 @@ int2 zClamp2(const int2 x, const int2 minval, const int2 maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const int2 result = clamp(x, minval, maxval);
 #else
-  const int2 result = zMin2(zMax2(x, minval), maxval);
+  const int2 result = zClamp2Impl(x, minval, maxval);
 #endif
   return result;
 }
@@ -1705,7 +1804,7 @@ int3 zClamp3(const int3 x, const int3 minval, const int3 maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const int3 result = clamp(x, minval, maxval);
 #else
-  const int3 result = zMin3(zMax3(x, minval), maxval);
+  const int3 result = zClamp3Impl(x, minval, maxval);
 #endif
   return result;
 }
@@ -1716,8 +1815,36 @@ int4 zClamp4(const int4 x, const int4 minval, const int4 maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const int4 result = clamp(x, minval, maxval);
 #else
-  const int4 result = zMin4(zMax4(x, minval), maxval);
+  const int4 result = zClamp4Impl(x, minval, maxval);
 #endif
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+uint32b zClampUImpl(const uint32b x, const uint32b minval, const uint32b maxval)
+{
+  const uint32b result = ZINVUL_CLAMP_IMPL(zMinU, zMaxU, x, minval, maxval);
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+uint2 zClampU2Impl(const uint2 x, const uint2 minval, const uint2 maxval)
+{
+  const uint2 result = ZINVUL_CLAMP_IMPL(zMinU2, zMaxU2, x, minval, maxval);
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+uint3 zClampU3Impl(const uint3 x, const uint3 minval, const uint3 maxval)
+{
+  const uint3 result = ZINVUL_CLAMP_IMPL(zMinU3, zMaxU3, x, minval, maxval);
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+uint4 zClampU4Impl(const uint4 x, const uint4 minval, const uint4 maxval)
+{
+  const uint4 result = ZINVUL_CLAMP_IMPL(zMinU4, zMaxU4, x, minval, maxval);
   return result;
 }
 
@@ -1727,7 +1854,7 @@ uint32b zClampU(const uint32b x, const uint32b minval, const uint32b maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const uint32b result = clamp(x, minval, maxval);
 #else
-  const uint32b result = zMinU(zMaxU(x, minval), maxval);
+  const uint32b result = zClampUImpl(x, minval, maxval);
 #endif
   return result;
 }
@@ -1738,7 +1865,7 @@ uint2 zClampU2(const uint2 x, const uint2 minval, const uint2 maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const uint2 result = clamp(x, minval, maxval);
 #else
-  const uint2 result = zMinU2(zMaxU2(x, minval), maxval);
+  const uint2 result = zClampU2Impl(x, minval, maxval);
 #endif
   return result;
 }
@@ -1749,7 +1876,7 @@ uint3 zClampU3(const uint3 x, const uint3 minval, const uint3 maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const uint3 result = clamp(x, minval, maxval);
 #else
-  const uint3 result = zMinU3(zMaxU3(x, minval), maxval);
+  const uint3 result = zClampU3Impl(x, minval, maxval);
 #endif
   return result;
 }
@@ -1760,8 +1887,63 @@ uint4 zClampU4(const uint4 x, const uint4 minval, const uint4 maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const uint4 result = clamp(x, minval, maxval);
 #else
-  const uint4 result = zMinU4(zMaxU4(x, minval), maxval);
+  const uint4 result = zClampU4Impl(x, minval, maxval);
 #endif
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+float zClampFImpl(const float x, const float minval, const float maxval)
+{
+  const float result = ZINVUL_CLAMP_IMPL(zMinF, zMaxF, x, minval, maxval);
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+float2 zClampF2Impl(const float2 x, const float2 minval, const float2 maxval)
+{
+  const float2 result = ZINVUL_CLAMP_IMPL(zMinF2, zMaxF2, x, minval, maxval);
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+float2 zClampF2FImpl(const float2 x, const float minval, const float maxval)
+{
+  const float2 result = zClampF2Impl(x,
+                                     zBroadcastF2(minval),
+                                     zBroadcastF2(maxval));
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+float3 zClampF3Impl(const float3 x, const float3 minval, const float3 maxval)
+{
+  const float3 result = ZINVUL_CLAMP_IMPL(zMinF3, zMaxF3, x, minval, maxval);
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+float3 zClampF3FImpl(const float3 x, const float minval, const float maxval)
+{
+  const float3 result = zClampF3Impl(x,
+                                     zBroadcastF3(minval),
+                                     zBroadcastF3(maxval));
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+float4 zClampF4Impl(const float4 x, const float4 minval, const float4 maxval)
+{
+  const float4 result = ZINVUL_CLAMP_IMPL(zMinF4, zMaxF4, x, minval, maxval);
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+float4 zClampF4FImpl(const float4 x, const float minval, const float maxval)
+{
+  const float4 result = zClampF4Impl(x,
+                                     zBroadcastF4(minval),
+                                     zBroadcastF4(maxval));
   return result;
 }
 
@@ -1771,7 +1953,18 @@ float zClampF(const float x, const float minval, const float maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const float result = clamp(x, minval, maxval);
 #else
-  const float result = zMinF(zMaxF(x, minval), maxval);
+  const float result = zClampFImpl(x, minval, maxval);
+#endif
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+float2 zClampF2F(const float2 x, const float minval, const float maxval)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
+  const float2 result = clamp(x, minval, maxval);
+#else
+  const float2 result = zClampF2FImpl(x, minval, maxval);
 #endif
   return result;
 }
@@ -1782,7 +1975,18 @@ float2 zClampF2(const float2 x, const float2 minval, const float2 maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const float2 result = clamp(x, minval, maxval);
 #else
-  const float2 result = zMinF2(zMaxF2(x, minval), maxval);
+  const float2 result = zClampF2Impl(x, minval, maxval);
+#endif
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+float3 zClampF3F(const float3 x, const float minval, const float maxval)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
+  const float3 result = clamp(x, minval, maxval);
+#else
+  const float3 result = zClampF3FImpl(x, minval, maxval);
 #endif
   return result;
 }
@@ -1793,7 +1997,18 @@ float3 zClampF3(const float3 x, const float3 minval, const float3 maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const float3 result = clamp(x, minval, maxval);
 #else
-  const float3 result = zMinF3(zMaxF3(x, minval), maxval);
+  const float3 result = zClampF3Impl(x, minval, maxval);
+#endif
+  return result;
+}
+
+//! Return min(max(x, minval), maxval)
+float4 zClampF4F(const float4 x, const float minval, const float maxval)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
+  const float4 result = clamp(x, minval, maxval);
+#else
+  const float4 result = zClampF4FImpl(x, minval, maxval);
 #endif
   return result;
 }
@@ -1804,7 +2019,7 @@ float4 zClampF4(const float4 x, const float4 minval, const float4 maxval)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLAMP)
   const float4 result = clamp(x, minval, maxval);
 #else
-  const float4 result = zMinF4(zMaxF4(x, minval), maxval);
+  const float4 result = zClampF4Impl(x, minval, maxval);
 #endif
   return result;
 }
@@ -1816,12 +2031,40 @@ float4 zClampF4(const float4 x, const float4 minval, const float4 maxval)
   *iptr = i
 
 //! Return remainder of the floating point division operation by 1
+float zFractImpl(const float x, __private float* iptr)
+{
+  ZINVUL_FRACT_IMPL(float, zFloor, zMinF, , x, iptr);
+  return y;
+}
+
+//! Return remainder of the floating point division operation by 1
+float2 zFract2Impl(const float2 x, __private float2* iptr)
+{
+  ZINVUL_FRACT_IMPL(float2, zFloor2, zMinF2, zBroadcastF2, x, iptr);
+  return y;
+}
+
+//! Return remainder of the floating point division operation by 1
+float3 zFract3Impl(const float3 x, __private float3* iptr)
+{
+  ZINVUL_FRACT_IMPL(float3, zFloor3, zMinF3, zBroadcastF3, x, iptr);
+  return y;
+}
+
+//! Return remainder of the floating point division operation by 1
+float4 zFract4Impl(const float4 x, __private float4* iptr)
+{
+  ZINVUL_FRACT_IMPL(float4, zFloor4, zMinF4, zBroadcastF4, x, iptr);
+  return y;
+}
+
+//! Return remainder of the floating point division operation by 1
 float zFract(const float x, __private float* iptr)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRACT)
   const float y = fract(x, iptr);
 #else
-  ZINVUL_FRACT_IMPL(float, zFloor, zMinF, , x, iptr);
+  const float y = zFractImpl(x, iptr);
 #endif
   return y;
 }
@@ -1832,7 +2075,7 @@ float2 zFract2(const float2 x, __private float2* iptr)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRACT)
   const float2 y = fract(x, iptr);
 #else
-  ZINVUL_FRACT_IMPL(float2, zFloor2, zMinF2, zBroadcastF2, x, iptr);
+  const float2 y = zFract2Impl(x, iptr);
 #endif
   return y;
 }
@@ -1843,7 +2086,7 @@ float3 zFract3(const float3 x, __private float3* iptr)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRACT)
   const float3 y = fract(x, iptr);
 #else
-  ZINVUL_FRACT_IMPL(float3, zFloor3, zMinF3, zBroadcastF3, x, iptr);
+  const float3 y = zFract3Impl(x, iptr);
 #endif
   return y;
 }
@@ -1854,7 +2097,7 @@ float4 zFract4(const float4 x, __private float4* iptr)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRACT)
   const float4 y = fract(x, iptr);
 #else
-  ZINVUL_FRACT_IMPL(float4, zFloor4, zMinF4, zBroadcastF4, x, iptr);
+  const float4 y = zFract4Impl(x, iptr);
 #endif
   return y;
 }
@@ -1863,12 +2106,41 @@ float4 zFract4(const float4 x, __private float4* iptr)
 #define ZINVUL_MOD_IMPL(truncF, x, y) (x - y * truncF(x / y))
 
 //! Return remainder of the floating point division operation
+float zModImpl(const float x, const float y)
+{
+  const float z = ZINVUL_MOD_IMPL(zTrunc, x, y);
+  return z;
+}
+
+//! Return remainder of the floating point division operation
+float2 zMod2Impl(const float2 x, const float2 y)
+{
+  const float2 z = ZINVUL_MOD_IMPL(zTrunc2, x, y);
+  return z;
+}
+
+//! Return remainder of the floating point division operation
+float3 zMod3Impl(const float3 x, const float3 y)
+{
+  const float3 z = ZINVUL_MOD_IMPL(zTrunc3, x, y);
+  return z;
+}
+
+//! Return remainder of the floating point division operation
+float4 zMod4Impl(const float4 x, const float4 y)
+{
+  const float4 z = ZINVUL_MOD_IMPL(zTrunc4, x, y);
+  return z;
+}
+
+
+//! Return remainder of the floating point division operation
 float zMod(const float x, const float y)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
   const float z = fmod(x, y);
 #else
-  const float z = ZINVUL_MOD_IMPL(zTrunc, x, y);
+  const float z = zModImpl(x, y);
 #endif
   return z;
 }
@@ -1879,7 +2151,7 @@ float2 zMod2(const float2 x, const float2 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
   const float2 z = fmod(x, y);
 #else
-  const float2 z = ZINVUL_MOD_IMPL(zTrunc2, x, y);
+  const float2 z = zMod2Impl(x, y);
 #endif
   return z;
 }
@@ -1890,7 +2162,7 @@ float3 zMod3(const float3 x, const float3 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
   const float3 z = fmod(x, y);
 #else
-  const float3 z = ZINVUL_MOD_IMPL(zTrunc3, x, y);
+  const float3 z = zMod3Impl(x, y);
 #endif
   return z;
 }
@@ -1901,7 +2173,7 @@ float4 zMod4(const float4 x, const float4 y)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_MOD)
   const float4 z = fmod(x, y);
 #else
-  const float4 z = ZINVUL_MOD_IMPL(zTrunc4, x, y);
+  const float4 z = zMod4Impl(x, y);
 #endif
   return z;
 }
@@ -1909,12 +2181,40 @@ float4 zMod4(const float4 x, const float4 y)
 #define ZINVUL_DEGREES_IMPL(r) ((180.0f * zInvPiF) * r);
 
 //! Convert radians to degrees. (180 / pi) * radians
+float zDegreesImpl(const float r)
+{
+  const float degree = ZINVUL_DEGREES_IMPL(r);
+  return degree;
+}
+
+//! Convert radians to degrees. (180 / pi) * radians
+float2 zDegrees2Impl(const float2 r)
+{
+  const float2 degree = ZINVUL_DEGREES_IMPL(r);
+  return degree;
+}
+
+//! Convert radians to degrees. (180 / pi) * radians
+float3 zDegrees3Impl(const float3 r)
+{
+  const float3 degree = ZINVUL_DEGREES_IMPL(r);
+  return degree;
+}
+
+//! Convert radians to degrees. (180 / pi) * radians
+float4 zDegrees4Impl(const float4 r)
+{
+  const float4 degree = ZINVUL_DEGREES_IMPL(r);
+  return degree;
+}
+
+//! Convert radians to degrees. (180 / pi) * radians
 float zDegrees(const float r)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_RADIAN)
   const float degree = degrees(r);
 #else
-  const float degree = ZINVUL_DEGREES_IMPL(r);
+  const float degree = zDegreesImpl(r);
 #endif
   return degree;
 }
@@ -1925,7 +2225,7 @@ float2 zDegrees2(const float2 r)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_RADIAN)
   const float2 degree = degrees(r);
 #else
-  const float2 degree = ZINVUL_DEGREES_IMPL(r);
+  const float2 degree = zDegrees2Impl(r);
 #endif
   return degree;
 }
@@ -1936,7 +2236,7 @@ float3 zDegrees3(const float3 r)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_RADIAN)
   const float3 degree = degrees(r);
 #else
-  const float3 degree = ZINVUL_DEGREES_IMPL(r);
+  const float3 degree = zDegrees3Impl(r);
 #endif
   return degree;
 }
@@ -1947,7 +2247,7 @@ float4 zDegrees4(const float4 r)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_RADIAN)
   const float4 degree = degrees(r);
 #else
-  const float4 degree = ZINVUL_DEGREES_IMPL(r);
+  const float4 degree = zDegrees4Impl(r);
 #endif
   return degree;
 }
@@ -1955,12 +2255,40 @@ float4 zDegrees4(const float4 r)
 #define ZINVUL_RADIANS_IMPL(d) ((zPiF / 180.0f) * d)
 
 //! Convert degrees to radians. (pi / 180) *degrees 
+float zRadiansImpl(const float d)
+{
+  const float radian = ZINVUL_RADIANS_IMPL(d);
+  return radian;
+}
+
+//! Convert degrees to radians. (pi / 180) *degrees 
+float2 zRadians2Impl(const float2 d)
+{
+  const float2 radian = ZINVUL_RADIANS_IMPL(d);
+  return radian;
+}
+
+//! Convert degrees to radians. (pi / 180) *degrees 
+float3 zRadians3Impl(const float3 d)
+{
+  const float3 radian = ZINVUL_RADIANS_IMPL(d);
+  return radian;
+}
+
+//! Convert degrees to radians. (pi / 180) *degrees 
+float4 zRadians4Impl(const float4 d)
+{
+  const float4 radian = ZINVUL_RADIANS_IMPL(d);
+  return radian;
+}
+
+//! Convert degrees to radians. (pi / 180) *degrees 
 float zRadians(const float d)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_RADIAN)
   const float radian = radians(d);
 #else
-  const float radian = ZINVUL_RADIANS_IMPL(d);
+  const float radian = zRadiansImpl(d);
 #endif
   return radian;
 }
@@ -1971,7 +2299,7 @@ float2 zRadians2(const float2 d)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_RADIAN)
   const float2 radian = radians(d);
 #else
-  const float2 radian = ZINVUL_RADIANS_IMPL(d);
+  const float2 radian = zRadians2Impl(d);
 #endif
   return radian;
 }
@@ -1982,7 +2310,7 @@ float3 zRadians3(const float3 d)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_RADIAN)
   const float3 radian = radians(d);
 #else
-  const float3 radian = ZINVUL_RADIANS_IMPL(d);
+  const float3 radian = zRadians3Impl(d);
 #endif
   return radian;
 }
@@ -1993,7 +2321,7 @@ float4 zRadians4(const float4 d)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_RADIAN)
   const float4 radian = radians(d);
 #else
-  const float4 radian = ZINVUL_RADIANS_IMPL(d);
+  const float4 radian = zRadians4Impl(d);
 #endif
   return radian;
 }
@@ -2014,50 +2342,74 @@ float4 zRadians4(const float4 d)
   const FType y = selectF(asFType(data), x, is_special)
 
 //! Decompose a number into significand and a power of 2
+float zFrexpImpl(const float x, __private int32b* e)
+{
+  ZINVUL_FREXP_IMPL(float, uint32b, int32b, as_float, as_uint, (int32b),, zSelect, zSelectF, x, e);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
+float2 zFrexp2Impl(const float2 x, __private int2* e)
+{
+  ZINVUL_FREXP_IMPL(float2, uint2, int2, as_float2, as_uint2, zU2ToI2, zBroadcast2, zSelect2, zSelectF2, x, e);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
+float3 zFrexp3Impl(const float3 x, __private int3* e)
+{
+  ZINVUL_FREXP_IMPL(float3, uint3, int3, as_float3, as_uint3, zU3ToI3, zBroadcast3, zSelect3, zSelectF3, x, e);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
+float4 zFrexp4Impl(const float4 x, __private int4* e)
+{
+  ZINVUL_FREXP_IMPL(float4, uint4, int4, as_float4, as_uint4, zU4ToI4, zBroadcast4, zSelect4, zSelectF4, x, e);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
 float zFrexp(const float x, __private int32b* e)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
-//  return frexp(x, e);
-//#else
-  ZINVUL_FREXP_IMPL(float, uint32b, int32b, as_float, as_uint, (int32b),, zSelect, zSelectF, x, e);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
+  const float y = frexp(x, e);
+#else
+  const float y = zFrexpImpl(x, e);
+#endif
   return y;
 }
 
 //! Decompose a number into significand and a power of 2
 float2 zFrexp2(const float2 x, __private int2* e)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
-//  return frexp(x, e);
-//#else
-  ZINVUL_FREXP_IMPL(float2, uint2, int2, as_float2, as_uint2, zU2ToI2, zBroadcast2, zSelect2, zSelectF2, x, e);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
+  const float2 y = frexp(x, e);
+#else
+  const float2 y = zFrexp2Impl(x, e);
+#endif
   return y;
 }
 
 //! Decompose a number into significand and a power of 2
 float3 zFrexp3(const float3 x, __private int3* e)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
-//  return frexp(x, e);
-//#else
-  ZINVUL_FREXP_IMPL(float3, uint3, int3, as_float3, as_uint3, zU3ToI3, zBroadcast3, zSelect3, zSelectF3, x, e);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
+  const float3 y = frexp(x, e);
+#else
+  const float3 y = zFrexp3Impl(x, e);
+#endif
   return y;
 }
 
 //! Decompose a number into significand and a power of 2
 float4 zFrexp4(const float4 x, __private int4* e)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
-//  return frexp(x, e);
-//#else
-  ZINVUL_FREXP_IMPL(float4, uint4, int4, as_float4, as_uint4, zU4ToI4, zBroadcast4, zSelect4, zSelectF4, x, e);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
+  const float4 y = frexp(x, e);
+#else
+  const float4 y = zFrexp4Impl(x, e);
+#endif
   return y;
 }
 
@@ -2071,50 +2423,74 @@ float4 zFrexp4(const float4 x, __private int4* e)
   } \
 
 //! Multiply a number by 2 raised to a power
+float zLdexpImpl(const float x, const int32b e)
+{
+  ZINVUL_LDEXP_IMPL(float, int32b, as_float, zSelectF, x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float2 zLdexp2Impl(const float2 x, const int2 e)
+{
+  ZINVUL_LDEXP_IMPL(float2, int2, as_float2, zSelectF2, x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float3 zLdexp3Impl(const float3 x, const int3 e)
+{
+  ZINVUL_LDEXP_IMPL(float3, int3, as_float3, zSelectF3, x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float4 zLdexp4Impl(const float4 x, const int4 e)
+{
+  ZINVUL_LDEXP_IMPL(float4, int4, as_float4, zSelectF4, x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
 float zLdexp(const float x, const int32b e)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
-//  return ldexp(x, e);
-//#else
-  ZINVUL_LDEXP_IMPL(float, int32b, as_float, zSelectF, x, e);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
+  const float y = ldexp(x, e);
+#else
+  const float y = zLdexpImpl(x, e);
+#endif
   return y;
 }
 
 //! Multiply a number by 2 raised to a power
 float2 zLdexp2(const float2 x, const int2 e)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
-//  return ldexp(x, e);
-//#else
-  ZINVUL_LDEXP_IMPL(float2, int2, as_float2, zSelectF2, x, e);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
+  const float2 y = ldexp(x, e);
+#else
+  const float2 y = zLdexp2Impl(x, e);
+#endif
   return y;
 }
 
 //! Multiply a number by 2 raised to a power
 float3 zLdexp3(const float3 x, const int3 e)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
-//  return ldexp(x, e);
-//#else
-  ZINVUL_LDEXP_IMPL(float3, int3, as_float3, zSelectF3, x, e);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
+  const float3 y = ldexp(x, e);
+#else
+  const float3 y = zLdexp3Impl(x, e);
+#endif
   return y;
 }
 
 //! Multiply a number by 2 raised to a power
 float4 zLdexp4(const float4 x, const int4 e)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
-//  return ldexp(x, e);
-//#else
-  ZINVUL_LDEXP_IMPL(float4, int4, as_float4, zSelectF4, x, e);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_FRLDEXP)
+  const float4 y = ldexp(x, e);
+#else
+  const float4 y = zLdexp4Impl(x, e);
+#endif
   return y;
 }
 
@@ -2124,12 +2500,41 @@ float4 zLdexp4(const float4 x, const int4 e)
 #define ZINVUL_CLZ_IMPL(x) clz(x)
 
 //! Return the number of leading 0-bits
+int32b zClzImpl(const int32b x)
+{
+  const int32b y = ZINVUL_CLZ_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int2 zClz2Impl(const int2 x)
+{
+  const int2 y = ZINVUL_CLZ_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int3 zClz3Impl(const int3 x)
+{
+  const int3 y = ZINVUL_CLZ_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int4 zClz4Impl(const int4 x)
+{
+  const int4 y = ZINVUL_CLZ_IMPL(x);
+  return y;
+}
+
+
+//! Return the number of leading 0-bits
 int32b zClz(const int32b x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
   const int32b y = clz(x);
 #else
-  const int32b y = ZINVUL_CLZ_IMPL(x);
+  const int32b y = zClzImpl(x);
 #endif
   return y;
 }
@@ -2140,7 +2545,7 @@ int2 zClz2(const int2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
   const int2 y = clz(x);
 #else
-  const int2 y = ZINVUL_CLZ_IMPL(x);
+  const int2 y = zClz2Impl(x);
 #endif
   return y;
 }
@@ -2151,7 +2556,7 @@ int3 zClz3(const int3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
   const int3 y = clz(x);
 #else
-  const int3 y = ZINVUL_CLZ_IMPL(x);
+  const int3 y = zClz3Impl(x);
 #endif
   return y;
 }
@@ -2162,8 +2567,39 @@ int4 zClz4(const int4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
   const int4 y = clz(x);
 #else
-  const int4 y = ZINVUL_CLZ_IMPL(x);
+  const int4 y = zClz4Impl(x);
 #endif
+  return y;
+}
+
+//! Return the number of leading 0-bits
+#define ZINVUL_CLZU_IMPL(x) clz(x)
+
+//! Return the number of leading 0-bits
+uint32b zClzUImpl(const uint32b x)
+{
+  const uint32b y = ZINVUL_CLZU_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint2 zClzU2Impl(const uint2 x)
+{
+  const uint2 y = ZINVUL_CLZU_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint3 zClzU3Impl(const uint3 x)
+{
+  const uint3 y = ZINVUL_CLZU_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint4 zClzU4Impl(const uint4 x)
+{
+  const uint4 y = ZINVUL_CLZU_IMPL(x);
   return y;
 }
 
@@ -2173,7 +2609,7 @@ uint32b zClzU(const uint32b x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
   const uint32b y = clz(x);
 #else
-  const uint32b y = ZINVUL_CLZ_IMPL(x);
+  const uint32b y = zClzUImpl(x);
 #endif
   return y;
 }
@@ -2184,7 +2620,7 @@ uint2 zClzU2(const uint2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
   const uint2 y = clz(x);
 #else
-  const uint2 y = ZINVUL_CLZ_IMPL(x);
+  const uint2 y = zClzU2Impl(x);
 #endif
   return y;
 }
@@ -2195,7 +2631,7 @@ uint3 zClzU3(const uint3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
   const uint3 y = clz(x);
 #else
-  const uint3 y = ZINVUL_CLZ_IMPL(x);
+  const uint3 y = zClzU3Impl(x);
 #endif
   return y;
 }
@@ -2206,7 +2642,7 @@ uint4 zClzU4(const uint4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CLZ)
   const uint4 y = clz(x);
 #else
-  const uint4 y = ZINVUL_CLZ_IMPL(x);
+  const uint4 y = zClzU4Impl(x);
 #endif
   return y;
 }
@@ -2215,12 +2651,39 @@ uint4 zClzU4(const uint4 x)
 #define ZINVUL_POPCOUNT_IMPL(x) popcount(x)
 
 //! Return the number of leading 0-bits
+int32b zPopcountImpl(const int32b x)
+{
+  const int32b y = ZINVUL_POPCOUNT_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int2 zPopcount2Impl(const int2 x)
+{
+  const int2 y = ZINVUL_POPCOUNT_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int3 zPopcount3Impl(const int3 x)
+{
+  const int3 y = ZINVUL_POPCOUNT_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+int4 zPopcount4Impl(const int4 x)
+{
+  const int4 y = ZINVUL_POPCOUNT_IMPL(x);
+  return y;
+}
+//! Return the number of leading 0-bits
 int32b zPopcount(const int32b x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
   const int32b y = popcount(x);
 #else
-  const int32b y = ZINVUL_POPCOUNT_IMPL(x);
+  const int32b y = zPopcountImpl(x);
 #endif
   return y;
 }
@@ -2231,7 +2694,7 @@ int2 zPopcount2(const int2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
   const int2 y = popcount(x);
 #else
-  const int2 y = ZINVUL_POPCOUNT_IMPL(x);
+  const int2 y = zPopcount2Impl(x);
 #endif
   return y;
 }
@@ -2242,7 +2705,7 @@ int3 zPopcount3(const int3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
   const int3 y = popcount(x);
 #else
-  const int3 y = ZINVUL_POPCOUNT_IMPL(x);
+  const int3 y = zPopcount3Impl(x);
 #endif
   return y;
 }
@@ -2253,18 +2716,48 @@ int4 zPopcount4(const int4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
   const int4 y = popcount(x);
 #else
-  const int4 y = ZINVUL_POPCOUNT_IMPL(x);
+  const int4 y = zPopcount4Impl(x);
 #endif
   return y;
 }
 
+//! Return the number of leading 0-bits
+#define ZINVUL_POPCOUNTU_IMPL(x) popcount(x)
+
+//! Return the number of leading 0-bits
+uint32b zPopcountUImpl(const uint32b x)
+{
+  const uint32b y = ZINVUL_POPCOUNTU_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint2 zPopcountU2Impl(const uint2 x)
+{
+  const uint2 y = ZINVUL_POPCOUNTU_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint3 zPopcountU3Impl(const uint3 x)
+{
+  const uint3 y = ZINVUL_POPCOUNTU_IMPL(x);
+  return y;
+}
+
+//! Return the number of leading 0-bits
+uint4 zPopcountU4Impl(const uint4 x)
+{
+  const uint4 y = ZINVUL_POPCOUNT_IMPL(x);
+  return y;
+}
 //! Return the number of leading 0-bits
 uint32b zPopcountU(const uint32b x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
   const uint32b y = popcount(x);
 #else
-  const uint32b y = ZINVUL_POPCOUNT_IMPL(x);
+  const uint32b y = zPopcountUImpl(x);
 #endif
   return y;
 }
@@ -2275,7 +2768,7 @@ uint2 zPopcountU2(const uint2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
   const uint2 y = popcount(x);
 #else
-  const uint2 y = ZINVUL_POPCOUNT_IMPL(x);
+  const uint2 y = zPopcountU2Impl(x);
 #endif
   return y;
 }
@@ -2286,7 +2779,7 @@ uint3 zPopcountU3(const uint3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
   const uint3 y = popcount(x);
 #else
-  const uint3 y = ZINVUL_POPCOUNT_IMPL(x);
+  const uint3 y = zPopcountU3Impl(x);
 #endif
   return y;
 }
@@ -2297,7 +2790,7 @@ uint4 zPopcountU4(const uint4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POPCOUNT)
   const uint4 y = popcount(x);
 #else
-  const uint4 y = ZINVUL_POPCOUNT_IMPL(x);
+  const uint4 y = zPopcountU4Impl(x);
 #endif
   return y;
 }

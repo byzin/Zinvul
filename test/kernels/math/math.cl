@@ -460,1434 +460,6 @@ __kernel void testzIsOddU(__global int32b* results1,
                      results1, results2, results3, results4);
 }
 
-/*!
-  */
-__kernel void testClz(
-    __global int32b* result1,
-    __global int2* result2,
-    __global int3* result3,
-    __global int4* result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    for (int i = 0; i < 32; ++i) {
-      int x = 0;
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      result1[i] = clz(x);
-    }
-    // vector2
-    for (int i = 0; i < 32; ++i) {
-      int2 x = zMakeInt2(0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      result2[i] = clz(x);
-    }
-    // vector3
-    for (int i = 0; i < 32; ++i) {
-      int3 x = zMakeInt3(0, 0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      x.z = x.z / 3;
-      result3[i] = clz(x);
-    }
-    // vector4
-    for (int i = 0; i < 32; ++i) {
-      int4 x = zMakeInt4(0, 0, 0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      x.z = x.z / 3;
-      x.w = x.w / 5;
-      result4[i] = clz(x);
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testClzU(
-    __global uint32b* result1,
-    __global uint2* result2,
-    __global uint3* result3,
-    __global uint4* result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    for (uint i = 0u; i < 32u; ++i) {
-      uint x = 0u;
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      result1[i] = clz(x);
-    }
-    // vector2
-    for (uint i = 0u; i < 32u; ++i) {
-      uint2 x = zMakeUInt2(0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      result2[i] = clz(x);
-    }
-    // vector3
-    for (uint i = 0u; i < 32u; ++i) {
-      uint3 x = zMakeUInt3(0u, 0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      x.z = x.z / 3u;
-      result3[i] = clz(x);
-    }
-    // vector4
-    for (uint i = 0u; i < 32u; ++i) {
-      uint4 x = zMakeUInt4(0u, 0u, 0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      x.z = x.z / 3u;
-      x.w = x.w / 5u;
-      result4[i] = clz(x);
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testZclz(
-    __global int32b* result1,
-    __global int2* result2,
-    __global int3* result3,
-    __global int4* result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    for (int i = 0; i < 32; ++i) {
-      int x = 0;
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      result1[i] = zClz(x);
-    }
-    // vector2
-    for (int i = 0; i < 32; ++i) {
-      int2 x = zMakeInt2(0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      result2[i] = zClz2(x);
-    }
-    // vector3
-    for (int i = 0; i < 32; ++i) {
-      int3 x = zMakeInt3(0, 0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      x.z = x.z / 3;
-      result3[i] = zClz3(x);
-    }
-    // vector4
-    for (int i = 0; i < 32; ++i) {
-      int4 x = zMakeInt4(0, 0, 0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      x.z = x.z / 3;
-      x.w = x.w / 5;
-      result4[i] = zClz4(x);
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testZclzU(
-    __global uint32b* result1,
-    __global uint2* result2,
-    __global uint3* result3,
-    __global uint4* result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    for (uint i = 0u; i < 32u; ++i) {
-      uint x = 0u;
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      result1[i] = zClzU(x);
-    }
-    // vector2
-    for (uint i = 0u; i < 32u; ++i) {
-      uint2 x = zMakeUInt2(0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      result2[i] = zClzU2(x);
-    }
-    // vector3
-    for (uint i = 0u; i < 32u; ++i) {
-      uint3 x = zMakeUInt3(0u, 0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      x.z = x.z / 3u;
-      result3[i] = zClzU3(x);
-    }
-    // vector4
-    for (uint i = 0u; i < 32u; ++i) {
-      uint4 x = zMakeUInt4(0u, 0u, 0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      x.z = x.z / 3u;
-      x.w = x.w / 5u;
-      result4[i] = zClzU4(x);
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testPopcount(
-    __global int32b* result1,
-    __global int2* result2,
-    __global int3* result3,
-    __global int4* result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    for (int i = 0; i < 32; ++i) {
-      int x = 0;
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      result1[i] = popcount(x);
-    }
-    // vector2
-    for (int i = 0; i < 32; ++i) {
-      int2 x = zMakeInt2(0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      result2[i] = popcount(x);
-    }
-    // vector3
-    for (int i = 0; i < 32; ++i) {
-      int3 x = zMakeInt3(0, 0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      x.z = x.z / 3;
-      result3[i] = popcount(x);
-    }
-    // vector4
-    for (int i = 0; i < 32; ++i) {
-      int4 x = zMakeInt4(0, 0, 0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      x.z = x.z / 3;
-      x.w = x.w / 5;
-      result4[i] = popcount(x);
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testPopcountU(
-    __global uint32b* result1,
-    __global uint2* result2,
-    __global uint3* result3,
-    __global uint4* result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    for (uint i = 0u; i < 32u; ++i) {
-      uint x = 0u;
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      result1[i] = popcount(x);
-    }
-    // vector2
-    for (uint i = 0u; i < 32u; ++i) {
-      uint2 x = zMakeUInt2(0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      result2[i] = popcount(x);
-    }
-    // vector3
-    for (uint i = 0u; i < 32u; ++i) {
-      uint3 x = zMakeUInt3(0u, 0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      x.z = x.z / 3u;
-      result3[i] = popcount(x);
-    }
-    // vector4
-    for (uint i = 0u; i < 32u; ++i) {
-      uint4 x = zMakeUInt4(0u, 0u, 0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      x.z = x.z / 3u;
-      x.w = x.w / 5u;
-      result4[i] = popcount(x);
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testZpopcount(
-    __global int32b* result1,
-    __global int2* result2,
-    __global int3* result3,
-    __global int4* result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    for (int i = 0; i < 32; ++i) {
-      int x = 0;
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      result1[i] = zPopcount(x);
-    }
-    // vector2
-    for (int i = 0; i < 32; ++i) {
-      int2 x = zMakeInt2(0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      result2[i] = zPopcount2(x);
-    }
-    // vector3
-    for (int i = 0; i < 32; ++i) {
-      int3 x = zMakeInt3(0, 0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      x.z = x.z / 3;
-      result3[i] = zPopcount3(x);
-    }
-    // vector4
-    for (int i = 0; i < 32; ++i) {
-      int4 x = zMakeInt4(0, 0, 0, 0);
-      for (int j = 0; j < i; ++j)
-        x = (x << 1) | 1;
-      x.y = x.y / 2;
-      x.z = x.z / 3;
-      x.w = x.w / 5;
-      result4[i] = zPopcount4(x);
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testZpopcountU(
-    __global uint32b* result1,
-    __global uint2* result2,
-    __global uint3* result3,
-    __global uint4* result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    for (uint i = 0u; i < 32u; ++i) {
-      uint x = 0u;
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      result1[i] = zPopcountU(x);
-    }
-    // vector2
-    for (uint i = 0u; i < 32u; ++i) {
-      uint2 x = zMakeUInt2(0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      result2[i] = zPopcountU2(x);
-    }
-    // vector3
-    for (uint i = 0u; i < 32u; ++i) {
-      uint3 x = zMakeUInt3(0u, 0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      x.z = x.z / 3u;
-      result3[i] = zPopcountU3(x);
-    }
-    // vector4
-    for (uint i = 0u; i < 32u; ++i) {
-      uint4 x = zMakeUInt4(0u, 0u, 0u, 0u);
-      for (uint j = 0u; j < i; ++j)
-        x = (x << 1u) | 1u;
-      x.y = x.y / 2u;
-      x.z = x.z / 3u;
-      x.w = x.w / 5u;
-      result4[i] = zPopcountU4(x);
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testFract(
-    __global float* result1, __global float* result1i,
-    __global float2* result2, __global float2* result2i,
-    __global float3* result3, __global float3* result3i,
-    __global float4* result4, __global float4* result4i)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    {
-      uint i = 0;
-      float iptr = 0.0f;
-      {
-        const float x = 0.0f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 1.0f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 3.1f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 3.5f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 3.9f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 4.1f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 4.5f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 4.9f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -1.0f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -3.1f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -3.5f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -3.9f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -4.1f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -4.5f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -4.9f;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = INFINITY;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -INFINITY;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = NAN;
-        result1[i++] = x;
-        result1[i++] = fract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-    }
-    // float2
-    {
-      uint i = 0;
-      float2 iptr = zMakeFloat2(0.0f, 0.0f);
-      {
-        const float2 x = zMakeFloat2(0.0f, 0.0f);
-        result2[i++] = x;
-        result2[i++] = fract(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(1.0f, -1.0f);
-        result2[i++] = x;
-        result2[i++] = fract(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(3.1f, -3.1f);
-        result2[i++] = x;
-        result2[i++] = fract(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(3.5f, -3.5f);
-        result2[i++] = x;
-        result2[i++] = fract(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(3.9f, -3.9f);
-        result2[i++] = x;
-        result2[i++] = fract(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(4.1f, -4.1f);
-        result2[i++] = x;
-        result2[i++] = fract(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(4.5f, -4.5f);
-        result2[i++] = x;
-        result2[i++] = fract(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(4.9f, -4.9f);
-        result2[i++] = x;
-        result2[i++] = fract(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-    }
-    // float3
-    {
-      uint i = 0;
-      float3 iptr = zMakeFloat3(0.0f, 0.0f, 0.0f);
-      {
-        const float3 x = zMakeFloat3(0.0f, 0.0f, 0.0f);
-        result3[i++] = x;
-        result3[i++] = fract(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(1.0f, -1.0f, 1.0f);
-        result3[i++] = x;
-        result3[i++] = fract(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(3.1f, -3.1f, 3.1f);
-        result3[i++] = x;
-        result3[i++] = fract(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(3.5f, -3.5f, 3.5f);
-        result3[i++] = x;
-        result3[i++] = fract(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(3.9f, -3.9f, 3.9f);
-        result3[i++] = x;
-        result3[i++] = fract(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(4.1f, -4.1f, 4.1f);
-        result3[i++] = x;
-        result3[i++] = fract(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(4.5f, -4.5f, 4.5f);
-        result3[i++] = x;
-        result3[i++] = fract(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(4.9f, -4.9f, 4.9f);
-        result3[i++] = x;
-        result3[i++] = fract(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-    }
-    // float4
-    {
-      uint i = 0;
-      float4 iptr = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
-      {
-        const float4 x = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
-        result4[i++] = x;
-        result4[i++] = fract(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(1.0f, -1.0f, 5.0f, -5.0f);
-        result4[i++] = x;
-        result4[i++] = fract(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(3.1f, -3.1f, 13.1f, -13.1f);
-        result4[i++] = x;
-        result4[i++] = fract(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(3.5f, -3.5f, 13.5f, -13.5f);
-        result4[i++] = x;
-        result4[i++] = fract(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(3.9f, -3.9f, 13.9f, -13.9f);
-        result4[i++] = x;
-        result4[i++] = fract(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(4.1f, -4.1f, 14.1f, -14.1f);
-        result4[i++] = x;
-        result4[i++] = fract(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(4.5f, -4.5f, 14.5f, -14.5f);
-        result4[i++] = x;
-        result4[i++] = fract(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(4.9f, -4.9f, 14.9f, -14.9f);
-        result4[i++] = x;
-        result4[i++] = fract(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testZfract(
-    __global float* result1, __global float* result1i,
-    __global float2* result2, __global float2* result2i,
-    __global float3* result3, __global float3* result3i,
-    __global float4* result4, __global float4* result4i)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    {
-      uint i = 0;
-      float iptr = 0.0f;
-      {
-        const float x = 0.0f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 1.0f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 3.1f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 3.5f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 3.9f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 4.1f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 4.5f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = 4.9f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -1.0f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -3.1f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -3.5f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -3.9f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -4.1f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -4.5f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -4.9f;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = INFINITY;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = -INFINITY;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-      {
-        const float x = NAN;
-        result1[i++] = x;
-        result1[i++] = zFract(x, &iptr);
-        result1i[i/2-1] = iptr;
-      }
-    }
-    // float2
-    {
-      uint i = 0;
-      float2 iptr = zMakeFloat2(0.0f, 0.0f);
-      {
-        const float2 x = zMakeFloat2(0.0f, 0.0f);
-        result2[i++] = x;
-        result2[i++] = zFract2(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(1.0f, -1.0f);
-        result2[i++] = x;
-        result2[i++] = zFract2(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(3.1f, -3.1f);
-        result2[i++] = x;
-        result2[i++] = zFract2(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(3.5f, -3.5f);
-        result2[i++] = x;
-        result2[i++] = zFract2(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(3.9f, -3.9f);
-        result2[i++] = x;
-        result2[i++] = zFract2(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(4.1f, -4.1f);
-        result2[i++] = x;
-        result2[i++] = zFract2(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(4.5f, -4.5f);
-        result2[i++] = x;
-        result2[i++] = zFract2(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-      {
-        const float2 x = zMakeFloat2(4.9f, -4.9f);
-        result2[i++] = x;
-        result2[i++] = zFract2(x, &iptr);
-        result2i[i/2-1] = iptr;
-      }
-    }
-    // float3
-    {
-      uint i = 0;
-      float3 iptr = zMakeFloat3(0.0f, 0.0f, 0.0f);
-      {
-        const float3 x = zMakeFloat3(0.0f, 0.0f, 0.0f);
-        result3[i++] = x;
-        result3[i++] = zFract3(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(1.0f, -1.0f, 1.0f);
-        result3[i++] = x;
-        result3[i++] = zFract3(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(3.1f, -3.1f, 3.1f);
-        result3[i++] = x;
-        result3[i++] = zFract3(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(3.5f, -3.5f, 3.5f);
-        result3[i++] = x;
-        result3[i++] = zFract3(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(3.9f, -3.9f, 3.9f);
-        result3[i++] = x;
-        result3[i++] = zFract3(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(4.1f, -4.1f, 4.1f);
-        result3[i++] = x;
-        result3[i++] = zFract3(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(4.5f, -4.5f, 4.5f);
-        result3[i++] = x;
-        result3[i++] = zFract3(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-      {
-        const float3 x = zMakeFloat3(4.9f, -4.9f, 4.9f);
-        result3[i++] = x;
-        result3[i++] = zFract3(x, &iptr);
-        result3i[i/2-1] = iptr;
-      }
-    }
-    // float4
-    {
-      uint i = 0;
-      float4 iptr = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
-      {
-        const float4 x = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
-        result4[i++] = x;
-        result4[i++] = zFract4(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(1.0f, -1.0f, 5.0f, -5.0f);
-        result4[i++] = x;
-        result4[i++] = zFract4(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(3.1f, -3.1f, 13.1f, -13.1f);
-        result4[i++] = x;
-        result4[i++] = zFract4(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(3.5f, -3.5f, 13.5f, -13.5f);
-        result4[i++] = x;
-        result4[i++] = zFract4(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(3.9f, -3.9f, 13.9f, -13.9f);
-        result4[i++] = x;
-        result4[i++] = zFract4(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(4.1f, -4.1f, 14.1f, -14.1f);
-        result4[i++] = x;
-        result4[i++] = zFract4(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(4.5f, -4.5f, 14.5f, -14.5f);
-        result4[i++] = x;
-        result4[i++] = zFract4(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-      {
-        const float4 x = zMakeFloat4(4.9f, -4.9f, 14.9f, -14.9f);
-        result4[i++] = x;
-        result4[i++] = zFract4(x, &iptr);
-        result4i[i/2-1] = iptr;
-      }
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testMod(
-    __global float* result1, __global float2* result2,
-    __global float3* result3, __global float4* result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    {
-      const float y = 1.0f;
-      uint i = 0;
-      {
-        const float x = 0.0f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = 1.0f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = 3.1f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = 3.5f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = 3.9f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = 4.1f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = 4.5f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = 4.9f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = -1.0f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = -3.1f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = -3.5f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = -3.9f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = -4.1f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = -4.5f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = -4.9f;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = INFINITY;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = -INFINITY;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-      {
-        const float x = NAN;
-        result1[i++] = x;
-        result1[i++] = fmod(x, y);
-      }
-    }
-    // float2
-    {
-      const float2 y = zMakeFloat2(1.0f, 2.0f);
-      uint i = 0;
-      {
-        const float2 x = zMakeFloat2(0.0f, 0.0f);
-        result2[i++] = x;
-        result2[i++] = fmod(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(1.0f, -1.0f);
-        result2[i++] = x;
-        result2[i++] = fmod(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(3.1f, -3.1f);
-        result2[i++] = x;
-        result2[i++] = fmod(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(3.5f, -3.5f);
-        result2[i++] = x;
-        result2[i++] = fmod(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(3.9f, -3.9f);
-        result2[i++] = x;
-        result2[i++] = fmod(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(4.1f, -4.1f);
-        result2[i++] = x;
-        result2[i++] = fmod(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(4.5f, -4.5f);
-        result2[i++] = x;
-        result2[i++] = fmod(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(4.9f, -4.9f);
-        result2[i++] = x;
-        result2[i++] = fmod(x, y);
-      }
-    }
-    // float3
-    {
-      const float3 y = zMakeFloat3(1.0f, 2.0f, 3.0f);
-      uint i = 0;
-      {
-        const float3 x = zMakeFloat3(0.0f, 0.0f, 0.0f);
-        result3[i++] = x;
-        result3[i++] = fmod(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(1.0f, -1.0f, 1.0f);
-        result3[i++] = x;
-        result3[i++] = fmod(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(3.1f, -3.1f, 3.1f);
-        result3[i++] = x;
-        result3[i++] = fmod(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(3.5f, -3.5f, 3.5f);
-        result3[i++] = x;
-        result3[i++] = fmod(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(3.9f, -3.9f, 3.9f);
-        result3[i++] = x;
-        result3[i++] = fmod(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(4.1f, -4.1f, 4.1f);
-        result3[i++] = x;
-        result3[i++] = fmod(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(4.5f, -4.5f, 4.5f);
-        result3[i++] = x;
-        result3[i++] = fmod(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(4.9f, -4.9f, 4.9f);
-        result3[i++] = x;
-        result3[i++] = fmod(x, y);
-      }
-    }
-    // float4
-    {
-      const float4 y = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
-      uint i = 0;
-      {
-        const float4 x = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
-        result4[i++] = x;
-        result4[i++] = fmod(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(1.0f, -1.0f, 5.0f, -5.0f);
-        result4[i++] = x;
-        result4[i++] = fmod(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(3.1f, -3.1f, 13.1f, -13.1f);
-        result4[i++] = x;
-        result4[i++] = fmod(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(3.5f, -3.5f, 13.5f, -13.5f);
-        result4[i++] = x;
-        result4[i++] = fmod(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(3.9f, -3.9f, 13.9f, -13.9f);
-        result4[i++] = x;
-        result4[i++] = fmod(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(4.1f, -4.1f, 14.1f, -14.1f);
-        result4[i++] = x;
-        result4[i++] = fmod(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(4.5f, -4.5f, 14.5f, -14.5f);
-        result4[i++] = x;
-        result4[i++] = fmod(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(4.9f, -4.9f, 14.9f, -14.9f);
-        result4[i++] = x;
-        result4[i++] = fmod(x, y);
-      }
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testZmod(
-    __global float* result1, __global float2* result2,
-    __global float3* result3, __global float4* result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    {
-      const float y = 1.0f;
-      uint i = 0;
-      {
-        const float x = 0.0f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = 1.0f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = 3.1f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = 3.5f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = 3.9f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = 4.1f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = 4.5f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = 4.9f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = -1.0f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = -3.1f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = -3.5f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = -3.9f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = -4.1f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = -4.5f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = -4.9f;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = INFINITY;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = -INFINITY;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-      {
-        const float x = NAN;
-        result1[i++] = x;
-        result1[i++] = zMod(x, y);
-      }
-    }
-    // float2
-    {
-      const float2 y = zMakeFloat2(1.0f, 2.0f);
-      uint i = 0;
-      {
-        const float2 x = zMakeFloat2(0.0f, 0.0f);
-        result2[i++] = x;
-        result2[i++] = zMod2(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(1.0f, -1.0f);
-        result2[i++] = x;
-        result2[i++] = zMod2(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(3.1f, -3.1f);
-        result2[i++] = x;
-        result2[i++] = zMod2(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(3.5f, -3.5f);
-        result2[i++] = x;
-        result2[i++] = zMod2(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(3.9f, -3.9f);
-        result2[i++] = x;
-        result2[i++] = zMod2(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(4.1f, -4.1f);
-        result2[i++] = x;
-        result2[i++] = zMod2(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(4.5f, -4.5f);
-        result2[i++] = x;
-        result2[i++] = zMod2(x, y);
-      }
-      {
-        const float2 x = zMakeFloat2(4.9f, -4.9f);
-        result2[i++] = x;
-        result2[i++] = zMod2(x, y);
-      }
-    }
-    // float3
-    {
-      const float3 y = zMakeFloat3(1.0f, 2.0f, 3.0f);
-      uint i = 0;
-      {
-        const float3 x = zMakeFloat3(0.0f, 0.0f, 0.0f);
-        result3[i++] = x;
-        result3[i++] = zMod3(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(1.0f, -1.0f, 1.0f);
-        result3[i++] = x;
-        result3[i++] = zMod3(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(3.1f, -3.1f, 3.1f);
-        result3[i++] = x;
-        result3[i++] = zMod3(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(3.5f, -3.5f, 3.5f);
-        result3[i++] = x;
-        result3[i++] = zMod3(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(3.9f, -3.9f, 3.9f);
-        result3[i++] = x;
-        result3[i++] = zMod3(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(4.1f, -4.1f, 4.1f);
-        result3[i++] = x;
-        result3[i++] = zMod3(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(4.5f, -4.5f, 4.5f);
-        result3[i++] = x;
-        result3[i++] = zMod3(x, y);
-      }
-      {
-        const float3 x = zMakeFloat3(4.9f, -4.9f, 4.9f);
-        result3[i++] = x;
-        result3[i++] = zMod3(x, y);
-      }
-    }
-    // float4
-    {
-      const float4 y = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
-      uint i = 0;
-      {
-        const float4 x = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f);
-        result4[i++] = x;
-        result4[i++] = zMod4(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(1.0f, -1.0f, 5.0f, -5.0f);
-        result4[i++] = x;
-        result4[i++] = zMod4(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(3.1f, -3.1f, 13.1f, -13.1f);
-        result4[i++] = x;
-        result4[i++] = zMod4(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(3.5f, -3.5f, 13.5f, -13.5f);
-        result4[i++] = x;
-        result4[i++] = zMod4(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(3.9f, -3.9f, 13.9f, -13.9f);
-        result4[i++] = x;
-        result4[i++] = zMod4(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(4.1f, -4.1f, 14.1f, -14.1f);
-        result4[i++] = x;
-        result4[i++] = zMod4(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(4.5f, -4.5f, 14.5f, -14.5f);
-        result4[i++] = x;
-        result4[i++] = zMod4(x, y);
-      }
-      {
-        const float4 x = zMakeFloat4(4.9f, -4.9f, 14.9f, -14.9f);
-        result4[i++] = x;
-        result4[i++] = zMod4(x, y);
-      }
-    }
-  }
-}
-
 #define ZINVUL_TEST_CEIL(ceil1, ceil2, ceil3, ceil4, results1, results2, results3, results4) \
   const uint32b index = zGetGlobalIdX(); \
   if (index == 0) { \
@@ -2918,300 +1490,6 @@ __kernel void testzRound(
 
 /*!
   */
-__kernel void testMix(
-    __global float* mix_result1, __global float2* mix_result2,
-    __global float3* mix_result3, __global float4* mix_result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    {
-      const float x = -1.0f;
-      const float y = 1.0f;
-      {
-        const float a = 0.0f;
-        mix_result1[0] = mix(x, y, a);
-      }
-      {
-        const float a = 0.5f;
-        mix_result1[1] = mix(x, y, a);
-      }
-      {
-        const float a = 1.0f;
-        mix_result1[2] = mix(x, y, a);
-      }
-    }
-    // float2
-    {
-      const float2 x = zMakeFloat2(-1.0f, -2.0f);
-      const float2 y = zMakeFloat2(1.0f, 2.0f);
-      {
-        const float a = 0.0f;
-        mix_result2[0] = mix(x, y, a);
-      }
-      {
-        const float a = 0.5f;
-        mix_result2[1] = mix(x, y, a);
-      }
-      {
-        const float a = 1.0f;
-        mix_result2[2] = mix(x, y, a);
-      }
-      {
-        const float2 a = zMakeFloat2(0.0f, 1.0f);
-        mix_result2[3] = mix(x, y, a);
-      }
-      {
-        const float2 a = zMakeFloat2(0.5f, 1.0f);
-        mix_result2[4] = mix(x, y, a);
-      }
-      {
-        const float2 a = zMakeFloat2(1.0f, 0.0f);
-        mix_result2[5] = mix(x, y, a);
-      }
-    }
-    // float3
-    {
-      const float3 x = zMakeFloat3(-1.0f, -2.0f, -3.0f);
-      const float3 y = zMakeFloat3(1.0f, 2.0f, 3.0f);
-      {
-        const float a = 0.0f;
-        mix_result3[0] = mix(x, y, a);
-      }
-      {
-        const float a = 0.5f;
-        mix_result3[1] = mix(x, y, a);
-      }
-      {
-        const float a = 1.0f;
-        mix_result3[2] = mix(x, y, a);
-      }
-      {
-        const float3 a = zMakeFloat3(0.0f, 0.5f, 1.0f);
-        mix_result3[3] = mix(x, y, a);
-      }
-      {
-        const float3 a = zMakeFloat3(0.5f, 1.0f, 0.0f);
-        mix_result3[4] = mix(x, y, a);
-      }
-      {
-        const float3 a = zMakeFloat3(1.0f, 0.0f, 0.5f);
-        mix_result3[5] = mix(x, y, a);
-      }
-    }
-    // float4
-    {
-      const float4 x = zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f);
-      const float4 y = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
-      {
-        const float a = 0.0f;
-        mix_result4[0] = mix(x, y, a);
-      }
-      {
-        const float a = 0.5f;
-        mix_result4[1] = mix(x, y, a);
-      }
-      {
-        const float a = 1.0f;
-        mix_result4[2] = mix(x, y, a);
-      }
-      {
-        const float4 a = zMakeFloat4(0.0f, 0.5f, 1.0f, 0.0f);
-        mix_result4[3] = mix(x, y, a);
-      }
-      {
-        const float4 a = zMakeFloat4(0.5f, 1.0f, 0.0f, 0.5f);
-        mix_result4[4] = mix(x, y, a);
-      }
-      {
-        const float4 a = zMakeFloat4(1.0f, 0.0f, 0.5f, 1.0f);
-        mix_result4[5] = mix(x, y, a);
-      }
-    }
-  }
-}
-
-/*!
-  */
-__kernel void testZmix(
-    __global float* mix_result1, __global float2* mix_result2,
-    __global float3* mix_result3, __global float4* mix_result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // scalar
-    {
-      const float x = -1.0f;
-      const float y = 1.0f;
-      {
-        const float a = 0.0f;
-        mix_result1[0] = zMix(x, y, a);
-      }
-      {
-        const float a = 0.5f;
-        mix_result1[1] = zMix(x, y, a);
-      }
-      {
-        const float a = 1.0f;
-        mix_result1[2] = zMix(x, y, a);
-      }
-    }
-    // float2
-    {
-      const float2 x = zMakeFloat2(-1.0f, -2.0f);
-      const float2 y = zMakeFloat2(1.0f, 2.0f);
-      {
-        const float a = 0.0f;
-        mix_result2[0] = zMix2F(x, y, a);
-      }
-      {
-        const float a = 0.5f;
-        mix_result2[1] = zMix2F(x, y, a);
-      }
-      {
-        const float a = 1.0f;
-        mix_result2[2] = zMix2F(x, y, a);
-      }
-      {
-        const float2 a = zMakeFloat2(0.0f, 1.0f);
-        mix_result2[3] = zMix2(x, y, a);
-      }
-      {
-        const float2 a = zMakeFloat2(0.5f, 1.0f);
-        mix_result2[4] = zMix2(x, y, a);
-      }
-      {
-        const float2 a = zMakeFloat2(1.0f, 0.0f);
-        mix_result2[5] = zMix2(x, y, a);
-      }
-    }
-    // float3
-    {
-      const float3 x = zMakeFloat3(-1.0f, -2.0f, -3.0f);
-      const float3 y = zMakeFloat3(1.0f, 2.0f, 3.0f);
-      {
-        const float a = 0.0f;
-        mix_result3[0] = zMix3F(x, y, a);
-      }
-      {
-        const float a = 0.5f;
-        mix_result3[1] = zMix3F(x, y, a);
-      }
-      {
-        const float a = 1.0f;
-        mix_result3[2] = zMix3F(x, y, a);
-      }
-      {
-        const float3 a = zMakeFloat3(0.0f, 0.5f, 1.0f);
-        mix_result3[3] = zMix3(x, y, a);
-      }
-      {
-        const float3 a = zMakeFloat3(0.5f, 1.0f, 0.0f);
-        mix_result3[4] = zMix3(x, y, a);
-      }
-      {
-        const float3 a = zMakeFloat3(1.0f, 0.0f, 0.5f);
-        mix_result3[5] = zMix3(x, y, a);
-      }
-    }
-    // float4
-    {
-      const float4 x = zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f);
-      const float4 y = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f);
-      {
-        const float a = 0.0f;
-        mix_result4[0] = zMix4F(x, y, a);
-      }
-      {
-        const float a = 0.5f;
-        mix_result4[1] = zMix4F(x, y, a);
-      }
-      {
-        const float a = 1.0f;
-        mix_result4[2] = zMix4F(x, y, a);
-      }
-      {
-        const float4 a = zMakeFloat4(0.0f, 0.5f, 1.0f, 0.0f);
-        mix_result4[3] = zMix4(x, y, a);
-      }
-      {
-        const float4 a = zMakeFloat4(0.5f, 1.0f, 0.0f, 0.5f);
-        mix_result4[4] = zMix4(x, y, a);
-      }
-      {
-        const float4 a = zMakeFloat4(1.0f, 0.0f, 0.5f, 1.0f);
-        mix_result4[5] = zMix4(x, y, a);
-      }
-    }
-  }
-}
-
-/*!
-  */
-kernel void testRadian(
-    global float* radian_result1, global float2* radian_result2,
-    global float3* radian_result3, global float4* radian_result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    {
-      // radian
-      radian_result1[0] = degrees(zPiF);
-      radian_result1[1] = radians(180.0f);
-    }
-    // vector2
-    {
-      // radian
-      radian_result2[0] = degrees(zMakeFloat2(zPiF, 0.5f * zPiF));
-      radian_result2[1] = radians(zMakeFloat2(180.0f, 90.0f));
-    }
-    // vector3
-    {
-      radian_result3[0] = degrees(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF));
-      radian_result3[1] = radians(zMakeFloat3(180.0f, 90.0f, 45.0f));
-    }
-    // vector4
-    {
-      radian_result4[0] = degrees(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f));
-      radian_result4[1] = radians(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f));
-    }
-  }
-}
-
-/*!
-  */
-kernel void testZRadian(
-    global float* radian_result1, global float2* radian_result2,
-    global float3* radian_result3, global float4* radian_result4)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    {
-      // radian
-      radian_result1[0] = zDegrees(zPiF);
-      radian_result1[1] = zRadians(180.0f);
-    }
-    // vector2
-    {
-      // radian
-      radian_result2[0] = zDegrees2(zMakeFloat2(zPiF, 0.5f * zPiF));
-      radian_result2[1] = zRadians2(zMakeFloat2(180.0f, 90.0f));
-    }
-    // vector3
-    {
-      radian_result3[0] = zDegrees3(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF));
-      radian_result3[1] = zRadians3(zMakeFloat3(180.0f, 90.0f, 45.0f));
-    }
-    // vector4
-    {
-      radian_result4[0] = zDegrees4(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f));
-      radian_result4[1] = zRadians4(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f));
-    }
-  }
-}
-
-/*!
-  */
 kernel void testConstantValues(global int32b* int_values, global float* float_values)
 {
   const uint32b index = zGetGlobalIdX();
@@ -3291,67 +1569,93 @@ kernel void testConstantValues(global int32b* int_values, global float* float_va
     { \
       const int32b lhs = INT_MIN; \
       const int32b rhs = INT_MAX; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
       results1[i++] = max1(lhs, rhs); \
     } \
     { \
       const int32b lhs = INT_MAX; \
       const int32b rhs = INT_MIN; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
       results1[i++] = max1(lhs, rhs); \
     } \
     { \
       const int32b lhs = -1; \
       const int32b rhs = 0; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
       results1[i++] = max1(lhs, rhs); \
     } \
     { \
       const int32b lhs = 0; \
       const int32b rhs = -1; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
       results1[i++] = max1(lhs,rhs); \
     } \
     { \
       const int32b lhs = -1; \
       const int32b rhs = 1; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
       results1[i++] = max1(lhs, rhs); \
     } \
     { \
       const int32b lhs = 1; \
       const int32b rhs = -1; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
       results1[i++] = max1(lhs, rhs); \
     } \
     { \
       const int32b lhs = -10; \
       const int32b rhs = -1; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
       results1[i++] = max1(lhs, rhs); \
     } \
     { \
       const int32b lhs = -1; \
       const int32b rhs = -10; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
       results1[i++] = max1(lhs, rhs); \
     } \
     { \
       const int32b lhs = 10; \
       const int32b rhs = 1; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
       results1[i++] = max1(lhs, rhs); \
     } \
     { \
       const int32b lhs = 1; \
       const int32b rhs = 10; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
       results1[i++] = max1(lhs, rhs); \
     } \
     { \
       const int2 lhs = zMakeInt2(0, 1); \
       const int2 rhs = zMakeInt2(0, -1); \
-      results2[0] = max2(lhs, rhs); \
+      results2[0] = lhs; \
+      results2[1] = rhs; \
+      results2[2] = max2(lhs, rhs); \
     } \
     { \
       const int3 lhs = zMakeInt3(0, 1, -10); \
       const int3 rhs = zMakeInt3(0, -1, 10); \
-      results3[0] = max3(lhs, rhs); \
+      results3[0] = lhs; \
+      results3[1] = rhs; \
+      results3[2] = max3(lhs, rhs); \
     } \
     { \
       const int4 lhs = zMakeInt4(0, 1, -10, INT_MAX); \
       const int4 rhs = zMakeInt4(0, -1, 10, INT_MIN); \
-      results4[0] = max4(lhs, rhs); \
+      results4[0] = lhs; \
+      results4[1] = rhs; \
+      results4[2] = max4(lhs, rhs); \
     } \
   } \
 
@@ -3382,228 +1686,1769 @@ __kernel void testzMax(__global int32b* results1,
                   results1, results2, results3, results4);
 }
 
+__kernel void testMin(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_MAX(min, min, min, min,
+                  results1, results2, results3, results4);
+}
+
+__kernel void testzMinImpl(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_MAX(zMinImpl, zMin2Impl, zMin3Impl, zMin4Impl,
+                  results1, results2, results3, results4);
+}
+
+__kernel void testzMin(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_MAX(zMin, zMin2, zMin3, zMin4,
+                  results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_MAXU(max1, max2, max3, max4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    size_t i = 0; \
+    { \
+      const uint32b lhs = 0u; \
+      const uint32b rhs = UINT_MAX; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const uint32b lhs = UINT_MAX; \
+      const uint32b rhs = 0u; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const uint32b lhs = 1u; \
+      const uint32b rhs = 0u; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const uint32b lhs = 0u; \
+      const uint32b rhs = 1u; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs,rhs); \
+    } \
+    { \
+      const uint32b lhs = 10u; \
+      const uint32b rhs = 1u; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const uint32b lhs = 1u; \
+      const uint32b rhs = 10u; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const uint2 lhs = zMakeUInt2(0u, 1u); \
+      const uint2 rhs = zMakeUInt2(1u, 0u); \
+      results2[0] = lhs; \
+      results2[1] = rhs; \
+      results2[2] = max2(lhs, rhs); \
+    } \
+    { \
+      const uint3 lhs = zMakeUInt3(0u, 1u, 10u); \
+      const uint3 rhs = zMakeUInt3(1u, 10u, 0u); \
+      results3[0] = lhs; \
+      results3[1] = rhs; \
+      results3[2] = max3(lhs, rhs); \
+    } \
+    { \
+      const uint4 lhs = zMakeUInt4(0u, 1u, 10u, UINT_MAX); \
+      const uint4 rhs = zMakeUInt4(1u, 10u, 0u, 0u); \
+      results4[0] = lhs; \
+      results4[1] = rhs; \
+      results4[2] = max4(lhs, rhs); \
+    } \
+  } \
+
+__kernel void testMaxU(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_MAXU(max, max, max, max,
+                   results1, results2, results3, results4);
+}
+
+__kernel void testzMaxUImpl(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_MAXU(zMaxUImpl, zMaxU2Impl, zMaxU3Impl, zMaxU4Impl,
+                   results1, results2, results3, results4);
+}
+
+__kernel void testzMaxU(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_MAXU(zMaxU, zMaxU2, zMaxU3, zMaxU4,
+                   results1, results2, results3, results4);
+}
+
+__kernel void testMinU(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_MAXU(min, min, min, min,
+                   results1, results2, results3, results4);
+}
+
+__kernel void testzMinUImpl(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_MAXU(zMinUImpl, zMinU2Impl, zMinU3Impl, zMinU4Impl,
+                   results1, results2, results3, results4);
+}
+
+__kernel void testzMinU(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_MAXU(zMinU, zMinU2, zMinU3, zMinU4,
+                   results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_MAXF(max1, max2, max3, max4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    size_t i = 0; \
+    { \
+      const float lhs = FLT_MAX; \
+      const float rhs = FLT_MIN; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = FLT_MIN; \
+      const float rhs = FLT_MAX; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = FLT_MAX; \
+      const float rhs = -FLT_MAX; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = -FLT_MAX; \
+      const float rhs = FLT_MAX; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = -1.0f; \
+      const float rhs = 0.0f; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = 0.0f; \
+      const float rhs = -1.0f; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs,rhs); \
+    } \
+    { \
+      const float lhs = -1.0f; \
+      const float rhs = 1.0f; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = 1.0f; \
+      const float rhs = -1.0f; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = 1.0f; \
+      const float rhs = 1.0f + FLT_EPSILON; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = 1.0f + FLT_EPSILON; \
+      const float rhs = 1.0f; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = -1.0f; \
+      const float rhs = -1.0f - FLT_EPSILON; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = -1.0f - FLT_EPSILON; \
+      const float rhs = -1.0f; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = 1.0f; \
+      const float rhs = 1.0f; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = -1.0f; \
+      const float rhs = -1.0f; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = INFINITY; \
+      const float rhs = -INFINITY; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float lhs = -INFINITY; \
+      const float rhs = INFINITY; \
+      results1[i++] = lhs; \
+      results1[i++] = rhs; \
+      results1[i++] = max1(lhs, rhs); \
+    } \
+    { \
+      const float2 lhs = zMakeFloat2(0.0f, 1.0f); \
+      const float2 rhs = zMakeFloat2(0.0f, -1.0f); \
+      results2[0] = lhs; \
+      results2[1] = rhs; \
+      results2[2] = max2(lhs, rhs); \
+    } \
+    { \
+      const float3 lhs = zMakeFloat3(0.0f, 1.0f, -10.0f); \
+      const float3 rhs = zMakeFloat3(0.0f, -1.0f, 10.0f); \
+      results3[0] = lhs; \
+      results3[1] = rhs; \
+      results3[2] = max3(lhs, rhs); \
+    } \
+    { \
+      const float4 lhs = zMakeFloat4(0.0f, 1.0f, -10.0f, FLT_MAX); \
+      const float4 rhs = zMakeFloat4(0.0f, -1.0f, 10.0f, FLT_MIN); \
+      results4[0] = lhs; \
+      results4[1] = rhs; \
+      results4[2] = max4(lhs, rhs); \
+    } \
+  } \
+
+__kernel void testMaxF(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_MAXF(max, max, max, max,
+                   results1, results2, results3, results4);
+}
+
+__kernel void testzMaxFImpl(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_MAXF(zMaxFImpl, zMaxF2Impl, zMaxF3Impl, zMaxF4Impl,
+                   results1, results2, results3, results4);
+}
+
+__kernel void testzMaxF(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_MAXF(zMaxF, zMaxF2, zMaxF3, zMaxF4,
+                   results1, results2, results3, results4);
+}
+
+__kernel void testMinF(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_MAXF(min, min, min, min,
+                   results1, results2, results3, results4);
+}
+
+__kernel void testzMinFImpl(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_MAXF(zMinFImpl, zMinF2Impl, zMinF3Impl, zMinF4Impl,
+                   results1, results2, results3, results4);
+}
+
+__kernel void testzMinF(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_MAXF(zMinF, zMinF2, zMinF3, zMinF4,
+                   results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_MIX(mix1, mix2f, mix2, mix3f, mix3, mix4f, mix4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    { \
+      const float x = -1.0f; \
+      const float y = 1.0f; \
+      { \
+        const float a = 0.0f; \
+        results1[0] = mix1(x, y, a); \
+      } \
+      { \
+        const float a = 0.5f; \
+        results1[1] = mix1(x, y, a); \
+      } \
+      { \
+        const float a = 1.0f; \
+        results1[2] = mix1(x, y, a); \
+      } \
+    } \
+    { \
+      const float2 x = zMakeFloat2(-1.0f, -2.0f); \
+      const float2 y = zMakeFloat2(1.0f, 2.0f); \
+      { \
+        const float a = 0.0f; \
+        results2[0] = mix2f(x, y, a); \
+      } \
+      { \
+        const float a = 0.5f; \
+        results2[1] = mix2f(x, y, a); \
+      } \
+      { \
+        const float a = 1.0f; \
+        results2[2] = mix2f(x, y, a); \
+      } \
+      { \
+        const float2 a = zMakeFloat2(0.0f, 1.0f); \
+        results2[3] = mix2(x, y, a); \
+      } \
+      { \
+        const float2 a = zMakeFloat2(0.5f, 1.0f); \
+        results2[4] = mix2(x, y, a); \
+      } \
+      { \
+        const float2 a = zMakeFloat2(1.0f, 0.0f); \
+        results2[5] = mix2(x, y, a); \
+      } \
+    } \
+    { \
+      const float3 x = zMakeFloat3(-1.0f, -2.0f, -3.0f); \
+      const float3 y = zMakeFloat3(1.0f, 2.0f, 3.0f); \
+      { \
+        const float a = 0.0f; \
+        results3[0] = mix3f(x, y, a); \
+      } \
+      { \
+        const float a = 0.5f; \
+        results3[1] = mix3f(x, y, a); \
+      } \
+      { \
+        const float a = 1.0f; \
+        results3[2] = mix3f(x, y, a); \
+      } \
+      { \
+        const float3 a = zMakeFloat3(0.0f, 0.5f, 1.0f); \
+        results3[3] = mix3(x, y, a); \
+      } \
+      { \
+        const float3 a = zMakeFloat3(0.5f, 1.0f, 0.0f); \
+        results3[4] = mix3(x, y, a); \
+      } \
+      { \
+        const float3 a = zMakeFloat3(1.0f, 0.0f, 0.5f); \
+        results3[5] = mix3(x, y, a); \
+      } \
+    } \
+    { \
+      const float4 x = zMakeFloat4(-1.0f, -2.0f, -3.0f, -4.0f); \
+      const float4 y = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f); \
+      { \
+        const float a = 0.0f; \
+        results4[0] = mix4f(x, y, a); \
+      } \
+      { \
+        const float a = 0.5f; \
+        results4[1] = mix4f(x, y, a); \
+      } \
+      { \
+        const float a = 1.0f; \
+        results4[2] = mix4f(x, y, a); \
+      } \
+      { \
+        const float4 a = zMakeFloat4(0.0f, 0.5f, 1.0f, 0.0f); \
+        results4[3] = mix4(x, y, a); \
+      } \
+      { \
+        const float4 a = zMakeFloat4(0.5f, 1.0f, 0.0f, 0.5f); \
+        results4[4] = mix4(x, y, a); \
+      } \
+      { \
+        const float4 a = zMakeFloat4(1.0f, 0.0f, 0.5f, 1.0f); \
+        results4[5] = mix4(x, y, a); \
+      } \
+    } \
+  }
+
 /*!
   */
-kernel void testMaxFunction(global int32b* result1, global float* result2)
+__kernel void testMix(
+    __global float* results1, __global float2* results2,
+    __global float3* results3, __global float4* results4)
 {
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // Scalar
-    size_t scalar_index = 0;
-    {
-      const int32b lhs = INT_MIN;
-      const int32b rhs = INT_MAX;
-      result1[scalar_index++] = zMax(lhs, rhs);
-    }
-    {
-      const int32b lhs = INT_MAX;
-      const int32b rhs = INT_MIN;
-      result1[scalar_index++] = zMax(lhs, rhs);
-    }
-    {
-      const int32b lhs = -1;
-      const int32b rhs = 0;
-      result1[scalar_index++] = zMax(lhs, rhs);
-    }
-    {
-      const int32b lhs = 0;
-      const int32b rhs = -1;
-      result1[scalar_index++] = zMax(lhs,rhs);
-    }
-    {
-      const int32b lhs = -1;
-      const int32b rhs = 1;
-      result1[scalar_index++] = zMax(lhs, rhs);
-    }
-    {
-      const int32b lhs = 1;
-      const int32b rhs = -1;
-      result1[scalar_index++] = zMax(lhs, rhs);
-    }
-    {
-      const int32b lhs = -10;
-      const int32b rhs = -1;
-      result1[scalar_index++] = zMax(lhs, rhs);
-    }
-    {
-      const int32b lhs = -1;
-      const int32b rhs = -10;
-      result1[scalar_index++] = zMax(lhs, rhs);
-    }
-    {
-      const int32b lhs = 10;
-      const int32b rhs = 1;
-      result1[scalar_index++] = zMax(lhs, rhs);
-    }
-    {
-      const int32b lhs = 1;
-      const int32b rhs = 10;
-      result1[scalar_index++] = zMax(lhs, rhs);
-    }
-    scalar_index = 0;
-    {
-      const float lhs = -FLT_MAX;
-      const float rhs = FLT_MAX;
-      result2[scalar_index++] = zMaxF(lhs, rhs);
-    }
-    {
-      const float lhs = FLT_MAX;
-      const float rhs = -FLT_MAX;
-      result2[scalar_index++] = zMaxF(lhs, rhs);
-    }
-    {
-      const float lhs = -1.0f;
-      const float rhs = 0.0f;
-      result2[scalar_index++] = zMaxF(lhs, rhs);
-    }
-    {
-      const float lhs = 0.0f;
-      const float rhs = -1.0f;
-      result2[scalar_index++] = zMaxF(lhs, rhs);
-    }
-    {
-      const float lhs = -1.0f;
-      const float rhs = 1.0f;
-      result2[scalar_index++] = zMaxF(lhs, rhs);
-    }
-    {
-      const float lhs = 1.0f;
-      const float rhs = -1.0f;
-      result2[scalar_index++] = zMaxF(lhs, rhs);
-    }
-    {
-      const float lhs = -10.0f;
-      const float rhs = -1.0f;
-      result2[scalar_index++] = zMaxF(lhs, rhs);
-    }
-    {
-      const float lhs = -1.0f;
-      const float rhs = -10.0f;
-      result2[scalar_index++] = zMaxF(lhs, rhs);
-    }
-    {
-      const float lhs = 10.0f;
-      const float rhs = 1.0f;
-      result2[scalar_index++] = zMaxF(lhs, rhs);
-    }
-    {
-      const float lhs = 1.0f;
-      const float rhs = 10.0f;
-      result2[scalar_index++] = zMaxF(lhs, rhs);
-    }
-  }
+  ZINVUL_TEST_MIX(mix, mix, mix, mix, mix, mix, mix,
+      results1, results2, results3, results4);
 }
 
 /*!
   */
-kernel void testMinFunction(global int32b* result1, global float* result2)
+__kernel void testzMixImpl(
+    __global float* results1, __global float2* results2,
+    __global float3* results3, __global float4* results4)
 {
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    // Scalar
-    size_t scalar_index = 0;
-    {
-      const int32b lhs = INT_MIN;
-      const int32b rhs = INT_MAX;
-      result1[scalar_index++] = zMin(lhs, rhs);
-    }
-    {
-      const int32b lhs = INT_MAX;
-      const int32b rhs = INT_MIN;
-      result1[scalar_index++] = zMin(lhs, rhs);
-    }
-    {
-      const int32b lhs = -1;
-      const int32b rhs = 0;
-      result1[scalar_index++] = zMin(lhs, rhs);
-    }
-    {
-      const int32b lhs = 0;
-      const int32b rhs = -1;
-      result1[scalar_index++] = zMin(lhs,rhs);
-    }
-    {
-      const int32b lhs = -1;
-      const int32b rhs = 1;
-      result1[scalar_index++] = zMin(lhs, rhs);
-    }
-    {
-      const int32b lhs = 1;
-      const int32b rhs = -1;
-      result1[scalar_index++] = zMin(lhs, rhs);
-    }
-    {
-      const int32b lhs = -10;
-      const int32b rhs = -1;
-      result1[scalar_index++] = zMin(lhs, rhs);
-    }
-    {
-      const int32b lhs = -1;
-      const int32b rhs = -10;
-      result1[scalar_index++] = zMin(lhs, rhs);
-    }
-    {
-      const int32b lhs = 10;
-      const int32b rhs = 1;
-      result1[scalar_index++] = zMin(lhs, rhs);
-    }
-    {
-      const int32b lhs = 1;
-      const int32b rhs = 10;
-      result1[scalar_index++] = zMin(lhs, rhs);
-    }
-    scalar_index = 0;
-    {
-      const float lhs = -FLT_MAX;
-      const float rhs = FLT_MAX;
-      result2[scalar_index++] = zMinF(lhs, rhs);
-    }
-    {
-      const float lhs = FLT_MAX;
-      const float rhs = -FLT_MAX;
-      result2[scalar_index++] = zMinF(lhs, rhs);
-    }
-    {
-      const float lhs = -1.0f;
-      const float rhs = 0.0f;
-      result2[scalar_index++] = zMinF(lhs, rhs);
-    }
-    {
-      const float lhs = 0.0f;
-      const float rhs = -1.0f;
-      result2[scalar_index++] = zMinF(lhs, rhs);
-    }
-    {
-      const float lhs = -1.0f;
-      const float rhs = 1.0f;
-      result2[scalar_index++] = zMinF(lhs, rhs);
-    }
-    {
-      const float lhs = 1.0f;
-      const float rhs = -1.0f;
-      result2[scalar_index++] = zMinF(lhs, rhs);
-    }
-    {
-      const float lhs = -10.0f;
-      const float rhs = -1.0f;
-      result2[scalar_index++] = zMinF(lhs, rhs);
-    }
-    {
-      const float lhs = -1.0f;
-      const float rhs = -10.0f;
-      result2[scalar_index++] = zMinF(lhs, rhs);
-    }
-    {
-      const float lhs = 10.0f;
-      const float rhs = 1.0f;
-      result2[scalar_index++] = zMinF(lhs, rhs);
-    }
-    {
-      const float lhs = 1.0f;
-      const float rhs = 10.0f;
-      result2[scalar_index++] = zMinF(lhs, rhs);
-    }
+  ZINVUL_TEST_MIX(zMixImpl, zMix2FImpl, zMix2Impl, zMix3FImpl, zMix3Impl, zMix4FImpl, zMix4Impl,
+      results1, results2, results3, results4);
+}
+
+/*!
+  */
+__kernel void testzMix(
+    __global float* results1, __global float2* results2,
+    __global float3* results3, __global float4* results4)
+{
+  ZINVUL_TEST_MIX(zMix, zMix2F, zMix2, zMix3F, zMix3, zMix4F, zMix4,
+      results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_CLAMP(clamp1, clamp2, clamp3, clamp4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    size_t i = 0; \
+    const int32b x_list[] = {0, 1, INT_MAX, -1, INT_MIN}; \
+    for (size_t j = 0; j < 5; ++j) { \
+      const int32b minval = 0; \
+      const int32b maxval = 0; \
+      results1[i++] = x_list[j]; \
+      results1[i++] = minval; \
+      results1[i++] = maxval; \
+      results1[i++] = clamp1(x_list[j], minval, maxval); \
+    } \
+    for (size_t j = 0; j < 5; ++j) { \
+      const int32b minval = -1; \
+      const int32b maxval = 1; \
+      results1[i++] = x_list[j]; \
+      results1[i++] = minval; \
+      results1[i++] = maxval; \
+      results1[i++] = clamp1(x_list[j], minval, maxval); \
+    } \
+    for (size_t j = 0; j < 5; ++j) { \
+      const int32b minval = INT_MIN; \
+      const int32b maxval = INT_MAX; \
+      results1[i++] = x_list[j]; \
+      results1[i++] = minval; \
+      results1[i++] = maxval; \
+      results1[i++] = clamp1(x_list[j], minval, maxval); \
+    } \
+    i = 0; \
+    { \
+      const int2 x = zMakeInt2(0, INT_MAX); \
+      const int2 minval = zBroadcast2(-1); \
+      const int2 maxval = zBroadcast2(1); \
+      results2[i++] = x; \
+      results2[i++] = minval; \
+      results2[i++] = maxval; \
+      results2[i++] = clamp2(x, minval, maxval); \
+    } \
+    { \
+      const int2 x = zMakeInt2(-1, INT_MIN); \
+      const int2 minval = zBroadcast2(INT_MIN); \
+      const int2 maxval = zBroadcast2(INT_MAX); \
+      results2[i++] = x; \
+      results2[i++] = minval; \
+      results2[i++] = maxval; \
+      results2[i++] = clamp2(x, minval, maxval); \
+    } \
+    i = 0; \
+    { \
+      const int3 x = zMakeInt3(0, 1, INT_MAX); \
+      const int3 minval = zBroadcast3(-1); \
+      const int3 maxval = zBroadcast3(1); \
+      results3[i++] = x; \
+      results3[i++] = minval; \
+      results3[i++] = maxval; \
+      results3[i++] = clamp3(x, minval, maxval); \
+    } \
+    { \
+      const int3 x = zMakeInt3(0, -1, INT_MIN); \
+      const int3 minval = zBroadcast3(INT_MIN); \
+      const int3 maxval = zBroadcast3(INT_MAX); \
+      results3[i++] = x; \
+      results3[i++] = minval; \
+      results3[i++] = maxval; \
+      results3[i++] = clamp3(x, minval, maxval); \
+    } \
+    i = 0; \
+    { \
+      const int4 x = zMakeInt4(0, 1, 10, INT_MAX); \
+      const int4 minval = zBroadcast4(-1); \
+      const int4 maxval = zBroadcast4(1); \
+      results4[i++] = x; \
+      results4[i++] = minval; \
+      results4[i++] = maxval; \
+      results4[i++] = clamp4(x, minval, maxval); \
+    } \
+    { \
+      const int4 x = zMakeInt4(0, -1, -10, INT_MIN); \
+      const int4 minval = zBroadcast4(INT_MIN); \
+      const int4 maxval = zBroadcast4(INT_MAX); \
+      results4[i++] = x; \
+      results4[i++] = minval; \
+      results4[i++] = maxval; \
+      results4[i++] = clamp4(x, minval, maxval); \
+    } \
   }
+
+__kernel void testClamp(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_CLAMP(clamp, clamp, clamp, clamp,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzClampImpl(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_CLAMP(zClampImpl, zClamp2Impl, zClamp3Impl, zClamp4Impl,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzClamp(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_CLAMP(zClamp, zClamp2, zClamp3, zClamp4,
+      results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_CLAMPU(clamp1, clamp2, clamp3, clamp4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    size_t i = 0; \
+    const uint32b x_list[] = {0u, 1u, 2u, UINT_MAX}; \
+    for (size_t j = 0; j < 4; ++j) { \
+      const uint32b minval = 0u; \
+      const uint32b maxval = 0u; \
+      results1[i++] = x_list[j]; \
+      results1[i++] = minval; \
+      results1[i++] = maxval; \
+      results1[i++] = clamp1(x_list[j], minval, maxval); \
+    } \
+    for (size_t j = 0; j < 4; ++j) { \
+      const uint32b minval = 1u; \
+      const uint32b maxval = 3u; \
+      results1[i++] = x_list[j]; \
+      results1[i++] = minval; \
+      results1[i++] = maxval; \
+      results1[i++] = clamp1(x_list[j], minval, maxval); \
+    } \
+    for (size_t j = 0; j < 4; ++j) { \
+      const uint32b minval = 0u; \
+      const uint32b maxval = UINT_MAX; \
+      results1[i++] = x_list[j]; \
+      results1[i++] = minval; \
+      results1[i++] = maxval; \
+      results1[i++] = clamp1(x_list[j], minval, maxval); \
+    } \
+    i = 0; \
+    { \
+      const uint2 x = zMakeUInt2(0u, UINT_MAX); \
+      const uint2 minval = zBroadcastU2(1u); \
+      const uint2 maxval = zBroadcastU2(3u); \
+      results2[i++] = x; \
+      results2[i++] = minval; \
+      results2[i++] = maxval; \
+      results2[i++] = clamp2(x, minval, maxval); \
+    } \
+    { \
+      const uint2 x = zMakeUInt2(1u, UINT_MAX); \
+      const uint2 minval = zBroadcastU2(0u); \
+      const uint2 maxval = zBroadcastU2(INT_MAX); \
+      results2[i++] = x; \
+      results2[i++] = minval; \
+      results2[i++] = maxval; \
+      results2[i++] = clamp2(x, minval, maxval); \
+    } \
+    i = 0; \
+    { \
+      const uint3 x = zMakeUInt3(0u, 1u, UINT_MAX); \
+      const uint3 minval = zBroadcastU3(1u); \
+      const uint3 maxval = zBroadcastU3(3u); \
+      results3[i++] = x; \
+      results3[i++] = minval; \
+      results3[i++] = maxval; \
+      results3[i++] = clamp3(x, minval, maxval); \
+    } \
+    { \
+      const uint3 x = zMakeUInt3(0u, 1u, UINT_MAX); \
+      const uint3 minval = zBroadcastU3(0u); \
+      const uint3 maxval = zBroadcastU3(UINT_MAX); \
+      results3[i++] = x; \
+      results3[i++] = minval; \
+      results3[i++] = maxval; \
+      results3[i++] = clamp3(x, minval, maxval); \
+    } \
+    i = 0; \
+    { \
+      const uint4 x = zMakeUInt4(0u, 1u, 10u, UINT_MAX); \
+      const uint4 minval = zBroadcastU4(1u); \
+      const uint4 maxval = zBroadcastU4(3u); \
+      results4[i++] = x; \
+      results4[i++] = minval; \
+      results4[i++] = maxval; \
+      results4[i++] = clamp4(x, minval, maxval); \
+    } \
+    { \
+      const uint4 x = zMakeUInt4(0u, 1u, 10u, UINT_MAX); \
+      const uint4 minval = zBroadcastU4(0u); \
+      const uint4 maxval = zBroadcastU4(UINT_MAX); \
+      results4[i++] = x; \
+      results4[i++] = minval; \
+      results4[i++] = maxval; \
+      results4[i++] = clamp4(x, minval, maxval); \
+    } \
+  }
+
+__kernel void testClampU(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_CLAMPU(clamp, clamp, clamp, clamp,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzClampUImpl(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_CLAMPU(zClampUImpl, zClampU2Impl, zClampU3Impl, zClampU4Impl,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzClampU(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_CLAMPU(zClampU, zClampU2, zClampU3, zClampU4,
+      results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_CLAMPF(clamp1, clamp2f, clamp2, clamp3f, clamp3, clamp4f, clamp4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    size_t i = 0; \
+    const float x_list[] = {0.0f, 1.0f, FLT_MAX, -1.0f, -FLT_MAX, INFINITY, -INFINITY}; \
+    for (size_t j = 0; j < 7; ++j) { \
+      const float minval = 0.0f; \
+      const float maxval = 0.0f; \
+      results1[i++] = x_list[j]; \
+      results1[i++] = minval; \
+      results1[i++] = maxval; \
+      results1[i++] = clamp1(x_list[j], minval, maxval); \
+    } \
+    for (size_t j = 0; j < 7; ++j) { \
+      const float minval = -1.0f; \
+      const float maxval = 1.0f; \
+      results1[i++] = x_list[j]; \
+      results1[i++] = minval; \
+      results1[i++] = maxval; \
+      results1[i++] = clamp1(x_list[j], minval, maxval); \
+    } \
+    for (size_t j = 0; j < 7; ++j) { \
+      const float minval = -INFINITY; \
+      const float maxval = INFINITY; \
+      results1[i++] = x_list[j]; \
+      results1[i++] = minval; \
+      results1[i++] = maxval; \
+      results1[i++] = clamp1(x_list[j], minval, maxval); \
+    } \
+    i = 0; \
+    { \
+      const float2 x = zMakeFloat2(0.0f, FLT_MAX); \
+      const float minval = -1.0f; \
+      const float maxval = 1.0f; \
+      results2[i++] = x; \
+      results2[i++] = zBroadcastF2(minval); \
+      results2[i++] = zBroadcastF2(maxval); \
+      results2[i++] = clamp2f(x, minval, maxval); \
+    } \
+    { \
+      const float2 x = zMakeFloat2(-1.0f, -FLT_MAX); \
+      const float minval = -INFINITY; \
+      const float maxval = INFINITY; \
+      results2[i++] = x; \
+      results2[i++] = zBroadcastF2(minval); \
+      results2[i++] = zBroadcastF2(maxval); \
+      results2[i++] = clamp2f(x, minval, maxval); \
+    } \
+    { \
+      const float2 x = zMakeFloat2(0.0f, FLT_MAX); \
+      const float2 minval = zBroadcastF2(-1.0f); \
+      const float2 maxval = zBroadcastF2(1.0f); \
+      results2[i++] = x; \
+      results2[i++] = minval; \
+      results2[i++] = maxval; \
+      results2[i++] = clamp2(x, minval, maxval); \
+    } \
+    { \
+      const float2 x = zMakeFloat2(-1.0f, -FLT_MAX); \
+      const float2 minval = zBroadcastF2(-INFINITY); \
+      const float2 maxval = zBroadcastF2(INFINITY); \
+      results2[i++] = x; \
+      results2[i++] = minval; \
+      results2[i++] = maxval; \
+      results2[i++] = clamp2(x, minval, maxval); \
+    } \
+    i = 0; \
+    { \
+      const float3 x = zMakeFloat3(0.0f, 1.0f, FLT_MAX); \
+      const float minval = -1.0f; \
+      const float maxval = 1.0f; \
+      results3[i++] = x; \
+      results3[i++] = zBroadcastF3(minval); \
+      results3[i++] = zBroadcastF3(maxval); \
+      results3[i++] = clamp3f(x, minval, maxval); \
+    } \
+    { \
+      const float3 x = zMakeFloat3(-1.0f, -FLT_MAX, -INFINITY); \
+      const float minval = -INFINITY; \
+      const float maxval = INFINITY; \
+      results3[i++] = x; \
+      results3[i++] = zBroadcastF3(minval); \
+      results3[i++] = zBroadcastF3(maxval); \
+      results3[i++] = clamp3f(x, minval, maxval); \
+    } \
+    { \
+      const float3 x = zMakeFloat3(0.0f, 1.0f, FLT_MAX); \
+      const float3 minval = zBroadcastF3(-1.0f); \
+      const float3 maxval = zBroadcastF3(1.0f); \
+      results3[i++] = x; \
+      results3[i++] = minval; \
+      results3[i++] = maxval; \
+      results3[i++] = clamp3(x, minval, maxval); \
+    } \
+    { \
+      const float3 x = zMakeFloat3(-1.0f, -FLT_MAX, -INFINITY); \
+      const float3 minval = zBroadcastF3(-INFINITY); \
+      const float3 maxval = zBroadcastF3(INFINITY); \
+      results3[i++] = x; \
+      results3[i++] = minval; \
+      results3[i++] = maxval; \
+      results3[i++] = clamp3(x, minval, maxval); \
+    } \
+    i = 0; \
+    { \
+      const float4 x = zMakeFloat4(0.0f, 1.0f, FLT_MAX, INFINITY); \
+      const float minval = -1.0f; \
+      const float maxval = 1.0f; \
+      results4[i++] = x; \
+      results4[i++] = zBroadcastF4(minval); \
+      results4[i++] = zBroadcastF4(maxval); \
+      results4[i++] = clamp4f(x, minval, maxval); \
+    } \
+    { \
+      const float4 x = zMakeFloat4(0.0f, -1.0f, -FLT_MAX, -INFINITY); \
+      const float minval = -INFINITY; \
+      const float maxval = INFINITY; \
+      results4[i++] = x; \
+      results4[i++] = zBroadcastF4(minval); \
+      results4[i++] = zBroadcastF4(maxval); \
+      results4[i++] = clamp4f(x, minval, maxval); \
+    } \
+    { \
+      const float4 x = zMakeFloat4(0.0f, 1.0f, FLT_MAX, INFINITY); \
+      const float4 minval = zBroadcastF4(-1.0f); \
+      const float4 maxval = zBroadcastF4(1.0f); \
+      results4[i++] = x; \
+      results4[i++] = minval; \
+      results4[i++] = maxval; \
+      results4[i++] = clamp4(x, minval, maxval); \
+    } \
+    { \
+      const float4 x = zMakeFloat4(0.0f, -1.0f, -FLT_MAX, -INFINITY); \
+      const float4 minval = zBroadcastF4(-INFINITY); \
+      const float4 maxval = zBroadcastF4(INFINITY); \
+      results4[i++] = x; \
+      results4[i++] = minval; \
+      results4[i++] = maxval; \
+      results4[i++] = clamp4(x, minval, maxval); \
+    } \
+  }
+
+__kernel void testClampF(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_CLAMPF(clamp, clamp, clamp, clamp, clamp, clamp, clamp,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzClampFImpl(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_CLAMPF(zClampFImpl, zClampF2FImpl, zClampF2Impl, zClampF3FImpl, zClampF3Impl, zClampF4FImpl, zClampF4Impl,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzClampF(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_CLAMPF(zClampF, zClampF2F, zClampF2, zClampF3F, zClampF3, zClampF4F, zClampF4, 
+      results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_FRACT(fract1, fract2, fract3, fract4, results1, results1i, results2, results2i, results3, results3i, results4, results4i) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    { \
+      uint i = 0; \
+      float iptr = 0.0f; \
+      { \
+        const float x = 0.0f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = 1.0f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = 3.1f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = 3.5f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = 3.9f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = 4.1f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = 4.5f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = 4.9f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = -1.0f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = -3.1f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = -3.5f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = -3.9f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = -4.1f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = -4.5f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = -4.9f; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = INFINITY; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = -INFINITY; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+      { \
+        const float x = NAN; \
+        results1[i++] = x; \
+        results1[i++] = fract1(x, &iptr); \
+        results1i[i/2-1] = iptr; \
+      } \
+    } \
+    { \
+      uint i = 0; \
+      float2 iptr = zMakeFloat2(0.0f, 0.0f); \
+      { \
+        const float2 x = zMakeFloat2(0.0f, 0.0f); \
+        results2[i++] = x; \
+        results2[i++] = fract2(x, &iptr); \
+        results2i[i/2-1] = iptr; \
+      } \
+      { \
+        const float2 x = zMakeFloat2(1.0f, -1.0f); \
+        results2[i++] = x; \
+        results2[i++] = fract2(x, &iptr); \
+        results2i[i/2-1] = iptr; \
+      } \
+      { \
+        const float2 x = zMakeFloat2(3.1f, -3.1f); \
+        results2[i++] = x; \
+        results2[i++] = fract2(x, &iptr); \
+        results2i[i/2-1] = iptr; \
+      } \
+      { \
+        const float2 x = zMakeFloat2(3.5f, -3.5f); \
+        results2[i++] = x; \
+        results2[i++] = fract2(x, &iptr); \
+        results2i[i/2-1] = iptr; \
+      } \
+      { \
+        const float2 x = zMakeFloat2(3.9f, -3.9f); \
+        results2[i++] = x; \
+        results2[i++] = fract2(x, &iptr); \
+        results2i[i/2-1] = iptr; \
+      } \
+      { \
+        const float2 x = zMakeFloat2(4.1f, -4.1f); \
+        results2[i++] = x; \
+        results2[i++] = fract2(x, &iptr); \
+        results2i[i/2-1] = iptr; \
+      } \
+      { \
+        const float2 x = zMakeFloat2(4.5f, -4.5f); \
+        results2[i++] = x; \
+        results2[i++] = fract2(x, &iptr); \
+        results2i[i/2-1] = iptr; \
+      } \
+      { \
+        const float2 x = zMakeFloat2(4.9f, -4.9f); \
+        results2[i++] = x; \
+        results2[i++] = fract2(x, &iptr); \
+        results2i[i/2-1] = iptr; \
+      } \
+    } \
+    { \
+      uint i = 0; \
+      float3 iptr = zMakeFloat3(0.0f, 0.0f, 0.0f); \
+      { \
+        const float3 x = zMakeFloat3(0.0f, 0.0f, 0.0f); \
+        results3[i++] = x; \
+        results3[i++] = fract3(x, &iptr); \
+        results3i[i/2-1] = iptr; \
+      } \
+      { \
+        const float3 x = zMakeFloat3(1.0f, -1.0f, 1.0f); \
+        results3[i++] = x; \
+        results3[i++] = fract3(x, &iptr); \
+        results3i[i/2-1] = iptr; \
+      } \
+      { \
+        const float3 x = zMakeFloat3(3.1f, -3.1f, 3.1f); \
+        results3[i++] = x; \
+        results3[i++] = fract3(x, &iptr); \
+        results3i[i/2-1] = iptr; \
+      } \
+      { \
+        const float3 x = zMakeFloat3(3.5f, -3.5f, 3.5f); \
+        results3[i++] = x; \
+        results3[i++] = fract3(x, &iptr); \
+        results3i[i/2-1] = iptr; \
+      } \
+      { \
+        const float3 x = zMakeFloat3(3.9f, -3.9f, 3.9f); \
+        results3[i++] = x; \
+        results3[i++] = fract3(x, &iptr); \
+        results3i[i/2-1] = iptr; \
+      } \
+      { \
+        const float3 x = zMakeFloat3(4.1f, -4.1f, 4.1f); \
+        results3[i++] = x; \
+        results3[i++] = fract3(x, &iptr); \
+        results3i[i/2-1] = iptr; \
+      } \
+      { \
+        const float3 x = zMakeFloat3(4.5f, -4.5f, 4.5f); \
+        results3[i++] = x; \
+        results3[i++] = fract3(x, &iptr); \
+        results3i[i/2-1] = iptr; \
+      } \
+      { \
+        const float3 x = zMakeFloat3(4.9f, -4.9f, 4.9f); \
+        results3[i++] = x; \
+        results3[i++] = fract3(x, &iptr); \
+        results3i[i/2-1] = iptr; \
+      } \
+    } \
+    { \
+      uint i = 0; \
+      float4 iptr = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f); \
+      { \
+        const float4 x = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f); \
+        results4[i++] = x; \
+        results4[i++] = fract4(x, &iptr); \
+        results4i[i/2-1] = iptr; \
+      } \
+      { \
+        const float4 x = zMakeFloat4(1.0f, -1.0f, 5.0f, -5.0f); \
+        results4[i++] = x; \
+        results4[i++] = fract4(x, &iptr); \
+        results4i[i/2-1] = iptr; \
+      } \
+      { \
+        const float4 x = zMakeFloat4(3.1f, -3.1f, 13.1f, -13.1f); \
+        results4[i++] = x; \
+        results4[i++] = fract4(x, &iptr); \
+        results4i[i/2-1] = iptr; \
+      } \
+      { \
+        const float4 x = zMakeFloat4(3.5f, -3.5f, 13.5f, -13.5f); \
+        results4[i++] = x; \
+        results4[i++] = fract4(x, &iptr); \
+        results4i[i/2-1] = iptr; \
+      } \
+      { \
+        const float4 x = zMakeFloat4(3.9f, -3.9f, 13.9f, -13.9f); \
+        results4[i++] = x; \
+        results4[i++] = fract4(x, &iptr); \
+        results4i[i/2-1] = iptr; \
+      } \
+      { \
+        const float4 x = zMakeFloat4(4.1f, -4.1f, 14.1f, -14.1f); \
+        results4[i++] = x; \
+        results4[i++] = fract4(x, &iptr); \
+        results4i[i/2-1] = iptr; \
+      } \
+      { \
+        const float4 x = zMakeFloat4(4.5f, -4.5f, 14.5f, -14.5f); \
+        results4[i++] = x; \
+        results4[i++] = fract4(x, &iptr); \
+        results4i[i/2-1] = iptr; \
+      } \
+      { \
+        const float4 x = zMakeFloat4(4.9f, -4.9f, 14.9f, -14.9f); \
+        results4[i++] = x; \
+        results4[i++] = fract4(x, &iptr); \
+        results4i[i/2-1] = iptr; \
+      } \
+    } \
+  } \
+
+/*!
+  */
+__kernel void testFract(
+    __global float* results1, __global float* results1i,
+    __global float2* results2, __global float2* results2i,
+    __global float3* results3, __global float3* results3i,
+    __global float4* results4, __global float4* results4i)
+{
+  ZINVUL_TEST_FRACT(fract, fract, fract, fract,
+      results1, results1i, results2, results2i, results3, results3i, results4, results4i);
+}
+
+/*!
+  */
+__kernel void testzFractImpl(
+    __global float* results1, __global float* results1i,
+    __global float2* results2, __global float2* results2i,
+    __global float3* results3, __global float3* results3i,
+    __global float4* results4, __global float4* results4i)
+{
+  ZINVUL_TEST_FRACT(zFractImpl, zFract2Impl, zFract3Impl, zFract4Impl,
+      results1, results1i, results2, results2i, results3, results3i, results4, results4i);
+}
+
+/*!
+  */
+__kernel void testzFract(
+    __global float* results1, __global float* results1i,
+    __global float2* results2, __global float2* results2i,
+    __global float3* results3, __global float3* results3i,
+    __global float4* results4, __global float4* results4i)
+{
+  ZINVUL_TEST_FRACT(zFract, zFract2, zFract3, zFract4,
+      results1, results1i, results2, results2i, results3, results3i, results4, results4i);
+}
+
+#define ZINVUL_TEST_MOD(mod1, mod2, mod3, mod4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    { \
+      const float y = 1.0f; \
+      uint i = 0; \
+      { \
+        const float x = 0.0f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = 1.0f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = 3.1f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = 3.5f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = 3.9f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = 4.1f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = 4.5f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = 4.9f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = -1.0f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = -3.1f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = -3.5f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = -3.9f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = -4.1f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = -4.5f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = -4.9f; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = INFINITY; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = -INFINITY; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+      { \
+        const float x = NAN; \
+        results1[i++] = x; \
+        results1[i++] = mod1(x, y); \
+      } \
+    } \
+    { \
+      const float2 y = zMakeFloat2(1.0f, 2.0f); \
+      uint i = 0; \
+      { \
+        const float2 x = zMakeFloat2(0.0f, 0.0f); \
+        results2[i++] = x; \
+        results2[i++] = mod2(x, y); \
+      } \
+      { \
+        const float2 x = zMakeFloat2(1.0f, -1.0f); \
+        results2[i++] = x; \
+        results2[i++] = mod2(x, y); \
+      } \
+      { \
+        const float2 x = zMakeFloat2(3.1f, -3.1f); \
+        results2[i++] = x; \
+        results2[i++] = mod2(x, y); \
+      } \
+      { \
+        const float2 x = zMakeFloat2(3.5f, -3.5f); \
+        results2[i++] = x; \
+        results2[i++] = mod2(x, y); \
+      } \
+      { \
+        const float2 x = zMakeFloat2(3.9f, -3.9f); \
+        results2[i++] = x; \
+        results2[i++] = mod2(x, y); \
+      } \
+      { \
+        const float2 x = zMakeFloat2(4.1f, -4.1f); \
+        results2[i++] = x; \
+        results2[i++] = mod2(x, y); \
+      } \
+      { \
+        const float2 x = zMakeFloat2(4.5f, -4.5f); \
+        results2[i++] = x; \
+        results2[i++] = mod2(x, y); \
+      } \
+      { \
+        const float2 x = zMakeFloat2(4.9f, -4.9f); \
+        results2[i++] = x; \
+        results2[i++] = mod2(x, y); \
+      } \
+    } \
+    { \
+      const float3 y = zMakeFloat3(1.0f, 2.0f, 3.0f); \
+      uint i = 0; \
+      { \
+        const float3 x = zMakeFloat3(0.0f, 0.0f, 0.0f); \
+        results3[i++] = x; \
+        results3[i++] = mod3(x, y); \
+      } \
+      { \
+        const float3 x = zMakeFloat3(1.0f, -1.0f, 1.0f); \
+        results3[i++] = x; \
+        results3[i++] = mod3(x, y); \
+      } \
+      { \
+        const float3 x = zMakeFloat3(3.1f, -3.1f, 3.1f); \
+        results3[i++] = x; \
+        results3[i++] = mod3(x, y); \
+      } \
+      { \
+        const float3 x = zMakeFloat3(3.5f, -3.5f, 3.5f); \
+        results3[i++] = x; \
+        results3[i++] = mod3(x, y); \
+      } \
+      { \
+        const float3 x = zMakeFloat3(3.9f, -3.9f, 3.9f); \
+        results3[i++] = x; \
+        results3[i++] = mod3(x, y); \
+      } \
+      { \
+        const float3 x = zMakeFloat3(4.1f, -4.1f, 4.1f); \
+        results3[i++] = x; \
+        results3[i++] = mod3(x, y); \
+      } \
+      { \
+        const float3 x = zMakeFloat3(4.5f, -4.5f, 4.5f); \
+        results3[i++] = x; \
+        results3[i++] = mod3(x, y); \
+      } \
+      { \
+        const float3 x = zMakeFloat3(4.9f, -4.9f, 4.9f); \
+        results3[i++] = x; \
+        results3[i++] = mod3(x, y); \
+      } \
+    } \
+    { \
+      const float4 y = zMakeFloat4(1.0f, 2.0f, 3.0f, 4.0f); \
+      uint i = 0; \
+      { \
+        const float4 x = zMakeFloat4(0.0f, 0.0f, 0.0f, 0.0f); \
+        results4[i++] = x; \
+        results4[i++] = mod4(x, y); \
+      } \
+      { \
+        const float4 x = zMakeFloat4(1.0f, -1.0f, 5.0f, -5.0f); \
+        results4[i++] = x; \
+        results4[i++] = mod4(x, y); \
+      } \
+      { \
+        const float4 x = zMakeFloat4(3.1f, -3.1f, 13.1f, -13.1f); \
+        results4[i++] = x; \
+        results4[i++] = mod4(x, y); \
+      } \
+      { \
+        const float4 x = zMakeFloat4(3.5f, -3.5f, 13.5f, -13.5f); \
+        results4[i++] = x; \
+        results4[i++] = mod4(x, y); \
+      } \
+      { \
+        const float4 x = zMakeFloat4(3.9f, -3.9f, 13.9f, -13.9f); \
+        results4[i++] = x; \
+        results4[i++] = mod4(x, y); \
+      } \
+      { \
+        const float4 x = zMakeFloat4(4.1f, -4.1f, 14.1f, -14.1f); \
+        results4[i++] = x; \
+        results4[i++] = mod4(x, y); \
+      } \
+      { \
+        const float4 x = zMakeFloat4(4.5f, -4.5f, 14.5f, -14.5f); \
+        results4[i++] = x; \
+        results4[i++] = mod4(x, y); \
+      } \
+      { \
+        const float4 x = zMakeFloat4(4.9f, -4.9f, 14.9f, -14.9f); \
+        results4[i++] = x; \
+        results4[i++] = mod4(x, y); \
+      } \
+    } \
+  }
+
+/*!
+  */
+__kernel void testMod(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_MOD(fmod, fmod, fmod, fmod,
+      results1, results2, results3, results4);
+}
+
+/*!
+  */
+__kernel void testzModImpl(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_MOD(zModImpl, zMod2Impl, zMod3Impl, zMod4Impl,
+      results1, results2, results3, results4);
+}
+
+/*!
+  */
+__kernel void testzMod(__global float* results1,
+    __global float2* results2,
+    __global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_MOD(zMod, zMod2, zMod3, zMod4,
+      results1, results2, results3, results4);
+}
+
+/*!
+  */
+#define ZINVUL_TEST_RADIAN(degrees1, degrees2, degrees3, degrees4, radians1, radians2, radians3, radians4,  results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    { \
+      results1[0] = degrees1(zPiF); \
+      results1[1] = radians1(180.0f); \
+    } \
+    { \
+      results2[0] = degrees2(zMakeFloat2(zPiF, 0.5f * zPiF)); \
+      results2[1] = radians2(zMakeFloat2(180.0f, 90.0f)); \
+    } \
+    { \
+      results3[0] = degrees3(zMakeFloat3(zPiF, 0.5f * zPiF, 0.25f * zPiF)); \
+      results3[1] = radians3(zMakeFloat3(180.0f, 90.0f, 45.0f)); \
+    } \
+    { \
+      results4[0] = degrees4(zMakeFloat4(zPiF, 0.5f * zPiF, 0.25f * zPiF, 0.0f)); \
+      results4[1] = radians4(zMakeFloat4(180.0f, 90.0f, 45.0f, 0.0f)); \
+    } \
+  }
+
+/*!
+  */
+kernel void testRadian(global float* results1,
+    global float2* results2,
+    global float3* results3,
+    global float4* results4)
+{
+  ZINVUL_TEST_RADIAN(degrees, degrees, degrees, degrees,
+      radians, radians, radians, radians,
+      results1, results2, results3, results4);
+}
+
+/*!
+  */
+kernel void testzRadianImpl(global float* results1,
+    global float2* results2,
+    global float3* results3,
+    global float4* results4)
+{
+  ZINVUL_TEST_RADIAN(zDegreesImpl, zDegrees2Impl, zDegrees3Impl, zDegrees4Impl,
+      zRadiansImpl, zRadians2Impl, zRadians3Impl, zRadians4Impl,
+      results1, results2, results3, results4);
+}
+
+/*!
+  */
+kernel void testzRadian(global float* results1,
+    global float2* results2,
+    global float3* results3,
+    global float4* results4)
+{
+  ZINVUL_TEST_RADIAN(zDegrees, zDegrees2, zDegrees3, zDegrees4,
+      zRadians, zRadians2, zRadians3, zRadians4,
+      results1, results2, results3, results4);
+}
+
+/*!
+  */
+#define ZINVUL_TEST_CLZ(clz1, clz2, clz3, clz4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    for (int i = 0; i < 32; ++i) { \
+      int x = 0; \
+      for (int j = 0; j < i; ++j) \
+        x = (x << 1) | 1; \
+      results1[i] = clz1(x); \
+    } \
+    for (int i = 0; i < 32; ++i) { \
+      int2 x = zMakeInt2(0, 0); \
+      for (int j = 0; j < i; ++j) \
+        x = (x << 1) | 1; \
+      x.y = x.y / 2; \
+      results2[i] = clz2(x); \
+    } \
+    for (int i = 0; i < 32; ++i) { \
+      int3 x = zMakeInt3(0, 0, 0); \
+      for (int j = 0; j < i; ++j) \
+        x = (x << 1) | 1; \
+      x.y = x.y / 2; \
+      x.z = x.z / 3; \
+      results3[i] = clz3(x); \
+    } \
+    for (int i = 0; i < 32; ++i) { \
+      int4 x = zMakeInt4(0, 0, 0, 0); \
+      for (int j = 0; j < i; ++j) \
+        x = (x << 1) | 1; \
+      x.y = x.y / 2; \
+      x.z = x.z / 3; \
+      x.w = x.w / 5; \
+      results4[i] = clz4(x); \
+    } \
+  }
+
+__kernel void testClz(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_CLZ(clz, clz ,clz, clz,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzClzImpl(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_CLZ(zClzImpl, zClz2Impl, zClz3Impl, zClz4Impl,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzClz(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_CLZ(zClz, zClz2, zClz3, zClz4,
+      results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_CLZU(clz1, clz2, clz3, clz4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    for (uint i = 0u; i < 32u; ++i) { \
+      uint x = 0u; \
+      for (uint j = 0u; j < i; ++j) \
+        x = (x << 1u) | 1u; \
+      results1[i] = clz1(x); \
+    } \
+    for (uint i = 0u; i < 32u; ++i) { \
+      uint2 x = zMakeUInt2(0u, 0u); \
+      for (uint j = 0u; j < i; ++j) \
+        x = (x << 1u) | 1u; \
+      x.y = x.y / 2u; \
+      results2[i] = clz2(x); \
+    } \
+    for (uint i = 0u; i < 32u; ++i) { \
+      uint3 x = zMakeUInt3(0u, 0u, 0u); \
+      for (uint j = 0u; j < i; ++j) \
+        x = (x << 1u) | 1u; \
+      x.y = x.y / 2u; \
+      x.z = x.z / 3u; \
+      results3[i] = clz3(x); \
+    } \
+    for (uint i = 0u; i < 32u; ++i) { \
+      uint4 x = zMakeUInt4(0u, 0u, 0u, 0u); \
+      for (uint j = 0u; j < i; ++j) \
+        x = (x << 1u) | 1u; \
+      x.y = x.y / 2u; \
+      x.z = x.z / 3u; \
+      x.w = x.w / 5u; \
+      results4[i] = clz4(x); \
+    } \
+  }
+
+__kernel void testClzU(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_CLZU(clz, clz ,clz, clz,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzClzUImpl(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_CLZU(zClzUImpl, zClzU2Impl, zClzU3Impl, zClzU4Impl,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzClzU(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_CLZU(zClzU, zClzU2, zClzU3, zClzU4,
+      results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_POPCOUNT(popcount1, popcount2, popcount3, popcount4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    for (int i = 0; i < 32; ++i) { \
+      int x = 0; \
+      for (int j = 0; j < i; ++j) \
+        x = (x << 1) | 1; \
+      results1[i] = popcount1(x); \
+    } \
+    for (int i = 0; i < 32; ++i) { \
+      int2 x = zMakeInt2(0, 0); \
+      for (int j = 0; j < i; ++j) \
+        x = (x << 1) | 1; \
+      x.y = x.y / 2; \
+      results2[i] = popcount2(x); \
+    } \
+    for (int i = 0; i < 32; ++i) { \
+      int3 x = zMakeInt3(0, 0, 0); \
+      for (int j = 0; j < i; ++j) \
+        x = (x << 1) | 1; \
+      x.y = x.y / 2; \
+      x.z = x.z / 3; \
+      results3[i] = popcount3(x); \
+    } \
+    for (int i = 0; i < 32; ++i) { \
+      int4 x = zMakeInt4(0, 0, 0, 0); \
+      for (int j = 0; j < i; ++j) \
+        x = (x << 1) | 1; \
+      x.y = x.y / 2; \
+      x.z = x.z / 3; \
+      x.w = x.w / 5; \
+      results4[i] = popcount4(x); \
+    } \
+  }
+
+/*!
+  */
+__kernel void testPopcount(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_POPCOUNT(popcount, popcount, popcount, popcount,
+      results1, results2, results3, results4);
+}
+
+/*!
+  */
+__kernel void testzPopcountImpl(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_POPCOUNT(zPopcountImpl, zPopcount2Impl, zPopcount3Impl, zPopcount4Impl,
+      results1, results2, results3, results4);
+}
+
+/*!
+  */
+__kernel void testzPopcount(__global int32b* results1,
+    __global int2* results2,
+    __global int3* results3,
+    __global int4* results4)
+{
+  ZINVUL_TEST_POPCOUNT(zPopcount, zPopcount2, zPopcount3, zPopcount4,
+      results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_POPCOUNTU(popcount1, popcount2, popcount3, popcount4, results1, results2, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    for (uint i = 0u; i < 32u; ++i) { \
+      uint x = 0u; \
+      for (uint j = 0u; j < i; ++j) \
+        x = (x << 1u) | 1u; \
+      results1[i] = popcount1(x); \
+    } \
+    for (uint i = 0u; i < 32u; ++i) { \
+      uint2 x = zMakeUInt2(0u, 0u); \
+      for (uint j = 0u; j < i; ++j) \
+        x = (x << 1u) | 1u; \
+      x.y = x.y / 2u; \
+      results2[i] = popcount2(x); \
+    } \
+    for (uint i = 0u; i < 32u; ++i) { \
+      uint3 x = zMakeUInt3(0u, 0u, 0u); \
+      for (uint j = 0u; j < i; ++j) \
+        x = (x << 1u) | 1u; \
+      x.y = x.y / 2u; \
+      x.z = x.z / 3u; \
+      results3[i] = popcount3(x); \
+    } \
+    for (uint i = 0u; i < 32u; ++i) { \
+      uint4 x = zMakeUInt4(0u, 0u, 0u, 0u); \
+      for (uint j = 0u; j < i; ++j) \
+        x = (x << 1u) | 1u; \
+      x.y = x.y / 2u; \
+      x.z = x.z / 3u; \
+      x.w = x.w / 5u; \
+      results4[i] = popcount4(x); \
+    } \
+  }
+
+__kernel void testPopcountU(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_POPCOUNTU(popcount, popcount, popcount, popcount,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzPopcountUImpl(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_POPCOUNTU(zPopcountUImpl, zPopcountU2Impl, zPopcountU3Impl, zPopcountU4Impl,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzPopcountU(__global uint32b* results1,
+    __global uint2* results2,
+    __global uint3* results3,
+    __global uint4* results4)
+{
+  ZINVUL_TEST_POPCOUNTU(zPopcountU, zPopcountU2, zPopcountU3, zPopcountU4,
+      results1, results2, results3, results4);
 }
 
 #endif /* ZINVUL_MATH_TEST_MATH_CL */

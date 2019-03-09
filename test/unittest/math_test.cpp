@@ -419,7 +419,7 @@ TEST(MathTest, CommonTest)
   }
 }
 
-TEST(MathTest, ClzTest)
+TEST(MathTest, ZCommonTest)
 {
   using namespace zinvul;
   auto options = makeTestOptions();
@@ -428,1045 +428,213 @@ TEST(MathTest, ClzTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(32);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(32);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(32);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(32);
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    buffer1->setSize(3);
+    auto abs_result2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    abs_result2->setSize(2);
+    auto abs_result3 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    abs_result3->setSize(2);
+    auto abs_result4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    abs_result4->setSize(1);
+    auto abs_result5 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    abs_result5->setSize(2);
+    auto abs_result6 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    abs_result6->setSize(1);
+    auto abs_result7 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    abs_result7->setSize(2);
+    auto abs_result8 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    abs_result8->setSize(1);
+    auto clamp_result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    clamp_result1->setSize(9);
+    auto clamp_result2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    clamp_result2->setSize(11);
+    auto clamp_result3 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    clamp_result3->setSize(6);
+    auto clamp_result4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    clamp_result4->setSize(8);
+    auto clamp_result5 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    clamp_result5->setSize(3);
+    auto clamp_result6 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    clamp_result6->setSize(5);
+    auto clamp_result7 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    clamp_result7->setSize(3);
+    auto clamp_result8 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    clamp_result8->setSize(5);
 
-    auto kernel = makeZinvulKernel(device.get(), math, testClz, 1);
-    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    auto kernel = makeZinvulKernel(device.get(), math, testZCommon, 1);
+    kernel->run(*buffer1, *abs_result2, *abs_result3, *abs_result4,
+        *abs_result5, *abs_result6, *abs_result7, *abs_result8,
+        *clamp_result1, *clamp_result2, *clamp_result3, *clamp_result4,
+        *clamp_result5, *clamp_result6, *clamp_result7, *clamp_result8, {1}, 0);
     device->waitForCompletion();
 
     {
-      std::array<int32b, 32> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        const int32b expected = cl::clz(x);
-        ASSERT_EQ(expected, result[i])
-            << "The clz func is wrong: " << x;
+      std::array<uint32b, 3> result;
+      buffer1->read(result.data(), result.size(), 0, 0);
+      EXPECT_EQ(1u, result[0]) << "The abs func is wrong.";
+      EXPECT_EQ(1u, result[1]) << "The abs func is wrong.";
+    }
+    {
+      std::array<float, 2> result;
+      abs_result2->read(result.data(), result.size(), 0, 0);
+      EXPECT_EQ(1.0f, result[0]) << "The fabs func is wrong.";
+      EXPECT_EQ(1.0f, result[1]) << "The fabs func is wrong.";
+    }
+    {
+      std::array<cl::uint2, 2> result;
+      abs_result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < 2; ++i) {
+        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
       }
     }
     {
-      std::array<cl::int2, 32> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 2; ++j) {
-          const int32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The clz func is wrong: " << x;
-        }
+      std::array<cl::float2, 1> result;
+      abs_result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < 2; ++i)
+        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
+    }
+    {
+      std::array<cl::uint3, 2> result;
+      abs_result5->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < 3; ++i) {
+        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
       }
     }
     {
-      std::array<cl::int3, 32> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 3; ++j) {
-          const int32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The clz func is wrong: " << x;
-        }
+      std::array<cl::float3, 1> result;
+      abs_result6->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < 3; ++i)
+        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
+    }
+    {
+      std::array<cl::uint4, 2> result;
+      abs_result7->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < 4; ++i) {
+        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
       }
     }
     {
-      std::array<cl::int4, 32> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 4; ++j) {
-          const int32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The clz func is wrong: " << x;
-        }
-      }
+      std::array<cl::float4, 1> result;
+      abs_result8->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < 4; ++i)
+        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
     }
 
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, ClzUTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(32);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(32);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(32);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(32);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testClzU, 1);
-    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
-    device->waitForCompletion();
-
     {
-      std::array<uint32b, 32> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        const uint32b expected = cl::clz(x);
-        ASSERT_EQ(expected, result[i])
-            << "The clz func is wrong: " << x;
-      }
+      std::array<int32b, 9> result;
+      clamp_result1->read(result.data(), result.size(), 0 ,0);
+      EXPECT_FALSE(result[0]) << "The max func is wrong.";
+      EXPECT_FALSE(result[1]) << "The min func is wrong.";
+      EXPECT_FALSE(result[2]) << "The clamp func is wrong.";
+      EXPECT_EQ(10, result[3]) << "The max func is wrong.";
+      EXPECT_TRUE(result[4]) << "The min func is wrong.";
+      EXPECT_TRUE(result[5]) << "The clamp func is wrong.";
+      EXPECT_EQ(-1, result[6]) << "The max func is wrong.";
+      EXPECT_EQ(-10, result[7]) << "The min func is wrong.";
+      EXPECT_EQ(-1, result[8]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::uint2, 32> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 2; ++j) {
-          const uint32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The clz func is wrong: " << x;
-        }
-      }
+      std::array<float, 11> result;
+      clamp_result2->read(result.data(), result.size(), 0, 0);
+      EXPECT_EQ(0.0f, result[0]) << "The max func is wrong.";
+      EXPECT_EQ(0.0f, result[1]) << "The min func is wrong.";
+      EXPECT_EQ(0.0f, result[2]) << "The clamp func is wrong.";
+      EXPECT_EQ(10.0f, result[3]) << "The max func is wrong.";
+      EXPECT_EQ(1.0f, result[4]) << "The min func is wrong.";
+      EXPECT_EQ(1.0f, result[5]) << "The clamp func is wrong.";
+      EXPECT_EQ(-1.0f, result[6]) << "The max func is wrong.";
+      EXPECT_EQ(-10.0f, result[7]) << "The min func is wrong.";
+      EXPECT_EQ(-1.0f, result[8]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::uint3, 32> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 3; ++j) {
-          const uint32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The clz func is wrong: " << x;
-        }
-      }
+      std::array<cl::int2, 6> result;
+      clamp_result3->read(result.data(), result.size(), 0, 0);
+      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
+      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
+      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
+      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
+      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
+      EXPECT_FALSE(result[3][0]) << "The max func is wrong.";
+      EXPECT_EQ(-2, result[3][1]) << "The max func is wrong.";
+      EXPECT_FALSE(result[4][0]) << "The min func is wrong.";
+      EXPECT_EQ(-2, result[4][1]) << "The min func is wrong.";
+      EXPECT_FALSE(result[5][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(-2, result[5][1]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::uint4, 32> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 4; ++j) {
-          const uint32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The clz func is wrong: " << x;
-        }
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, ZclzTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(32);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(32);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(32);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(32);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testZclz, 1);
-    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<int32b, 32> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        const int32b expected = cl::clz(x);
-        ASSERT_EQ(expected, result[i])
-            << "The zClz func is wrong: " << x;
-      }
+      std::array<cl::float2, 8> result;
+      clamp_result4->read(result.data(), result.size(), 0, 0);
+      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
+      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
+      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
+      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
+      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(0.0f, result[3][0]) << "The max func is wrong.";
+      EXPECT_EQ(-2.0f, result[3][1]) << "The max func is wrong.";
+      EXPECT_EQ(0.0f, result[4][0]) << "The min func is wrong.";
+      EXPECT_EQ(-2.0f, result[4][1]) << "The min func is wrong.";
+      EXPECT_EQ(0.0f, result[5][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(-2.0f, result[5][1]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::int2, 32> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 2; ++j) {
-          const int32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zClz2 func is wrong: " << x;
-        }
-      }
+      std::array<cl::int3, 3> result;
+      clamp_result5->read(result.data(), result.size(), 0, 0);
+      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
+      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
+      EXPECT_EQ(-3, result[0][2]) << "The max func is wrong.";
+      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
+      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
+      EXPECT_EQ(-3, result[1][2]) << "The min func is wrong.";
+      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::int3, 32> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 3; ++j) {
-          const int32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zClz3 func is wrong: " << x;
-        }
-      }
+      std::array<cl::float3, 5> result;
+      clamp_result6->read(result.data(), result.size(), 0, 0);
+      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
+      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
+      EXPECT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
+      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
+      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
+      EXPECT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
+      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::int4, 32> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 4; ++j) {
-          const int32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zClz4 func is wrong: " << x;
-        }
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, ZclzUTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(32);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(32);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(32);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(32);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testZclzU, 1);
-    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<uint32b, 32> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        const uint32b expected = cl::clz(x);
-        ASSERT_EQ(expected, result[i])
-            << "The zClzU func is wrong: " << x;
-      }
+      std::array<cl::int4, 3> result;
+      clamp_result7->read(result.data(), result.size(), 0, 0);
+      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
+      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
+      EXPECT_EQ(-3, result[0][2]) << "The max func is wrong.";
+      EXPECT_EQ(100, result[0][3]) << "The max func is wrong.";
+      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
+      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
+      EXPECT_EQ(-3, result[1][2]) << "The min func is wrong.";
+      EXPECT_EQ(4, result[1][3]) << "The min func is wrong.";
+      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
+      EXPECT_EQ(4, result[2][3]) << "The clamp func is wrong.";
     }
     {
-      std::array<cl::uint2, 32> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 2; ++j) {
-          const uint32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zClzU2 func is wrong: " << x;
-        }
-      }
-    }
-    {
-      std::array<cl::uint3, 32> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 3; ++j) {
-          const uint32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zClzU3 func is wrong: " << x;
-        }
-      }
-    }
-    {
-      std::array<cl::uint4, 32> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 4; ++j) {
-          const uint32b expected = cl::clz(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zClzU4 func is wrong: " << x;
-        }
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, PopcountTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(32);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(32);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(32);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(32);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testPopcount, 1);
-    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<int32b, 32> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        const int32b expected = cl::popcount(x);
-        ASSERT_EQ(expected, result[i])
-            << "The popcount func is wrong: " << x;
-      }
-    }
-    {
-      std::array<cl::int2, 32> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 2; ++j) {
-          const int32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The popcount func is wrong: " << x;
-        }
-      }
-    }
-    {
-      std::array<cl::int3, 32> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 3; ++j) {
-          const int32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The popcount func is wrong: " << x;
-        }
-      }
-    }
-    {
-      std::array<cl::int4, 32> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 4; ++j) {
-          const int32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The popcount func is wrong: " << x;
-        }
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, PopcountUTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(32);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(32);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(32);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(32);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testPopcountU, 1);
-    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<uint32b, 32> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        const uint32b expected = cl::popcount(x);
-        ASSERT_EQ(expected, result[i])
-            << "The popcount func is wrong: " << x;
-      }
-    }
-    {
-      std::array<cl::uint2, 32> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 2; ++j) {
-          const uint32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The popcount func is wrong: " << x;
-        }
-      }
-    }
-    {
-      std::array<cl::uint3, 32> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 3; ++j) {
-          const uint32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The popcount func is wrong: " << x;
-        }
-      }
-    }
-    {
-      std::array<cl::uint4, 32> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 4; ++j) {
-          const uint32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The popcount func is wrong: " << x;
-        }
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, ZpopcountTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(32);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(32);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(32);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(32);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testZpopcount, 1);
-    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<int32b, 32> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        const int32b expected = cl::popcount(x);
-        ASSERT_EQ(expected, result[i])
-            << "The zPopcount func is wrong: " << x;
-      }
-    }
-    {
-      std::array<cl::int2, 32> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 2; ++j) {
-          const int32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zPopcount2 func is wrong: " << x;
-        }
-      }
-    }
-    {
-      std::array<cl::int3, 32> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 3; ++j) {
-          const int32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zPopcount3 func is wrong: " << x;
-        }
-      }
-    }
-    {
-      std::array<cl::int4, 32> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        int32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr int32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 4; ++j) {
-          const int32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zPopcount4 func is wrong: " << x;
-        }
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, ZpopcountUTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(32);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(32);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(32);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(32);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testZpopcountU, 1);
-    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<uint32b, 32> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        const uint32b expected = cl::popcount(x);
-        ASSERT_EQ(expected, result[i])
-            << "The zPopcountU func is wrong: " << x;
-      }
-    }
-    {
-      std::array<cl::uint2, 32> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 2; ++j) {
-          const uint32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zPopcountU2 func is wrong: " << x;
-        }
-      }
-    }
-    {
-      std::array<cl::uint3, 32> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 3; ++j) {
-          const uint32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zPopcountU3 func is wrong: " << x;
-        }
-      }
-    }
-    {
-      std::array<cl::uint4, 32> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size(); ++i) {
-        uint32b x = 0;
-        for (std::size_t j = 0; j < i; ++j)
-          x = (x << 1) | 0b1;
-        constexpr uint32b k[] = {1, 2, 3, 5};
-        for (std::size_t j = 0; j < 4; ++j) {
-          const uint32b expected = cl::popcount(x / k[j]);
-          ASSERT_EQ(expected, result[i][j])
-              << "The zPopcountU4 func is wrong: " << x;
-        }
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, FractTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(36);
-    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    result1i->setSize(18);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(16);
-    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    result2i->setSize(8);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(16);
-    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    result3i->setSize(8);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(16);
-    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    result4i->setSize(8);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testFract, 1);
-    kernel->run(*result1, *result1i, *result2, *result2i,
-                *result3, *result3i, *result4, *result4i, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<float, 36> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      std::array<float, 18> resulti;
-      result1i->read(resulti.data(), resulti.size(), 0, 0);
-      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
-        const float x = result[2 * i];
-        float expectedi = 0.0f;
-        const float expected = cl::fract(x, &expectedi);
-        ASSERT_FLOAT_EQ(expected, result[2 * i + 1])
-            << "The fract func is wrong: " << std::scientific << x;
-        ASSERT_FLOAT_EQ(expectedi, resulti[i])
-            << "The fract func is wrong: " << std::scientific << x;
-      }
-//      ASSERT_TRUE(std::isnan(result[result.size() - 5]))
-//          << "The fract func is wrong.";
-//      ASSERT_TRUE(std::isnan(result[result.size() - 3]))
-//          << "The fract func is wrong.";
-//      ASSERT_TRUE(std::isnan(result[result.size() - 1]))
-//          << "The fract func is wrong.";
-    }
-    {
-      std::array<cl::float2, 16> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      std::array<cl::float2, 8> resulti;
-      result2i->read(resulti.data(), resulti.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 2; ++j) {
-          float expectedi = 0.0f;
-          const float expected = cl::fract(x[j], &expectedi);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The fract func is wrong.";
-          ASSERT_FLOAT_EQ(expectedi, resulti[i][j])
-              << "The fract func is wrong.";
-        }
-      }
-    }
-    {
-      std::array<cl::float3, 16> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      std::array<cl::float3, 8> resulti;
-      result3i->read(resulti.data(), resulti.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 3; ++j) {
-          float expectedi = 0.0f;
-          const float expected = cl::fract(x[j], &expectedi);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The fract func is wrong.";
-          ASSERT_FLOAT_EQ(expectedi, resulti[i][j])
-              << "The fract func is wrong.";
-        }
-      }
-    }
-    {
-      std::array<cl::float4, 16> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      std::array<cl::float4, 8> resulti;
-      result4i->read(resulti.data(), resulti.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 4; ++j) {
-          float expectedi = 0.0f;
-          const float expected = cl::fract(x[j], &expectedi);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The fract func is wrong.";
-          ASSERT_FLOAT_EQ(expectedi, resulti[i][j])
-              << "The fract func is wrong.";
-        }
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, ZfractTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(36);
-    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    result1i->setSize(18);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(16);
-    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    result2i->setSize(8);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(16);
-    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    result3i->setSize(8);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(16);
-    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    result4i->setSize(8);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testZfract, 1);
-    kernel->run(*result1, *result1i, *result2, *result2i,
-                *result3, *result3i, *result4, *result4i, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<float, 36> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      std::array<float, 18> resulti;
-      result1i->read(resulti.data(), resulti.size(), 0, 0);
-      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
-        const float x = result[2 * i];
-        float expectedi = 0.0f;
-        const float expected = cl::fract(x, &expectedi);
-        ASSERT_FLOAT_EQ(expected, result[2 * i + 1])
-            << "The zFract func is wrong: " << std::scientific << x;
-        ASSERT_FLOAT_EQ(expectedi, resulti[i])
-            << "The zFract func is wrong: " << std::scientific << x;
-      }
-//      ASSERT_TRUE(std::isnan(result[result.size() - 5]))
-//          << "The zFract func is wrong.";
-//      ASSERT_TRUE(std::isnan(result[result.size() - 3]))
-//          << "The zFract func is wrong.";
-//      ASSERT_TRUE(std::isnan(result[result.size() - 1]))
-//          << "The zFract func is wrong.";
-    }
-    {
-      std::array<cl::float2, 16> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      std::array<cl::float2, 8> resulti;
-      result2i->read(resulti.data(), resulti.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 2; ++j) {
-          float expectedi = 0.0f;
-          const float expected = cl::fract(x[j], &expectedi);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The zFract func is wrong.";
-          ASSERT_FLOAT_EQ(expectedi, resulti[i][j])
-              << "The zFract func is wrong.";
-        }
-      }
-    }
-    {
-      std::array<cl::float3, 16> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      std::array<cl::float3, 8> resulti;
-      result3i->read(resulti.data(), resulti.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 3; ++j) {
-          float expectedi = 0.0f;
-          const float expected = cl::fract(x[j], &expectedi);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The zFract func is wrong.";
-          ASSERT_FLOAT_EQ(expectedi, resulti[i][j])
-              << "The zFract func is wrong.";
-        }
-      }
-    }
-    {
-      std::array<cl::float4, 16> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      std::array<cl::float4, 8> resulti;
-      result4i->read(resulti.data(), resulti.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 4; ++j) {
-          float expectedi = 0.0f;
-          const float expected = cl::fract(x[j], &expectedi);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The zFract func is wrong.";
-          ASSERT_FLOAT_EQ(expectedi, resulti[i][j])
-              << "The zFract func is wrong.";
-        }
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, ModTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(16);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testMod, 1);
-    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<float, 36> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
-        const float x = result[2 * i];
-        const float y = 1.0f;
-        const float expected = std::fmod(x, y);
-        ASSERT_FLOAT_EQ(expected, result[2 * i + 1])
-            << "The fmod func is wrong.";
-      }
-      ASSERT_TRUE(std::isnan(result[result.size() - 5]))
-          << "The fmod func is wrong.";
-      ASSERT_TRUE(std::isnan(result[result.size() - 3]))
-          << "The fmod func is wrong.";
-      ASSERT_TRUE(std::isnan(result[result.size() - 1]))
-          << "The fmod func is wrong.";
-    }
-    {
-      std::array<cl::float2, 16> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 2; ++j) {
-          const float y = zisc::cast<float>(j + 1);
-          const float expected = std::fmod(x[j], y);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The fmod func is wrong.";
-        }
-      }
-    }
-    {
-      std::array<cl::float3, 16> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 3; ++j) {
-          const float y = zisc::cast<float>(j + 1);
-          const float expected = std::fmod(x[j], y);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The fmod func is wrong: " << std::scientific << x[j];
-        }
-      }
-    }
-    {
-      std::array<cl::float4, 16> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 4; ++j) {
-          const float y = zisc::cast<float>(j + 1);
-          const float expected = std::fmod(x[j], y);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The fmod func is wrong.";
-        }
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, ZmodTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    result4->setSize(16);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testZmod, 1);
-    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<float, 36> result;
-      result1->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
-        const float x = result[2 * i];
-        const float y = 1.0f;
-        const float expected = std::fmod(x, y);
-        ASSERT_FLOAT_EQ(expected, result[2 * i + 1])
-            << "The zmod func is wrong.";
-      }
-      ASSERT_TRUE(std::isnan(result[result.size() - 5]))
-          << "The zmod func is wrong.";
-      ASSERT_TRUE(std::isnan(result[result.size() - 3]))
-          << "The zmod func is wrong.";
-      ASSERT_TRUE(std::isnan(result[result.size() - 1]))
-          << "The zmod func is wrong.";
-    }
-    {
-      std::array<cl::float2, 16> result;
-      result2->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 2; ++j) {
-          const float y = zisc::cast<float>(j + 1);
-          const float expected = std::fmod(x[j], y);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The zmod func is wrong.";
-        }
-      }
-    }
-    {
-      std::array<cl::float3, 16> result;
-      result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 3; ++j) {
-          const float y = zisc::cast<float>(j + 1);
-          const float expected = std::fmod(x[j], y);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The zmod func is wrong: " << std::scientific << x[j];
-        }
-      }
-    }
-    {
-      std::array<cl::float4, 16> result;
-      result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < result.size() / 2; ++i) {
-        const auto x = result[2 * i];
-        for (std::size_t j = 0; j < 4; ++j) {
-          const float y = zisc::cast<float>(j + 1);
-          const float expected = std::fmod(x[j], y);
-          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j])
-              << "The zmod func is wrong.";
-        }
-      }
+      std::array<cl::float4, 5> result;
+      clamp_result8->read(result.data(), result.size(), 0, 0);
+      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
+      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
+      EXPECT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
+      EXPECT_EQ(100.0f, result[0][3]) << "The max func is wrong.";
+      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
+      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
+      EXPECT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
+      EXPECT_EQ(4.0f, result[1][3]) << "The min func is wrong.";
+      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
+      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
+      EXPECT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
+      EXPECT_EQ(4.0f, result[2][3]) << "The clamp func is wrong.";
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
@@ -2828,7 +1996,7 @@ TEST(MathTest, zIsOddUTest)
   }
 }
 
-TEST(MathTest, MixTest)
+TEST(MathTest, MaxTest)
 {
   using namespace zinvul;
   auto options = makeTestOptions();
@@ -2837,98 +2005,77 @@ TEST(MathTest, MixTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    mix_result1->setSize(3);
-    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    mix_result2->setSize(6);
-    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    mix_result3->setSize(6);
-    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    mix_result4->setSize(6);
+    constexpr std::size_t n = 30;
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
 
-    auto kernel = makeZinvulKernel(device.get(), math, testMix, 1);
-    kernel->run(*mix_result1, *mix_result2, *mix_result3, *mix_result4, {1}, 0);
+    auto kernel = makeZinvulKernel(device.get(), math, testMax, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
     device->waitForCompletion();
 
+    const char* error_message = "The 'max' func is wrong.";
     {
-      std::array<float, 3> result;
-      mix_result1->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(-1.0f, result[0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[2]) << "The mix func is wrong.";
+      std::array<int32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const int32b lhs = result[3 * i];
+        const int32b rhs = result[3 * i + 1];
+        const int32b expected = std::max(lhs, rhs);
+        const int32b m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
     }
     {
-      std::array<cl::float2, 6> result;
-      mix_result2->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[3][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The mix func is wrong.";
+      std::array<cl::int2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = std::max(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
     }
     {
-      std::array<cl::float3, 6> result;
-      mix_result3->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << "The mix func is wrong.";
+      std::array<cl::int3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = std::max(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
     }
     {
-      std::array<cl::float4, 6> result;
-      mix_result4->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-4.0f, result[0][3]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][3]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(4.0f, result[2][3]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-4.0f, result[3][3]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[4][3]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << "The mix func is wrong.";
-      ASSERT_FLOAT_EQ(4.0f, result[5][3]) << "The mix func is wrong.";
+      std::array<cl::int4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = std::max(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
 
-TEST(MathTest, ZmixTest)
+TEST(MathTest, zMaxImplTest)
 {
   using namespace zinvul;
   auto options = makeTestOptions();
@@ -2937,91 +2084,1859 @@ TEST(MathTest, ZmixTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    mix_result1->setSize(3);
-    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    mix_result2->setSize(6);
-    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    mix_result3->setSize(6);
-    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    mix_result4->setSize(6);
+    constexpr std::size_t n = 30;
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
 
-    auto kernel = makeZinvulKernel(device.get(), math, testZmix, 1);
-    kernel->run(*mix_result1, *mix_result2, *mix_result3, *mix_result4, {1}, 0);
+    auto kernel = makeZinvulKernel(device.get(), math, testzMaxImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
     device->waitForCompletion();
 
+    const char* error_message = "The 'zMaxImpl' func is wrong.";
     {
-      std::array<float, 3> result;
-      mix_result1->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(-1.0f, result[0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[2]) << "The zMix is wrong.";
+      std::array<int32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const int32b lhs = result[3 * i];
+        const int32b rhs = result[3 * i + 1];
+        const int32b expected = std::max(lhs, rhs);
+        const int32b m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
     }
     {
-      std::array<cl::float2, 6> result;
-      mix_result2->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[3][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The zMix is wrong.";
+      std::array<cl::int2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = std::max(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
     }
     {
-      std::array<cl::float3, 6> result;
-      mix_result3->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << "The zMix is wrong.";
+      std::array<cl::int3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = std::max(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
     }
     {
-      std::array<cl::float4, 6> result;
-      mix_result4->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-4.0f, result[0][3]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[1][3]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(4.0f, result[2][3]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-4.0f, result[3][3]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[4][3]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << "The zMix is wrong.";
-      ASSERT_FLOAT_EQ(4.0f, result[5][3]) << "The zMix is wrong.";
+      std::array<cl::int4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = std::max(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMaxTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 30;
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMax, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMax' func is wrong.";
+    {
+      std::array<int32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const int32b lhs = result[3 * i];
+        const int32b rhs = result[3 * i + 1];
+        const int32b expected = std::max(lhs, rhs);
+        const int32b m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = std::max(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = std::max(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = std::max(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, MaxUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 18;
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testMaxU, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'max' func is wrong.";
+    {
+      std::array<uint32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::max(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMaxUImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 18;
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMaxUImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMaxUImpl' func is wrong.";
+    {
+      std::array<uint32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::max(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMaxUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 18;
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMaxU, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMaxU' func is wrong.";
+    {
+      std::array<uint32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::max(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, MinTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 30;
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testMin, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'min' func is wrong.";
+    {
+      std::array<int32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const int32b lhs = result[3 * i];
+        const int32b rhs = result[3 * i + 1];
+        const int32b expected = std::min(lhs, rhs);
+        const int32b m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = std::min(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = std::min(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = std::min(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMinImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 30;
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMinImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMinImpl' func is wrong.";
+    {
+      std::array<int32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const int32b lhs = result[3 * i];
+        const int32b rhs = result[3 * i + 1];
+        const int32b expected = std::min(lhs, rhs);
+        const int32b m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = std::min(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = std::min(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = std::min(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMinTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 30;
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMin, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMin' func is wrong.";
+    {
+      std::array<int32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const int32b lhs = result[3 * i];
+        const int32b rhs = result[3 * i + 1];
+        const int32b expected = std::min(lhs, rhs);
+        const int32b m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = std::min(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = std::min(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = std::min(lhs[j], rhs[j]);
+          const int32b m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, MinUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 18;
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testMinU, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'min' func is wrong.";
+    {
+      std::array<uint32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::min(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMinUImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 18;
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMinUImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMinUImpl' func is wrong.";
+    {
+      std::array<uint32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::min(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMinUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 18;
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMinU, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMinU' func is wrong.";
+    {
+      std::array<uint32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::min(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, MaxFTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 48;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testMaxF, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'max' func is wrong.";
+    {
+      std::array<float, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::max(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::float2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMaxFImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 48;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMaxFImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMaxFImpl' func is wrong.";
+    {
+      std::array<float, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::max(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::float2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMaxFTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 48;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMaxF, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMaxF' func is wrong.";
+    {
+      std::array<float, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::max(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::float2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::max(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, MinFTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 48;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testMinF, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'min' func is wrong.";
+    {
+      std::array<float, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::min(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::float2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMinFImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 48;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMinFImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMinFImpl' func is wrong.";
+    {
+      std::array<float, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::min(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::float2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMinFTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 48;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMinF, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMinF' func is wrong.";
+    {
+      std::array<float, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        const auto expected = std::min(lhs, rhs);
+        const auto m = result[3 * i + 2];
+        ASSERT_EQ(expected, m) << error_message;
+      }
+    }
+    {
+      std::array<cl::float2, 3> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 3> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 3> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+        const auto lhs = result[3 * i];
+        const auto rhs = result[3 * i + 1];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::min(lhs[j], rhs[j]);
+          const auto m = result[3 * i + 2][j];
+          ASSERT_EQ(expected, m) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FractTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(36);
+    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1i->setSize(18);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(16);
+    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2i->setSize(8);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(16);
+    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3i->setSize(8);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(16);
+    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4i->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testFract, 1);
+    kernel->run(*result1, *result1i, *result2, *result2i,
+                *result3, *result3i, *result4, *result4i, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'fract' func is wrong.";
+    {
+      std::array<float, 36> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      std::array<float, 18> resulti;
+      result1i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+        const float x = result[2 * i];
+        float expectedi = 0.0f;
+        const float expected = cl::fract(x, &expectedi);
+        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
+        ASSERT_FLOAT_EQ(expectedi, resulti[i]) << error_message;
+      }
+      ASSERT_TRUE(std::isnan(result[result.size() - 5])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 3])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 1])) << error_message;
+    }
+    {
+      std::array<cl::float2, 16> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      std::array<cl::float2, 8> resulti;
+      result2i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 2; ++j) {
+          float expectedi = 0.0f;
+          const float expected = cl::fract(x[j], &expectedi);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+          ASSERT_FLOAT_EQ(expectedi, resulti[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 16> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      std::array<cl::float3, 8> resulti;
+      result3i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 3; ++j) {
+          float expectedi = 0.0f;
+          const float expected = cl::fract(x[j], &expectedi);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+          ASSERT_FLOAT_EQ(expectedi, resulti[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 16> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      std::array<cl::float4, 8> resulti;
+      result4i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 4; ++j) {
+          float expectedi = 0.0f;
+          const float expected = cl::fract(x[j], &expectedi);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+          ASSERT_FLOAT_EQ(expectedi, resulti[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zFractImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(36);
+    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1i->setSize(18);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(16);
+    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2i->setSize(8);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(16);
+    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3i->setSize(8);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(16);
+    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4i->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzFractImpl, 1);
+    kernel->run(*result1, *result1i, *result2, *result2i,
+                *result3, *result3i, *result4, *result4i, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zFractImpl' func is wrong.";
+    {
+      std::array<float, 36> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      std::array<float, 18> resulti;
+      result1i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+        const float x = result[2 * i];
+        float expectedi = 0.0f;
+        const float expected = cl::fract(x, &expectedi);
+        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
+        ASSERT_FLOAT_EQ(expectedi, resulti[i]) << error_message;
+      }
+      ASSERT_TRUE(std::isnan(result[result.size() - 5])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 3])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 1])) << error_message;
+    }
+    {
+      std::array<cl::float2, 16> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      std::array<cl::float2, 8> resulti;
+      result2i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 2; ++j) {
+          float expectedi = 0.0f;
+          const float expected = cl::fract(x[j], &expectedi);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+          ASSERT_FLOAT_EQ(expectedi, resulti[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 16> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      std::array<cl::float3, 8> resulti;
+      result3i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 3; ++j) {
+          float expectedi = 0.0f;
+          const float expected = cl::fract(x[j], &expectedi);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+          ASSERT_FLOAT_EQ(expectedi, resulti[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 16> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      std::array<cl::float4, 8> resulti;
+      result4i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 4; ++j) {
+          float expectedi = 0.0f;
+          const float expected = cl::fract(x[j], &expectedi);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+          ASSERT_FLOAT_EQ(expectedi, resulti[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zFractTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(36);
+    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1i->setSize(18);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(16);
+    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2i->setSize(8);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(16);
+    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3i->setSize(8);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(16);
+    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4i->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzFract, 1);
+    kernel->run(*result1, *result1i, *result2, *result2i,
+                *result3, *result3i, *result4, *result4i, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zFract' func is wrong.";
+    {
+      std::array<float, 36> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      std::array<float, 18> resulti;
+      result1i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+        const float x = result[2 * i];
+        float expectedi = 0.0f;
+        const float expected = cl::fract(x, &expectedi);
+        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
+        ASSERT_FLOAT_EQ(expectedi, resulti[i]) << error_message;
+      }
+      ASSERT_TRUE(std::isnan(result[result.size() - 5])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 3])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 1])) << error_message;
+    }
+    {
+      std::array<cl::float2, 16> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      std::array<cl::float2, 8> resulti;
+      result2i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 2; ++j) {
+          float expectedi = 0.0f;
+          const float expected = cl::fract(x[j], &expectedi);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+          ASSERT_FLOAT_EQ(expectedi, resulti[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 16> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      std::array<cl::float3, 8> resulti;
+      result3i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 3; ++j) {
+          float expectedi = 0.0f;
+          const float expected = cl::fract(x[j], &expectedi);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+          ASSERT_FLOAT_EQ(expectedi, resulti[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 16> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      std::array<cl::float4, 8> resulti;
+      result4i->read(resulti.data(), resulti.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 4; ++j) {
+          float expectedi = 0.0f;
+          const float expected = cl::fract(x[j], &expectedi);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+          ASSERT_FLOAT_EQ(expectedi, resulti[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ModTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(36);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(16);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(16);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(16);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testMod, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'fmod' func is wrong.";
+    {
+      std::array<float, 36> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+        const float x = result[2 * i];
+        const float y = 1.0f;
+        const float expected = std::fmod(x, y);
+        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
+      }
+      ASSERT_TRUE(std::isnan(result[result.size() - 5])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 3])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 1])) << error_message;
+    }
+    {
+      std::array<cl::float2, 16> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const float y = zisc::cast<float>(j + 1);
+          const float expected = std::fmod(x[j], y);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 16> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const float y = zisc::cast<float>(j + 1);
+          const float expected = std::fmod(x[j], y);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 16> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const float y = zisc::cast<float>(j + 1);
+          const float expected = std::fmod(x[j], y);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zModImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(36);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(16);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(16);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(16);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzModImpl, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zModImpl' func is wrong.";
+    {
+      std::array<float, 36> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+        const float x = result[2 * i];
+        const float y = 1.0f;
+        const float expected = std::fmod(x, y);
+        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
+      }
+      ASSERT_TRUE(std::isnan(result[result.size() - 5])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 3])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 1])) << error_message;
+    }
+    {
+      std::array<cl::float2, 16> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const float y = zisc::cast<float>(j + 1);
+          const float expected = std::fmod(x[j], y);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 16> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const float y = zisc::cast<float>(j + 1);
+          const float expected = std::fmod(x[j], y);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 16> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const float y = zisc::cast<float>(j + 1);
+          const float expected = std::fmod(x[j], y);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zModTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(36);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(16);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(16);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(16);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMod, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMod' func is wrong.";
+    {
+      std::array<float, 36> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+        const float x = result[2 * i];
+        const float y = 1.0f;
+        const float expected = std::fmod(x, y);
+        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
+      }
+      ASSERT_TRUE(std::isnan(result[result.size() - 5])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 3])) << error_message;
+      ASSERT_TRUE(std::isnan(result[result.size() - 1])) << error_message;
+    }
+    {
+      std::array<cl::float2, 16> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const float y = zisc::cast<float>(j + 1);
+          const float expected = std::fmod(x[j], y);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 16> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const float y = zisc::cast<float>(j + 1);
+          const float expected = std::fmod(x[j], y);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 16> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+        const auto x = result[2 * i];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const float y = zisc::cast<float>(j + 1);
+          const float expected = std::fmod(x[j], y);
+          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
+        }
+      }
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
@@ -3050,271 +3965,51 @@ TEST(MathTest, RadianTest)
     kernel->run(*radian_result1, *radian_result2, *radian_result3, *radian_result4, {1}, 0);
     device->waitForCompletion();
 
+    const char* error_message1 = "The 'degrees' func is wrong.";
+    const char* error_message2 = "The 'radians' func is wrong.";
     constexpr float pi = zisc::kPi<float>;
     {
       std::array<float, 2> result;
       radian_result1->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(180.0f, result[0]) << "The degrees func is wrong.";
-      ASSERT_FLOAT_EQ(pi, result[1]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1]) << error_message2;
     }
     {
       std::array<cl::float2, 2> result;
       radian_result2->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
-      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
-      ASSERT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
-      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << error_message1;
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << error_message2;
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << error_message2;
     }
     {
       std::array<cl::float3, 2> result;
       radian_result3->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
-      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
-      ASSERT_FLOAT_EQ(45.0f, result[0][2]) << "The degrees func is wrong.";
-      ASSERT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
-      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
-      ASSERT_FLOAT_EQ(0.25f * pi, result[1][2]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << error_message1;
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << error_message1;
+      ASSERT_FLOAT_EQ(45.0f, result[0][2]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << error_message2;
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << error_message2;
+      ASSERT_FLOAT_EQ(0.25f * pi, result[1][2]) << error_message2;
     }
     {
       std::array<cl::float4, 2> result;
       radian_result4->read(result.data(), result.size(), 0, 0);
-      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
-      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
-      ASSERT_FLOAT_EQ(45.0f, result[0][2]) << "The degrees func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f, result[0][3]) << "The degrees func is wrong.";
-      ASSERT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
-      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
-      ASSERT_FLOAT_EQ(0.25f * pi, result[1][2]) << "The radians func is wrong.";
-      ASSERT_FLOAT_EQ(0.0f * pi, result[1][3]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) <<error_message1; 
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << error_message1;
+      ASSERT_FLOAT_EQ(45.0f, result[0][2]) << error_message1;
+      ASSERT_FLOAT_EQ(0.0f, result[0][3]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << error_message2;
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << error_message2;
+      ASSERT_FLOAT_EQ(0.25f * pi, result[1][2]) << error_message2;
+      ASSERT_FLOAT_EQ(0.0f * pi, result[1][3]) << error_message2;
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
 
-TEST(MathTest, ZCommonTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    buffer1->setSize(3);
-    auto abs_result2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result2->setSize(2);
-    auto abs_result3 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result3->setSize(2);
-    auto abs_result4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result4->setSize(1);
-    auto abs_result5 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result5->setSize(2);
-    auto abs_result6 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result6->setSize(1);
-    auto abs_result7 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result7->setSize(2);
-    auto abs_result8 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result8->setSize(1);
-    auto clamp_result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result1->setSize(9);
-    auto clamp_result2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result2->setSize(11);
-    auto clamp_result3 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result3->setSize(6);
-    auto clamp_result4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result4->setSize(8);
-    auto clamp_result5 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result5->setSize(3);
-    auto clamp_result6 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result6->setSize(5);
-    auto clamp_result7 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result7->setSize(3);
-    auto clamp_result8 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result8->setSize(5);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testZCommon, 1);
-    kernel->run(*buffer1, *abs_result2, *abs_result3, *abs_result4,
-        *abs_result5, *abs_result6, *abs_result7, *abs_result8,
-        *clamp_result1, *clamp_result2, *clamp_result3, *clamp_result4,
-        *clamp_result5, *clamp_result6, *clamp_result7, *clamp_result8, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<uint32b, 3> result;
-      buffer1->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(1u, result[0]) << "The abs func is wrong.";
-      EXPECT_EQ(1u, result[1]) << "The abs func is wrong.";
-    }
-    {
-      std::array<float, 2> result;
-      abs_result2->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(1.0f, result[0]) << "The fabs func is wrong.";
-      EXPECT_EQ(1.0f, result[1]) << "The fabs func is wrong.";
-    }
-    {
-      std::array<cl::uint2, 2> result;
-      abs_result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 2; ++i) {
-        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-      }
-    }
-    {
-      std::array<cl::float2, 1> result;
-      abs_result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 2; ++i)
-        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
-    }
-    {
-      std::array<cl::uint3, 2> result;
-      abs_result5->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 3; ++i) {
-        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-      }
-    }
-    {
-      std::array<cl::float3, 1> result;
-      abs_result6->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 3; ++i)
-        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
-    }
-    {
-      std::array<cl::uint4, 2> result;
-      abs_result7->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-      }
-    }
-    {
-      std::array<cl::float4, 1> result;
-      abs_result8->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i)
-        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
-    }
-
-    {
-      std::array<int32b, 9> result;
-      clamp_result1->read(result.data(), result.size(), 0 ,0);
-      EXPECT_FALSE(result[0]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2]) << "The clamp func is wrong.";
-      EXPECT_EQ(10, result[3]) << "The max func is wrong.";
-      EXPECT_TRUE(result[4]) << "The min func is wrong.";
-      EXPECT_TRUE(result[5]) << "The clamp func is wrong.";
-      EXPECT_EQ(-1, result[6]) << "The max func is wrong.";
-      EXPECT_EQ(-10, result[7]) << "The min func is wrong.";
-      EXPECT_EQ(-1, result[8]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<float, 11> result;
-      clamp_result2->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2]) << "The clamp func is wrong.";
-      EXPECT_EQ(10.0f, result[3]) << "The max func is wrong.";
-      EXPECT_EQ(1.0f, result[4]) << "The min func is wrong.";
-      EXPECT_EQ(1.0f, result[5]) << "The clamp func is wrong.";
-      EXPECT_EQ(-1.0f, result[6]) << "The max func is wrong.";
-      EXPECT_EQ(-10.0f, result[7]) << "The min func is wrong.";
-      EXPECT_EQ(-1.0f, result[8]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::int2, 6> result;
-      clamp_result3->read(result.data(), result.size(), 0, 0);
-      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_FALSE(result[3][0]) << "The max func is wrong.";
-      EXPECT_EQ(-2, result[3][1]) << "The max func is wrong.";
-      EXPECT_FALSE(result[4][0]) << "The min func is wrong.";
-      EXPECT_EQ(-2, result[4][1]) << "The min func is wrong.";
-      EXPECT_FALSE(result[5][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(-2, result[5][1]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::float2, 8> result;
-      clamp_result4->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(0.0f, result[3][0]) << "The max func is wrong.";
-      EXPECT_EQ(-2.0f, result[3][1]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[4][0]) << "The min func is wrong.";
-      EXPECT_EQ(-2.0f, result[4][1]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[5][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(-2.0f, result[5][1]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::int3, 3> result;
-      clamp_result5->read(result.data(), result.size(), 0, 0);
-      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3, result[0][2]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3, result[1][2]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::float3, 5> result;
-      clamp_result6->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::int4, 3> result;
-      clamp_result7->read(result.data(), result.size(), 0, 0);
-      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3, result[0][2]) << "The max func is wrong.";
-      EXPECT_EQ(100, result[0][3]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3, result[1][2]) << "The min func is wrong.";
-      EXPECT_EQ(4, result[1][3]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
-      EXPECT_EQ(4, result[2][3]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::float4, 5> result;
-      clamp_result8->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
-      EXPECT_EQ(100.0f, result[0][3]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
-      EXPECT_EQ(4.0f, result[1][3]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
-      EXPECT_EQ(4.0f, result[2][3]) << "The clamp func is wrong.";
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, ZRadianTest)
+TEST(MathTest, zRadianImplTest)
 {
   using namespace zinvul;
   auto options = makeTestOptions();
@@ -3332,53 +4027,55 @@ TEST(MathTest, ZRadianTest)
     auto radian_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
     radian_result4->setSize(2);
 
-    auto kernel = makeZinvulKernel(device.get(), math, testZRadian, 1);
+    auto kernel = makeZinvulKernel(device.get(), math, testzRadianImpl, 1);
     kernel->run(*radian_result1, *radian_result2, *radian_result3, *radian_result4, {1}, 0);
     device->waitForCompletion();
 
+    const char* error_message1 = "The 'zDegreesImpl' func is wrong.";
+    const char* error_message2 = "The 'zRadiansImpl' func is wrong.";
     constexpr float pi = zisc::kPi<float>;
     {
       std::array<float, 2> result;
       radian_result1->read(result.data(), result.size(), 0, 0);
-      EXPECT_FLOAT_EQ(180.0f, result[0]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(pi, result[1]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1]) << error_message2;
     }
     {
       std::array<cl::float2, 2> result;
       radian_result2->read(result.data(), result.size(), 0, 0);
-      EXPECT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << error_message1;
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << error_message2;
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << error_message2;
     }
     {
       std::array<cl::float3, 2> result;
       radian_result3->read(result.data(), result.size(), 0, 0);
-      EXPECT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(45.0f, result[0][2]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.25f * pi, result[1][2]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << error_message1;
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << error_message1;
+      ASSERT_FLOAT_EQ(45.0f, result[0][2]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << error_message2;
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << error_message2;
+      ASSERT_FLOAT_EQ(0.25f * pi, result[1][2]) << error_message2;
     }
     {
       std::array<cl::float4, 2> result;
       radian_result4->read(result.data(), result.size(), 0, 0);
-      EXPECT_FLOAT_EQ(180.0f, result[0][0]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(90.0f, result[0][1]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(45.0f, result[0][2]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(0.0f, result[0][3]) << "The degrees func is wrong.";
-      EXPECT_FLOAT_EQ(pi, result[1][0]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.5f * pi, result[1][1]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.25f * pi, result[1][2]) << "The radians func is wrong.";
-      EXPECT_FLOAT_EQ(0.0f * pi, result[1][3]) << "The radians func is wrong.";
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) <<error_message1; 
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << error_message1;
+      ASSERT_FLOAT_EQ(45.0f, result[0][2]) << error_message1;
+      ASSERT_FLOAT_EQ(0.0f, result[0][3]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << error_message2;
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << error_message2;
+      ASSERT_FLOAT_EQ(0.25f * pi, result[1][2]) << error_message2;
+      ASSERT_FLOAT_EQ(0.0f * pi, result[1][3]) << error_message2;
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
 
-TEST(MathTest, MaxTest)
+TEST(MathTest, zRadianTest)
 {
   using namespace zinvul;
   auto options = makeTestOptions();
@@ -3387,297 +4084,57 @@ TEST(MathTest, MaxTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr std::size_t n = 10;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    results2->setSize(1);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    results3->setSize(1);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    results4->setSize(1);
+    auto radian_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    radian_result1->setSize(2);
+    auto radian_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    radian_result2->setSize(2);
+    auto radian_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    radian_result3->setSize(2);
+    auto radian_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    radian_result4->setSize(2);
 
-    auto kernel = makeZinvulKernel(device.get(), math, testMax, 1);
-    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    auto kernel = makeZinvulKernel(device.get(), math, testzRadian, 1);
+    kernel->run(*radian_result1, *radian_result2, *radian_result3, *radian_result4, {1}, 0);
     device->waitForCompletion();
 
-    const char* error_message = "The 'max' func is wrong.";
+    const char* error_message1 = "The 'zDegrees' func is wrong.";
+    const char* error_message2 = "The 'zRadians' func is wrong.";
+    constexpr float pi = zisc::kPi<float>;
     {
-      std::size_t index = 0;
-      std::array<int32b, n> result;
-      results1->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(std::numeric_limits<int32b>::max(), result[index++]) << error_message;
-      ASSERT_EQ(std::numeric_limits<int32b>::max(), result[index++]) << error_message;
-      ASSERT_FALSE(result[index++]) << error_message;
-      ASSERT_FALSE(result[index++]) << error_message;
-      ASSERT_TRUE(result[index++]) << error_message;
-      ASSERT_TRUE(result[index++]) << error_message;
-      ASSERT_EQ(-1, result[index++]) << error_message;
-      ASSERT_EQ(-1, result[index++]) << error_message;
-      ASSERT_EQ(10, result[index++]) << error_message;
-      ASSERT_EQ(10, result[index++]) << error_message;
+      std::array<float, 2> result;
+      radian_result1->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(180.0f, result[0]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1]) << error_message2;
     }
     {
-      std::array<cl::int2, 1> result;
-      results2->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0, result[0].x) << error_message;
-      ASSERT_EQ(1, result[0].y) << error_message;
+      std::array<cl::float2, 2> result;
+      radian_result2->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << error_message1;
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << error_message2;
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << error_message2;
     }
     {
-      std::array<cl::int3, 1> result;
-      results3->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0, result[0].x) << error_message;
-      ASSERT_EQ(1, result[0].y) << error_message;
-      ASSERT_EQ(10, result[0].z) << error_message;
+      std::array<cl::float3, 2> result;
+      radian_result3->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) << error_message1;
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << error_message1;
+      ASSERT_FLOAT_EQ(45.0f, result[0][2]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << error_message2;
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << error_message2;
+      ASSERT_FLOAT_EQ(0.25f * pi, result[1][2]) << error_message2;
     }
     {
-      std::array<cl::int4, 1> result;
-      results4->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0, result[0].x) << error_message;
-      ASSERT_EQ(1, result[0].y) << error_message;
-      ASSERT_EQ(10, result[0].z) << error_message;
-      ASSERT_EQ(std::numeric_limits<int32b>::max(), result[0].w) << error_message;
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, zMaxImplTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr std::size_t n = 10;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    results2->setSize(1);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    results3->setSize(1);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    results4->setSize(1);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testzMaxImpl, 1);
-    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-    device->waitForCompletion();
-
-    const char* error_message = "The 'zMaxImpl' func is wrong.";
-    {
-      std::size_t index = 0;
-      std::array<int32b, n> result;
-      results1->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(std::numeric_limits<int32b>::max(), result[index++]) << error_message;
-      ASSERT_EQ(std::numeric_limits<int32b>::max(), result[index++]) << error_message;
-      ASSERT_FALSE(result[index++]) << error_message;
-      ASSERT_FALSE(result[index++]) << error_message;
-      ASSERT_TRUE(result[index++]) << error_message;
-      ASSERT_TRUE(result[index++]) << error_message;
-      ASSERT_EQ(-1, result[index++]) << error_message;
-      ASSERT_EQ(-1, result[index++]) << error_message;
-      ASSERT_EQ(10, result[index++]) << error_message;
-      ASSERT_EQ(10, result[index++]) << error_message;
-    }
-    {
-      std::array<cl::int2, 1> result;
-      results2->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0, result[0].x) << error_message;
-      ASSERT_EQ(1, result[0].y) << error_message;
-    }
-    {
-      std::array<cl::int3, 1> result;
-      results3->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0, result[0].x) << error_message;
-      ASSERT_EQ(1, result[0].y) << error_message;
-      ASSERT_EQ(10, result[0].z) << error_message;
-    }
-    {
-      std::array<cl::int4, 1> result;
-      results4->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0, result[0].x) << error_message;
-      ASSERT_EQ(1, result[0].y) << error_message;
-      ASSERT_EQ(10, result[0].z) << error_message;
-      ASSERT_EQ(std::numeric_limits<int32b>::max(), result[0].w) << error_message;
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, zMaxTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr std::size_t n = 10;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    results2->setSize(1);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    results3->setSize(1);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    results4->setSize(1);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testzMax, 1);
-    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-    device->waitForCompletion();
-
-    const char* error_message = "The 'zMax' func is wrong.";
-    {
-      std::size_t index = 0;
-      std::array<int32b, n> result;
-      results1->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(std::numeric_limits<int32b>::max(), result[index++]) << error_message;
-      ASSERT_EQ(std::numeric_limits<int32b>::max(), result[index++]) << error_message;
-      ASSERT_FALSE(result[index++]) << error_message;
-      ASSERT_FALSE(result[index++]) << error_message;
-      ASSERT_TRUE(result[index++]) << error_message;
-      ASSERT_TRUE(result[index++]) << error_message;
-      ASSERT_EQ(-1, result[index++]) << error_message;
-      ASSERT_EQ(-1, result[index++]) << error_message;
-      ASSERT_EQ(10, result[index++]) << error_message;
-      ASSERT_EQ(10, result[index++]) << error_message;
-    }
-    {
-      std::array<cl::int2, 1> result;
-      results2->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0, result[0].x) << error_message;
-      ASSERT_EQ(1, result[0].y) << error_message;
-    }
-    {
-      std::array<cl::int3, 1> result;
-      results3->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0, result[0].x) << error_message;
-      ASSERT_EQ(1, result[0].y) << error_message;
-      ASSERT_EQ(10, result[0].z) << error_message;
-    }
-    {
-      std::array<cl::int4, 1> result;
-      results4->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0, result[0].x) << error_message;
-      ASSERT_EQ(1, result[0].y) << error_message;
-      ASSERT_EQ(10, result[0].z) << error_message;
-      ASSERT_EQ(std::numeric_limits<int32b>::max(), result[0].w) << error_message;
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-//TEST(MathTest, MaxTest)
-//{
-//  using namespace zinvul;
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n = 10;
-//    auto buffer1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-//    buffer1->setSize(n);
-//    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-//    buffer2->setSize(n);
-//
-//    auto kernel = makeZinvulKernel(device.get(), math, testMaxFunction, 1);
-//    kernel->run(*buffer1, *buffer2, {1}, 0);
-//    device->waitForCompletion();
-//
-//    {
-//      std::size_t index = 0;
-//      std::array<int32b, n> result;
-//      buffer1->read(result.data(), result.size(), 0, 0);
-//      ASSERT_EQ(std::numeric_limits<int>::max(), result[index++]) << "The max func is wrong.";
-//      ASSERT_EQ(std::numeric_limits<int>::max(), result[index++]) << "The max func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The max func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The max func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The max func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The max func is wrong.";
-//      ASSERT_EQ(-1, result[index++]) << "The max func is wrong.";
-//      ASSERT_EQ(-1, result[index++]) << "The max func is wrong.";
-//      ASSERT_EQ(10, result[index++]) << "The max func is wrong.";
-//      ASSERT_EQ(10, result[index++]) << "The max func is wrong.";
-//    }
-//    {
-//      std::size_t index = 0;
-//      std::array<float, n> result;
-//      buffer2->read(result.data(), result.size(), 0, 0);
-////      ASSERT_FLOAT_EQ(std::numeric_limits<float>::max(), result[index++]) << "The max func is wrong.";
-////      ASSERT_FLOAT_EQ(std::numeric_limits<float>::max(), result[index++]) << "The max func is wrong.";
-//      index = 2;
-//      ASSERT_FLOAT_EQ(0.0f, result[index++]) << "The max func is wrong.";
-//      ASSERT_FLOAT_EQ(0.0f, result[index++]) << "The max func is wrong.";
-//      ASSERT_FLOAT_EQ(1.0f, result[index++]) << "The max func is wrong.";
-//      ASSERT_FLOAT_EQ(1.0f, result[index++]) << "The max func is wrong.";
-//      ASSERT_FLOAT_EQ(-1, result[index++]) << "The max func is wrong.";
-//      ASSERT_FLOAT_EQ(-1, result[index++]) << "The max func is wrong.";
-//      ASSERT_FLOAT_EQ(10, result[index++]) << "The max func is wrong.";
-//      ASSERT_FLOAT_EQ(10, result[index++]) << "The max func is wrong.";
-//    }
-//
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-
-TEST(MathTest, MinTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr std::size_t n = 10;
-    auto buffer1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    buffer1->setSize(n);
-    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    buffer2->setSize(n);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testMinFunction, 1);
-    kernel->run(*buffer1, *buffer2, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::size_t index = 0;
-      std::array<int32b, n> result;
-      buffer1->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(std::numeric_limits<int>::lowest(), result[index++]) << "The min func is wrong.";
-      ASSERT_EQ(std::numeric_limits<int>::lowest(), result[index++]) << "The min func is wrong.";
-      ASSERT_EQ(-1, result[index++]) << "The min func is wrong.";
-      ASSERT_EQ(-1, result[index++]) << "The min func is wrong.";
-      ASSERT_EQ(-1, result[index++]) << "The min func is wrong.";
-      ASSERT_EQ(-1, result[index++]) << "The min func is wrong.";
-      ASSERT_EQ(-10, result[index++]) << "The min func is wrong.";
-      ASSERT_EQ(-10, result[index++]) << "The min func is wrong.";
-      ASSERT_TRUE(result[index++]) << "The min func is wrong.";
-      ASSERT_TRUE(result[index++]) << "The min func is wrong.";
-    }
-    {
-      std::size_t index = 0;
-      std::array<float, n> result;
-      buffer2->read(result.data(), result.size(), 0, 0);
-//      ASSERT_FLOAT_EQ(std::numeric_limits<float>::lowest(), result[index++]) << "The min func is wrong.";
-//      ASSERT_FLOAT_EQ(std::numeric_limits<float>::lowest(), result[index++]) << "The min func is wrong.";
-      index = 2;
-      ASSERT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
-      ASSERT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
-      ASSERT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
-      ASSERT_FLOAT_EQ(-1.0f, result[index++]) << "The min func is wrong.";
-      ASSERT_FLOAT_EQ(-10.0f, result[index++]) << "The min func is wrong.";
-      ASSERT_FLOAT_EQ(-10.0f, result[index++]) << "The min func is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[index++]) << "The min func is wrong.";
-      ASSERT_FLOAT_EQ(1.0f, result[index++]) << "The min func is wrong.";
+      std::array<cl::float4, 2> result;
+      radian_result4->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(180.0f, result[0][0]) <<error_message1; 
+      ASSERT_FLOAT_EQ(90.0f, result[0][1]) << error_message1;
+      ASSERT_FLOAT_EQ(45.0f, result[0][2]) << error_message1;
+      ASSERT_FLOAT_EQ(0.0f, result[0][3]) << error_message1;
+      ASSERT_FLOAT_EQ(pi, result[1][0]) << error_message2;
+      ASSERT_FLOAT_EQ(0.5f * pi, result[1][1]) << error_message2;
+      ASSERT_FLOAT_EQ(0.25f * pi, result[1][2]) << error_message2;
+      ASSERT_FLOAT_EQ(0.0f * pi, result[1][3]) << error_message2;
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
@@ -3696,72 +4153,62 @@ TEST(MathTest, FrLdexpTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    result1_buffer->setSize(3 * (resolution + 2));
-    auto result_exp1_buffer = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    result_exp1_buffer->setSize(resolution + 2);
-    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    result2_buffer->setSize(3 * resolution);
-    auto result_exp2_buffer = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    result_exp2_buffer->setSize(resolution);
-    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    result3_buffer->setSize(3 * resolution);
-    auto result_exp3_buffer = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    result_exp3_buffer->setSize(resolution);
-    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    result4_buffer->setSize(3 * resolution);
-    auto result_exp4_buffer = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    result_exp4_buffer->setSize(resolution);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(3 * (resolution + 2));
+    auto results_exp1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp1->setSize(resolution + 2);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3 * resolution);
+    auto results_exp2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp2->setSize(resolution);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3 * resolution);
+    auto results_exp3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp3->setSize(resolution);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3 * resolution);
+    auto results_exp4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp4->setSize(resolution);
     auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testFrLdexp, 1);
-    kernel->run(*result1_buffer, *result_exp1_buffer,
-                *result2_buffer, *result_exp2_buffer,
-                *result3_buffer, *result_exp3_buffer,
-                *result4_buffer, *result_exp4_buffer,
+    kernel->run(*results1, *results_exp1,
+                *results2, *results_exp2,
+                *results3, *results_exp3,
+                *results4, *results_exp4,
                 *resolution_buffer, {resolution}, 0);
     device->waitForCompletion();
 
-    FAIL();
-
+    const char* error_message1 = "The 'frexp' func is wrong.";
+    const char* error_message2 = "The 'ldexp' func is wrong.";
     // Scalar
     {
       std::vector<float> results;
       results.resize(3 * (resolution + 2));
-      std::vector<int32b> result_exp;
-      result_exp.resize(resolution + 2);
-      result1_buffer->read(results.data(), results.size(), 0, 0);
-      result_exp1_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
-      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+      std::vector<int32b> results_exp;
+      results_exp.resize(resolution + 2);
+      results1->read(results.data(), results.size(), 0, 0);
+      results_exp1->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
         const float n = results[3 * i];
         int e = 0;
         float expected = std::frexp(n, &e);
         float result = results[3 * i + 1];
-        if (i == result_exp.size() - 1) {
-          EXPECT_TRUE(std::isnan(result))
-              << "frexp(" << n << ") isn't recommended to use of.";
-        }
-        else {
-          EXPECT_FLOAT_EQ(expected, result)
-              << "frexp(" << n << ") isn't recommended to use of.";
-        }
-        if (i < resolution) {
-          EXPECT_EQ(e, result_exp[i])
-              << "frexp(" << n << ") isn't recommended to use of.";
-        }
+        if (i == results_exp.size() - 1)
+          ASSERT_TRUE(std::isnan(result)) << error_message1;
+        else
+          ASSERT_FLOAT_EQ(expected, result) << error_message1;
+        if (i < resolution)
+          ASSERT_EQ(e, results_exp[i]) << error_message1;
         const float m = expected;
         expected = std::ldexp(m, e);
         result = results[3 * i + 2];
-        if (i == result_exp.size() - 1) {
-          EXPECT_TRUE(std::isnan(result))
-              << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
-        }
-        else {
-          EXPECT_FLOAT_EQ(expected, result)
-              << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
-        }
+        if (i == results_exp.size() - 1)
+          ASSERT_TRUE(std::isnan(result)) << error_message2;
+        else
+          ASSERT_FLOAT_EQ(expected, result) << error_message2;
       }
     }
 
@@ -3769,25 +4216,22 @@ TEST(MathTest, FrLdexpTest)
     {
       std::vector<cl::float2> results;
       results.resize(3 * resolution);
-      std::vector<cl::int2> result_exp;
-      result_exp.resize(resolution);
-      result2_buffer->read(results.data(), results.size(), 0, 0);
-      result_exp2_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
-      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+      std::vector<cl::int2> results_exp;
+      results_exp.resize(resolution);
+      results2->read(results.data(), results.size(), 0, 0);
+      results_exp2->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
         const cl::float2 n = results[3 * i];
         int e = 0;
         cl::float2 result1 = results[3 * i + 1];
         cl::float2 result2 = results[3 * i + 2];
         for (std::size_t j = 0; j < result1.size(); ++j) {
           float expected = std::frexp(n[j], &e);
-          ASSERT_FLOAT_EQ(expected, result1[j])
-              << "frexp(" << n[j] << ") isn't recommended to use of.";
-          ASSERT_EQ(e, result_exp[i][j])
-              << "frexp(" << n[j] << ") isn't recommended to use of.";
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
           const float m = expected;
           expected = std::ldexp(m, e);
-          ASSERT_FLOAT_EQ(expected, result2[j])
-              << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
         }
       }
     }
@@ -3796,25 +4240,22 @@ TEST(MathTest, FrLdexpTest)
     {
       std::vector<cl::float3> results;
       results.resize(3 * resolution);
-      std::vector<cl::int3> result_exp;
-      result_exp.resize(resolution);
-      result3_buffer->read(results.data(), results.size(), 0, 0);
-      result_exp3_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
-      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+      std::vector<cl::int3> results_exp;
+      results_exp.resize(resolution);
+      results3->read(results.data(), results.size(), 0, 0);
+      results_exp3->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
         const cl::float3 n = results[3 * i];
         int e = 0;
         cl::float3 result1 = results[3 * i + 1];
         cl::float3 result2 = results[3 * i + 2];
         for (std::size_t j = 0; j < result1.size(); ++j) {
           float expected = std::frexp(n[j], &e);
-          ASSERT_FLOAT_EQ(expected, result1[j])
-              << "frexp(" << n[j] << ") isn't recommended to use of.";
-          ASSERT_EQ(e, result_exp[i][j])
-              << "frexp(" << n[j] << ") isn't recommended to use of.";
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
           const float m = expected;
           expected = std::ldexp(m, e);
-          ASSERT_FLOAT_EQ(expected, result2[j])
-              << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
         }
       }
   }
@@ -3823,25 +4264,22 @@ TEST(MathTest, FrLdexpTest)
     {
       std::vector<cl::float4> results;
       results.resize(3 * resolution);
-      std::vector<cl::int4> result_exp;
-      result_exp.resize(resolution);
-      result4_buffer->read(results.data(), results.size(), 0, 0);
-      result_exp4_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
-      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+      std::vector<cl::int4> results_exp;
+      results_exp.resize(resolution);
+      results4->read(results.data(), results.size(), 0, 0);
+      results_exp4->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
         const cl::float4 n = results[3 * i];
         int e = 0;
         cl::float4 result1 = results[3 * i + 1];
         cl::float4 result2 = results[3 * i + 2];
         for (std::size_t j = 0; j < result1.size(); ++j) {
           float expected = std::frexp(n[j], &e);
-          ASSERT_FLOAT_EQ(expected, result1[j])
-              << "frexp(" << n[j] << ") isn't recommended to use of.";
-          ASSERT_EQ(e, result_exp[i][j])
-              << "frexp(" << n[j] << ") isn't recommended to use of.";
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
           const float m = expected;
           expected = std::ldexp(m, e);
-          ASSERT_FLOAT_EQ(expected, result2[j])
-              << "ldexp(" << m << "," << e << ") isn't recommended to use of.";
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
         }
       }
     }
@@ -3850,7 +4288,7 @@ TEST(MathTest, FrLdexpTest)
   }
 }
 
-TEST(MathTest, ZFrLdexpTest)
+TEST(MathTest, zFrLdexpImplTest)
 {
   using zisc::cast;
   using namespace zinvul;
@@ -3862,60 +4300,62 @@ TEST(MathTest, ZFrLdexpTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto result1_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    result1_buffer->setSize(3 * (resolution + 2));
-    auto result_exp1_buffer = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    result_exp1_buffer->setSize(resolution + 2);
-    auto result2_buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    result2_buffer->setSize(3 * resolution);
-    auto result_exp2_buffer = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    result_exp2_buffer->setSize(resolution);
-    auto result3_buffer = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    result3_buffer->setSize(3 * resolution);
-    auto result_exp3_buffer = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    result_exp3_buffer->setSize(resolution);
-    auto result4_buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    result4_buffer->setSize(3 * resolution);
-    auto result_exp4_buffer = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    result_exp4_buffer->setSize(resolution);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(3 * (resolution + 2));
+    auto results_exp1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp1->setSize(resolution + 2);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3 * resolution);
+    auto results_exp2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp2->setSize(resolution);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3 * resolution);
+    auto results_exp3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp3->setSize(resolution);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3 * resolution);
+    auto results_exp4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp4->setSize(resolution);
     auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
-    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testZFrLdexp, 1);
-    kernel->run(*result1_buffer, *result_exp1_buffer,
-                *result2_buffer, *result_exp2_buffer,
-                *result3_buffer, *result_exp3_buffer,
-                *result4_buffer, *result_exp4_buffer,
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzFrLdexpImpl, 1);
+    kernel->run(*results1, *results_exp1,
+                *results2, *results_exp2,
+                *results3, *results_exp3,
+                *results4, *results_exp4,
                 *resolution_buffer, {resolution}, 0);
     device->waitForCompletion();
 
+    const char* error_message1 = "The 'zFrexpImpl' func is wrong.";
+    const char* error_message2 = "The 'zLdexpImpl' func is wrong.";
     // Scalar
     {
       std::vector<float> results;
       results.resize(3 * (resolution + 2));
-      std::vector<int32b> result_exp;
-      result_exp.resize(resolution + 2);
-      result1_buffer->read(results.data(), results.size(), 0, 0);
-      result_exp1_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
-      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+      std::vector<int32b> results_exp;
+      results_exp.resize(resolution + 2);
+      results1->read(results.data(), results.size(), 0, 0);
+      results_exp1->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
         const float n = results[3 * i];
         int e = 0;
         float expected = std::frexp(n, &e);
         float result = results[3 * i + 1];
-        if (i == result_exp.size() - 1)
-          EXPECT_TRUE(std::isnan(result)) << "zFrexp(" << n << ") is wrong.";
+        if (i == results_exp.size() - 1)
+          ASSERT_TRUE(std::isnan(result)) << error_message1;
         else
-          EXPECT_FLOAT_EQ(expected, result) << "zFrexp(" << n << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result) << error_message1;
         if (i < resolution)
-          EXPECT_EQ(e, result_exp[i]) << "zFrexp(" << n << ") is wrong.";
+          ASSERT_EQ(e, results_exp[i]) << error_message1;
         const float m = expected;
         expected = std::ldexp(m, e);
         result = results[3 * i + 2];
-        if (i == result_exp.size() - 1)
-          EXPECT_TRUE(std::isnan(result)) << "zLdexp(" << m << "," << e << ") is wrong.";
+        if (i == results_exp.size() - 1)
+          ASSERT_TRUE(std::isnan(result)) << error_message2;
         else
-          EXPECT_FLOAT_EQ(expected, result) << "zLdexp(" << m << "," << e << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result) << error_message2;
       }
     }
 
@@ -3923,22 +4363,22 @@ TEST(MathTest, ZFrLdexpTest)
     {
       std::vector<cl::float2> results;
       results.resize(3 * resolution);
-      std::vector<cl::int2> result_exp;
-      result_exp.resize(resolution);
-      result2_buffer->read(results.data(), results.size(), 0, 0);
-      result_exp2_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
-      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+      std::vector<cl::int2> results_exp;
+      results_exp.resize(resolution);
+      results2->read(results.data(), results.size(), 0, 0);
+      results_exp2->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
         const cl::float2 n = results[3 * i];
         int e = 0;
         cl::float2 result1 = results[3 * i + 1];
         cl::float2 result2 = results[3 * i + 2];
         for (std::size_t j = 0; j < result1.size(); ++j) {
           float expected = std::frexp(n[j], &e);
-          ASSERT_FLOAT_EQ(expected, result1[j]) << "zFrexp2(" << n[j] << ") is wrong.";
-          ASSERT_EQ(e, result_exp[i][j]) << "zFrexp2(" << n[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
           const float m = expected;
           expected = std::ldexp(m, e);
-          ASSERT_FLOAT_EQ(expected, result2[j]) << "zLdexp2(" << m << "," << e << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
         }
       }
     }
@@ -3947,22 +4387,22 @@ TEST(MathTest, ZFrLdexpTest)
     {
       std::vector<cl::float3> results;
       results.resize(3 * resolution);
-      std::vector<cl::int3> result_exp;
-      result_exp.resize(resolution);
-      result3_buffer->read(results.data(), results.size(), 0, 0);
-      result_exp3_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
-      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+      std::vector<cl::int3> results_exp;
+      results_exp.resize(resolution);
+      results3->read(results.data(), results.size(), 0, 0);
+      results_exp3->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
         const cl::float3 n = results[3 * i];
         int e = 0;
         cl::float3 result1 = results[3 * i + 1];
         cl::float3 result2 = results[3 * i + 2];
         for (std::size_t j = 0; j < result1.size(); ++j) {
           float expected = std::frexp(n[j], &e);
-          ASSERT_FLOAT_EQ(expected, result1[j]) << "zFrexp3(" << n[j] << ") is wrong.";
-          ASSERT_EQ(e, result_exp[i][j]) << "zFrexp3(" << n[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
           const float m = expected;
           expected = std::ldexp(m, e);
-          ASSERT_FLOAT_EQ(expected, result2[j]) << "zLdexp3(" << m << "," << e << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
         }
       }
   }
@@ -3971,22 +4411,169 @@ TEST(MathTest, ZFrLdexpTest)
     {
       std::vector<cl::float4> results;
       results.resize(3 * resolution);
-      std::vector<cl::int4> result_exp;
-      result_exp.resize(resolution);
-      result4_buffer->read(results.data(), results.size(), 0, 0);
-      result_exp4_buffer->read(result_exp.data(), result_exp.size(), 0, 0);
-      for (std::size_t i = 0; i < result_exp.size(); ++i) {
+      std::vector<cl::int4> results_exp;
+      results_exp.resize(resolution);
+      results4->read(results.data(), results.size(), 0, 0);
+      results_exp4->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
         const cl::float4 n = results[3 * i];
         int e = 0;
         cl::float4 result1 = results[3 * i + 1];
         cl::float4 result2 = results[3 * i + 2];
         for (std::size_t j = 0; j < result1.size(); ++j) {
           float expected = std::frexp(n[j], &e);
-          ASSERT_FLOAT_EQ(expected, result1[j]) << "zFrexp4(" << n[j] << ") is wrong.";
-          ASSERT_EQ(e, result_exp[i][j]) << "zFrexp4(" << n[j] << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
           const float m = expected;
           expected = std::ldexp(m, e);
-          ASSERT_FLOAT_EQ(expected, result2[j]) << "zLdexp4(" << m << "," << e << ") is wrong.";
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zFrLdexpTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1000000u;
+
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(3 * (resolution + 2));
+    auto results_exp1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp1->setSize(resolution + 2);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3 * resolution);
+    auto results_exp2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp2->setSize(resolution);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3 * resolution);
+    auto results_exp3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp3->setSize(resolution);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3 * resolution);
+    auto results_exp4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp4->setSize(resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzFrLdexp, 1);
+    kernel->run(*results1, *results_exp1,
+                *results2, *results_exp2,
+                *results3, *results_exp3,
+                *results4, *results_exp4,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message1 = "The 'zFrexp' func is wrong.";
+    const char* error_message2 = "The 'zLdexp' func is wrong.";
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(3 * (resolution + 2));
+      std::vector<int32b> results_exp;
+      results_exp.resize(resolution + 2);
+      results1->read(results.data(), results.size(), 0, 0);
+      results_exp1->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const float n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n, &e);
+        float result = results[3 * i + 1];
+        if (i == results_exp.size() - 1)
+          ASSERT_TRUE(std::isnan(result)) << error_message1;
+        else
+          ASSERT_FLOAT_EQ(expected, result) << error_message1;
+        if (i < resolution)
+          ASSERT_EQ(e, results_exp[i]) << error_message1;
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        if (i == results_exp.size() - 1)
+          ASSERT_TRUE(std::isnan(result)) << error_message2;
+        else
+          ASSERT_FLOAT_EQ(expected, result) << error_message2;
+      }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(3 * resolution);
+      std::vector<cl::int2> results_exp;
+      results_exp.resize(resolution);
+      results2->read(results.data(), results.size(), 0, 0);
+      results_exp2->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const cl::float2 n = results[3 * i];
+        int e = 0;
+        cl::float2 result1 = results[3 * i + 1];
+        cl::float2 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(3 * resolution);
+      std::vector<cl::int3> results_exp;
+      results_exp.resize(resolution);
+      results3->read(results.data(), results.size(), 0, 0);
+      results_exp3->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const cl::float3 n = results[3 * i];
+        int e = 0;
+        cl::float3 result1 = results[3 * i + 1];
+        cl::float3 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
+        }
+      }
+  }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(3 * resolution);
+      std::vector<cl::int4> results_exp;
+      results_exp.resize(resolution);
+      results4->read(results.data(), results.size(), 0, 0);
+      results_exp4->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const cl::float4 n = results[3 * i];
+        int e = 0;
+        cl::float4 result1 = results[3 * i + 1];
+        cl::float4 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
         }
       }
     }
@@ -7163,6 +7750,2028 @@ TEST(MathTest, ZatanTest)
         for (std::size_t j = 0; j < result.size(); ++j) {
           float expected = std::atan(z[j]);
           ASSERT_FLOAT_EQ(expected, result[j]) << "zAtan4(" << z[j] << ") is wrong.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, MixTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result1->setSize(3);
+    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result2->setSize(6);
+    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result3->setSize(6);
+    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result4->setSize(6);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testMix, 1);
+    kernel->run(*mix_result1, *mix_result2, *mix_result3, *mix_result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'mix' func is wrong.";
+    {
+      std::array<float, 3> result;
+      mix_result1->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2]) << error_message;
+    }
+    {
+      std::array<cl::float2, 6> result;
+      mix_result2->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << error_message;
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[3][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << error_message;
+    }
+    {
+      std::array<cl::float3, 6> result;
+      mix_result3->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << error_message;
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << error_message;
+    }
+    {
+      std::array<cl::float4, 6> result;
+      mix_result4->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << error_message;
+      ASSERT_FLOAT_EQ(-4.0f, result[0][3]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][3]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << error_message;
+      ASSERT_FLOAT_EQ(4.0f, result[2][3]) << error_message;
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << error_message;
+      ASSERT_FLOAT_EQ(-4.0f, result[3][3]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][3]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << error_message;
+      ASSERT_FLOAT_EQ(4.0f, result[5][3]) << error_message;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMixImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result1->setSize(3);
+    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result2->setSize(6);
+    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result3->setSize(6);
+    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result4->setSize(6);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMixImpl, 1);
+    kernel->run(*mix_result1, *mix_result2, *mix_result3, *mix_result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMixImpl' func is wrong.";
+    {
+      std::array<float, 3> result;
+      mix_result1->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2]) << error_message;
+    }
+    {
+      std::array<cl::float2, 6> result;
+      mix_result2->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << error_message;
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[3][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << error_message;
+    }
+    {
+      std::array<cl::float3, 6> result;
+      mix_result3->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << error_message;
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << error_message;
+    }
+    {
+      std::array<cl::float4, 6> result;
+      mix_result4->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << error_message;
+      ASSERT_FLOAT_EQ(-4.0f, result[0][3]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][3]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << error_message;
+      ASSERT_FLOAT_EQ(4.0f, result[2][3]) << error_message;
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << error_message;
+      ASSERT_FLOAT_EQ(-4.0f, result[3][3]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][3]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << error_message;
+      ASSERT_FLOAT_EQ(4.0f, result[5][3]) << error_message;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zMixTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result1->setSize(3);
+    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result2->setSize(6);
+    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result3->setSize(6);
+    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    mix_result4->setSize(6);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzMix, 1);
+    kernel->run(*mix_result1, *mix_result2, *mix_result3, *mix_result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zMix' func is wrong.";
+    {
+      std::array<float, 3> result;
+      mix_result1->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2]) << error_message;
+    }
+    {
+      std::array<cl::float2, 6> result;
+      mix_result2->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << error_message;
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[3][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << error_message;
+    }
+    {
+      std::array<cl::float3, 6> result;
+      mix_result3->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << error_message;
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << error_message;
+    }
+    {
+      std::array<cl::float4, 6> result;
+      mix_result4->read(result.data(), result.size(), 0, 0);
+      ASSERT_FLOAT_EQ(-1.0f, result[0][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[0][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[0][2]) << error_message;
+      ASSERT_FLOAT_EQ(-4.0f, result[0][3]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[1][3]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[2][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[2][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[2][2]) << error_message;
+      ASSERT_FLOAT_EQ(4.0f, result[2][3]) << error_message;
+      ASSERT_FLOAT_EQ(-1.0f, result[3][0]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[3][1]) << error_message;
+      ASSERT_FLOAT_EQ(3.0f, result[3][2]) << error_message;
+      ASSERT_FLOAT_EQ(-4.0f, result[3][3]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][0]) << error_message;
+      ASSERT_FLOAT_EQ(2.0f, result[4][1]) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, result[4][2]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[4][3]) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, result[5][0]) << error_message;
+      ASSERT_FLOAT_EQ(-2.0f, result[5][1]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, result[5][2]) << error_message;
+      ASSERT_FLOAT_EQ(4.0f, result[5][3]) << error_message;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ClampTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    const std::size_t n = 15 * 4;
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(8);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(8);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testClamp, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'clamp' func is wrong.";
+    {
+      std::array<int32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        const auto expected = std::clamp(x, minval, maxval);
+        const auto c = result[4 * i + 3];
+        ASSERT_EQ(expected, c) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 8> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 8> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 8> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zClampImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    const std::size_t n = 15 * 4;
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(8);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(8);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzClampImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zClampImpl' func is wrong.";
+    {
+      std::array<int32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        const auto expected = std::clamp(x, minval, maxval);
+        const auto c = result[4 * i + 3];
+        ASSERT_EQ(expected, c) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 8> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 8> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 8> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zClampTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    const std::size_t n = 15 * 4;
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(8);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(8);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzClamp, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zClamp' func is wrong.";
+    {
+      std::array<int32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        const auto expected = std::clamp(x, minval, maxval);
+        const auto c = result[4 * i + 3];
+        ASSERT_EQ(expected, c) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 8> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 8> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 8> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ClampUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    const std::size_t n = 12 * 4;
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(8);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(8);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testClampU, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'clamp' func is wrong.";
+    {
+      std::array<uint32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        const auto expected = std::clamp(x, minval, maxval);
+        const auto c = result[4 * i + 3];
+        ASSERT_EQ(expected, c) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 8> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 8> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 8> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zClampUImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    const std::size_t n = 12 * 4;
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(8);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(8);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzClampUImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zClampUImpl' func is wrong.";
+    {
+      std::array<uint32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        const auto expected = std::clamp(x, minval, maxval);
+        const auto c = result[4 * i + 3];
+        ASSERT_EQ(expected, c) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 8> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 8> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 8> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zClampUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    const std::size_t n = 12 * 4;
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(8);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(8);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzClampU, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zClampU' func is wrong.";
+    {
+      std::array<uint32b, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        const auto expected = std::clamp(x, minval, maxval);
+        const auto c = result[4 * i + 3];
+        ASSERT_EQ(expected, c) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 8> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 8> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 8> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ClampFTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    const std::size_t n = 21 * 4;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(16);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(16);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(16);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testClampF, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'clamp' func is wrong.";
+    {
+      std::array<float, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        const auto expected = std::clamp(x, minval, maxval);
+        const auto c = result[4 * i + 3];
+        ASSERT_EQ(expected, c) << error_message;
+      }
+    }
+    {
+      std::array<cl::float2, 16> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 16> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 16> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zClampFImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    const std::size_t n = 21 * 4;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(16);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(16);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(16);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzClampFImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zClampFImpl' func is wrong.";
+    {
+      std::array<float, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        const auto expected = std::clamp(x, minval, maxval);
+        const auto c = result[4 * i + 3];
+        ASSERT_EQ(expected, c) << error_message;
+      }
+    }
+    {
+      std::array<cl::float2, 16> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 16> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 16> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zClampFTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    const std::size_t n = 21 * 4;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(16);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(16);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(16);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzClampF, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zClampF' func is wrong.";
+    {
+      std::array<float, n> result;
+      results1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        const auto expected = std::clamp(x, minval, maxval);
+        const auto c = result[4 * i + 3];
+        ASSERT_EQ(expected, c) << error_message;
+      }
+    }
+    {
+      std::array<cl::float2, 16> result;
+      results2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 2; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float3, 16> result;
+      results3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 3; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 16> result;
+      results4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+        const auto x = result[4 * i];
+        const auto minval = result[4 * i + 1];
+        const auto maxval = result[4 * i + 2];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
+          const auto c = result[4 * i + 3][j];
+          ASSERT_EQ(expected, c) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ClzTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testClz, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'clz' func is wrong.";
+    {
+      std::array<int32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const int32b expected = cl::clz(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zClzImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzClzImpl, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zClzImpl' func is wrong.";
+    {
+      std::array<int32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const int32b expected = cl::clz(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zClzTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzClz, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zClz' func is wrong.";
+    {
+      std::array<int32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const int32b expected = cl::clz(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ClzUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testClzU, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'clz' func is wrong.";
+    {
+      std::array<uint32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const uint32b expected = cl::clz(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zClzUImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzClzUImpl, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zClzUImpl' func is wrong.";
+    {
+      std::array<uint32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const uint32b expected = cl::clz(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zClzUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzClzU, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zClzU' func is wrong.";
+    {
+      std::array<uint32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const uint32b expected = cl::clz(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = cl::clz(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, PopcountTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testPopcount, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'popcount' func is wrong.";
+    {
+      std::array<int32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const int32b expected = cl::popcount(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zPopcountImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzPopcountImpl, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zPopcountImpl' func is wrong.";
+    {
+      std::array<int32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const int32b expected = cl::popcount(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zPopcountTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzPopcount, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zPopcount' func is wrong.";
+    {
+      std::array<int32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const int32b expected = cl::popcount(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::int2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::int4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        int32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr int32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const int32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, PopcountUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testPopcountU, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'popcount' func is wrong.";
+    {
+      std::array<uint32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const uint32b expected = cl::popcount(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zPopcountUImplTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzPopcountUImpl, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zPopcountUImpl' func is wrong.";
+    {
+      std::array<uint32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const uint32b expected = cl::popcount(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zPopcountUTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    result1->setSize(32);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    result2->setSize(32);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    result3->setSize(32);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    result4->setSize(32);
+
+    auto kernel = makeZinvulKernel(device.get(), math, testzPopcountU, 1);
+    kernel->run(*result1, *result2, *result3, *result4, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'zPopcountU' func is wrong.";
+    {
+      std::array<uint32b, 32> result;
+      result1->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        const uint32b expected = cl::popcount(x);
+        ASSERT_EQ(expected, result[i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint2, 32> result;
+      result2->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 2; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint3, 32> result;
+      result3->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 3; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::uint4, 32> result;
+      result4->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < result.size(); ++i) {
+        uint32b x = 0;
+        for (std::size_t j = 0; j < i; ++j)
+          x = (x << 1) | 0b1;
+        constexpr uint32b k[] = {1, 2, 3, 5};
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = cl::popcount(x / k[j]);
+          ASSERT_EQ(expected, result[i][j]) << error_message;
         }
       }
     }

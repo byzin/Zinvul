@@ -12,6 +12,7 @@
 
 #include "math.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -111,6 +112,17 @@ auto fmod(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
   Vector<Float, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
     result[i] = cl::fmod(x[i], y[i]);
+  return result;
+}
+
+template <typename Type, std::size_t kN> inline
+auto clamp(const Vector<Type, kN>& x,
+           const Type minval,
+           const Type maxval) noexcept
+{
+  Vector<Type, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = cl::clamp(x[i], minval, maxval);
   return result;
 }
 
@@ -500,14 +512,14 @@ FloatN fmod(const FloatN& x, const FloatN& y) noexcept
 
 /*!
   */
-template <typename TypeN> inline
-TypeN clamp(const TypeN& x, const TypeN& minval, const TypeN& maxval) noexcept
+template <typename Type1N, typename Type2N> inline
+Type1N clamp(const Type1N& x, const Type2N& minval, const Type2N& maxval) noexcept
 {
-  constexpr bool is_scalar_type = std::is_integral_v<TypeN> ||
-                                  std::is_floating_point_v<TypeN>;
+  constexpr bool is_scalar_type = std::is_integral_v<Type1N> ||
+                                  std::is_floating_point_v<Type1N>;
   // Scalar
   if constexpr (is_scalar_type)
-    return min(max(x, minval), maxval);
+    return std::clamp(x, minval, maxval);
   else
     return inner::clamp(x, minval, maxval);
 }
