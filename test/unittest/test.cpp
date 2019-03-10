@@ -9,12 +9,15 @@
 
 #include "test.hpp"
 // Standard C++ library
+#include <cmath>
 #include <cstdlib>
+#include <limits>
 #include <string>
 #include <vector>
 // GoogleTest
 #include "gtest/gtest.h"
 // Zisc
+#include "zisc/math.hpp"
 #include "zisc/unique_memory_pointer.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
@@ -102,4 +105,11 @@ std::string getTestDeviceUsedMemory(const zinvul::Device& device)
   const auto info = "  Max memory usage: "s +
                     to_mb_string(device.maxMemoryUsage()) + "\n";
   return info;
+}
+
+float calcUlps(const float lhs, const float rhs)
+{
+  constexpr float e = std::numeric_limits<float>::epsilon();
+  const float ulp = std::abs(lhs - rhs) / (std::abs(lhs + rhs) * e);
+  return ulp;
 }

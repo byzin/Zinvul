@@ -41,4 +41,6 @@ std::string getTestDeviceInfo(const zinvul::Device& device);
 
 std::string getTestDeviceUsedMemory(const zinvul::Device& device);
 
+float calcUlps(const float lhs, const float rhs);
+
 #endif // ZINVUL_TEST_TEST_HPP

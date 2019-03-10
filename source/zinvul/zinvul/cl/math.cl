@@ -2815,12 +2815,40 @@ uint4 zPopcountU4(const uint4 x)
   y = selectF(y, broadcastF(0.0f), x == -INFINITY)
 
 //! Return e raised to the given power
+float zExpImpl(const float x)
+{
+  ZINVUL_EXP_IMPL(float, int32b, (float),, zSelectF, zLdexp, zIRound, x);
+  return y;
+}
+
+//! Return e raised to the given power
+float2 zExp2Impl(const float2 x)
+{
+  ZINVUL_EXP_IMPL(float2, int2, zI2ToF2, zBroadcastF2, zSelectF2, zLdexp2, zIRound2, x);
+  return y;
+}
+
+//! Return e raised to the given power
+float3 zExp3Impl(const float3 x)
+{
+  ZINVUL_EXP_IMPL(float3, int3, zI3ToF3, zBroadcastF3, zSelectF3, zLdexp3, zIRound3, x);
+  return y;
+}
+
+//! Return e raised to the given power
+float4 zExp4Impl(const float4 x)
+{
+  ZINVUL_EXP_IMPL(float4, int4, zI4ToF4, zBroadcastF4, zSelectF4, zLdexp4, zIRound4, x);
+  return y;
+}
+
+//! Return e raised to the given power
 float zExp(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_EXP)
   const float y = exp(x);
 #else
-  ZINVUL_EXP_IMPL(float, int32b, (float),, zSelectF, zLdexp, zIRound, x);
+  const float y = zExpImpl(x);
 #endif
   return y;
 }
@@ -2831,7 +2859,7 @@ float2 zExp2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_EXP)
   const float2 y = exp(x);
 #else
-  ZINVUL_EXP_IMPL(float2, int2, zI2ToF2, zBroadcastF2, zSelectF2, zLdexp2, zIRound2, x);
+  const float2 y = zExp2Impl(x);
 #endif
   return y;
 }
@@ -2842,7 +2870,7 @@ float3 zExp3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_EXP)
   const float3 y = exp(x);
 #else
-  ZINVUL_EXP_IMPL(float3, int3, zI3ToF3, zBroadcastF3, zSelectF3, zLdexp3, zIRound3, x);
+  const float3 y = zExp3Impl(x);
 #endif
   return y;
 }
@@ -2853,7 +2881,7 @@ float4 zExp4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_EXP)
   const float4 y = exp(x);
 #else
-  ZINVUL_EXP_IMPL(float4, int4, zI4ToF4, zBroadcastF4, zSelectF4, zLdexp4, zIRound4, x);
+  const float4 y = zExp4Impl(x);
 #endif
   return y;
 }
@@ -2888,12 +2916,40 @@ float4 zExp4(const float4 x)
   } \
 
 //! Compute natural logarithm of the given number
+float zLogImpl(const float x)
+{
+  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, zFrexp, x, 0);
+  return y;
+}
+
+//! Compute natural logarithm of the given number
+float2 zLogF2Impl(const float2 x)
+{
+  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zFrexp2, x, 0);
+  return y;
+}
+
+//! Compute natural logarithm of the given number
+float3 zLogF3Impl(const float3 x)
+{
+  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zFrexp3, x, 0);
+  return y;
+}
+
+//! Compute natural logarithm of the given number
+float4 zLogF4Impl(const float4 x)
+{
+  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zFrexp4, x, 0);
+  return y;
+}
+
+//! Compute natural logarithm of the given number
 float zLog(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
   const float y = log(x);
 #else
-  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, zFrexp, x, 0);
+  const float y = zLogImpl(x);
 #endif
   return y;
 }
@@ -2904,7 +2960,7 @@ float2 zLogF2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
   const float2 y = log(x);
 #else
-  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zFrexp2, x, 0);
+  const float2 y = zLogF2Impl(x);
 #endif
   return y;
 }
@@ -2915,7 +2971,7 @@ float3 zLogF3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
   const float3 y = log(x);
 #else
-  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zFrexp3, x, 0);
+  const float3 y = zLogF3Impl(x);
 #endif
   return y;
 }
@@ -2926,8 +2982,36 @@ float4 zLogF4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
   const float4 y = log(x);
 #else
-  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zFrexp4, x, 0);
+  const float4 y = zLogF4Impl(x);
 #endif
+  return y;
+}
+
+//! Compute base 2 logarithm of the given number
+float zLog2Impl(const float x)
+{
+  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, zFrexp, x, 1);
+  return y;
+}
+
+//! Compute base 2 logarithm of the given number
+float2 zLog2F2Impl(const float2 x)
+{
+  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zFrexp2, x, 1);
+  return y;
+}
+
+//! Compute base 2 logarithm of the given number
+float3 zLog2F3Impl(const float3 x)
+{
+  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zFrexp3, x, 1);
+  return y;
+}
+
+//! Compute base 2 logarithm of the given number
+float4 zLog2F4Impl(const float4 x)
+{
+  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zFrexp4, x, 1);
   return y;
 }
 
@@ -2937,7 +3021,7 @@ float zLog2(const float x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
   const float y = log2(x);
 #else
-  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, zFrexp, x, 1);
+  const float y = zLog2Impl(x);
 #endif
   return y;
 }
@@ -2948,7 +3032,7 @@ float2 zLog2F2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
   const float2 y = log2(x);
 #else
-  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zFrexp2, x, 1);
+  const float2 y = zLog2F2Impl(x);
 #endif
   return y;
 }
@@ -2959,7 +3043,7 @@ float3 zLog2F3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
   const float3 y = log2(x);
 #else
-  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zFrexp3, x, 1);
+  const float3 y = zLog2F3Impl(x);
 #endif
   return y;
 }
@@ -2970,7 +3054,7 @@ float4 zLog2F4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
   const float4 y = log2(x);
 #else
-  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zFrexp4, x, 1);
+  const float4 y = zLog2F4Impl(x);
 #endif
   return y;
 }
@@ -2978,13 +3062,43 @@ float4 zLog2F4(const float4 x)
 // Power functions
 
 //! Raise a number to the given power
+#define ZINVUL_POW_IMPL(zexp, zlog, base, expt) zexp(expt * zlog(base))
+
+//! Raise a number to the given power
+float zPowImpl(const float base, const float expt)
+{
+  const float y = ZINVUL_POW_IMPL(zExp, zLog, base, expt);
+  return y;
+}
+
+//! Raise a number to the given power
+float2 zPow2Impl(const float2 base, const float2 expt)
+{
+  const float2 y = ZINVUL_POW_IMPL(zExp2, zLogF2, base, expt);
+  return y;
+}
+
+//! Raise a number to the given power
+float3 zPow3Impl(const float3 base, const float3 expt)
+{
+  const float3 y = ZINVUL_POW_IMPL(zExp3, zLogF3, base, expt);
+  return y;
+}
+
+//! Raise a number to the given power
+float4 zPow4Impl(const float4 base, const float4 expt)
+{
+  const float4 y = ZINVUL_POW_IMPL(zExp4, zLogF4, base, expt);
+  return y;
+}
+
+//! Raise a number to the given power
 float zPow(const float base, const float expt)
 {
-#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POW)
   const float y = pow(base, expt);
 #else
-  //! \todo Implement custom pow function
-  const float y = pow(base, expt);
+  const float y = zPowImpl(base, expt);
 #endif
   return y;
 }
@@ -2992,11 +3106,10 @@ float zPow(const float base, const float expt)
 //! Raise a number to the given power
 float2 zPow2(const float2 base, const float2 expt)
 {
-#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POW)
   const float2 y = pow(base, expt);
 #else
-  //! \todo Implement custom pow function
-  const float2 y =pow(base, expt);
+  const float2 y = zPow2Impl(base, expt);
 #endif
   return y;
 }
@@ -3004,11 +3117,10 @@ float2 zPow2(const float2 base, const float2 expt)
 //! Raise a number to the given power
 float3 zPow3(const float3 base, const float3 expt)
 {
-#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POW)
   const float3 y = pow(base, expt);
 #else
-  //! \todo Implement custom pow function
-  const float3 y = pow(base, expt);
+  const float3 y = zPow3Impl(base, expt);
 #endif
   return y;
 }
@@ -3016,11 +3128,10 @@ float3 zPow3(const float3 base, const float3 expt)
 //! Raise a number to the given power
 float4 zPow4(const float4 base, const float4 expt)
 {
-#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_LOG)
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_POW)
   const float4 y = pow(base, expt);
 #else
-  //! \todo Implement custom pow function
-  const float4 y = pow(base, expt);
+  const float4 y = zPow4Impl(base, expt);
 #endif
   return y;
 }
@@ -3111,12 +3222,40 @@ float4 zApproxRsqrt4(const float4 x)
   y = selectF(y, y * 6.553600000e+04f, x < 2.328306437e-10f)
 
 //! Compute inverse square root
+float zRsqrtImpl(const float x)
+{
+  ZINVUL_INV_SQRT_IMPL(float, zSelectF, zApproxRsqrt, x);
+  return y;
+}
+
+//! Compute inverse square root
+float2 zRsqrt2Impl(const float2 x)
+{
+  ZINVUL_INV_SQRT_IMPL(float2, zSelectF2, zApproxRsqrt2, x);
+  return y;
+}
+
+//! Compute inverse square root
+float3 zRsqrt3Impl(const float3 x)
+{
+  ZINVUL_INV_SQRT_IMPL(float3, zSelectF3, zApproxRsqrt3, x);
+  return y;
+}
+
+//! Compute inverse square root
+float4 zRsqrt4Impl(const float4 x)
+{
+  ZINVUL_INV_SQRT_IMPL(float4, zSelectF4, zApproxRsqrt4, x);
+  return y;
+}
+
+//! Compute inverse square root
 float zRsqrt(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SQRT)
   const float y = rsqrt(x);
 #else
-  ZINVUL_INV_SQRT_IMPL(float, zSelectF, zApproxRsqrt, x);
+  const float y = zRsqrtImpl(x);
 #endif
   return y;
 }
@@ -3127,7 +3266,7 @@ float2 zRsqrt2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SQRT)
   const float2 y = rsqrt(x);
 #else
-  ZINVUL_INV_SQRT_IMPL(float2, zSelectF2, zApproxRsqrt2, x);
+  const float2 y = zRsqrt2Impl(x);
 #endif
   return y;
 }
@@ -3138,7 +3277,7 @@ float3 zRsqrt3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SQRT)
   const float3 y = rsqrt(x);
 #else
-  ZINVUL_INV_SQRT_IMPL(float3, zSelectF3, zApproxRsqrt3, x);
+  const float3 y = zRsqrt3Impl(x);
 #endif
   return y;
 }
@@ -3149,7 +3288,7 @@ float4 zRsqrt4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SQRT)
   const float4 y = rsqrt(x);
 #else
-  ZINVUL_INV_SQRT_IMPL(float4, zSelectF4, zApproxRsqrt4, x);
+  const float4 y = zRsqrt4Impl(x);
 #endif
   return y;
 }
@@ -3163,12 +3302,40 @@ float4 zRsqrt4(const float4 x)
   }
 
 //! Compute square root
+float zSqrtImpl(const float x)
+{
+  ZINVUL_SQRT_IMPL(float, int32b, zSelectF, zRsqrt, x);
+  return y;
+}
+
+//! Compute square root
+float2 zSqrt2Impl(const float2 x)
+{
+  ZINVUL_SQRT_IMPL(float2, int2, zSelectF2, zRsqrt2, x);
+  return y;
+}
+
+//! Compute square root
+float3 zSqrt3Impl(const float3 x)
+{
+  ZINVUL_SQRT_IMPL(float3, int3, zSelectF3, zRsqrt3, x);
+  return y;
+}
+
+//! Compute square root
+float4 zSqrt4Impl(const float4 x)
+{
+  ZINVUL_SQRT_IMPL(float4, int4, zSelectF4, zRsqrt4, x);
+  return y;
+}
+
+//! Compute square root
 float zSqrt(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SQRT)
   const float y = sqrt(x);
 #else
-  ZINVUL_SQRT_IMPL(float, int32b, zSelectF, zRsqrt, x);
+  const float y = zSqrtImpl(x);
 #endif
   return y;
 }
@@ -3179,7 +3346,7 @@ float2 zSqrt2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SQRT)
   const float2 y = sqrt(x);
 #else
-  ZINVUL_SQRT_IMPL(float2, int2, zSelectF2, zRsqrt2, x);
+  const float2 y = zSqrt2Impl(x);
 #endif
   return y;
 }
@@ -3190,7 +3357,7 @@ float3 zSqrt3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SQRT)
   const float3 y = sqrt(x);
 #else
-  ZINVUL_SQRT_IMPL(float3, int3, zSelectF3, zRsqrt3, x);
+  const float3 y = zSqrt3Impl(x);
 #endif
   return y;
 }
@@ -3201,7 +3368,7 @@ float4 zSqrt4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_SQRT)
   const float4 y = sqrt(x);
 #else
-  ZINVUL_SQRT_IMPL(float4, int4, zSelectF4, zRsqrt4, x);
+  const float4 y = zSqrt4Impl(x);
 #endif
   return y;
 }
@@ -3259,50 +3426,74 @@ float4 zApproxCbrt4(const float4 x)
   y = selectF(y, x, is_special)
 
 //! Compute cubic root
+float zCbrtImpl(const float x)
+{
+  ZINVUL_CBRT_IMPL(float, int32b,, zSelectF, zApproxCbrt, x);
+  return y;
+}
+
+//! Compute cubic root
+float2 zCbrt2Impl(const float2 x)
+{
+  ZINVUL_CBRT_IMPL(float2, int2, zBroadcastF2, zSelectF2, zApproxCbrt2, x);
+  return y;
+}
+
+//! Compute cubic root
+float3 zCbrt3Impl(const float3 x)
+{
+  ZINVUL_CBRT_IMPL(float3, int3, zBroadcastF3, zSelectF3, zApproxCbrt3, x);
+  return y;
+}
+
+//! Compute cubic root
+float4 zCbrt4Impl(const float4 x)
+{
+  ZINVUL_CBRT_IMPL(float4, int4, zBroadcastF4, zSelectF4, zApproxCbrt4, x);
+  return y;
+}
+
+//! Compute cubic root
 float zCbrt(const float x)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CBRT)
-//  const float y = cbrt(x);
-//#else
-  ZINVUL_CBRT_IMPL(float, int32b,, zSelectF, zApproxCbrt, x);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CBRT)
+  const float y = cbrt(x);
+#else
+  const float y = zCbrtImpl(x);
+#endif
   return y;
 }
 
 //! Compute cubic root
 float2 zCbrt2(const float2 x)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CBRT)
-//  const float2 y = cbrt(x);
-//#else
-  ZINVUL_CBRT_IMPL(float2, int2, zBroadcastF2, zSelectF2, zApproxCbrt2, x);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CBRT)
+  const float2 y = cbrt(x);
+#else
+  const float2 y = zCbrt2Impl(x);
+#endif
   return y;
 }
 
 //! Compute cubic root
 float3 zCbrt3(const float3 x)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CBRT)
-//  const float3 y = cbrt(x);
-//#else
-  ZINVUL_CBRT_IMPL(float3, int3, zBroadcastF3, zSelectF3, zApproxCbrt3, x);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CBRT)
+  const float3 y = cbrt(x);
+#else
+  const float3 y = zCbrt3Impl(x);
+#endif
   return y;
 }
 
 //! Compute cubic root
 float4 zCbrt4(const float4 x)
 {
-//! \todo Remove comment out
-//#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CBRT)
-//  const float4 y = cbrt(x);
-//#else
-  ZINVUL_CBRT_IMPL(float4, int4, zBroadcastF4, zSelectF4, zApproxCbrt4, x);
-//#endif
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_CBRT)
+  const float4 y = cbrt(x);
+#else
+  const float4 y = zCbrt4Impl(x);
+#endif
   return y;
 }
 
@@ -3352,12 +3543,40 @@ float4 zCbrt4(const float4 x)
   }
 
 //! Compute sine
+float zSinImpl(const float theta)
+{
+  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 0);
+  return y;
+}
+
+//! Compute sine
+float2 zSin2Impl(const float2 theta)
+{
+  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 0);
+  return y;
+}
+
+//! Compute sine
+float3 zSin3Impl(const float3 theta)
+{
+  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 0);
+  return y;
+}
+
+//! Compute sine
+float4 zSin4Impl(const float4 theta)
+{
+  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 0);
+  return y;
+}
+
+//! Compute sine
 float zSin(const float theta)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float y = sin(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 0);
+  const float y = zSinImpl(theta);
 #endif
   return y;
 }
@@ -3368,7 +3587,7 @@ float2 zSin2(const float2 theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float2 y = sin(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 0);
+  const float2 y = zSin2Impl(theta);
 #endif
   return y;
 }
@@ -3379,7 +3598,7 @@ float3 zSin3(const float3 theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float3 y = sin(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 0);
+  const float3 y = zSin3Impl(theta);
 #endif
   return y;
 }
@@ -3390,8 +3609,36 @@ float4 zSin4(const float4 theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float4 y = sin(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 0);
+  const float4 y = zSin4Impl(theta);
 #endif
+  return y;
+}
+
+//! Compute cosine
+float zCosImpl(const float theta)
+{
+  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 1);
+  return y;
+}
+
+//! Compute cosine
+float2 zCos2Impl(const float2 theta)
+{
+  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 1);
+  return y;
+}
+
+//! Compute cosine
+float3 zCos3Impl(const float3 theta)
+{
+  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 1);
+  return y;
+}
+
+//! Compute cosine
+float4 zCos4Impl(const float4 theta)
+{
+  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 1);
   return y;
 }
 
@@ -3401,7 +3648,7 @@ float zCos(const float theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float y = cos(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 1);
+  const float y = zCosImpl(theta);
 #endif
   return y;
 }
@@ -3412,7 +3659,7 @@ float2 zCos2(const float2 theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float2 y = cos(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 1);
+  const float2 y = zCos2Impl(theta);
 #endif
   return y;
 }
@@ -3423,7 +3670,7 @@ float3 zCos3(const float3 theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float3 y = cos(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 1);
+  const float3 y = zCos3Impl(theta);
 #endif
   return y;
 }
@@ -3434,11 +3681,46 @@ float4 zCos4(const float4 theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float4 y = cos(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 1);
+  const float4 y = zCos4Impl(theta);
 #endif
   return y;
 }
 
+//! Compute sine and cosine
+float zSincosImpl(const float theta, __private float* cosval)
+{
+  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 2);
+  y = s;
+  *cosval = c;
+  return y;
+}
+
+//! Compute sine and cosine
+float2 zSincos2Impl(const float2 theta, __private float2* cosval)
+{
+  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 2);
+  y = s;
+  *cosval = c;
+  return y;
+}
+
+//! Compute sine and cosine
+float3 zSincos3Impl(const float3 theta, __private float3* cosval)
+{
+  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 2);
+  y = s;
+  *cosval = c;
+  return y;
+}
+
+//! Compute sine and cosine
+float4 zSincos4Impl(const float4 theta, __private float4* cosval)
+{
+  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 2);
+  y = s;
+  *cosval = c;
+  return y;
+}
 //! Compute sine and cosine
 float zSincos(const float theta, __private float* cosval)
 {
@@ -3447,9 +3729,7 @@ float zSincos(const float theta, __private float* cosval)
   *cosval = cos(theta);
   const float y = sin(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 2);
-  y = s;
-  *cosval = c;
+  const float y = zSincosImpl(theta, cosval);
 #endif
   return y;
 }
@@ -3462,9 +3742,7 @@ float2 zSincos2(const float2 theta, __private float2* cosval)
   *cosval = cos(theta);
   const float2 y = sin(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 2);
-  y = s;
-  *cosval = c;
+  const float2 y = zSincos2Impl(theta, cosval);
 #endif
   return y;
 }
@@ -3477,9 +3755,7 @@ float3 zSincos3(const float3 theta, __private float3* cosval)
   *cosval = cos(theta);
   const float3 y = sin(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 2);
-  y = s;
-  *cosval = c;
+  const float3 y = zSincos3Impl(theta, cosval);
 #endif
   return y;
 }
@@ -3492,10 +3768,40 @@ float4 zSincos4(const float4 theta, __private float4* cosval)
   *cosval = cos(theta);
   const float4 y = sin(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 2);
-  y = s;
-  *cosval = c;
+  const float4 y = zSincos4Impl(theta, cosval);
 #endif
+  return y;
+}
+
+//! Compute tangent
+float zTanImpl(const float theta)
+{
+  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 2);
+  y = s / c;
+  return y;
+}
+
+//! Compute tangent
+float2 zTan2Impl(const float2 theta)
+{
+  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 2);
+  y = s / c;
+  return y;
+}
+
+//! Compute tangent
+float3 zTan3Impl(const float3 theta)
+{
+  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 2);
+  y = s / c;
+  return y;
+}
+
+//! Compute tangent
+float4 zTan4Impl(const float4 theta)
+{
+  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 2);
+  y = s / c;
   return y;
 }
 
@@ -3505,8 +3811,7 @@ float zTan(const float theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float y = tan(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float, int32b, (float), (int32b),, zSelectF, zAbsF, zSqrt, theta, 2);
-  y = s / c;
+  const float y = zTanImpl(theta);
 #endif
   return y;
 }
@@ -3517,8 +3822,7 @@ float2 zTan2(const float2 theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float2 y = tan(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float2, int2, zI2ToF2 , zF2ToI2, zBroadcastF2, zSelectF2, zAbsF2, zSqrt2, theta, 2);
-  y = s / c;
+  const float2 y = zTan2Impl(theta);
 #endif
   return y;
 }
@@ -3529,8 +3833,7 @@ float3 zTan3(const float3 theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float3 y = tan(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float3, int3, zI3ToF3 , zF3ToI3, zBroadcastF3, zSelectF3, zAbsF3, zSqrt3, theta, 2);
-  y = s / c;
+  const float3 y = zTan3Impl(theta);
 #endif
   return y;
 }
@@ -3541,8 +3844,7 @@ float4 zTan4(const float4 theta)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
   const float4 y = tan(theta);
 #else
-  ZINVUL_SINCOS_IMPL(float4, int4, zI4ToF4 , zF4ToI4, zBroadcastF4, zSelectF4, zAbsF4, zSqrt4, theta, 2);
-  y = s / c;
+  const float4 y = zTan4Impl(theta);
 #endif
   return y;
 }
@@ -3571,12 +3873,40 @@ float4 zTan4(const float4 theta)
   y = selectF(y, -y, x < 0.0f)
 
 //! Compute arc tangent
+float zAtanImpl(const float x)
+{
+  ZINVUL_ATAN_IMPL(float, int32b, (float), zSelect, zSelectF,,, zAbsF, zSqrt, x);
+  return y;
+}
+
+//! Compute arc tangent
+float2 zAtan2Impl(const float2 x)
+{
+  ZINVUL_ATAN_IMPL(float2, int2, zI2ToF2, zSelect2, zSelectF2, zBroadcast2, zBroadcastF2, zAbsF2, zSqrt2, x);
+  return y;
+}
+
+//! Compute arc tangent
+float3 zAtan3Impl(const float3 x)
+{
+  ZINVUL_ATAN_IMPL(float3, int3, zI3ToF3, zSelect3, zSelectF3, zBroadcast3, zBroadcastF3, zAbsF3, zSqrt3, x);
+  return y;
+}
+
+//! Compute arc tangent
+float4 zAtan4Impl(const float4 x)
+{
+  ZINVUL_ATAN_IMPL(float4, int4, zI4ToF4, zSelect4, zSelectF4, zBroadcast4, zBroadcastF4, zAbsF4, zSqrt4, x);
+  return y;
+}
+
+//! Compute arc tangent
 float zAtan(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float y = atan(x);
 #else
-  ZINVUL_ATAN_IMPL(float, int32b, (float), zSelect, zSelectF,,, zAbsF, zSqrt, x);
+  const float y = zAtanImpl(x);
 #endif
   return y;
 }
@@ -3587,7 +3917,7 @@ float2 zAtan2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float2 y = atan(x);
 #else
-  ZINVUL_ATAN_IMPL(float2, int2, zI2ToF2, zSelect2, zSelectF2, zBroadcast2, zBroadcastF2, zAbsF2, zSqrt2, x);
+  const float2 y = zAtan2Impl(x);
 #endif
   return y;
 }
@@ -3598,7 +3928,7 @@ float3 zAtan3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float3 y = atan(x);
 #else
-  ZINVUL_ATAN_IMPL(float3, int3, zI3ToF3, zSelect3, zSelectF3, zBroadcast3, zBroadcastF3, zAbsF3, zSqrt3, x);
+  const float3 y = zAtan3Impl(x);
 #endif
   return y;
 }
@@ -3609,15 +3939,43 @@ float4 zAtan4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float4 y = atan(x);
 #else
-  ZINVUL_ATAN_IMPL(float4, int4, zI4ToF4, zSelect4, zSelectF4, zBroadcast4, zBroadcastF4, zAbsF4, zSqrt4, x);
+  const float4 y = zAtan4Impl(x);
 #endif
   return y;
 }
 
 //! Compute arc sine
-#define ZINVUL_ASIN_IMPL(FType, squareRoot, arctan, x) \
-  const FType z = x / squareRoot((1.0f + x) * (1.0f - x)); \
+#define ZINVUL_ASIN_IMPL(FType, invSquareRoot, arctan, x) \
+  const FType z = x * invSquareRoot((1.0f + x) * (1.0f - x)); \
   const FType y = arctan(z)
+
+//! Compute arc sine
+float zAsinImpl(const float x)
+{
+  ZINVUL_ASIN_IMPL(float, zRsqrt, zAtan, x);
+  return y;
+}
+
+//! Compute arc sine
+float2 zAsin2Impl(const float2 x)
+{
+  ZINVUL_ASIN_IMPL(float2, zRsqrt2, zAtan2, x);
+  return y;
+}
+
+//! Compute arc sine
+float3 zAsin3Impl(const float3 x)
+{
+  ZINVUL_ASIN_IMPL(float3, zRsqrt3, zAtan3, x);
+  return y;
+}
+
+//! Compute arc sine
+float4 zAsin4Impl(const float4 x)
+{
+  ZINVUL_ASIN_IMPL(float4, zRsqrt4, zAtan4, x);
+  return y;
+}
 
 //! Compute arc sine
 float zAsin(const float x)
@@ -3625,7 +3983,7 @@ float zAsin(const float x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float y = asin(x);
 #else
-  ZINVUL_ASIN_IMPL(float, zSqrt, zAtan, x);
+  const float y = zAsinImpl(x);
 #endif
   return y;
 }
@@ -3636,7 +3994,7 @@ float2 zAsin2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float2 y = asin(x);
 #else
-  ZINVUL_ASIN_IMPL(float2, zSqrt2, zAtan2, x);
+  const float2 y = zAsin2Impl(x);
 #endif
   return y;
 }
@@ -3647,7 +4005,7 @@ float3 zAsin3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float3 y = asin(x);
 #else
-  ZINVUL_ASIN_IMPL(float3, zSqrt3, zAtan3, x);
+  const float3 y = zAsin3Impl(x);
 #endif
   return y;
 }
@@ -3658,7 +4016,7 @@ float4 zAsin4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float4 y = asin(x);
 #else
-  ZINVUL_ASIN_IMPL(float4, zSqrt4, zAtan4, x);
+  const float4 y = zAsin4Impl(x);
 #endif
   return y;
 }
@@ -3670,12 +4028,39 @@ float4 zAsin4(const float4 x)
   return y
 
 //! Compute arc cosine
+float zAcosImpl(const float x)
+{
+  ZINVUL_ACOS_IMPL(float, zSelectF,, zSqrt, zAtan, x);
+  return y;
+}
+
+//! Compute arc cosine
+float2 zAcos2Impl(const float2 x)
+{
+  ZINVUL_ACOS_IMPL(float2, zSelectF2, zBroadcastF2, zSqrt2, zAtan2, x);
+  return y;
+}
+
+//! Compute arc cosine
+float3 zAcos3Impl(const float3 x)
+{
+  ZINVUL_ACOS_IMPL(float3, zSelectF3, zBroadcastF3, zSqrt3, zAtan3, x);
+  return y;
+}
+
+//! Compute arc cosine
+float4 zAcos4Impl(const float4 x)
+{
+  ZINVUL_ACOS_IMPL(float4, zSelectF4, zBroadcastF4, zSqrt4, zAtan4, x);
+  return y;
+}
+//! Compute arc cosine
 float zAcos(const float x)
 {
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float y = acos(x);
 #else
-  ZINVUL_ACOS_IMPL(float, zSelectF,, zSqrt, zAtan, x);
+  const float y = zAcosImpl(x);
 #endif
   return y;
 }
@@ -3686,7 +4071,7 @@ float2 zAcos2(const float2 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float2 y = acos(x);
 #else
-  ZINVUL_ACOS_IMPL(float2, zSelectF2, zBroadcastF2, zSqrt2, zAtan2, x);
+  const float2 y = zAcos2Impl(x);
 #endif
   return y;
 }
@@ -3697,7 +4082,7 @@ float3 zAcos3(const float3 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float3 y = acos(x);
 #else
-  ZINVUL_ACOS_IMPL(float3, zSelectF3, zBroadcastF3, zSqrt3, zAtan3, x);
+  const float3 y = zAcos3Impl(x);
 #endif
   return y;
 }
@@ -3708,7 +4093,7 @@ float4 zAcos4(const float4 x)
 #if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
   const float4 y = acos(x);
 #else
-  ZINVUL_ACOS_IMPL(float4, zSelectF4, zBroadcastF4, zSqrt4, zAtan4, x);
+  const float4 y = zAcos4Impl(x);
 #endif
   return y;
 }
