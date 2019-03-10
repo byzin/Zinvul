@@ -1316,7 +1316,7 @@ __kernel void testzAsin(global float* results1,
     { \
       const float z = x; \
       results1[2 * index] = z; \
-      const float y = acos(z); \
+      const float y = acos1(z); \
       results1[2 * index + 1] = y; \
     } \
     if (index == 0) { \

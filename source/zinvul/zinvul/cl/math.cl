@@ -3062,7 +3062,7 @@ float4 zLog2F4(const float4 x)
 // Power functions
 
 //! Raise a number to the given power
-#define ZINVUL_POW_IMPL(zexp, zlog, base, expt) zexp(expt * zlog(base))
+#define ZINVUL_POW_IMPL(expf, loge, base, expt) expf(expt * loge(base))
 
 //! Raise a number to the given power
 float zPowImpl(const float base, const float expt)
