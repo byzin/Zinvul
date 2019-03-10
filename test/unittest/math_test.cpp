@@ -6663,6 +6663,71 @@ void testFloat(const char* func_name,
 
 } // namespace 
 
+TEST(MathTest, MakeNormalTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1000000u;
+
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(4 * resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testMakeNormal, 1);
+    kernel->run(*results1, *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'makeNormal' func is wrong.";
+    // Scalar
+    {
+      std::size_t num_of_trials = 0;
+      std::size_t num_of_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps{0.0f};
+      float max_ulps = 0.0f;
+
+      std::vector<float> results;
+      results.resize(4 * resolution);
+      results1->read(results.data(), results.size(), 0, 0);
+      zinvul::math::KernelGroup k;
+      for (std::size_t i = 0; i < resolution; ++i) {
+        {
+          const float x = cast<float>(2 * i) / cast<float>(resolution) - 1.0f;
+          const float expected = k.makeNormal(x);
+          const float result = results[4 * i + 1];
+          char func_name[256] = "makeNormal(%g)=%g";
+          ::testFloat<1>(func_name, x, expected, result,
+                      num_of_trials, num_of_failures, sum_ulps, max_ulps);
+        }
+        {
+          const float x = cast<float>(i + 1) / cast<float>(resolution);
+          const float expected = k.makeNormal(x);
+          const float result = results[4 * i + 3];
+          char func_name[256] = "makeNormal(%g)=%g";
+          ::testFloat<1>(func_name, x, expected, result,
+                      num_of_trials, num_of_failures, sum_ulps, max_ulps);
+        }
+      }
+      EXPECT_FALSE(num_of_failures)
+          << error_message << std::endl
+          << "Failures: " << num_of_failures << "/" << num_of_trials << ", "
+          << "maxulps=" << std::scientific << max_ulps << ", "
+          << "averageulps=" << std::scientific << (sum_ulps.get() / zisc::cast<float>(num_of_failures));
+    }
+
+    std::cout << std::endl;
+  }
+}
+
 TEST(MathTest, ExpTest)
 {
   using zisc::cast;

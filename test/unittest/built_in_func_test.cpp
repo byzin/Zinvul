@@ -418,7 +418,7 @@ TEST(BuiltInFuncTest, AtomicAddUintTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicAddPositiveTest)
+TEST(BuiltInFuncTest, zAtomicAddPositiveTest)
 {
   using namespace zinvul;
 
@@ -448,7 +448,7 @@ TEST(BuiltInFuncTest, ZatomicAddPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicAddPositive, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicAddPositive, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -470,7 +470,7 @@ TEST(BuiltInFuncTest, ZatomicAddPositiveTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicAddNegativeTest)
+TEST(BuiltInFuncTest, zAtomicAddNegativeTest)
 {
   using namespace zinvul;
 
@@ -500,7 +500,7 @@ TEST(BuiltInFuncTest, ZatomicAddNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicAddNegative, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicAddNegative, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -522,7 +522,7 @@ TEST(BuiltInFuncTest, ZatomicAddNegativeTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicAddUintTest)
+TEST(BuiltInFuncTest, zAtomicAddUintTest)
 {
   using namespace zinvul;
 
@@ -552,7 +552,7 @@ TEST(BuiltInFuncTest, ZatomicAddUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicAddUint, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicAddUint, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -729,7 +729,7 @@ TEST(BuiltInFuncTest, AtomicSubUintTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicSubPositiveTest)
+TEST(BuiltInFuncTest, zAtomicSubPositiveTest)
 {
   using namespace zinvul;
 
@@ -759,7 +759,7 @@ TEST(BuiltInFuncTest, ZatomicSubPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicSubPositive, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicSubPositive, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -781,7 +781,7 @@ TEST(BuiltInFuncTest, ZatomicSubPositiveTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicSubNegativeTest)
+TEST(BuiltInFuncTest, zAtomicSubNegativeTest)
 {
   using namespace zinvul;
 
@@ -811,7 +811,7 @@ TEST(BuiltInFuncTest, ZatomicSubNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicSubNegative, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicSubNegative, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -833,7 +833,7 @@ TEST(BuiltInFuncTest, ZatomicSubNegativeTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicSubUintTest)
+TEST(BuiltInFuncTest, zAtomicSubUintTest)
 {
   using namespace zinvul;
 
@@ -863,7 +863,7 @@ TEST(BuiltInFuncTest, ZatomicSubUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicSubUint, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicSubUint, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1059,7 +1059,7 @@ TEST(BuiltInFuncTest, AtomicXchgUintTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicXchgPositiveTest)
+TEST(BuiltInFuncTest, zAtomicXchgPositiveTest)
 {
   using namespace zinvul;
 
@@ -1089,7 +1089,7 @@ TEST(BuiltInFuncTest, ZatomicXchgPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicXchgPositive, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicXchgPositive, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1117,7 +1117,7 @@ TEST(BuiltInFuncTest, ZatomicXchgPositiveTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicXchgNegativeTest)
+TEST(BuiltInFuncTest, zAtomicXchgNegativeTest)
 {
   using namespace zinvul;
 
@@ -1147,7 +1147,7 @@ TEST(BuiltInFuncTest, ZatomicXchgNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicXchgNegative, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicXchgNegative, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1176,7 +1176,7 @@ TEST(BuiltInFuncTest, ZatomicXchgNegativeTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicXchgUintTest)
+TEST(BuiltInFuncTest, zAtomicXchgUintTest)
 {
   using namespace zinvul;
 
@@ -1206,7 +1206,7 @@ TEST(BuiltInFuncTest, ZatomicXchgUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicXchgUint, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicXchgUint, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1441,7 +1441,7 @@ TEST(BuiltInFuncTest, AtomicDecUintTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicIncTest)
+TEST(BuiltInFuncTest, zAtomicIncTest)
 {
   using namespace zinvul;
 
@@ -1471,7 +1471,7 @@ TEST(BuiltInFuncTest, ZatomicIncTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicInc, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicInc, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1493,7 +1493,7 @@ TEST(BuiltInFuncTest, ZatomicIncTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicIncUintTest)
+TEST(BuiltInFuncTest, zAtomicIncUintTest)
 {
   using namespace zinvul;
 
@@ -1523,7 +1523,7 @@ TEST(BuiltInFuncTest, ZatomicIncUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicIncUint, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicIncUint, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1545,7 +1545,7 @@ TEST(BuiltInFuncTest, ZatomicIncUintTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicDecTest)
+TEST(BuiltInFuncTest, zAtomicDecTest)
 {
   using namespace zinvul;
 
@@ -1575,7 +1575,7 @@ TEST(BuiltInFuncTest, ZatomicDecTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicDec, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicDec, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1597,7 +1597,7 @@ TEST(BuiltInFuncTest, ZatomicDecTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicDecUintTest)
+TEST(BuiltInFuncTest, zAtomicDecUintTest)
 {
   using namespace zinvul;
 
@@ -1627,7 +1627,7 @@ TEST(BuiltInFuncTest, ZatomicDecUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicDecUint, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicDecUint, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1804,7 +1804,7 @@ TEST(BuiltInFuncTest, AtomicCmpxchgUintTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicCmpxchgPositiveTest)
+TEST(BuiltInFuncTest, zAtomicCmpxchgPositiveTest)
 {
   using namespace zinvul;
 
@@ -1834,7 +1834,7 @@ TEST(BuiltInFuncTest, ZatomicCmpxchgPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicCmpxchgPositive, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicCmpxchgPositive, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1856,7 +1856,7 @@ TEST(BuiltInFuncTest, ZatomicCmpxchgPositiveTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicCmpxchgNegativeTest)
+TEST(BuiltInFuncTest, zAtomicCmpxchgNegativeTest)
 {
   using namespace zinvul;
 
@@ -1886,7 +1886,7 @@ TEST(BuiltInFuncTest, ZatomicCmpxchgNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicCmpxchgNegative, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicCmpxchgNegative, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1908,7 +1908,7 @@ TEST(BuiltInFuncTest, ZatomicCmpxchgNegativeTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicCmpxchgUintTest)
+TEST(BuiltInFuncTest, zAtomicCmpxchgUintTest)
 {
   using namespace zinvul;
 
@@ -1938,7 +1938,7 @@ TEST(BuiltInFuncTest, ZatomicCmpxchgUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicCmpxchgUint, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicCmpxchgUint, 1);
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2188,7 +2188,7 @@ TEST(BuiltInFuncTest, AtomicMaxUintTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicMinPositiveTest)
+TEST(BuiltInFuncTest, zAtomicMinPositiveTest)
 {
   using namespace zinvul;
 
@@ -2210,7 +2210,7 @@ TEST(BuiltInFuncTest, ZatomicMinPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicMinPositive, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicMinPositive, 1);
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2226,7 +2226,7 @@ TEST(BuiltInFuncTest, ZatomicMinPositiveTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicMinNegativeTest)
+TEST(BuiltInFuncTest, zAtomicMinNegativeTest)
 {
   using namespace zinvul;
 
@@ -2248,7 +2248,7 @@ TEST(BuiltInFuncTest, ZatomicMinNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicMinNegative, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicMinNegative, 1);
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2264,7 +2264,7 @@ TEST(BuiltInFuncTest, ZatomicMinNegativeTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicMinUintTest)
+TEST(BuiltInFuncTest, zAtomicMinUintTest)
 {
   using namespace zinvul;
 
@@ -2286,7 +2286,7 @@ TEST(BuiltInFuncTest, ZatomicMinUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicMinUint, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicMinUint, 1);
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2302,7 +2302,7 @@ TEST(BuiltInFuncTest, ZatomicMinUintTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicMaxPositiveTest)
+TEST(BuiltInFuncTest, zAtomicMaxPositiveTest)
 {
   using namespace zinvul;
 
@@ -2324,7 +2324,7 @@ TEST(BuiltInFuncTest, ZatomicMaxPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicMaxPositive, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicMaxPositive, 1);
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2340,7 +2340,7 @@ TEST(BuiltInFuncTest, ZatomicMaxPositiveTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicMaxNegativeTest)
+TEST(BuiltInFuncTest, zAtomicMaxNegativeTest)
 {
   using namespace zinvul;
 
@@ -2362,7 +2362,7 @@ TEST(BuiltInFuncTest, ZatomicMaxNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicMaxNegative, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicMaxNegative, 1);
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2378,7 +2378,7 @@ TEST(BuiltInFuncTest, ZatomicMaxNegativeTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicMaxUintTest)
+TEST(BuiltInFuncTest, zAtomicMaxUintTest)
 {
   using namespace zinvul;
 
@@ -2400,7 +2400,7 @@ TEST(BuiltInFuncTest, ZatomicMaxUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicMaxUint, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicMaxUint, 1);
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2484,7 +2484,7 @@ TEST(BuiltInFuncTest, AtomicAndUintTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicAndTest)
+TEST(BuiltInFuncTest, zAtomicAndTest)
 {
   using namespace zinvul;
 
@@ -2503,7 +2503,7 @@ TEST(BuiltInFuncTest, ZatomicAndTest)
       result_buff->write(&init, 1, 0, 0);
     }
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicAnd, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicAnd, 1);
     kernel->run(*result_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2518,7 +2518,7 @@ TEST(BuiltInFuncTest, ZatomicAndTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicAndUintTest)
+TEST(BuiltInFuncTest, zAtomicAndUintTest)
 {
   using namespace zinvul;
 
@@ -2537,7 +2537,7 @@ TEST(BuiltInFuncTest, ZatomicAndUintTest)
       result_buff->write(&init, 1, 0, 0);
     }
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicAndUint, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicAndUint, 1);
     kernel->run(*result_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2622,7 +2622,7 @@ TEST(BuiltInFuncTest, AtomicOrUintTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicOrTest)
+TEST(BuiltInFuncTest, zAtomicOrTest)
 {
   using namespace zinvul;
 
@@ -2641,7 +2641,7 @@ TEST(BuiltInFuncTest, ZatomicOrTest)
       result_buff->write(&init, 1, 0, 0);
     }
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicOr, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicOr, 1);
     kernel->run(*result_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2657,7 +2657,7 @@ TEST(BuiltInFuncTest, ZatomicOrTest)
   }
 }
 
-TEST(BuiltInFuncTest, ZatomicOrUintTest)
+TEST(BuiltInFuncTest, zAtomicOrUintTest)
 {
   using namespace zinvul;
 
@@ -2676,7 +2676,7 @@ TEST(BuiltInFuncTest, ZatomicOrUintTest)
       result_buff->write(&init, 1, 0, 0);
     }
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testZatomicOrUint, 1);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzAtomicOrUint, 1);
     kernel->run(*result_buff, {resolution}, 0);
     device->waitForCompletion();
 

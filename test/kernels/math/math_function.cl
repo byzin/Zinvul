@@ -39,6 +39,27 @@ float makeSubnormal(const float x)
 
 /*!
   */
+__kernel void testMakeNormal(__global float* results1, const uint32b resolution)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index < resolution) {
+    {
+      const float x = (float)(2 * index) / (float)resolution - 1.0f;
+      results1[4 * index] = x;
+      const float z = makeNormal(x);
+      results1[4 * index + 1] = z;
+    }
+    {
+      const float x = (float)(index + 1) / (float)resolution;
+      results1[4 * index + 2] = x;
+      const float z = makeNormal(x);
+      results1[4 * index + 3] = z;
+    }
+  }
+}
+
+/*!
+  */
 #define ZINVUL_TEST_FRLDEXP(frexp1, ldexp1, frexp2, ldexp2, frexp3, ldexp3, frexp4, ldexp4, results1, results_exp1, results2, results_exp2, results3, results_exp3, results4, results_exp4, resolution) \
   const uint32b index = zGetGlobalIdX(); \
   if (index < resolution) { \
