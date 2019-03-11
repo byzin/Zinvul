@@ -18,13 +18,17 @@
 //! Make a normal value
 float makeNormal(const float x)
 {
-  const int bias = zExponentBiasF;
-  const float k = 0.98f * (2.0f * zAbsF(x) - 1.0f);
-  const int e = zClamp((int)(k * (float)bias), -bias + 1, bias);
+  const uint32b inv = (zAbsF(x) < 0.5f) ? 1u : 0u;
   const float s = (x < 0.0f) ? -1.0f : 1.0f;
-  const float m = 0.499f * zAbsF(x) + 0.5f;
+
+  const int32b bias = zExponentBiasF;
+  const float y = zAbsF(1.0f - 2.0f * zAbsF(x));
+  const int32b e = zClamp((int)(y * (float)bias), 0, bias);
+  const float m = 0.499f * y + 0.5f;
   float f = zLdexp(m, e);
-  f = (x == 0.0f) ? 0.0f : s * zClampF(f, zFloatMin, zFloatMax);
+  f = s * zClampF(f, zFloatMin, zFloatMax);
+  f = (inv) ? (1.0f / f) : f;
+  f = (x == 0.0f) ? 0.0f : f;
   return f;
 }
 

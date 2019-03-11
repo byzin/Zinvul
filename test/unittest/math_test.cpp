@@ -6700,20 +6700,36 @@ TEST(MathTest, MakeNormalTest)
       results1->read(results.data(), results.size(), 0, 0);
       zinvul::math::KernelGroup k;
       for (std::size_t i = 0; i < resolution; ++i) {
+//        {
+//          const float x = cast<float>(2 * i) / cast<float>(resolution) - 1.0f;
+//          const float expected = x;
+//          const float result = results[4 * i];
+//          char func_name[256] = "x1(%g)=%g";
+//          ::testFloat(func_name, x, expected, result,
+//                      num_of_trials, num_of_failures, sum_ulps, max_ulps);
+//        }
         {
-          const float x = cast<float>(2 * i) / cast<float>(resolution) - 1.0f;
+          const float x = results[4 * i];
           const float expected = k.makeNormal(x);
           const float result = results[4 * i + 1];
           char func_name[256] = "makeNormal(%g)=%g";
-          ::testFloat<1>(func_name, x, expected, result,
+          ::testFloat(func_name, x, expected, result,
                       num_of_trials, num_of_failures, sum_ulps, max_ulps);
         }
         {
           const float x = cast<float>(i + 1) / cast<float>(resolution);
+          const float expected = x;
+          const float result = results[4 * i + 2];
+          char func_name[256] = "x2(%g)=%g";
+          ::testFloat(func_name, x, expected, result,
+                      num_of_trials, num_of_failures, sum_ulps, max_ulps);
+        }
+        {
+          const float x = results[4 * i + 2];
           const float expected = k.makeNormal(x);
           const float result = results[4 * i + 3];
           char func_name[256] = "makeNormal(%g)=%g";
-          ::testFloat<1>(func_name, x, expected, result,
+          ::testFloat(func_name, x, expected, result,
                       num_of_trials, num_of_failures, sum_ulps, max_ulps);
         }
       }
