@@ -184,6 +184,110 @@ __kernel void testzFrLdexp(global float* results1,
 
 /*!
   */
+#define ZINVUL_TEST_FRLDEXPBIASED(frexp1, ldexp1, frexp2, ldexp2, frexp3, ldexp3, frexp4, ldexp4, results1, results_exp1, results2, results_exp2, results3, results_exp3, results4, results_exp4, resolution) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index < resolution) { \
+    const float x = (float)(2 * index) / (float)resolution - 1.0f; \
+    { \
+      const float z = makeNormal(x); \
+      results1[3 * index] = z; \
+      uint32b e = 0; \
+      const float m = frexp1(z, &e); \
+      results1[3 * index + 1] = m; \
+      results_exp1[index] = e; \
+      const float f = ldexp1(m, e); \
+      results1[3 * index + 2] = f; \
+    } \
+    if (index == 0) { \
+      { \
+        const uint i = resolution; \
+        const float z = INFINITY; \
+        results1[3 * i] = z; \
+        uint32b e = 0; \
+        const float m = frexp1(z, &e); \
+        results1[3 * i + 1] = m; \
+        results_exp1[i] = e; \
+        const float f = ldexp1(m, e); \
+        results1[3 * i + 2] = f; \
+      } \
+      { \
+        const uint i = resolution + 1; \
+        const float z = NAN; \
+        results1[3 * i] = z; \
+        uint32b e = 0; \
+        const float m = frexp1(z, &e); \
+        results1[3 * i + 1] = m; \
+        results_exp1[i] = e; \
+        const float f = ldexp1(m, e); \
+        results1[3 * i + 2] = f; \
+      } \
+    } \
+    { \
+      const float2 z = zMakeFloat2(makeNormal(x), makeNormal(0.85f * x)); \
+      results2[3 * index] = z; \
+      uint2 e = zMakeUInt2(0u, 0u); \
+      const float2 m = frexp2(z, &e); \
+      results2[3 * index + 1] = m; \
+      results_exp2[index] = e; \
+      const float2 f = ldexp2(m, e); \
+      results2[3 * index + 2] = f; \
+    } \
+    { \
+      const float3 z = zMakeFloat3(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x)); \
+      results3[3 * index] = z; \
+      uint3 e = zMakeUInt3(0u, 0u, 0u); \
+      const float3 m = frexp3(z, &e); \
+      results3[3 * index + 1] = m; \
+      results_exp3[index] = e; \
+      const float3 f = ldexp3(m, e); \
+      results3[3 * index + 2] = f; \
+    } \
+    { \
+      const float4 z = zMakeFloat4(makeNormal(x), makeNormal(0.85f * x), makeNormal(0.5f * x), makeNormal(0.35f * x)); \
+      results4[3 * index] = z; \
+      uint4 e = zMakeUInt4(0u, 0u, 0u, 0u); \
+      const float4 m = frexp4(z, &e); \
+      results4[3 * index + 1] = m; \
+      results_exp4[index] = e; \
+      const float4 f = ldexp4(m, e); \
+      results4[3 * index + 2] = f; \
+    } \
+  }
+
+/*!
+  */
+__kernel void testzFrLdexpBiasedImpl(global float* results1,
+    global uint32b* results_exp1,
+    global float2* results2,
+    global uint2* results_exp2,
+    global float3* results3,
+    global uint3* results_exp3,
+    global float4* results4,
+    global uint4* results_exp4,
+    const uint32b resolution)
+{
+  ZINVUL_TEST_FRLDEXPBIASED(zFrexpBiasedImpl, zLdexpBiasedImpl, zFrexpBiased2Impl, zLdexpBiased2Impl, zFrexpBiased3Impl, zLdexpBiased3Impl, zFrexpBiased4Impl, zLdexpBiased4Impl,
+      results1, results_exp1, results2, results_exp2, results3, results_exp3, results4, results_exp4, resolution);
+}
+
+/*!
+  */
+__kernel void testzFrLdexpBiased(global float* results1,
+    global uint32b* results_exp1,
+    global float2* results2,
+    global uint2* results_exp2,
+    global float3* results3,
+    global uint3* results_exp3,
+    global float4* results4,
+    global uint4* results_exp4,
+    const uint32b resolution)
+{
+  ZINVUL_TEST_FRLDEXPBIASED(zFrexpBiased, zLdexpBiased, zFrexpBiased2, zLdexpBiased2, zFrexpBiased3, zLdexpBiased3, zFrexpBiased4, zLdexpBiased4,
+      results1, results_exp1, results2, results_exp2, results3, results_exp3, results4, results_exp4, resolution);
+}
+
+/*!
+  */
 #define ZINVUL_TEST_EXP(expo1, expo2, expo3, expo4, results1, results2, results3, results4, resolution) \
   const uint32b index = zGetGlobalIdX(); \
   if (index < resolution) { \
@@ -853,7 +957,7 @@ __kernel void testzSqrt(global float* results1,
 #define ZINVUL_TEST_CBRT(cbrt1, cbrt2, cbrt3, cbrt4, results1, results2, results3, results4, resolution) \
   const uint32b index = zGetGlobalIdX(); \
   if (index < resolution) { \
-    const float x = (float)(2 * index) / (float)resolution - 1.0f; \
+    const float x = 0.98f * ((float)(2 * index) / (float)resolution - 1.0f); \
     { \
       const float z = makeNormal(x); \
       results1[2 * index] = z; \

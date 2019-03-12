@@ -195,454 +195,6 @@ TEST(MathTest, ConstantValueTest)
   }
 }
 
-TEST(MathTest, CommonTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    buffer1->setSize(3);
-    auto abs_result2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result2->setSize(2);
-    auto abs_result3 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result3->setSize(2);
-    auto abs_result4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result4->setSize(1);
-    auto abs_result5 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result5->setSize(2);
-    auto abs_result6 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result6->setSize(1);
-    auto abs_result7 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result7->setSize(2);
-    auto abs_result8 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result8->setSize(1);
-    auto clamp_result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result1->setSize(9);
-    auto clamp_result2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result2->setSize(11);
-    auto clamp_result3 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result3->setSize(6);
-    auto clamp_result4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result4->setSize(8);
-    auto clamp_result5 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result5->setSize(3);
-    auto clamp_result6 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result6->setSize(5);
-    auto clamp_result7 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result7->setSize(3);
-    auto clamp_result8 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result8->setSize(5);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testCommon, 1);
-    kernel->run(*buffer1, *abs_result2, *abs_result3, *abs_result4,
-        *abs_result5, *abs_result6, *abs_result7, *abs_result8,
-        *clamp_result1, *clamp_result2, *clamp_result3, *clamp_result4,
-        *clamp_result5, *clamp_result6, *clamp_result7, *clamp_result8, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<uint32b, 3> result;
-      buffer1->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(1u, result[0]) << "The abs func is wrong.";
-      ASSERT_EQ(1u, result[1]) << "The abs func is wrong.";
-      ASSERT_EQ(1u, result[2]) << "The abs func is wrong.";
-    }
-    {
-      std::array<float, 2> result;
-      abs_result2->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(1.0f, result[0]) << "The fabs func is wrong.";
-      ASSERT_EQ(1.0f, result[1]) << "The fabs func is wrong.";
-    }
-    {
-      std::array<cl::uint2, 2> result;
-      abs_result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 2; ++i) {
-        ASSERT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-        ASSERT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
-      }
-    }
-    {
-      std::array<cl::float2, 1> result;
-      abs_result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 2; ++i)
-        ASSERT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
-    }
-    {
-      std::array<cl::uint3, 2> result;
-      abs_result5->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 3; ++i) {
-        ASSERT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-        ASSERT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
-      }
-    }
-    {
-      std::array<cl::float3, 1> result;
-      abs_result6->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 3; ++i)
-        ASSERT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
-    }
-    {
-      std::array<cl::uint4, 2> result;
-      abs_result7->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        ASSERT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-        ASSERT_EQ(i+1, result[1][i]) << "The abs func is wrong.";
-      }
-    }
-    {
-      std::array<cl::float4, 1> result;
-      abs_result8->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i)
-        ASSERT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
-    }
-
-    {
-      std::array<int32b, 9> result;
-      clamp_result1->read(result.data(), result.size(), 0 ,0);
-      ASSERT_FALSE(result[0]) << "The max func is wrong.";
-      ASSERT_FALSE(result[1]) << "The min func is wrong.";
-      ASSERT_FALSE(result[2]) << "The clamp func is wrong.";
-      ASSERT_EQ(10, result[3]) << "The max func is wrong.";
-      ASSERT_TRUE(result[4]) << "The min func is wrong.";
-      ASSERT_TRUE(result[5]) << "The clamp func is wrong.";
-      ASSERT_EQ(-1, result[6]) << "The max func is wrong.";
-      ASSERT_EQ(-10, result[7]) << "The min func is wrong.";
-      ASSERT_EQ(-1, result[8]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<float, 11> result;
-      clamp_result2->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0.0f, result[0]) << "The max func is wrong.";
-      ASSERT_EQ(0.0f, result[1]) << "The min func is wrong.";
-      ASSERT_EQ(0.0f, result[2]) << "The clamp func is wrong.";
-      ASSERT_EQ(10.0f, result[3]) << "The max func is wrong.";
-      ASSERT_EQ(1.0f, result[4]) << "The min func is wrong.";
-      ASSERT_EQ(1.0f, result[5]) << "The clamp func is wrong.";
-      ASSERT_EQ(-1.0f, result[6]) << "The max func is wrong.";
-      ASSERT_EQ(-10.0f, result[7]) << "The min func is wrong.";
-      ASSERT_EQ(-1.0f, result[8]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::int2, 6> result;
-      clamp_result3->read(result.data(), result.size(), 0, 0);
-      ASSERT_FALSE(result[0][0]) << "The max func is wrong.";
-      ASSERT_EQ(10, result[0][1]) << "The max func is wrong.";
-      ASSERT_FALSE(result[1][0]) << "The min func is wrong.";
-      ASSERT_EQ(2, result[1][1]) << "The min func is wrong.";
-      ASSERT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      ASSERT_FALSE(result[3][0]) << "The max func is wrong.";
-      ASSERT_EQ(-2, result[3][1]) << "The max func is wrong.";
-      ASSERT_FALSE(result[4][0]) << "The min func is wrong.";
-      ASSERT_EQ(-2, result[4][1]) << "The min func is wrong.";
-      ASSERT_FALSE(result[5][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(-2, result[5][1]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::float2, 8> result;
-      clamp_result4->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      ASSERT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      ASSERT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      ASSERT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      ASSERT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      ASSERT_EQ(0.0f, result[3][0]) << "The max func is wrong.";
-      ASSERT_EQ(-2.0f, result[3][1]) << "The max func is wrong.";
-      ASSERT_EQ(0.0f, result[4][0]) << "The min func is wrong.";
-      ASSERT_EQ(-2.0f, result[4][1]) << "The min func is wrong.";
-      ASSERT_EQ(0.0f, result[5][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(-2.0f, result[5][1]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::int3, 3> result;
-      clamp_result5->read(result.data(), result.size(), 0, 0);
-      ASSERT_FALSE(result[0][0]) << "The max func is wrong.";
-      ASSERT_EQ(10, result[0][1]) << "The max func is wrong.";
-      ASSERT_EQ(-3, result[0][2]) << "The max func is wrong.";
-      ASSERT_FALSE(result[1][0]) << "The min func is wrong.";
-      ASSERT_EQ(2, result[1][1]) << "The min func is wrong.";
-      ASSERT_EQ(-3, result[1][2]) << "The min func is wrong.";
-      ASSERT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      ASSERT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::float3, 5> result;
-      clamp_result6->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      ASSERT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      ASSERT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
-      ASSERT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      ASSERT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      ASSERT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
-      ASSERT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      ASSERT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::int4, 3> result;
-      clamp_result7->read(result.data(), result.size(), 0, 0);
-      ASSERT_FALSE(result[0][0]) << "The max func is wrong.";
-      ASSERT_EQ(10, result[0][1]) << "The max func is wrong.";
-      ASSERT_EQ(-3, result[0][2]) << "The max func is wrong.";
-      ASSERT_EQ(100, result[0][3]) << "The max func is wrong.";
-      ASSERT_FALSE(result[1][0]) << "The min func is wrong.";
-      ASSERT_EQ(2, result[1][1]) << "The min func is wrong.";
-      ASSERT_EQ(-3, result[1][2]) << "The min func is wrong.";
-      ASSERT_EQ(4, result[1][3]) << "The min func is wrong.";
-      ASSERT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      ASSERT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
-      ASSERT_EQ(4, result[2][3]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::float4, 5> result;
-      clamp_result8->read(result.data(), result.size(), 0, 0);
-      ASSERT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      ASSERT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      ASSERT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
-      ASSERT_EQ(100.0f, result[0][3]) << "The max func is wrong.";
-      ASSERT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      ASSERT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      ASSERT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
-      ASSERT_EQ(4.0f, result[1][3]) << "The min func is wrong.";
-      ASSERT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      ASSERT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      ASSERT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
-      ASSERT_EQ(4.0f, result[2][3]) << "The clamp func is wrong.";
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(MathTest, ZCommonTest)
-{
-  using namespace zinvul;
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    buffer1->setSize(3);
-    auto abs_result2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result2->setSize(2);
-    auto abs_result3 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result3->setSize(2);
-    auto abs_result4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result4->setSize(1);
-    auto abs_result5 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result5->setSize(2);
-    auto abs_result6 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result6->setSize(1);
-    auto abs_result7 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result7->setSize(2);
-    auto abs_result8 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    abs_result8->setSize(1);
-    auto clamp_result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result1->setSize(9);
-    auto clamp_result2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result2->setSize(11);
-    auto clamp_result3 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result3->setSize(6);
-    auto clamp_result4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result4->setSize(8);
-    auto clamp_result5 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result5->setSize(3);
-    auto clamp_result6 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result6->setSize(5);
-    auto clamp_result7 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result7->setSize(3);
-    auto clamp_result8 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    clamp_result8->setSize(5);
-
-    auto kernel = makeZinvulKernel(device.get(), math, testZCommon, 1);
-    kernel->run(*buffer1, *abs_result2, *abs_result3, *abs_result4,
-        *abs_result5, *abs_result6, *abs_result7, *abs_result8,
-        *clamp_result1, *clamp_result2, *clamp_result3, *clamp_result4,
-        *clamp_result5, *clamp_result6, *clamp_result7, *clamp_result8, {1}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<uint32b, 3> result;
-      buffer1->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(1u, result[0]) << "The abs func is wrong.";
-      EXPECT_EQ(1u, result[1]) << "The abs func is wrong.";
-    }
-    {
-      std::array<float, 2> result;
-      abs_result2->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(1.0f, result[0]) << "The fabs func is wrong.";
-      EXPECT_EQ(1.0f, result[1]) << "The fabs func is wrong.";
-    }
-    {
-      std::array<cl::uint2, 2> result;
-      abs_result3->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 2; ++i) {
-        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-      }
-    }
-    {
-      std::array<cl::float2, 1> result;
-      abs_result4->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 2; ++i)
-        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
-    }
-    {
-      std::array<cl::uint3, 2> result;
-      abs_result5->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 3; ++i) {
-        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-      }
-    }
-    {
-      std::array<cl::float3, 1> result;
-      abs_result6->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 3; ++i)
-        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
-    }
-    {
-      std::array<cl::uint4, 2> result;
-      abs_result7->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        EXPECT_EQ(i+1, result[0][i]) << "The abs func is wrong.";
-      }
-    }
-    {
-      std::array<cl::float4, 1> result;
-      abs_result8->read(result.data(), result.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i)
-        EXPECT_EQ(zisc::cast<float>(i+1), result[0][i]) << "The fabs func is wrong.";
-    }
-
-    {
-      std::array<int32b, 9> result;
-      clamp_result1->read(result.data(), result.size(), 0 ,0);
-      EXPECT_FALSE(result[0]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2]) << "The clamp func is wrong.";
-      EXPECT_EQ(10, result[3]) << "The max func is wrong.";
-      EXPECT_TRUE(result[4]) << "The min func is wrong.";
-      EXPECT_TRUE(result[5]) << "The clamp func is wrong.";
-      EXPECT_EQ(-1, result[6]) << "The max func is wrong.";
-      EXPECT_EQ(-10, result[7]) << "The min func is wrong.";
-      EXPECT_EQ(-1, result[8]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<float, 11> result;
-      clamp_result2->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2]) << "The clamp func is wrong.";
-      EXPECT_EQ(10.0f, result[3]) << "The max func is wrong.";
-      EXPECT_EQ(1.0f, result[4]) << "The min func is wrong.";
-      EXPECT_EQ(1.0f, result[5]) << "The clamp func is wrong.";
-      EXPECT_EQ(-1.0f, result[6]) << "The max func is wrong.";
-      EXPECT_EQ(-10.0f, result[7]) << "The min func is wrong.";
-      EXPECT_EQ(-1.0f, result[8]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::int2, 6> result;
-      clamp_result3->read(result.data(), result.size(), 0, 0);
-      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_FALSE(result[3][0]) << "The max func is wrong.";
-      EXPECT_EQ(-2, result[3][1]) << "The max func is wrong.";
-      EXPECT_FALSE(result[4][0]) << "The min func is wrong.";
-      EXPECT_EQ(-2, result[4][1]) << "The min func is wrong.";
-      EXPECT_FALSE(result[5][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(-2, result[5][1]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::float2, 8> result;
-      clamp_result4->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(0.0f, result[3][0]) << "The max func is wrong.";
-      EXPECT_EQ(-2.0f, result[3][1]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[4][0]) << "The min func is wrong.";
-      EXPECT_EQ(-2.0f, result[4][1]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[5][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(-2.0f, result[5][1]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::int3, 3> result;
-      clamp_result5->read(result.data(), result.size(), 0, 0);
-      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3, result[0][2]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3, result[1][2]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::float3, 5> result;
-      clamp_result6->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::int4, 3> result;
-      clamp_result7->read(result.data(), result.size(), 0, 0);
-      EXPECT_FALSE(result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3, result[0][2]) << "The max func is wrong.";
-      EXPECT_EQ(100, result[0][3]) << "The max func is wrong.";
-      EXPECT_FALSE(result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3, result[1][2]) << "The min func is wrong.";
-      EXPECT_EQ(4, result[1][3]) << "The min func is wrong.";
-      EXPECT_FALSE(result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3, result[2][2]) << "The clamp func is wrong.";
-      EXPECT_EQ(4, result[2][3]) << "The clamp func is wrong.";
-    }
-    {
-      std::array<cl::float4, 5> result;
-      clamp_result8->read(result.data(), result.size(), 0, 0);
-      EXPECT_EQ(0.0f, result[0][0]) << "The max func is wrong.";
-      EXPECT_EQ(10.0f, result[0][1]) << "The max func is wrong.";
-      EXPECT_EQ(-3.0f, result[0][2]) << "The max func is wrong.";
-      EXPECT_EQ(100.0f, result[0][3]) << "The max func is wrong.";
-      EXPECT_EQ(0.0f, result[1][0]) << "The min func is wrong.";
-      EXPECT_EQ(2.0f, result[1][1]) << "The min func is wrong.";
-      EXPECT_EQ(-3.0f, result[1][2]) << "The min func is wrong.";
-      EXPECT_EQ(4.0f, result[1][3]) << "The min func is wrong.";
-      EXPECT_EQ(0.0f, result[2][0]) << "The clamp func is wrong.";
-      EXPECT_EQ(2.0f, result[2][1]) << "The clamp func is wrong.";
-      EXPECT_EQ(-3.0f, result[2][2]) << "The clamp func is wrong.";
-      EXPECT_EQ(4.0f, result[2][3]) << "The clamp func is wrong.";
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
 TEST(MathTest, CeilTest)
 {
   using namespace zinvul;
@@ -6518,7 +6070,8 @@ TEST(MathTest, zFrLdexpTest)
         else
           ASSERT_FLOAT_EQ(expected, result) << error_message1;
         if (i < resolution)
-          ASSERT_EQ(e, results_exp[i]) << error_message1;
+          ASSERT_EQ(e, results_exp[i]) << error_message1 << std::endl
+              << std::scientific << n;
         const float m = expected;
         expected = std::ldexp(m, e);
         result = results[3 * i + 2];
@@ -6604,6 +6157,311 @@ TEST(MathTest, zFrLdexpTest)
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
+
+TEST(MathTest, zFrLdexpBiasedImplTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1000000u;
+
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(3 * (resolution + 2));
+    auto results_exp1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp1->setSize(resolution + 2);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3 * resolution);
+    auto results_exp2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp2->setSize(resolution);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3 * resolution);
+    auto results_exp3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp3->setSize(resolution);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3 * resolution);
+    auto results_exp4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp4->setSize(resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzFrLdexpBiasedImpl, 1);
+    kernel->run(*results1, *results_exp1,
+                *results2, *results_exp2,
+                *results3, *results_exp3,
+                *results4, *results_exp4,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message1 = "The 'zFrexpBiasedImpl' func is wrong.";
+    const char* error_message2 = "The 'zLdexpBiasedImpl' func is wrong.";
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(3 * (resolution + 2));
+      std::vector<uint32b> results_exp;
+      results_exp.resize(resolution + 2);
+      results1->read(results.data(), results.size(), 0, 0);
+      results_exp1->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const float n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n, &e);
+        float result = results[3 * i + 1];
+        if (i == results_exp.size() - 1)
+          ASSERT_TRUE(std::isnan(result)) << error_message1;
+        else
+          ASSERT_FLOAT_EQ(expected, result) << error_message1;
+        if (i < resolution) {
+          const int expt = (n == 0.0f) ? cast<int>(results_exp[i]) : cast<int>(results_exp[i]) - 127;
+          ASSERT_EQ(e, expt) << error_message1;
+        }
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        if (i == results_exp.size() - 1)
+          ASSERT_TRUE(std::isnan(result)) << error_message2;
+        else
+          ASSERT_FLOAT_EQ(expected, result) << error_message2;
+      }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(3 * resolution);
+      std::vector<cl::uint2> results_exp;
+      results_exp.resize(resolution);
+      results2->read(results.data(), results.size(), 0, 0);
+      results_exp2->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const cl::float2 n = results[3 * i];
+        int e = 0;
+        cl::float2 result1 = results[3 * i + 1];
+        cl::float2 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
+          ASSERT_EQ(e, expt) << error_message1;
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(3 * resolution);
+      std::vector<cl::uint3> results_exp;
+      results_exp.resize(resolution);
+      results3->read(results.data(), results.size(), 0, 0);
+      results_exp3->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const cl::float3 n = results[3 * i];
+        int e = 0;
+        cl::float3 result1 = results[3 * i + 1];
+        cl::float3 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
+          ASSERT_EQ(e, expt) << error_message1;
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
+        }
+      }
+  }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(3 * resolution);
+      std::vector<cl::uint4> results_exp;
+      results_exp.resize(resolution);
+      results4->read(results.data(), results.size(), 0, 0);
+      results_exp4->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const cl::float4 n = results[3 * i];
+        int e = 0;
+        cl::float4 result1 = results[3 * i + 1];
+        cl::float4 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
+          ASSERT_EQ(e, expt) << error_message1;
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, zFrLdexpBiasedTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1000000u;
+
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(3 * (resolution + 2));
+    auto results_exp1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp1->setSize(resolution + 2);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(3 * resolution);
+    auto results_exp2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp2->setSize(resolution);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(3 * resolution);
+    auto results_exp3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp3->setSize(resolution);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(3 * resolution);
+    auto results_exp4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    results_exp4->setSize(resolution);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buffer->setSize(1);
+    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzFrLdexpBiased, 1);
+    kernel->run(*results1, *results_exp1,
+                *results2, *results_exp2,
+                *results3, *results_exp3,
+                *results4, *results_exp4,
+                *resolution_buffer, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message1 = "The 'zFrexpBiased' func is wrong.";
+    const char* error_message2 = "The 'zLdexpBiased' func is wrong.";
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(3 * (resolution + 2));
+      std::vector<uint32b> results_exp;
+      results_exp.resize(resolution + 2);
+      results1->read(results.data(), results.size(), 0, 0);
+      results_exp1->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const float n = results[3 * i];
+        int e = 0;
+        float expected = std::frexp(n, &e);
+        float result = results[3 * i + 1];
+        if (i == results_exp.size() - 1)
+          ASSERT_TRUE(std::isnan(result)) << error_message1;
+        else
+          ASSERT_FLOAT_EQ(expected, result) << error_message1;
+        if (i < resolution) {
+          const int expt = (n == 0.0f) ? cast<int>(results_exp[i]) : cast<int>(results_exp[i]) - 127;
+          ASSERT_EQ(e, expt) << error_message1;
+        }
+        const float m = expected;
+        expected = std::ldexp(m, e);
+        result = results[3 * i + 2];
+        if (i == results_exp.size() - 1)
+          ASSERT_TRUE(std::isnan(result)) << error_message2;
+        else
+          ASSERT_FLOAT_EQ(expected, result) << error_message2;
+      }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(3 * resolution);
+      std::vector<cl::uint2> results_exp;
+      results_exp.resize(resolution);
+      results2->read(results.data(), results.size(), 0, 0);
+      results_exp2->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const cl::float2 n = results[3 * i];
+        int e = 0;
+        cl::float2 result1 = results[3 * i + 1];
+        cl::float2 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
+          ASSERT_EQ(e, expt) << error_message1;
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(3 * resolution);
+      std::vector<cl::uint3> results_exp;
+      results_exp.resize(resolution);
+      results3->read(results.data(), results.size(), 0, 0);
+      results_exp3->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const cl::float3 n = results[3 * i];
+        int e = 0;
+        cl::float3 result1 = results[3 * i + 1];
+        cl::float3 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
+          ASSERT_EQ(e, expt) << error_message1;
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
+        }
+      }
+  }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(3 * resolution);
+      std::vector<cl::uint4> results_exp;
+      results_exp.resize(resolution);
+      results4->read(results.data(), results.size(), 0, 0);
+      results_exp4->read(results_exp.data(), results_exp.size(), 0, 0);
+      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+        const cl::float4 n = results[3 * i];
+        int e = 0;
+        cl::float4 result1 = results[3 * i + 1];
+        cl::float4 result2 = results[3 * i + 2];
+        for (std::size_t j = 0; j < result1.size(); ++j) {
+          float expected = std::frexp(n[j], &e);
+          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
+          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
+          ASSERT_EQ(e, expt) << error_message1;
+          const float m = expected;
+          expected = std::ldexp(m, e);
+          ASSERT_FLOAT_EQ(expected, result2[j]) << error_message2;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 
 namespace  {
 

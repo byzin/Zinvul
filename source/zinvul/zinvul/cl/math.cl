@@ -2328,44 +2328,43 @@ float4 zRadians4(const float4 d)
 
 // Floating point manipulation functions
 
-//! \todo Support subnormal value
-#define ZINVUL_FREXP_IMPL(FType, UType, IType, asFType, asUType, uToI, broadcast, selectI, selectF, x, e) \
+//! Decompose a number into significand and a power of 2 \todo Support subnormal value
+#define ZINVUL_FREXP_BIASED_IMPL(FType, UType, IType, asFType, asUType, selectF, x, e) \
   const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
   UType data = asUType(x); \
-  { \
-    IType expt = (uToI(data & zExponentBitMaskF) >> zSignificandBitSizeF) - \
-                 (zExponentBiasF - 1); \
-    expt = selectI(expt, broadcast(0), is_special); \
-    *e = expt; \
-  } \
+  const UType expt = ((data & zExponentBitMaskF) >> (uint32b)zSignificandBitSizeF) + 1u; \
   data = (data & ~zExponentBitMaskF) | 0x3f000000u; \
   const FType y = selectF(asFType(data), x, is_special)
 
 //! Decompose a number into significand and a power of 2
 float zFrexpImpl(const float x, __private int32b* e)
 {
-  ZINVUL_FREXP_IMPL(float, uint32b, int32b, as_float, as_uint, (int32b),, zSelect, zSelectF, x, e);
+  ZINVUL_FREXP_BIASED_IMPL(float, uint32b, int32b, as_float, as_uint, zSelectF, x, e);
+  *e = zSelect((int32b)expt - zExponentBiasF, 0, is_special);
   return y;
 }
 
 //! Decompose a number into significand and a power of 2
 float2 zFrexp2Impl(const float2 x, __private int2* e)
 {
-  ZINVUL_FREXP_IMPL(float2, uint2, int2, as_float2, as_uint2, zU2ToI2, zBroadcast2, zSelect2, zSelectF2, x, e);
+  ZINVUL_FREXP_BIASED_IMPL(float2, uint2, int2, as_float2, as_uint2, zSelectF2, x, e);
+  *e = zSelect2(zU2ToI2(expt) - zExponentBiasF, zBroadcast2(0), is_special);
   return y;
 }
 
 //! Decompose a number into significand and a power of 2
 float3 zFrexp3Impl(const float3 x, __private int3* e)
 {
-  ZINVUL_FREXP_IMPL(float3, uint3, int3, as_float3, as_uint3, zU3ToI3, zBroadcast3, zSelect3, zSelectF3, x, e);
+  ZINVUL_FREXP_BIASED_IMPL(float3, uint3, int3, as_float3, as_uint3, zSelectF3, x, e);
+  *e = zSelect3(zU3ToI3(expt) - zExponentBiasF, zBroadcast3(0), is_special);
   return y;
 }
 
 //! Decompose a number into significand and a power of 2
 float4 zFrexp4Impl(const float4 x, __private int4* e)
 {
-  ZINVUL_FREXP_IMPL(float4, uint4, int4, as_float4, as_uint4, zU4ToI4, zBroadcast4, zSelect4, zSelectF4, x, e);
+  ZINVUL_FREXP_BIASED_IMPL(float4, uint4, int4, as_float4, as_uint4, zSelectF4, x, e);
+  *e = zSelect4(zU4ToI4(expt) - zExponentBiasF, zBroadcast4(0), is_special);
   return y;
 }
 
@@ -2413,40 +2412,102 @@ float4 zFrexp4(const float4 x, __private int4* e)
   return y;
 }
 
-//! \todo Support subnormal value
-#define ZINVUL_LDEXP_IMPL(FType, IType, asFType, selectF, x, e) \
-  const IType data = (e + zExponentBiasF) << zSignificandBitSizeF; \
+//! Decompose a number into significand and a power of 2
+float zFrexpBiasedImpl(const float x, __private uint32b* e)
+{
+  ZINVUL_FREXP_BIASED_IMPL(float, uint32b, int32b, as_float, as_uint, zSelectF, x, e);
+  *e = zSelectU(expt, 0u, is_special);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
+float2 zFrexpBiased2Impl(const float2 x, __private uint2* e)
+{
+  ZINVUL_FREXP_BIASED_IMPL(float2, uint2, int2, as_float2, as_uint2, zSelectF2, x, e);
+  *e = zSelectU2(expt, zBroadcastU2(0u), is_special);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
+float3 zFrexpBiased3Impl(const float3 x, __private uint3* e)
+{
+  ZINVUL_FREXP_BIASED_IMPL(float3, uint3, int3, as_float3, as_uint3, zSelectF3, x, e);
+  *e = zSelectU3(expt, zBroadcastU3(0u), is_special);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
+float4 zFrexpBiased4Impl(const float4 x, __private uint4* e)
+{
+  ZINVUL_FREXP_BIASED_IMPL(float4, uint4, int4, as_float4, as_uint4, zSelectF4, x, e);
+  *e = zSelectU4(expt, zBroadcastU4(0u), is_special);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
+float zFrexpBiased(const float x, __private uint32b* e)
+{
+  const float y = zFrexpBiasedImpl(x, e);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
+float2 zFrexpBiased2(const float2 x, __private uint2* e)
+{
+  const float2 y = zFrexpBiased2Impl(x, e);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
+float3 zFrexpBiased3(const float3 x, __private uint3* e)
+{
+  const float3 y = zFrexpBiased3Impl(x, e);
+  return y;
+}
+
+//! Decompose a number into significand and a power of 2
+float4 zFrexpBiased4(const float4 x, __private uint4* e)
+{
+  const float4 y = zFrexpBiased4Impl(x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power. \todo Support subnormal value
+#define ZINVUL_LDEXP_BIASED_IMPL(FType, UType, IType, asFType, selectF, x, e) \
+  const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
+  const UType data = e << (uint32b)zSignificandBitSizeF; \
   FType y = asFType(data) * x; \
-  { \
-    const IType is_special = (x == 0.0f) || isinf(x) || isnan(x); \
-    y = selectF(y, x, is_special); \
-  } \
+  y = selectF(y, x, is_special); \
 
 //! Multiply a number by 2 raised to a power
 float zLdexpImpl(const float x, const int32b e)
 {
-  ZINVUL_LDEXP_IMPL(float, int32b, as_float, zSelectF, x, e);
+  const uint32b expt = (uint32b)(e + zExponentBiasF);
+  ZINVUL_LDEXP_BIASED_IMPL(float, uint32b, int32b, as_float, zSelectF, x, expt);
   return y;
 }
 
 //! Multiply a number by 2 raised to a power
 float2 zLdexp2Impl(const float2 x, const int2 e)
 {
-  ZINVUL_LDEXP_IMPL(float2, int2, as_float2, zSelectF2, x, e);
+  const uint2 expt = zI2ToU2(e + zExponentBiasF);
+  ZINVUL_LDEXP_BIASED_IMPL(float2, uint2, int2, as_float2, zSelectF2, x, expt);
   return y;
 }
 
 //! Multiply a number by 2 raised to a power
 float3 zLdexp3Impl(const float3 x, const int3 e)
 {
-  ZINVUL_LDEXP_IMPL(float3, int3, as_float3, zSelectF3, x, e);
+  const uint3 expt = zI3ToU3(e + zExponentBiasF);
+  ZINVUL_LDEXP_BIASED_IMPL(float3, uint3, int3, as_float3, zSelectF3, x, expt);
   return y;
 }
 
 //! Multiply a number by 2 raised to a power
 float4 zLdexp4Impl(const float4 x, const int4 e)
 {
-  ZINVUL_LDEXP_IMPL(float4, int4, as_float4, zSelectF4, x, e);
+  const uint4 expt = zI4ToU4(e + zExponentBiasF);
+  ZINVUL_LDEXP_BIASED_IMPL(float4, uint4, int4, as_float4, zSelectF4, x, expt);
   return y;
 }
 
@@ -2491,6 +2552,62 @@ float4 zLdexp4(const float4 x, const int4 e)
 #else
   const float4 y = zLdexp4Impl(x, e);
 #endif
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float zLdexpBiasedImpl(const float x, const uint32b e)
+{
+  ZINVUL_LDEXP_BIASED_IMPL(float, uint32b, int32b, as_float, zSelectF, x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float2 zLdexpBiased2Impl(const float2 x, const uint2 e)
+{
+  ZINVUL_LDEXP_BIASED_IMPL(float2, uint2, int2, as_float2, zSelectF2, x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float3 zLdexpBiased3Impl(const float3 x, const uint3 e)
+{
+  ZINVUL_LDEXP_BIASED_IMPL(float3, uint3, int3, as_float3, zSelectF3, x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float4 zLdexpBiased4Impl(const float4 x, const uint4 e)
+{
+  ZINVUL_LDEXP_BIASED_IMPL(float4, uint4, int4, as_float4, zSelectF4, x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float zLdexpBiased(const float x, const uint32b e)
+{
+  const float y = zLdexpBiasedImpl(x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float2 zLdexpBiased2(const float2 x, const uint2 e)
+{
+  const float2 y = zLdexpBiased2Impl(x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float3 zLdexpBiased3(const float3 x, const uint3 e)
+{
+  const float3 y = zLdexpBiased3Impl(x, e);
+  return y;
+}
+
+//! Multiply a number by 2 raised to a power
+float4 zLdexpBiased4(const float4 x, const uint4 e)
+{
+  const float4 y = zLdexpBiased4Impl(x, e);
   return y;
 }
 
@@ -2798,10 +2915,10 @@ uint4 zPopcountU4(const uint4 x)
 // Exponential functions
 
 //! Return e raised to the given power
-#define ZINVUL_EXP_IMPL(FType, IType, iToF, broadcastF, selectF, loadExp, iRound, x) \
-  const IType q = iRound(zInvLn2F * x); \
-  FType z = fma(iToF(q), broadcastF(-0.693145751953125f), x); \
-  z = fma(iToF(q), broadcastF(-1.428606765330187045e-06f), z); \
+#define ZINVUL_EXP_IMPL(FType, fToU, broadcastF, selectF, loadExp, roundf, x) \
+  const FType q = roundf(zInvLn2F * x); \
+  FType z = fma(q, broadcastF(-0.693145751953125f), x); \
+  z = fma(q, broadcastF(-1.428606765330187045e-06f), z); \
   FType y = broadcastF(0.0f); \
   { \
     FType t = z; \
@@ -2811,34 +2928,35 @@ uint4 zPopcountU4(const uint4 x)
     } \
   } \
   y = 1.0f + z + y; \
-  y = loadExp(y, q); \
+  y = loadExp(y, fToU(q + (float)zExponentBiasF)); \
+  y = selectF(y, x, x == INFINITY); \
   y = selectF(y, broadcastF(0.0f), x == -INFINITY)
 
 //! Return e raised to the given power
 float zExpImpl(const float x)
 {
-  ZINVUL_EXP_IMPL(float, int32b, (float),, zSelectF, zLdexp, zIRound, x);
+  ZINVUL_EXP_IMPL(float, (uint32b),, zSelectF, zLdexpBiased, zRound, x);
   return y;
 }
 
 //! Return e raised to the given power
 float2 zExp2Impl(const float2 x)
 {
-  ZINVUL_EXP_IMPL(float2, int2, zI2ToF2, zBroadcastF2, zSelectF2, zLdexp2, zIRound2, x);
+  ZINVUL_EXP_IMPL(float2, zF2ToU2, zBroadcastF2, zSelectF2, zLdexpBiased2, zRound2, x);
   return y;
 }
 
 //! Return e raised to the given power
 float3 zExp3Impl(const float3 x)
 {
-  ZINVUL_EXP_IMPL(float3, int3, zI3ToF3, zBroadcastF3, zSelectF3, zLdexp3, zIRound3, x);
+  ZINVUL_EXP_IMPL(float3, zF3ToU3, zBroadcastF3, zSelectF3, zLdexpBiased3, zRound3, x);
   return y;
 }
 
 //! Return e raised to the given power
 float4 zExp4Impl(const float4 x)
 {
-  ZINVUL_EXP_IMPL(float4, int4, zI4ToF4, zBroadcastF4, zSelectF4, zLdexp4, zIRound4, x);
+  ZINVUL_EXP_IMPL(float4, zF4ToU4, zBroadcastF4, zSelectF4, zLdexpBiased4, zRound4, x);
   return y;
 }
 
@@ -2887,12 +3005,12 @@ float4 zExp4(const float4 x)
 }
 
 //! Compute natural logarithm of the given number. \todo Support subnormal
-#define ZINVUL_LOG_IMPL(FType, IType, iToF, broadcast, broadcastF, selectI, selectF, fracExp, x, is_base2) \
-  IType e = broadcast(0); \
+#define ZINVUL_LOG_IMPL(FType, UType, IType, uToF, broadcastU, broadcastF, selectU, selectF, fracExp, x, is_base2) \
+  UType e = broadcastU(0); \
   FType z = fracExp(x, &e); \
   { \
     const IType c = z < zInvSqrt2F; \
-    e = selectI(e, e - 1, c); \
+    e = selectU(e, e - 1u, c); \
     z = selectF(z, 2.0f * z, c); \
   } \
   z = (z - 1.0f) / (z + 1.0f); \
@@ -2906,9 +3024,9 @@ float4 zExp4(const float4 x)
   } \
   y = 2.0f * (z + y); \
   if (is_base2) \
-    y = iToF(e) + zInvLn2F * y; \
+    y = (uToF(e) - (float)zExponentBiasF) + zInvLn2F * y; \
   else \
-    y = zLn2F * iToF(e) + y; \
+    y = zLn2F * (uToF(e) - (float)zExponentBiasF) + y; \
   { \
     y = selectF(y, broadcastF(-INFINITY), x == 0.0f); \
     y = selectF(y, x, isinf(x)); \
@@ -2918,28 +3036,28 @@ float4 zExp4(const float4 x)
 //! Compute natural logarithm of the given number
 float zLogImpl(const float x)
 {
-  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, zFrexp, x, 0);
+  ZINVUL_LOG_IMPL(float, uint32b, int32b, (float),,, zSelectU, zSelectF, zFrexpBiased, x, 0);
   return y;
 }
 
 //! Compute natural logarithm of the given number
 float2 zLogF2Impl(const float2 x)
 {
-  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zFrexp2, x, 0);
+  ZINVUL_LOG_IMPL(float2, uint2, int2, zU2ToF2, zBroadcastU2, zBroadcastF2, zSelectU2, zSelectF2, zFrexpBiased2, x, 0);
   return y;
 }
 
 //! Compute natural logarithm of the given number
 float3 zLogF3Impl(const float3 x)
 {
-  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zFrexp3, x, 0);
+  ZINVUL_LOG_IMPL(float3, uint3, int3, zU3ToF3, zBroadcastU3, zBroadcastF3, zSelectU3, zSelectF3, zFrexpBiased3, x, 0);
   return y;
 }
 
 //! Compute natural logarithm of the given number
 float4 zLogF4Impl(const float4 x)
 {
-  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zFrexp4, x, 0);
+  ZINVUL_LOG_IMPL(float4, uint4, int4, zU4ToF4, zBroadcastU4, zBroadcastF4, zSelectU4, zSelectF4, zFrexpBiased4, x, 0);
   return y;
 }
 
@@ -2990,28 +3108,28 @@ float4 zLogF4(const float4 x)
 //! Compute base 2 logarithm of the given number
 float zLog2Impl(const float x)
 {
-  ZINVUL_LOG_IMPL(float, int32b, (float),,, zSelect, zSelectF, zFrexp, x, 1);
+  ZINVUL_LOG_IMPL(float, uint32b, int32b, (float),,, zSelectU, zSelectF, zFrexpBiased, x, 1);
   return y;
 }
 
 //! Compute base 2 logarithm of the given number
 float2 zLog2F2Impl(const float2 x)
 {
-  ZINVUL_LOG_IMPL(float2, int2, zI2ToF2, zBroadcast2, zBroadcastF2, zSelect2, zSelectF2, zFrexp2, x, 1);
+  ZINVUL_LOG_IMPL(float2, uint2, int2, zU2ToF2, zBroadcastU2, zBroadcastF2, zSelectU2, zSelectF2, zFrexpBiased2, x, 1);
   return y;
 }
 
 //! Compute base 2 logarithm of the given number
 float3 zLog2F3Impl(const float3 x)
 {
-  ZINVUL_LOG_IMPL(float3, int3, zI3ToF3, zBroadcast3, zBroadcastF3, zSelect3, zSelectF3, zFrexp3, x, 1);
+  ZINVUL_LOG_IMPL(float3, uint3, int3, zU3ToF3, zBroadcastU3, zBroadcastF3, zSelectU3, zSelectF3, zFrexpBiased3, x, 1);
   return y;
 }
 
 //! Compute base 2 logarithm of the given number
 float4 zLog2F4Impl(const float4 x)
 {
-  ZINVUL_LOG_IMPL(float4, int4, zI4ToF4, zBroadcast4, zBroadcastF4, zSelect4, zSelectF4, zFrexp4, x, 1);
+  ZINVUL_LOG_IMPL(float4, uint4, int4, zU4ToF4, zBroadcastU4, zBroadcastF4, zSelectU4, zSelectF4, zFrexpBiased4, x, 1);
   return y;
 }
 
