@@ -70,6 +70,8 @@
 !/test/kernels/math/*.cl
 !/test/kernels/rng/
 !/test/kernels/rng/*.cl
+!/test/kernels/experiment/
+!/test/kernels/experiment/*.cl
 !/test/unittest/
 !/test/unittest/*.hpp
 !/test/unittest/*.cpp

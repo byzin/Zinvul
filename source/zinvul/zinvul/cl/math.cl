@@ -3024,9 +3024,9 @@ float4 zExp4(const float4 x)
   } \
   y = 2.0f * (z + y); \
   if (is_base2) \
-    y = (uToF(e) - (float)zExponentBiasF) + zInvLn2F * y; \
+    y = fma(y, broadcastF(zInvLn2F), uToF(e) - (float)zExponentBiasF); \
   else \
-    y = zLn2F * (uToF(e) - (float)zExponentBiasF) + y; \
+    y = fma(uToF(e) - (float)zExponentBiasF, broadcastF(zLn2F), y); \
   { \
     y = selectF(y, broadcastF(-INFINITY), x == 0.0f); \
     y = selectF(y, x, isinf(x)); \
@@ -3327,14 +3327,14 @@ float4 zApproxRsqrt4(const float4 x)
 }
 
 //! Compute inverse square root. \todo Support subnormal
-#define ZINVUL_INV_SQRT_IMPL(FType, selectF, approxRsqrt, x) \
+#define ZINVUL_INV_SQRT_IMPL(FType, selectF, broadcastF, approxRsqrt, x) \
   const FType z = selectF(x, x * 4.294967296e+09f, x < 2.328306437e-10f); \
   FType y = approxRsqrt(z); \
   { \
     const FType halfx = -0.5f * z; \
-    y = y * (halfx * y * y + 1.5008789f); \
-    y = y * (halfx * y * y + 1.5000006f); \
-    const FType hh = halfx * y * y + 0.5f; \
+    y = y * fma(halfx * y, y, broadcastF(1.5008789f)); \
+    y = y * fma(halfx * y, y, broadcastF(1.5000006f)); \
+    const FType hh = fma(halfx * y, y, broadcastF(0.5f)); \
     y = fma(y, hh, y); \
   } \
   y = selectF(y, y * 6.553600000e+04f, x < 2.328306437e-10f)
@@ -3342,28 +3342,28 @@ float4 zApproxRsqrt4(const float4 x)
 //! Compute inverse square root
 float zRsqrtImpl(const float x)
 {
-  ZINVUL_INV_SQRT_IMPL(float, zSelectF, zApproxRsqrt, x);
+  ZINVUL_INV_SQRT_IMPL(float, zSelectF,, zApproxRsqrt, x);
   return y;
 }
 
 //! Compute inverse square root
 float2 zRsqrt2Impl(const float2 x)
 {
-  ZINVUL_INV_SQRT_IMPL(float2, zSelectF2, zApproxRsqrt2, x);
+  ZINVUL_INV_SQRT_IMPL(float2, zSelectF2, zBroadcastF2, zApproxRsqrt2, x);
   return y;
 }
 
 //! Compute inverse square root
 float3 zRsqrt3Impl(const float3 x)
 {
-  ZINVUL_INV_SQRT_IMPL(float3, zSelectF3, zApproxRsqrt3, x);
+  ZINVUL_INV_SQRT_IMPL(float3, zSelectF3, zBroadcastF3, zApproxRsqrt3, x);
   return y;
 }
 
 //! Compute inverse square root
 float4 zRsqrt4Impl(const float4 x)
 {
-  ZINVUL_INV_SQRT_IMPL(float4, zSelectF4, zApproxRsqrt4, x);
+  ZINVUL_INV_SQRT_IMPL(float4, zSelectF4, zBroadcastF4, zApproxRsqrt4, x);
   return y;
 }
 
@@ -3976,7 +3976,7 @@ float4 zTan4(const float4 theta)
   z = z + selectF(broadcastF(0.0f), squareRoot(fma(z, z, broadcastF(1.0f))), 1 <= n); \
   z = z + selectF(broadcastF(0.0f), squareRoot(fma(z, z, broadcastF(1.0f))), 2 <= n); \
   z = 1.0f / z; \
-  FType y = z / (1.0f + z * z); \
+  FType y = z / fma(z, z, broadcastF(1.0f)); \
   { \
     const FType k = y; \
     FType t = k; \
