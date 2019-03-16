@@ -12,7 +12,6 @@
 
 // Zinvul
 #include "zinvul/cl/atomic.cl"
-#include "zinvul/cl/geometric.cl"
 #include "zinvul/cl/math.cl"
 #include "zinvul/cl/rng.cl"
 #include "zinvul/cl/types.cl"
@@ -20,12 +19,17 @@
 
 /*!
   */
-__kernel void experiment(__global float* buffer)
+__kernel void experiment(__global float* buffer1,
+    __global float2* buffer2,
+    __global float3* buffer3,
+    __global float4* buffer4)
 {
   const uint32b index = zGetGlobalIdX();
-  float x = buffer[index];
-  x = 2.0f * x;
-  buffer[index] = x;
+  if (index == 0) {
+    float x = buffer1[index];
+    x = 2.0f * x;
+    buffer1[index] = x;
+  }
 }
 
 /*!
@@ -64,7 +68,7 @@ __kernel void experiment(__global float* buffer)
 //}
 
 /*!
-  Rsqrt
+  Log 
   */
 //__kernel void experiment(__global float4* buffer)
 //{

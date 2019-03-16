@@ -187,6 +187,28 @@ IntegerN clz(const IntegerN& x) noexcept;
 template <typename IntegerN>
 IntegerN popcount(const IntegerN& x) noexcept;
 
+// Geometric functions
+
+//! Return the cross product of p0.xyz and p1.xyz
+template <typename FloatN>
+FloatN cross(const FloatN& p0, const FloatN& p1) noexcept;
+
+//! Compute dot product
+template <typename FloatN>
+float dot(const FloatN& p0, const FloatN& p1) noexcept;
+
+//! Return the distance between p0 and p1
+template <typename FloatN>
+float distance(const FloatN& p0, const FloatN& p1) noexcept;
+
+//! Return the length of vector p
+template <typename FloatN>
+float length(const FloatN& p) noexcept;
+
+//! Return a vector in the same direction as p but with a length of 1
+template <typename FloatN>
+FloatN normalize(const FloatN& p) noexcept;
+
 } // namespace cl
 
 } // namespace zinvul

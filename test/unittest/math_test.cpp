@@ -12895,3 +12895,1323 @@ TEST(MathTest, zAtanTest)
     std::cout << std::endl;
   }
 }
+
+TEST(MathTest, DotTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 3;
+    const std::size_t n3 = 3;
+    const std::size_t n3f4 = 3;
+    const std::size_t n4 = 2;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testDot, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'dot' func is wrong.";
+    // Vector2
+    {
+      std::vector<float> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(-14.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(10.0f, results[i++]) << error_message;
+    }
+
+    // Vector3
+    {
+      std::vector<float> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
+    }
+
+    // Vector3f4
+    {
+      std::vector<float> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<float> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(11.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(-6.0f, results[i++]) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, zDotImplTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 3;
+    const std::size_t n3 = 3;
+    const std::size_t n3f4 = 3;
+    const std::size_t n4 = 2;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzDotImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'zDotImpl' func is wrong.";
+    // Vector2
+    {
+      std::vector<float> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(-14.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(10.0f, results[i++]) << error_message;
+    }
+
+    // Vector3
+    {
+      std::vector<float> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
+    }
+
+    // Vector3f4
+    {
+      std::vector<float> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<float> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(11.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(-6.0f, results[i++]) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, zDotTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 3;
+    const std::size_t n3 = 3;
+    const std::size_t n3f4 = 3;
+    const std::size_t n4 = 2;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzDot, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'zDot' func is wrong.";
+    // Vector2
+    {
+      std::vector<float> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(-14.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(10.0f, results[i++]) << error_message;
+    }
+
+    // Vector3
+    {
+      std::vector<float> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
+    }
+
+    // Vector3f4
+    {
+      std::vector<float> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<float> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(11.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(-6.0f, results[i++]) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, CrossTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n3 = 4;
+    const std::size_t n4 = 4;
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testCross, 1);
+    kernel->run(*results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'cross' func is wrong.";
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(n3);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, results[i++].z) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i++].z) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i++].z) << error_message;
+      ASSERT_FLOAT_EQ(-14.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(-6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(10.0f, results[i++].z) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+      ASSERT_FLOAT_EQ(-14.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(-6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(10.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, zCrossImplTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n3 = 4;
+    const std::size_t n4 = 4;
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzCrossImpl, 1);
+    kernel->run(*results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'zCrossImpl' func is wrong.";
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(n3);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, results[i++].z) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i++].z) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i++].z) << error_message;
+      ASSERT_FLOAT_EQ(-14.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(-6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(10.0f, results[i++].z) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+      ASSERT_FLOAT_EQ(-14.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(-6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(10.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, zCrossTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n3 = 4;
+    const std::size_t n4 = 4;
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzCross, 1);
+    kernel->run(*results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'zCross' func is wrong.";
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(n3);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, results[i++].z) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i++].z) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i++].z) << error_message;
+      ASSERT_FLOAT_EQ(-14.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(-6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(10.0f, results[i++].z) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(1.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(-3.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+      ASSERT_FLOAT_EQ(-14.0f, results[i].x) << error_message;
+      ASSERT_FLOAT_EQ(-6.0f, results[i].y) << error_message;
+      ASSERT_FLOAT_EQ(10.0f, results[i].z) << error_message;
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, LengthTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 3;
+    const std::size_t n3 = 3;
+    const std::size_t n3f4 = 3;
+    const std::size_t n4 = 2;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testLength, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'length' func is wrong.";
+    // Vector2
+    {
+      std::vector<float> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
+    }
+
+    // Vector3
+    {
+      std::vector<float> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector3f4
+    {
+      std::vector<float> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<float> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, zLengthImplTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 3;
+    const std::size_t n3 = 3;
+    const std::size_t n3f4 = 3;
+    const std::size_t n4 = 2;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzLengthImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'zLengthImpl' func is wrong.";
+    // Vector2
+    {
+      std::vector<float> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
+    }
+
+    // Vector3
+    {
+      std::vector<float> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector3f4
+    {
+      std::vector<float> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<float> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, zLengthTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 3;
+    const std::size_t n3 = 3;
+    const std::size_t n3f4 = 3;
+    const std::size_t n4 = 2;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzLength, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'zLength' func is wrong.";
+    // Vector2
+    {
+      std::vector<float> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
+    }
+
+    // Vector3
+    {
+      std::vector<float> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector3f4
+    {
+      std::vector<float> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<float> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, DistanceTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 3;
+    const std::size_t n3 = 3;
+    const std::size_t n3f4 = 3;
+    const std::size_t n4 = 2;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testDistance, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'distance' func is wrong.";
+    // Vector2
+    {
+      std::vector<float> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
+    }
+
+    // Vector3
+    {
+      std::vector<float> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector3f4
+    {
+      std::vector<float> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<float> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, zDistanceImplTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 3;
+    const std::size_t n3 = 3;
+    const std::size_t n3f4 = 3;
+    const std::size_t n4 = 2;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzDistanceImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'zDistanceImpl' func is wrong.";
+    // Vector2
+    {
+      std::vector<float> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
+    }
+
+    // Vector3
+    {
+      std::vector<float> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector3f4
+    {
+      std::vector<float> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<float> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, zDistanceTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 3;
+    const std::size_t n3 = 3;
+    const std::size_t n3f4 = 3;
+    const std::size_t n4 = 2;
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzDistance, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'zDistance' func is wrong.";
+    // Vector2
+    {
+      std::vector<float> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
+    }
+
+    // Vector3
+    {
+      std::vector<float> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector3f4
+    {
+      std::vector<float> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
+    }
+
+    // Vector4
+    {
+      std::vector<float> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, NormalizeTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 4;
+    const std::size_t n3 = 4;
+    const std::size_t n3f4 = 4;
+    const std::size_t n4 = 4;
+    auto results1 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testNormalize, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'normalize' func is wrong.";
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        const auto& p = results[i++];
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 2; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        const auto& p = results[i++];
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 3; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    // Vector3f4
+    {
+      std::vector<cl::float4> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        const auto& p = results[i++];
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 4; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        const auto& p = results[i++];
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 4; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, zNormalizeImplTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 4;
+    const std::size_t n3 = 4;
+    const std::size_t n3f4 = 4;
+    const std::size_t n4 = 4;
+    auto results1 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzNormalizeImpl, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'zNormalizeImpl' func is wrong.";
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        const auto& p = results[i++];
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 2; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        const auto& p = results[i++];
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 3; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    // Vector3f4
+    {
+      std::vector<cl::float4> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        auto p = results[i++];
+        p.w = 0.0f;
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 4; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        const auto& p = results[i++];
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 4; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    std::cout << std::endl;
+  }
+}
+
+TEST(MathTest, zNormalizeTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1;
+
+    const std::size_t n2 = 4;
+    const std::size_t n3 = 4;
+    const std::size_t n3f4 = 4;
+    const std::size_t n4 = 4;
+    auto results1 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(n2);
+    auto results2 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(n3);
+    auto results3 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(n3f4);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(n4);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzNormalize, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The 'zNormalize' func is wrong.";
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(n2);
+      results1->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        const auto& p = results[i++];
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 2; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(n3);
+      results2->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        const auto& p = results[i++];
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 3; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    // Vector3f4
+    {
+      std::vector<cl::float4> results;
+      results.resize(n3f4);
+      results3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        auto p = results[i++];
+        p.w = 0.0f;
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 4; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(n4);
+      results4->read(results.data(), results.size(), 0, 0);
+
+      std::size_t i = 0;
+      {
+        const auto& p = results[i++];
+        const auto& n = results[i++];
+        const auto pl = cl::length(p);
+        const auto pn = cl::length(n);
+        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
+        for (std::size_t j = 0; j < 4; ++j) {
+          const float expected = p[j];
+          const float result = pl * n[j];
+          ASSERT_FLOAT_EQ(expected, result) << error_message;
+        }
+      }
+    }
+
+    std::cout << std::endl;
+  }
+}
+

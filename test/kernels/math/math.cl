@@ -3223,4 +3223,368 @@ __kernel void testzPopcountU(__global uint32b* results1,
       results1, results2, results3, results4);
 }
 
+#define ZINVUL_TEST_DOT(dot2, dot3, dot3f4, dot4, k, results2, results3, results3f4, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    uint i = 0; \
+    { \
+      const float2 p0 = zMakeFloat2(1.0f, 0.0f); \
+      const float2 p1 = zMakeFloat2(0.0f, 1.0f); \
+      results2[i++] = dot2(p0, p1); \
+    } \
+    { \
+      const float2 p0 = zMakeFloat2(-4.0f, -9.0f); \
+      const float2 p1 = zMakeFloat2(-1.0f, 2.0f); \
+      results2[i++] = dot2(p0, p1); \
+    } \
+    { \
+      const float2 p0 = zMakeFloat2(1.0f, 1.0f); \
+      const float2 p1 = zMakeFloat2(5.0f, 5.0f); \
+      results2[i++] = dot2(p0, p1); \
+    } \
+    i = 0; \
+    { \
+      const float3 p0 = zMakeFloat3(1.0f, 2.0f, 3.0f); \
+      const float3 p1 = zMakeFloat3(4.0f, -5.0f, 6.0f); \
+      results3[i++] = dot3(p0, p1); \
+    } \
+    { \
+      const float3 p0 = zMakeFloat3(6.0f, -1.0f, 3.0f); \
+      const float3 p1 = zMakeFloat3(4.0f, 18.0f, -2.0f); \
+      results3[i++] = dot3(p0, p1); \
+    } \
+    { \
+      const float3 p0 = zMakeFloat3(-7.0f, 4.0f, -3.0f); \
+      const float3 p1 = zMakeFloat3(8.0f, 11.0f, -12.0f); \
+      results3[i++] = dot3(p0, p1); \
+    } \
+    i = 0; \
+    { \
+      const float4 p0 = zMakeFloat4(1.0f, 2.0f, 3.0f, k); \
+      const float4 p1 = zMakeFloat4(4.0f, -5.0f, 6.0f, k); \
+      results3f4[i++] = dot3f4(p0, p1); \
+    } \
+    { \
+      const float4 p0 = zMakeFloat4(6.0f, -1.0f, 3.0f, k); \
+      const float4 p1 = zMakeFloat4(4.0f, 18.0f, -2.0f, k); \
+      results3f4[i++] = dot3f4(p0, p1); \
+    } \
+    { \
+      const float4 p0 = zMakeFloat4(-7.0f, 4.0f, -3.0f, k); \
+      const float4 p1 = zMakeFloat4(8.0f, 11.0f, -12.0f, k); \
+      results3f4[i++] = dot3f4(p0, p1); \
+    } \
+    i = 0; \
+    { \
+      const float4 p0 = zMakeFloat4(1.0f, 2.0f, -5.0f, 2.0f); \
+      const float4 p1 = zMakeFloat4(4.0f, 8.0f, 1.0f, -2.0f); \
+      results4[i++] = dot4(p0, p1); \
+    } \
+    { \
+      const float4 p0 = zMakeFloat4(1.0f, 0.0f, 1.0f, 0.0f); \
+      const float4 p1 = zMakeFloat4(-3.0f, -3.0f, -3.0f, -3.0f); \
+      results4[i++] = dot4(p0, p1); \
+    } \
+  }
+
+__kernel void testDot(__global float* results1,
+    __global float* results2,
+    __global float* results3,
+    __global float* results4)
+{
+  ZINVUL_TEST_DOT(dot, dot, dot, dot, 0.0f,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzDotImpl(__global float* results1,
+    __global float* results2,
+    __global float* results3,
+    __global float* results4)
+{
+  ZINVUL_TEST_DOT(zDot2Impl, zDot3Impl, zDot3F4Impl, zDot4Impl, 1.0f,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzDot(__global float* results1,
+    __global float* results2,
+    __global float* results3,
+    __global float* results4)
+{
+  ZINVUL_TEST_DOT(zDot2, zDot3, zDot3F4, zDot4, 1.0f,
+      results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_CROSS(cross3, cross4, results3, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    uint i = 0; \
+    { \
+      const float3 p0 = zMakeFloat3(1.0f, 0.0f, 0.0f); \
+      const float3 p1 = zMakeFloat3(0.0f, 1.0f, 0.0f); \
+      results3[i++] = cross3(p0, p1); \
+    } \
+    { \
+      const float3 p0 = zMakeFloat3(1.0f, 2.0f, 3.0f); \
+      const float3 p1 = zMakeFloat3(4.0f, 5.0f, 6.0f); \
+      results3[i++] = cross3(p0, p1); \
+    } \
+    { \
+      const float3 p0 = zMakeFloat3(2.0f, 3.0f, 4.0f); \
+      const float3 p1 = zMakeFloat3(5.0f, 6.0f, 7.0f); \
+      results3[i++] = cross3(p0, p1); \
+    } \
+    { \
+      const float3 p0 = zMakeFloat3(2.0f, -3.0f, 1.0f); \
+      const float3 p1 = zMakeFloat3(4.0f, -1.0f, 5.0f); \
+      results3[i++] = cross3(p0, p1); \
+    } \
+    i = 0; \
+    { \
+      const float4 p0 = zMakeFloat4(1.0f, 0.0f, 0.0f, 1.0f); \
+      const float4 p1 = zMakeFloat4(0.0f, 1.0f, 0.0f, 1.0f); \
+      results4[i++] = cross4(p0, p1); \
+    } \
+    { \
+      const float4 p0 = zMakeFloat4(1.0f, 2.0f, 3.0f, 1.0f); \
+      const float4 p1 = zMakeFloat4(4.0f, 5.0f, 6.0f, 1.0f); \
+      results4[i++] = cross4(p0, p1); \
+    } \
+    { \
+      const float4 p0 = zMakeFloat4(2.0f, 3.0f, 4.0f, 1.0f); \
+      const float4 p1 = zMakeFloat4(5.0f, 6.0f, 7.0f, 1.0f); \
+      results4[i++] = cross4(p0, p1); \
+    } \
+    { \
+      const float4 p0 = zMakeFloat4(2.0f, -3.0f, 1.0f, 1.0f); \
+      const float4 p1 = zMakeFloat4(4.0f, -1.0f, 5.0f, 1.0f); \
+      results4[i++] = cross4(p0, p1); \
+    } \
+  }
+
+__kernel void testCross(__global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_CROSS(cross, cross, results3, results4);
+}
+
+__kernel void testzCrossImpl(__global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_CROSS(zCross3Impl, zCross4Impl, results3, results4);
+}
+
+__kernel void testzCross(__global float3* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_CROSS(zCross3, zCross4, results3, results4);
+}
+
+#define ZINVUL_TEST_LENGTH(length2, length3, length3f4, length4, k, results2, results3, results3f4, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    uint i = 0; \
+    { \
+      const float2 p0 = zMakeFloat2(zSqrt2F, zSqrt2F); \
+      const float2 p1 = zMakeFloat2(0.0f, 0.0f); \
+      results2[i++] = length2(p0 - p1); \
+    } \
+    i = 0; \
+    { \
+      const float3 p0 = zMakeFloat3(5.0f, 3.0f, 0.0f); \
+      const float3 p1 = zMakeFloat3(2.0f, -2.0f, zSqrt2F); \
+      results3[i++] = length3(p0 - p1); \
+    } \
+    { \
+      const float3 p0 = zMakeFloat3(1.0f, 0.0f, -5.0f); \
+      const float3 p1 = zMakeFloat3(-3.0f, 2.0f, -1.0f); \
+      results3[i++] = length3(p0 - p1); \
+    } \
+    { \
+      const float3 p0 = zMakeFloat3(2.0f, 3.0f, 5.0f); \
+      const float3 p1 = zMakeFloat3(2.0f, 0.0f, 9.0f); \
+      results3[i++] = length3(p0 - p1); \
+    } \
+    i = 0; \
+    { \
+      const float4 p0 = zMakeFloat4(5.0f, 3.0f, 0.0f, k); \
+      const float4 p1 = zMakeFloat4(2.0f, -2.0f, zSqrt2F, k); \
+      results3f4[i++] = length3f4(p0 - p1); \
+    } \
+    { \
+      const float4 p0 = zMakeFloat4(1.0f, 0.0f, -5.0f, k); \
+      const float4 p1 = zMakeFloat4(-3.0f, 2.0f, -1.0f, k); \
+      results3f4[i++] = length3f4(p0 - p1); \
+    } \
+    { \
+      const float4 p0 = zMakeFloat4(2.0f, 3.0f, 5.0f, k); \
+      const float4 p1 = zMakeFloat4(2.0f, 0.0f, 9.0f, k); \
+      results3f4[i++] = length3f4(p0 - p1); \
+    } \
+    i = 0; \
+    { \
+      const float4 p0 = zMakeFloat4(2.0f, 3.0f, 4.0f, 2.0f); \
+      const float4 p1 = zMakeFloat4(1.0f, -2.0f, 1.0f, 3.0f); \
+      results4[i++] = length4(p0 - p1); \
+    } \
+  } \
+
+__kernel void testLength(__global float* results1,
+    __global float* results2,
+    __global float* results3,
+    __global float* results4)
+{
+  ZINVUL_TEST_LENGTH(length, length, length, length, 0.0f,
+      results1, results2, results3, results4);
+}
+ 
+__kernel void testzLengthImpl(__global float* results1,
+    __global float* results2,
+    __global float* results3,
+    __global float* results4)
+{
+  ZINVUL_TEST_LENGTH(zLength2Impl, zLength3Impl, zLength3F4Impl, zLength4Impl, 1.0f,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzLength(__global float* results1,
+    __global float* results2,
+    __global float* results3,
+    __global float* results4)
+{
+  ZINVUL_TEST_LENGTH(zLength2, zLength3, zLength3F4, zLength4, 1.0f,
+      results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_DISTANCE(distance2, distance3, distance3f4, distance4, k, results2, results3, results3f4, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    uint i = 0; \
+    { \
+      const float2 p0 = zMakeFloat2(zSqrt2F, zSqrt2F); \
+      const float2 p1 = zMakeFloat2(0.0f, 0.0f); \
+      results2[i++] = distance2(p0, p1); \
+    } \
+    i = 0; \
+    { \
+      const float3 p0 = zMakeFloat3(5.0f, 3.0f, 0.0f); \
+      const float3 p1 = zMakeFloat3(2.0f, -2.0f, zSqrt2F); \
+      results3[i++] = distance3(p0, p1); \
+    } \
+    { \
+      const float3 p0 = zMakeFloat3(1.0f, 0.0f, -5.0f); \
+      const float3 p1 = zMakeFloat3(-3.0f, 2.0f, -1.0f); \
+      results3[i++] = distance3(p0, p1); \
+    } \
+    { \
+      const float3 p0 = zMakeFloat3(2.0f, 3.0f, 5.0f); \
+      const float3 p1 = zMakeFloat3(2.0f, 0.0f, 9.0f); \
+      results3[i++] = distance3(p0, p1); \
+    } \
+    i = 0; \
+    { \
+      const float4 p0 = zMakeFloat4(5.0f, 3.0f, 0.0f, k); \
+      const float4 p1 = zMakeFloat4(2.0f, -2.0f, zSqrt2F, k); \
+      results3f4[i++] = distance3f4(p0, p1); \
+    } \
+    { \
+      const float4 p0 = zMakeFloat4(1.0f, 0.0f, -5.0f, k); \
+      const float4 p1 = zMakeFloat4(-3.0f, 2.0f, -1.0f, k); \
+      results3f4[i++] = distance3f4(p0, p1); \
+    } \
+    { \
+      const float4 p0 = zMakeFloat4(2.0f, 3.0f, 5.0f, k); \
+      const float4 p1 = zMakeFloat4(2.0f, 0.0f, 9.0f, k); \
+      results3f4[i++] = distance3f4(p0, p1); \
+    } \
+    i = 0; \
+    { \
+      const float4 p0 = zMakeFloat4(2.0f, 3.0f, 4.0f, 2.0f); \
+      const float4 p1 = zMakeFloat4(1.0f, -2.0f, 1.0f, 3.0f); \
+      results4[i++] = distance4(p0, p1); \
+    } \
+  } \
+
+__kernel void testDistance(__global float* results1,
+    __global float* results2,
+    __global float* results3,
+    __global float* results4)
+{
+  ZINVUL_TEST_DISTANCE(distance, distance, distance, distance, 0.0f,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzDistanceImpl(__global float* results1,
+    __global float* results2,
+    __global float* results3,
+    __global float* results4)
+{
+  ZINVUL_TEST_DISTANCE(zDistance2Impl, zDistance3Impl, zDistance3F4Impl, zDistance4Impl, 1.0f,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzDistance(__global float* results1,
+    __global float* results2,
+    __global float* results3,
+    __global float* results4)
+{
+  ZINVUL_TEST_DISTANCE(zDistance2, zDistance3, zDistance3F4, zDistance4, 1.0f,
+      results1, results2, results3, results4);
+}
+
+#define ZINVUL_TEST_NORMALIZE(norm2, norm3, norm3f4, norm4, k, results2, results3, results3f4, results4) \
+  const uint32b index = zGetGlobalIdX(); \
+  if (index == 0) { \
+    uint i = 0; \
+    { \
+      const float2 p = zMakeFloat2(zSqrt2F, zSqrt3F); \
+      results2[i++] = p; \
+      results2[i++] = norm2(p); \
+    } \
+    i = 0; \
+    { \
+      const float3 p = zMakeFloat3(2.0f, 3.0f, 5.0f); \
+      results3[i++] = p; \
+      results3[i++] = norm3(p); \
+    } \
+    i = 0; \
+    { \
+      const float4 p = zMakeFloat4(2.0f, 3.0f, 5.0f, k); \
+      results3f4[i++] = p; \
+      results3f4[i++] = norm3f4(p); \
+    } \
+    i = 0; \
+    { \
+      const float4 p = zMakeFloat4(2.0f, 3.0f, 4.0f, 2.0f); \
+      results4[i++] = p; \
+      results4[i++] = norm4(p); \
+    } \
+  } \
+
+__kernel void testNormalize(__global float2* results1,
+    __global float3* results2,
+    __global float4* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_NORMALIZE(normalize, normalize, normalize, normalize, 0.0f,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzNormalizeImpl(__global float2* results1,
+    __global float3* results2,
+    __global float4* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_NORMALIZE(zNormalize2Impl, zNormalize3Impl, zNormalize3F4Impl, zNormalize4Impl, 1.0f,
+      results1, results2, results3, results4);
+}
+
+__kernel void testzNormalize(__global float2* results1,
+    __global float3* results2,
+    __global float4* results3,
+    __global float4* results4)
+{
+  ZINVUL_TEST_NORMALIZE(zNormalize2, zNormalize3, zNormalize3F4, zNormalize4, 1.0f,
+      results1, results2, results3, results4);
+}
+
 #endif /* ZINVUL_MATH_TEST_MATH_CL */

@@ -86,6 +86,9 @@ function(initZinvulOption)
 
   set(option_description "Use built-in 'asin', 'acos' and 'atan' instead of the Zinvul funcs.")
   setBooleanOption(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC OFF ${option_description})
+
+  set(option_description "Use built-in geometric functions instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_GEOMETRY OFF ${option_description})
 endfunction(initZinvulOption)
 
 
@@ -157,6 +160,9 @@ function(getZinvulKernelOption zinvul_compile_flags zinvul_definitions)
   endif()
   if(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
     list(APPEND definitions ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_GEOMETRY)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_GEOMETRY)
   endif()
 
   # Output variables
@@ -332,7 +338,7 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     elseif(Z_MAC)
       list(APPEND clspv_options -D=Z_MAC)
     endif()
-    list(APPEND clspv_options -cl-denorms-are-zero -f16bit_storage)
+    list(APPEND clspv_options -cl-denorms-are-zero -f16bit_storage -int8)
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
                                -I=${__zinvul_root__}
                                -o=${spv_file_path} ${cl_file_path})

@@ -351,6 +351,40 @@ auto popcount(const Vector<Integer, kN>& x) noexcept
   return result;
 }
 
+/*!
+  */
+template <typename Float, std::size_t kN> inline
+auto cross(const Vector<Float, kN>& p0, const Vector<Float, kN>& p1) noexcept
+{
+  static_assert((kN == 3) || (kN == 4), "The kN should be 3 or 4.");
+  Vector<Float, kN> result;
+  result[0] = p0[1] * p1[2] - p0[2] * p1[1];
+  result[1] = p0[2] * p1[0] - p0[0] * p1[2];
+  result[2] = p0[0] * p1[1] - p0[1] * p1[0];
+  return result;
+}
+
+/*!
+  */
+template <typename Float, std::size_t kN> inline
+Float dot(const Vector<Float, kN>& p0, const Vector<Float, kN>& p1) noexcept
+{
+  Float result = zisc::cast<Float>(0);
+  for (std::size_t i = 0; i < kN; ++i)
+    result += cl::dot(p0[i], p1[i]);
+  return result;
+}
+
+/*!
+  */
+template <typename Float, std::size_t kN> inline
+auto normalize(const Vector<Float, kN>& p) noexcept
+{
+  const auto d2 = cl::dot(p, p);
+  const auto result = p * cl::rsqrt(d2);
+  return result;
+}
+
 } // namespace inner
 
 /*!
@@ -361,8 +395,8 @@ FloatN sign(const FloatN& x) noexcept
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    const FloatN zero = zisc::cast<FloatN>(0);
-    const FloatN one = zisc::cast<FloatN>(1);
+    constexpr FloatN zero = zisc::cast<FloatN>(0);
+    constexpr FloatN one = zisc::cast<FloatN>(1);
     const FloatN y = (x > zero) ? one :
                      (x < zero) ? -one
                                 : zero;
@@ -370,7 +404,8 @@ FloatN sign(const FloatN& x) noexcept
   }
   // Vector
   else {
-    return inner::sign(x);
+    const auto y = inner::sign(x);
+    return y;
   }
 }
 
@@ -382,11 +417,13 @@ FloatN ceil(const FloatN& x) noexcept
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    return std::ceil(x);
+    const auto y = std::ceil(x);
+    return y;
   }
   // Vector
   else {
-    return inner::ceil(x);
+    const auto y = inner::ceil(x);
+    return y;
   }
 }
 
@@ -398,11 +435,13 @@ FloatN floor(const FloatN& x) noexcept
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    return std::floor(x);
+    const auto y = std::floor(x);
+    return y;
   }
   // Vector
   else {
-    return inner::floor(x);
+    const auto y = inner::floor(x);
+    return y;
   }
 }
 
@@ -414,11 +453,13 @@ FloatN trunc(const FloatN& x) noexcept
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    return std::trunc(x);
+    const auto y = std::trunc(x);
+    return y;
   }
   // Vector
   else {
-    return inner::trunc(x);
+    const auto y = inner::trunc(x);
+    return y;
   }
 }
 
@@ -430,11 +471,13 @@ FloatN round(const FloatN& x) noexcept
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    return std::round(x);
+    const auto y = std::round(x);
+    return y;
   }
   // Vector
   else {
-    return inner::round(x);
+    const auto y = inner::round(x);
+    return y;
   }
 }
 
@@ -448,11 +491,13 @@ auto abs(const IntegerN& x) noexcept
   if constexpr (is_scalar_type) {
     using UnsignedI = std::make_unsigned_t<IntegerN>;
     constexpr auto zero = zisc::cast<IntegerN>(0);
-    return zisc::cast<UnsignedI>((x < zero) ? -x : x);
+    const auto y = zisc::cast<UnsignedI>((x < zero) ? -x : x);
+    return y;
   }
   // Vector
   else {
-    return inner::abs(x);
+    const auto y = inner::abs(x);
+    return y;
   }
 }
 
@@ -465,11 +510,13 @@ FloatN fabs(const FloatN& x) noexcept
   // Scalar
   if constexpr (is_scalar_type) {
     constexpr auto zero = zisc::cast<FloatN>(0);
-    return (x < zero) ? -x : x;
+    const auto y = (x < zero) ? -x : x;
+    return y;
   }
   // Vector
   else {
-    return inner::fabs(x);
+    const auto y = inner::fabs(x);
+    return y;
   }
 }
 
@@ -489,7 +536,8 @@ FloatN fract(const FloatN& x, FloatN* iptr) noexcept
   }
   // Vector
   else {
-    return inner::fract(x, iptr);
+    const auto y = inner::fract(x, iptr);
+    return y;
   }
 }
 
@@ -501,12 +549,13 @@ FloatN fmod(const FloatN& x, const FloatN& y) noexcept
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    const FloatN z = std::fmod(x, y);
+    const auto z = std::fmod(x, y);
     return z;
   }
   // Vector
   else {
-    return inner::fmod(x, y);
+    const auto z = inner::fmod(x, y);
+    return z;
   }
 }
 
@@ -518,10 +567,14 @@ Type1N clamp(const Type1N& x, const Type2N& minval, const Type2N& maxval) noexce
   constexpr bool is_scalar_type = std::is_integral_v<Type1N> ||
                                   std::is_floating_point_v<Type1N>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::clamp(x, minval, maxval);
-  else
-    return inner::clamp(x, minval, maxval);
+  if constexpr (is_scalar_type) {
+    const auto result = std::clamp(x, minval, maxval);
+    return result;
+  }
+  else {
+    const auto result = inner::clamp(x, minval, maxval);
+    return result;
+  }
 }
 
 /*!
@@ -534,10 +587,12 @@ FloatN degrees(const FloatN& r) noexcept
   // Scalar
   if constexpr (is_scalar_type) {
     constexpr FloatN k = zisc::cast<FloatN>(180.0 / zisc::kPi<double>);
-    return k * r;
+    const auto d = k * r;
+    return d;
   }
   else {
-    return inner::degrees(r);
+    const auto d = inner::degrees(r);
+    return d;
   }
 }
 
@@ -548,10 +603,14 @@ FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::fma(a, b, c);
-  else
-    return inner::fma(a, b, c);
+  if constexpr (is_scalar_type) {
+    const auto result = std::fma(a, b, c);
+    return result;
+  }
+  else {
+    const auto result = inner::fma(a, b, c);
+    return result;
+  }
 }
 
 
@@ -563,10 +622,14 @@ TypeN max(const TypeN& x, const TypeN& y) noexcept
   constexpr bool is_scalar_type = std::is_integral_v<TypeN> ||
                                   std::is_floating_point_v<TypeN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return (x < y) ? y : x;
-  else
-    return inner::max(x, y);
+  if constexpr (is_scalar_type) {
+    const auto result = (x < y) ? y : x;
+    return result;
+  }
+  else {
+    const auto result = inner::max(x, y);
+    return result;
+  }
 }
 
 /*!
@@ -577,10 +640,14 @@ TypeN min(const TypeN& x, const TypeN& y) noexcept
   constexpr bool is_scalar_type = std::is_integral_v<TypeN> ||
                                   std::is_floating_point_v<TypeN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return (y < x) ? y : x;
-  else
-    return inner::min(x, y);
+  if constexpr (is_scalar_type) {
+    const auto result = (y < x) ? y : x;
+    return result;
+  }
+  else {
+    const auto result = inner::min(x, y);
+    return result;
+  }
 }
 
 /*!
@@ -602,10 +669,12 @@ FloatN radians(const FloatN& d) noexcept
   // Scalar
   if constexpr (is_scalar_type) {
     constexpr FloatN k = zisc::cast<FloatN>(zisc::kPi<double> / 180.0);
-    return k * d;
+    const auto r = k * d;
+    return r;
   }
   else {
-    return inner::radians(d);
+    const auto r = inner::radians(d);
+    return r;
   }
 }
 
@@ -616,10 +685,14 @@ FloatN exp(const FloatN& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::exp(x);
-  else
-    return inner::exp(x);
+  if constexpr (is_scalar_type) {
+    const auto y = std::exp(x);
+    return y;
+  }
+  else {
+    const auto y = inner::exp(x);
+    return y;
+  }
 }
 
 /*!
@@ -629,10 +702,14 @@ FloatN log(const FloatN& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::log(x);
-  else
-    return inner::log(x);
+  if constexpr (is_scalar_type) {
+    const auto y = std::log(x);
+    return y;
+  }
+  else {
+    const auto y = inner::log(x);
+    return y;
+  }
 }
 
 /*!
@@ -642,10 +719,14 @@ FloatN log2(const FloatN& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::log2(x);
-  else
-    return inner::log2(x);
+  if constexpr (is_scalar_type) {
+    const auto y = std::log2(x);
+    return y;
+  }
+  else {
+    const auto y = inner::log2(x);
+    return y;
+  }
 }
 
 /*!
@@ -655,10 +736,14 @@ FloatN pow(const FloatN& base, const FloatN& e) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::pow(base, e);
-  else
-    return inner::pow(base, e);
+  if constexpr (is_scalar_type) {
+    const auto y = std::pow(base, e);
+    return y;
+  }
+  else {
+    const auto y = inner::pow(base, e);
+    return y;
+  }
 }
 
 /*!
@@ -668,10 +753,14 @@ FloatN rsqrt(const FloatN& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return zisc::invert(std::sqrt(x));
-  else
-    return inner::rsqrt(x);
+  if constexpr (is_scalar_type) {
+    const auto y = zisc::invert(std::sqrt(x));
+    return y;
+  }
+  else {
+    const auto y = inner::rsqrt(x);
+    return y;
+  }
 }
 
 /*!
@@ -681,10 +770,14 @@ FloatN sqrt(const FloatN& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::sqrt(x);
-  else
-    return inner::sqrt(x);
+  if constexpr (is_scalar_type) {
+    const auto y = std::sqrt(x);
+    return y;
+  }
+  else {
+    const auto y = inner::sqrt(x);
+    return y;
+  }
 }
 
 /*!
@@ -694,10 +787,14 @@ FloatN sin(const FloatN& theta) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::sin(theta);
-  else
-    return inner::sin(theta);
+  if constexpr (is_scalar_type) {
+    const auto y = std::sin(theta);
+    return y;
+  }
+  else {
+    const auto y = inner::sin(theta);
+    return y;
+  }
 }
 
 /*!
@@ -707,10 +804,14 @@ FloatN cos(const FloatN& theta) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::cos(theta);
-  else
-    return inner::cos(theta);
+  if constexpr (is_scalar_type) {
+    const auto y = std::cos(theta);
+    return y;
+  }
+  else {
+    const auto y = inner::cos(theta);
+    return y;
+  }
 }
 
 /*!
@@ -719,7 +820,8 @@ template <typename FloatN> inline
 FloatN sincos(const FloatN& theta, FloatN* cosval) noexcept
 {
   *cosval = cos(theta);
-  return sin(theta);
+  const auto y = sin(theta);
+  return y;
 }
 
 /*!
@@ -729,10 +831,14 @@ FloatN tan(const FloatN& theta) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::tan(theta);
-  else
-    return inner::tan(theta);
+  if constexpr (is_scalar_type) {
+    const auto y = std::tan(theta);
+    return y;
+  }
+  else {
+    const auto y = inner::tan(theta);
+    return y;
+  }
 }
 
 /*!
@@ -742,10 +848,14 @@ FloatN asin(const FloatN& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::asin(x);
-  else
-    return inner::asin(x);
+  if constexpr (is_scalar_type) {
+    const auto theta = std::asin(x);
+    return theta;
+  }
+  else {
+    const auto theta = inner::asin(x);
+    return theta;
+  }
 }
 
 /*!
@@ -755,10 +865,14 @@ FloatN acos(const FloatN& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::acos(x);
-  else
-    return inner::acos(x);
+  if constexpr (is_scalar_type) {
+    const auto theta = std::acos(x);
+    return theta;
+  }
+  else {
+    const auto theta = inner::acos(x);
+    return theta;
+  }
 }
 
 /*!
@@ -768,10 +882,14 @@ FloatN atan(const FloatN& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
   // Scalar
-  if constexpr (is_scalar_type)
-    return std::atan(x);
-  else
-    return inner::atan(x);
+  if constexpr (is_scalar_type) {
+    const auto theta = std::atan(x);
+    return theta;
+  }
+  else {
+    const auto theta = inner::atan(x);
+    return theta;
+  }
 }
 
 /*!
@@ -783,10 +901,12 @@ FloatN frexp(const FloatN& x, IntegerN* e) noexcept
                                   std::is_integral_v<IntegerN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    return std::frexp(x, e);
+    const auto result = std::frexp(x, e);
+    return result;
   }
   else {
-    return inner::frexp(x, e);
+    const auto result = inner::frexp(x, e);
+    return result;
   }
 }
 
@@ -799,10 +919,12 @@ FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept
                                   std::is_integral_v<IntegerN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    return std::ldexp(x, e);
+    const auto result = std::ldexp(x, e);
+    return result;
   }
   else {
-    return inner::ldexp(x, e);
+    const auto result = inner::ldexp(x, e);
+    return result;
   }
 }
 
@@ -823,7 +945,8 @@ IntegerN clz(const IntegerN& x) noexcept
     return result;
   }
   else {
-    return inner::clz(x);
+    const auto result = inner::clz(x);
+    return result;
   }
 }
 
@@ -846,7 +969,83 @@ IntegerN popcount(const IntegerN& x) noexcept
     return result;
   }
   else {
-    return inner::popcount(x);
+    const auto result = inner::popcount(x);
+    return result;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN cross(const FloatN& p0, const FloatN& p1) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> ||
+                                  std::is_integral_v<FloatN>;
+  static_assert(!is_scalar_type, "FloatN should be vector3 or vector4 type.");
+  const auto result = inner::cross(p0, p1);
+  return result;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+float dot(const FloatN& p0, const FloatN& p1) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> ||
+                                  std::is_integral_v<FloatN>;
+  if constexpr (is_scalar_type) {
+    const float result = p0 * p1;
+    return result;
+  }
+  else {
+    const float result = inner::dot(p0, p1);
+    return result;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+float distance(const FloatN& p0, const FloatN& p1) noexcept
+{
+  const float result = length(p0 - p1);
+  return result;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+float length(const FloatN& p) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> ||
+                                  std::is_integral_v<FloatN>;
+  if constexpr (is_scalar_type) {
+    const float result = abs(p);
+    return result;
+  }
+  else {
+    const float d2 = dot(p, p);
+    const float result = sqrt(d2);
+    return result;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN normalize(const FloatN& p) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> ||
+                                  std::is_integral_v<FloatN>;
+  if constexpr (is_scalar_type) {
+    constexpr FloatN zero = zisc::cast<FloatN>(0);
+    constexpr FloatN one = zisc::cast<FloatN>(1);
+    const float result = (p < zero) ? -one : one;
+    return result;
+  }
+  else {
+    const auto result = inner::normalize(p);
+    return result;
   }
 }
 

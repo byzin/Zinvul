@@ -4216,4 +4216,351 @@ float4 zAcos4(const float4 x)
   return y;
 }
 
+// Geometric functions
+
+//! Compute dot product
+float zDot2Impl(const float2 p0, const float2 p1)
+{
+  const float result = (p0.x * p1.x) + (p0.y * p1.y);
+  return result;
+}
+
+//! Compute dot product
+float zDot3Impl(const float3 p0, const float3 p1)
+{
+  const float result = (p0.x * p1.x) + (p0.y * p1.y) + (p0.z * p1.z);
+  return result;
+}
+
+//! Compute dot product
+float zDot3F4Impl(const float4 p0, const float4 p1)
+{
+  const float result = (p0.x * p1.x) + (p0.y * p1.y) + (p0.z * p1.z);
+  return result;
+}
+
+//! Compute dot product
+float zDot4Impl(const float4 p0, const float4 p1)
+{
+  const float result = (p0.x * p1.x) + (p0.y * p1.y) + (p0.z * p1.z) + (p0.w * p1.w);
+  return result;
+}
+
+//! Compute dot product
+float zDot2(const float2 p0, const float2 p1)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float result = dot(p0, p1);
+#else
+  const float result = zDot2Impl(p0, p1);
+#endif
+  return result;
+}
+
+//! Compute dot product
+float zDot3(const float3 p0, const float3 p1)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float result = dot(p0, p1);
+#else
+  const float result = zDot3Impl(p0, p1);
+#endif
+  return result;
+}
+
+//! Compute dot product
+float zDot3F4(const float4 p0, const float4 p1)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float3 q0 = zMakeFloat3(p0.x, p0.y, p0.z);
+  const float3 q1 = zMakeFloat3(p1.x, p1.y, p1.z);
+  const float result = dot(q0, q1);
+#else
+  const float result = zDot3F4Impl(p0, p1);
+#endif
+  return result;
+}
+
+//! Compute dot product
+float zDot4(const float4 p0, const float4 p1)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float result = dot(p0, p1);
+#else
+  const float result = zDot4Impl(p0, p1);
+#endif
+  return result;
+}
+
+//! Return the cross product of p0.xyz and p1.xyz
+float3 zCross3Impl(const float3 p0, const float3 p1)
+{
+  const float3 result = zMakeFloat3(p0.y * p1.z - p0.z * p1.y,
+                                    p0.z * p1.x - p0.x * p1.z,
+                                    p0.x * p1.y - p0.y * p1.x);
+  return result;
+}
+
+//! Return the cross product of p0.xyz and p1.xyz
+float4 zCross4Impl(const float4 p0, const float4 p1)
+{
+  const float4 result = zMakeFloat4(p0.y * p1.z - p0.z * p1.y,
+                                    p0.z * p1.x - p0.x * p1.z,
+                                    p0.x * p1.y - p0.y * p1.x,
+                                    0.0f);
+  return result;
+}
+
+//! Return the cross product of p0.xyz and p1.xyz
+float3 zCross3(const float3 p0, const float3 p1)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float3 result = cross(p0, p1);
+#else
+  const float3 result = zCross3Impl(p0, p1);
+#endif
+  return result;
+}
+
+//! Return the cross product of p0.xyz and p1.xyz
+float4 zCross4(const float4 p0, const float4 p1)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float4 result = cross(p0, p1);
+#else
+  const float4 result = zCross4Impl(p0, p1);
+#endif
+  return result;
+}
+
+//! Return the length of vector p
+float zLength2Impl(const float2 p)
+{
+  const float d2 = zDot2(p, p);
+  const float result = zSqrt(d2);
+  return result;
+}
+
+//! Return the length of vector p
+float zLength3Impl(const float3 p)
+{
+  const float d2 = zDot3(p, p);
+  const float result = zSqrt(d2);
+  return result;
+}
+
+//! Return the length of vector p
+float zLength3F4Impl(const float4 p)
+{
+  const float d2 = zDot3F4(p, p);
+  const float result = zSqrt(d2);
+  return result;
+}
+
+//! Return the length of vector p
+float zLength4Impl(const float4 p)
+{
+  const float d2 = zDot4(p, p);
+  const float result = zSqrt(d2);
+  return result;
+}
+
+//! Return the length of vector p
+float zLength2(const float2 p)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float result = length(p);
+#else
+  const float result = zLength2Impl(p);
+#endif
+  return result;
+}
+
+//! Return the length of vector p
+float zLength3(const float3 p)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float result = length(p);
+#else
+  const float result = zLength3Impl(p);
+#endif
+  return result;
+}
+
+//! Return the length of vector p
+float zLength3F4(const float4 p)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float3 q = zMakeFloat3(p.x, p.y, p.z);
+  const float result = length(q);
+#else
+  const float result = zLength3F4Impl(p);
+#endif
+  return result;
+}
+
+//! Return the length of vector p
+float zLength4(const float4 p)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float result = length(p);
+#else
+  const float result = zLength4Impl(p);
+#endif
+  return result;
+}
+
+//! Return the distance between p0 and p1
+float zDistance2Impl(const float2 p0, const float2 p1)
+{
+  const float result = zLength2(p0 - p1);
+  return result;
+}
+
+//! Return the distance between p0 and p1
+float zDistance3Impl(const float3 p0, const float3 p1)
+{
+  const float result = zLength3(p0 - p1);
+  return result;
+}
+
+//! Return the distance between p0 and p1
+float zDistance3F4Impl(const float4 p0, const float4 p1)
+{
+  const float result = zLength3F4(p0 - p1);
+  return result;
+}
+
+//! Return the distance between p0 and p1
+float zDistance4Impl(const float4 p0, const float4 p1)
+{
+  const float result = zLength4(p0 - p1);
+  return result;
+}
+
+//! Return the distance between p0 and p1
+float zDistance2(const float2 p0, const float2 p1)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float result = distance(p0, p1);
+#else
+  const float result = zDistance2Impl(p0, p1);
+#endif
+  return result;
+}
+
+//! Return the distance between p0 and p1
+float zDistance3(const float3 p0, const float3 p1)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float result = distance(p0, p1);
+#else
+  const float result = zDistance3Impl(p0, p1);
+#endif
+  return result;
+}
+
+//! Return the distance between p0 and p1
+float zDistance3F4(const float4 p0, const float4 p1)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float3 q0 = zMakeFloat3(p0.x, p0.y, p0.z);
+  const float3 q1 = zMakeFloat3(p1.x, p1.y, p1.z);
+  const float result = distance(q0, q1);
+#else
+  const float result = zDistance3F4Impl(p0, p1);
+#endif
+  return result;
+}
+
+//! Return the distance between p0 and p1
+float zDistance4(const float4 p0, const float4 p1)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float result = distance(p0, p1);
+#else
+  const float result = zDistance4Impl(p0, p1);
+#endif
+  return result;
+}
+
+//! Return a vector in the same direction as p but with a length of 1
+float2 zNormalize2Impl(const float2 p)
+{
+  const float d2 = zDot2(p, p);
+  const float2 result = p * zRsqrt(d2);
+  return result;
+}
+
+//! Return a vector in the same direction as p but with a length of 1
+float3 zNormalize3Impl(const float3 p)
+{
+  const float d2 = zDot3(p, p);
+  const float3 result = p * zRsqrt(d2);
+  return result;
+}
+
+//! Return a vector in the same direction as p but with a length of 1
+float4 zNormalize3F4Impl(const float4 p)
+{
+  const float d2 = zDot3F4(p, p);
+  float4 result = p * zRsqrt(d2);
+  result.w = 0.0f;
+  return result;
+}
+
+//! Return a vector in the same direction as p but with a length of 1
+float4 zNormalize4Impl(const float4 p)
+{
+  const float d2 = zDot4(p, p);
+  const float4 result = p * zRsqrt(d2);
+  return result;
+}
+
+//! Return a vector in the same direction as p but with a length of 1
+float2 zNormalize2(const float2 p)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float2 result = normalize(p);
+#else
+  const float2 result = zNormalize2Impl(p);
+#endif
+  return result;
+}
+
+//! Return a vector in the same direction as p but with a length of 1
+float3 zNormalize3(const float3 p)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float3 result = normalize(p);
+#else
+  const float3 result = zNormalize3Impl(p);
+#endif
+  return result;
+}
+
+//! Return a vector in the same direction as p but with a length of 1
+float4 zNormalize3F4(const float4 p)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  float4 q = p;
+  q.w = 0.0f;
+  const float4 result = normalize(q);
+#else
+  const float4 result = zNormalize3F4Impl(p);
+#endif
+  return result;
+}
+
+//! Return a vector in the same direction as p but with a length of 1
+float4 zNormalize4(const float4 p)
+{
+#if defined(ZINVUL_MATH_BUILTIN) || defined(ZINVUL_MATH_BUILTIN_GEOMETRY)
+  const float4 result = normalize(p);
+#else
+  const float4 result = zNormalize4Impl(p);
+#endif
+  return result;
+}
+
 #endif /* ZINVUL_MATH_CL */
