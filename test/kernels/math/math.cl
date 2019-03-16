@@ -2972,35 +2972,53 @@ kernel void testzRadian(global float* results1,
 #define ZINVUL_TEST_CLZ(clz1, clz2, clz3, clz4, results1, results2, results3, results4) \
   const uint32b index = zGetGlobalIdX(); \
   if (index == 0) { \
-    for (int i = 0; i < 32; ++i) { \
+    { \
       int x = 0; \
-      for (int j = 0; j < i; ++j) \
-        x = (x << 1) | 1; \
-      results1[i] = clz1(x); \
+      for (int i = 0; i < 32; ++i) { \
+        x = 0; \
+        for (int j = 0; j < i; ++j) \
+          x = (x << 1) | 1; \
+        results1[i] = clz1(x); \
+      } \
     } \
-    for (int i = 0; i < 32; ++i) { \
+    { \
       int2 x = zMakeInt2(0, 0); \
-      for (int j = 0; j < i; ++j) \
-        x = (x << 1) | 1; \
-      x.y = x.y / 2; \
-      results2[i] = clz2(x); \
+      for (int i = 0; i < 32; ++i) { \
+        x.x = 0; \
+        x.y = 0; \
+        for (int j = 0; j < i; ++j) \
+          x = (x << 1) | 1; \
+        x.y = x.y / 2; \
+        results2[i] = clz2(x); \
+      } \
     } \
-    for (int i = 0; i < 32; ++i) { \
+    { \
       int3 x = zMakeInt3(0, 0, 0); \
-      for (int j = 0; j < i; ++j) \
-        x = (x << 1) | 1; \
-      x.y = x.y / 2; \
-      x.z = x.z / 3; \
-      results3[i] = clz3(x); \
+      for (int i = 0; i < 32; ++i) { \
+        x.x = 0; \
+        x.y = 0; \
+        x.z = 0; \
+        for (int j = 0; j < i; ++j) \
+          x = (x << 1) | 1; \
+        x.y = x.y / 2; \
+        x.z = x.z / 3; \
+        results3[i] = clz3(x); \
+      } \
     } \
-    for (int i = 0; i < 32; ++i) { \
+    { \
       int4 x = zMakeInt4(0, 0, 0, 0); \
-      for (int j = 0; j < i; ++j) \
-        x = (x << 1) | 1; \
-      x.y = x.y / 2; \
-      x.z = x.z / 3; \
-      x.w = x.w / 5; \
-      results4[i] = clz4(x); \
+      for (int i = 0; i < 32; ++i) { \
+        x.x = 0; \
+        x.y = 0; \
+        x.z = 0; \
+        x.w = 0; \
+        for (int j = 0; j < i; ++j) \
+          x = (x << 1) | 1; \
+        x.y = x.y / 2; \
+        x.z = x.z / 3; \
+        x.w = x.w / 5; \
+        results4[i] = clz4(x); \
+      } \
     } \
   }
 
@@ -3034,35 +3052,53 @@ __kernel void testzClz(__global int32b* results1,
 #define ZINVUL_TEST_CLZU(clz1, clz2, clz3, clz4, results1, results2, results3, results4) \
   const uint32b index = zGetGlobalIdX(); \
   if (index == 0) { \
-    for (uint i = 0u; i < 32u; ++i) { \
+    { \
       uint x = 0u; \
-      for (uint j = 0u; j < i; ++j) \
-        x = (x << 1u) | 1u; \
-      results1[i] = clz1(x); \
+      for (uint i = 0u; i < 32u; ++i) { \
+        x = 0u; \
+        for (uint j = 0u; j < i; ++j) \
+          x = (x << 1u) | 1u; \
+        results1[i] = clz1(x); \
+      } \
     } \
-    for (uint i = 0u; i < 32u; ++i) { \
+    { \
       uint2 x = zMakeUInt2(0u, 0u); \
-      for (uint j = 0u; j < i; ++j) \
-        x = (x << 1u) | 1u; \
-      x.y = x.y / 2u; \
-      results2[i] = clz2(x); \
+      for (uint i = 0u; i < 32u; ++i) { \
+        x.x = 0u; \
+        x.y = 0u; \
+        for (uint j = 0u; j < i; ++j) \
+          x = (x << 1u) | 1u; \
+        x.y = x.y / 2u; \
+        results2[i] = clz2(x); \
+      } \
     } \
-    for (uint i = 0u; i < 32u; ++i) { \
+    { \
       uint3 x = zMakeUInt3(0u, 0u, 0u); \
-      for (uint j = 0u; j < i; ++j) \
-        x = (x << 1u) | 1u; \
-      x.y = x.y / 2u; \
-      x.z = x.z / 3u; \
-      results3[i] = clz3(x); \
+      for (uint i = 0u; i < 32u; ++i) { \
+        x.x = 0u; \
+        x.y = 0u; \
+        x.z = 0u; \
+        for (uint j = 0u; j < i; ++j) \
+          x = (x << 1u) | 1u; \
+        x.y = x.y / 2u; \
+        x.z = x.z / 3u; \
+        results3[i] = clz3(x); \
+      } \
     } \
-    for (uint i = 0u; i < 32u; ++i) { \
+    { \
       uint4 x = zMakeUInt4(0u, 0u, 0u, 0u); \
-      for (uint j = 0u; j < i; ++j) \
-        x = (x << 1u) | 1u; \
-      x.y = x.y / 2u; \
-      x.z = x.z / 3u; \
-      x.w = x.w / 5u; \
-      results4[i] = clz4(x); \
+      for (uint i = 0u; i < 32u; ++i) { \
+        x.x = 0u; \
+        x.y = 0u; \
+        x.z = 0u; \
+        x.w = 0u; \
+        for (uint j = 0u; j < i; ++j) \
+          x = (x << 1u) | 1u; \
+        x.y = x.y / 2u; \
+        x.z = x.z / 3u; \
+        x.w = x.w / 5u; \
+        results4[i] = clz4(x); \
+      } \
     } \
   }
 
@@ -3096,35 +3132,53 @@ __kernel void testzClzU(__global uint32b* results1,
 #define ZINVUL_TEST_POPCOUNT(popcount1, popcount2, popcount3, popcount4, results1, results2, results3, results4) \
   const uint32b index = zGetGlobalIdX(); \
   if (index == 0) { \
-    for (int i = 0; i < 32; ++i) { \
+    { \
       int x = 0; \
-      for (int j = 0; j < i; ++j) \
-        x = (x << 1) | 1; \
-      results1[i] = popcount1(x); \
+      for (int i = 0; i < 32; ++i) { \
+        x = 0; \
+        for (int j = 0; j < i; ++j) \
+          x = (x << 1) | 1; \
+        results1[i] = popcount1(x); \
+      } \
     } \
-    for (int i = 0; i < 32; ++i) { \
+    { \
       int2 x = zMakeInt2(0, 0); \
-      for (int j = 0; j < i; ++j) \
-        x = (x << 1) | 1; \
-      x.y = x.y / 2; \
-      results2[i] = popcount2(x); \
+      for (int i = 0; i < 32; ++i) { \
+        x.x = 0; \
+        x.y = 0; \
+        for (int j = 0; j < i; ++j) \
+          x = (x << 1) | 1; \
+        x.y = x.y / 2; \
+        results2[i] = popcount2(x); \
+      } \
     } \
-    for (int i = 0; i < 32; ++i) { \
+    { \
       int3 x = zMakeInt3(0, 0, 0); \
-      for (int j = 0; j < i; ++j) \
-        x = (x << 1) | 1; \
-      x.y = x.y / 2; \
-      x.z = x.z / 3; \
-      results3[i] = popcount3(x); \
+      for (int i = 0; i < 32; ++i) { \
+        x.x = 0; \
+        x.y = 0; \
+        x.z = 0; \
+        for (int j = 0; j < i; ++j) \
+          x = (x << 1) | 1; \
+        x.y = x.y / 2; \
+        x.z = x.z / 3; \
+        results3[i] = popcount3(x); \
+      } \
     } \
-    for (int i = 0; i < 32; ++i) { \
+    { \
       int4 x = zMakeInt4(0, 0, 0, 0); \
-      for (int j = 0; j < i; ++j) \
-        x = (x << 1) | 1; \
-      x.y = x.y / 2; \
-      x.z = x.z / 3; \
-      x.w = x.w / 5; \
-      results4[i] = popcount4(x); \
+      for (int i = 0; i < 32; ++i) { \
+        x.x = 0; \
+        x.y = 0; \
+        x.z = 0; \
+        x.w = 0; \
+        for (int j = 0; j < i; ++j) \
+          x = (x << 1) | 1; \
+        x.y = x.y / 2; \
+        x.z = x.z / 3; \
+        x.w = x.w / 5; \
+        results4[i] = popcount4(x); \
+      } \
     } \
   }
 
@@ -3164,35 +3218,53 @@ __kernel void testzPopcount(__global int32b* results1,
 #define ZINVUL_TEST_POPCOUNTU(popcount1, popcount2, popcount3, popcount4, results1, results2, results3, results4) \
   const uint32b index = zGetGlobalIdX(); \
   if (index == 0) { \
-    for (uint i = 0u; i < 32u; ++i) { \
+    { \
       uint x = 0u; \
-      for (uint j = 0u; j < i; ++j) \
-        x = (x << 1u) | 1u; \
-      results1[i] = popcount1(x); \
+      for (uint i = 0u; i < 32u; ++i) { \
+        x = 0u; \
+        for (uint j = 0u; j < i; ++j) \
+          x = (x << 1u) | 1u; \
+        results1[i] = popcount1(x); \
+      } \
     } \
-    for (uint i = 0u; i < 32u; ++i) { \
+    { \
       uint2 x = zMakeUInt2(0u, 0u); \
-      for (uint j = 0u; j < i; ++j) \
-        x = (x << 1u) | 1u; \
-      x.y = x.y / 2u; \
-      results2[i] = popcount2(x); \
+      for (uint i = 0u; i < 32u; ++i) { \
+        x.x = 0u; \
+        x.y = 0u; \
+        for (uint j = 0u; j < i; ++j) \
+          x = (x << 1u) | 1u; \
+        x.y = x.y / 2u; \
+        results2[i] = popcount2(x); \
+      } \
     } \
-    for (uint i = 0u; i < 32u; ++i) { \
+    { \
       uint3 x = zMakeUInt3(0u, 0u, 0u); \
-      for (uint j = 0u; j < i; ++j) \
-        x = (x << 1u) | 1u; \
-      x.y = x.y / 2u; \
-      x.z = x.z / 3u; \
-      results3[i] = popcount3(x); \
+      for (uint i = 0u; i < 32u; ++i) { \
+        x.x = 0u; \
+        x.y = 0u; \
+        x.z = 0u; \
+        for (uint j = 0u; j < i; ++j) \
+          x = (x << 1u) | 1u; \
+        x.y = x.y / 2u; \
+        x.z = x.z / 3u; \
+        results3[i] = popcount3(x); \
+      } \
     } \
-    for (uint i = 0u; i < 32u; ++i) { \
+    { \
       uint4 x = zMakeUInt4(0u, 0u, 0u, 0u); \
-      for (uint j = 0u; j < i; ++j) \
-        x = (x << 1u) | 1u; \
-      x.y = x.y / 2u; \
-      x.z = x.z / 3u; \
-      x.w = x.w / 5u; \
-      results4[i] = popcount4(x); \
+      for (uint i = 0u; i < 32u; ++i) { \
+        x.x = 0u; \
+        x.y = 0u; \
+        x.z = 0u; \
+        x.w = 0u; \
+        for (uint j = 0u; j < i; ++j) \
+          x = (x << 1u) | 1u; \
+        x.y = x.y / 2u; \
+        x.z = x.z / 3u; \
+        x.w = x.w / 5u; \
+        results4[i] = popcount4(x); \
+      } \
     } \
   }
 
@@ -3361,11 +3433,15 @@ __kernel void testzDot(__global float* results1,
     } \
   }
 
+#if !defined(Z_MAC)
+
 __kernel void testCross(__global float3* results3,
     __global float4* results4)
 {
   ZINVUL_TEST_CROSS(cross, cross, results3, results4);
 }
+
+#endif // Z_MAC
 
 __kernel void testzCrossImpl(__global float3* results3,
     __global float4* results4)

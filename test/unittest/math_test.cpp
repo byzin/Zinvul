@@ -13164,9 +13164,13 @@ TEST(MathTest, CrossTest)
     auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
     results4->setSize(n4);
 
+#if defined(Z_MAC)
+    FAIL();
+#else // Z_MAC
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testCross, 1);
     kernel->run(*results3, *results4, {resolution}, 0);
     device->waitForCompletion();
+#endif // Z_MAC
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
 
