@@ -32,6 +32,23 @@ __kernel void experiment(__global float* buffer1,
   }
 }
 
+uint32b increment(const uint32b value)
+{
+  return value + 1u;
+}
+
+/*!
+  */
+//__kernel void experiment(global uint32b* results, global int32b* table, const uint32b resolution)
+//{
+//  const uint32b index = zGetGlobalIdX();
+//  if (index < resolution) {
+//    uint32b i = 0;
+//    zAtomicExpressionU(results, increment, i);
+//    table[i] = 1;
+//  }
+//}
+
 /*!
   CMJ 1d
   */

@@ -79,4 +79,52 @@
 //! Atomically compute (old ^ value)
 #define zAtomicXorU(p, value) atomic_xor(p, value)
 
+#if defined(Z_MAC) && defined(ZINVUL_VULKAN)
+
+//! Atomically do an expression
+#define zAtomicExpression(p, expression, old) \
+  { \
+    old = p[0]; \
+    const int32b c = old; \
+    const int32b v = expression(c); \
+    old = zAtomicCmpxchg(p, c, v); \
+  }
+
+//! Atomically do an expression
+#define zAtomicExpressionU(p, expression, old) \
+  { \
+    old = p[0]; \
+    const uint32b c = old; \
+    const uint32b v = expression(c); \
+    old = zAtomicCmpxchgU(p, c, v); \
+  }
+
+#else
+
+//! Atomically do an expression
+#define zAtomicExpression(p, expression, old) \
+  { \
+    old = p[0]; \
+    int32b c = 0u; \
+    do { \
+      c = old; \
+      const int32b v = expression(c); \
+      old = zAtomicCmpxchg(p, c, v); \
+    } while (old != c); \
+  }
+
+//! Atomically do an expression
+#define zAtomicExpressionU(p, expression, old) \
+  { \
+    old = p[0]; \
+    uint32b c = 0u; \
+    do { \
+      c = old; \
+      const uint32b v = expression(c); \
+      old = zAtomicCmpxchgU(p, c, v); \
+    } while (old != c); \
+  }
+
+#endif
+
 #endif /* ZINVUL_ATOMIC_CL */

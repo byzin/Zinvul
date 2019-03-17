@@ -9,6 +9,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <vector>
 // GoogleTest
 #include "gtest/gtest.h"
 // Vulkan
@@ -88,62 +89,114 @@ TEST(ZinvulTest, VulkanDeviceTest)
 }
 #endif // ZINVUL_ENABLE_VULKAN_BACKEND
 
+TEST(Experiment, ZinvulTest)
+{
+  using zisc::cast;
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1u;
+
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    results1->setSize(1);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    results2->setSize(1);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    results3->setSize(1);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    results4->setSize(1);
+
+    auto kernel = zinvul::makeZinvulKernel(device.get(), experiment, experiment, 1);
+    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    device->waitForCompletion();
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    const char* error_message = "The '' func is failed.";
+    // Scalar
+    {
+      std::vector<float> results;
+      results.resize(1);
+      results1->read(results.data(), results.size(), 0, 0);
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(1);
+      results2->read(results.data(), results.size(), 0, 0);
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(1);
+      results3->read(results.data(), results.size(), 0, 0);
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(1);
+      results4->read(results.data(), results.size(), 0, 0);
+    }
+
+    std::cout << std::endl;
+  }
+}
+
 //TEST(Experiment, ZinvulTest)
 //{
-//  using zisc::cast;
 //  using namespace zinvul;
+//
+//  constexpr uint resolution = 10000;
+//
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
 //  for (std::size_t number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr uint32b resolution = 1u;
+//    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+//    result_buff->setSize(1);
+//    {
+//      const uint32b init = 0;
+//      result_buff->write(&init, 1, 0, 0);
+//    }
+//    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+//    table_buff->setSize(resolution);
+//    {
+//      std::vector<int32b> init;
+//      init.resize(resolution);
+//      std::fill(init.begin(), init.end(), 0);
+//      table_buff->write(init.data(), init.size(), 0, 0);
+//    }
+//    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+//    res_buff->setSize(1);
+//    res_buff->write(&resolution, res_buff->size(), 0, 0);
 //
-//    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-//    results1->setSize(1);
-//    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-//    results2->setSize(1);
-//    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
-//    results3->setSize(1);
-//    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-//    results4->setSize(1);
-//
-//    auto kernel = zinvul::makeZinvulKernel(device.get(), experiment, experiment, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+//    auto kernel = makeZinvulKernel(device.get(), experiment, experiment, 1);
+//    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
 //    device->waitForCompletion();
 //
+//    // atomic_cmpxchg
+//    {
+//      std::vector<int32b> table;
+//      table.resize(resolution);
+//      table_buff->read(table.data(), table.size(), 0, 0);
+//      for (std::size_t i = 0; i < table.size(); ++i)
+//        EXPECT_TRUE(table[i]) << "The 'atomic_cmpxchg[" << i << "]' is wrong.";
+//
+//      uint32b result;
+//      result_buff->read(&result, 1, 0, 0);
+//      const uint32b expected = resolution;
+//      EXPECT_EQ(expected, result) << "The 'atomic_cmpxchg' is wrong.";
+//    }
+//
 //    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//
-//    const char* error_message = "The '' func is failed.";
-//    // Scalar
-//    {
-//      std::vector<float> results;
-//      results.resize(1);
-//      results1->read(results.data(), results.size(), 0, 0);
-//    }
-//
-//    // Vector2
-//    {
-//      std::vector<cl::float2> results;
-//      results.resize(1);
-//      results2->read(results.data(), results.size(), 0, 0);
-//    }
-//
-//    // Vector3
-//    {
-//      std::vector<cl::float3> results;
-//      results.resize(1);
-//      results3->read(results.data(), results.size(), 0, 0);
-//    }
-//
-//    // Vector4
-//    {
-//      std::vector<cl::float4> results;
-//      results.resize(1);
-//      results4->read(results.data(), results.size(), 0, 0);
-//    }
-//
-//    std::cout << std::endl;
 //  }
 //}

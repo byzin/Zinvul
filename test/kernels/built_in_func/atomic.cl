@@ -499,22 +499,21 @@ kernel void testAtomicCmpxchgUint(global uint32b* result, global int32b* table, 
   }
 }
 
+#define ZINVUL_TEST_INCREMENT(value) (value + 1)
+
 /*!
   */
 kernel void testzAtomicCmpxchgPositive(global int32b* result, global int32b* table, const uint32b resolution)
 {
   const uint32b index = zGetGlobalIdX();
   if (index < resolution) {
-    int32b i = *result;
-    int32b c = 0;
-    do {
-      c = i;
-      const int32b v = c + 1;
-      i = zAtomicCmpxchg(result, c, v);
-    } while (i != c);
+    int32b i = 0;
+    zAtomicExpression(result, ZINVUL_TEST_INCREMENT, i);
     table[i] = 1;
   }
 }
+
+#define ZINVUL_TEST_DECREMENT(value) (value - 1)
 
 /*!
   */
@@ -522,13 +521,8 @@ kernel void testzAtomicCmpxchgNegative(global int32b* result, global int32b* tab
 {
   const uint32b index = zGetGlobalIdX();
   if (index < resolution) {
-    int32b i = *result;
-    int32b c = 0;
-    do {
-      c = i;
-      const int32b v = c - 1;
-      i = zAtomicCmpxchg(result, c, v);
-    } while (i != c);
+    int32b i = 0;
+    zAtomicExpression(result, ZINVUL_TEST_DECREMENT, i);
     table[-i] = 1;
   }
 }
@@ -539,13 +533,8 @@ kernel void testzAtomicCmpxchgUint(global uint32b* result, global int32b* table,
 {
   const uint32b index = zGetGlobalIdX();
   if (index < resolution) {
-    uint32b i = *result;
-    uint32b c = 0;
-    do {
-      c = i;
-      const uint32b v = c + 1;
-      i = zAtomicCmpxchgU(result, c, v);
-    } while (i != c);
+    uint32b i = 0;
+    zAtomicExpressionU(result, ZINVUL_TEST_INCREMENT, i);
     table[i] = 1;
   }
 }
