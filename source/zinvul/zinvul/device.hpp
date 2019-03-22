@@ -39,7 +39,6 @@ struct DeviceOptions
   uint32b app_version_patch_ = 0;
   // CPU options
   uint32b cpu_num_of_threads_ = 0; //!< 0: Optimal number of threads
-  uint32b cpu_subgroup_size_ = 16;
   // Vulkan options
   uint32b vulkan_device_number_ = 0;
 };

@@ -21,12 +21,11 @@
 // Test
 #include "test.hpp"
 
-TEST(BuiltInFuncTest, WorkSize1dTest)
+TEST(BuiltInFuncTest, WorkItem1DTest)
 {
   using namespace zinvul;
 
-  constexpr uint resolution = 500;
-  constexpr uint num_of_funcs = 8;
+  constexpr uint resolution = 1024;
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
@@ -35,44 +34,54 @@ TEST(BuiltInFuncTest, WorkSize1dTest)
     std::cout << getTestDeviceInfo(*device);
 
     auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    buffer1->setSize(num_of_funcs * resolution);
-    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    buffer2->setSize(1);
-    buffer2->write(&resolution, buffer2->size(), 0, 0);
+    buffer1->setSize(9);
+    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    buffer2->setSize(resolution);
+    {
+      std::vector<uint32b> work_item_table;
+      work_item_table.resize(buffer2->size(), 0u);
+      buffer2->write(work_item_table.data(), work_item_table.size(), 0, 0);
+    }
+    auto buffer3 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    buffer3->setSize(1);
+    buffer3->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, test1dWorkSize, 1);
-    kernel->run(*buffer1, *buffer2, {resolution}, 0);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testWorkItem1D, 1);
+    kernel->run(*buffer1, *buffer2, *buffer3, {resolution}, 0);
     device->waitForCompletion();
 
-    std::array<uint32b, num_of_funcs * resolution> result;
-    buffer1->read(result.data(), result.size(), 0, 0);
+    {
+      std::vector<uint32b> results;
+      results.resize(9, 0u);
+      buffer1->read(results.data(), results.size(), 0, 0);
+      std::cout << "  group size[0]: " << results[0] << std::endl;
+      std::cout << "  group size[1]: " << results[1] << std::endl;
+      std::cout << "  group size[2]: " << results[2] << std::endl;
+      std::cout << "  local size[0]: " << results[3] << std::endl;
+      std::cout << "  local size[1]: " << results[4] << std::endl;
+      std::cout << "  local size[2]: " << results[5] << std::endl;
+      std::cout << "  global size[0]: " << results[6] << std::endl;
+      std::cout << "  global size[1]: " << results[7] << std::endl;
+      std::cout << "  global size[2]: " << results[8] << std::endl;
+    }
 
     {
-      const std::size_t expected = device->subgroupSize();
-      const std::size_t subgroup_x = result[5];
-      std::cout << "  Device LocalSize[x]: " << result[5] << std::endl;
-      ASSERT_EQ(expected, subgroup_x)
-          << "The subgroup sizes are different on between host and device.";
-    }
-    for (std::size_t index = 0; index < resolution; ++index) {
-      ASSERT_EQ(index, result[index * num_of_funcs])
-          << "[" << index << "]: "
-          << "The 'getGlobalIdX()' func doesn't work.";
-      ASSERT_EQ(resolution, result[index * num_of_funcs + 7])
-          << "[" << index << "]: "
-          << "The resolution is wrong.";
+      std::vector<uint32b> results;
+      results.resize(buffer2->size(), 0u);
+      buffer2->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i)
+        ASSERT_TRUE(results[i]);
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
 
-TEST(BuiltInFuncTest, WorkSize2dTest)
+TEST(BuiltInFuncTest, WorkItem2DTest)
 {
   using namespace zinvul;
 
-  const cl::uint2 resolution{500, 500};
-  constexpr uint num_of_funcs = 16;
+  const cl::uint2 resolution{32, 32};
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
@@ -81,44 +90,137 @@ TEST(BuiltInFuncTest, WorkSize2dTest)
     std::cout << getTestDeviceInfo(*device);
 
     auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    buffer1->setSize(num_of_funcs * resolution.x * resolution.y);
-    auto buffer2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceDst);
-    buffer2->setSize(1);
-    buffer2->write(&resolution, buffer2->size(), 0, 0);
+    buffer1->setSize(9);
+    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    buffer2->setSize(resolution.x * resolution.y);
+    {
+      std::vector<uint32b> work_item_table;
+      work_item_table.resize(buffer2->size(), 0u);
+      buffer2->write(work_item_table.data(), work_item_table.size(), 0, 0);
+    }
+    auto buffer3 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceDst);
+    buffer3->setSize(1);
+    {
+      buffer3->write(&resolution, 1, 0, 0);
+    }
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, test2dWorkSize, 2);
-    kernel->run(*buffer1, *buffer2, {resolution.x, resolution.y}, 0);
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testWorkItem2D, 2);
+    kernel->run(*buffer1, *buffer2, *buffer3, {resolution.x, resolution.y}, 0);
     device->waitForCompletion();
 
-    std::vector<uint32b> result;
-    result.resize(num_of_funcs * resolution.x * resolution.y);
-    buffer1->read(result.data(), result.size(), 0, 0);
+    {
+      std::vector<uint32b> results;
+      results.resize(9, 0u);
+      buffer1->read(results.data(), results.size(), 0, 0);
+      std::cout << "  group size[0]: " << results[0] << std::endl;
+      std::cout << "  group size[1]: " << results[1] << std::endl;
+      std::cout << "  group size[2]: " << results[2] << std::endl;
+      std::cout << "  local size[0]: " << results[3] << std::endl;
+      std::cout << "  local size[1]: " << results[4] << std::endl;
+      std::cout << "  local size[2]: " << results[5] << std::endl;
+      std::cout << "  global size[0]: " << results[6] << std::endl;
+      std::cout << "  global size[1]: " << results[7] << std::endl;
+      std::cout << "  global size[2]: " << results[8] << std::endl;
+    }
 
     {
-      const std::size_t expected = device->subgroupSize();
-      const std::size_t subgroup_x = result[10];
-      const std::size_t subgroup_y = result[11];
-      std::cout << "  Device LocalSize[x]: " << subgroup_x << std::endl;
-      std::cout << "  Device LocalSize[y]: " << subgroup_y << std::endl;
-      ASSERT_EQ(expected, subgroup_x * subgroup_y)
-          << "The subgroup sizes are different on between host and device.";
+      std::vector<uint32b> results;
+      results.resize(buffer2->size(), 0u);
+      buffer2->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i)
+        ASSERT_TRUE(results[i]);
     }
-    for (std::size_t y = 0; y < resolution.y; ++y) {
-      for (std::size_t x = 0; x < resolution.x; ++x) {
-        const std::size_t index = x + y * resolution.x;
-        ASSERT_EQ(x, result[index * num_of_funcs + 0])
-            << "[" << x << "," << y << "]: "
-            << "The 'getGlobalIdX()' func doesn't work.";
-        ASSERT_EQ(y, result[index * num_of_funcs + 1])
-            << "[" << x << "," << y << "]: "
-            << "The 'getGlobalIdY()' func doesn't work.";
-        ASSERT_EQ(resolution.x, result[index * num_of_funcs + 14])
-            << "[" << x << "," << y << "]: "
-            << "The resolution.x is wrong.";
-        ASSERT_EQ(resolution.y, result[index * num_of_funcs + 15])
-            << "[" << x << "," << y << "]: "
-            << "The resolution.y is wrong.";
-      }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, WorkItem3DTest)
+{
+  using namespace zinvul;
+
+  const cl::uint3 resolution{16, 8, 8};
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    buffer1->setSize(9);
+    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    buffer2->setSize(resolution.x * resolution.y * resolution.z);
+    {
+      std::vector<uint32b> work_item_table;
+      work_item_table.resize(buffer2->size(), 0u);
+      buffer2->write(work_item_table.data(), work_item_table.size(), 0, 0);
+    }
+    auto buffer3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceDst);
+    buffer3->setSize(1);
+    {
+      buffer3->write(&resolution, 1, 0, 0);
+    }
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testWorkItem3D, 3);
+    kernel->run(*buffer1, *buffer2, *buffer3, {resolution.x, resolution.y, resolution.z}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<uint32b> results;
+      results.resize(9, 0u);
+      buffer1->read(results.data(), results.size(), 0, 0);
+      std::cout << "  group size[0]: " << results[0] << std::endl;
+      std::cout << "  group size[1]: " << results[1] << std::endl;
+      std::cout << "  group size[2]: " << results[2] << std::endl;
+      std::cout << "  local size[0]: " << results[3] << std::endl;
+      std::cout << "  local size[1]: " << results[4] << std::endl;
+      std::cout << "  local size[2]: " << results[5] << std::endl;
+      std::cout << "  global size[0]: " << results[6] << std::endl;
+      std::cout << "  global size[1]: " << results[7] << std::endl;
+      std::cout << "  global size[2]: " << results[8] << std::endl;
+    }
+
+    {
+      std::vector<uint32b> results;
+      results.resize(buffer2->size(), 0u);
+      buffer2->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i)
+        ASSERT_TRUE(results[i]);
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, LocalDataShareTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 1024;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    buffer1->setSize(resolution);
+    auto resolution_buf = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    resolution_buf->setSize(1);
+    resolution_buf->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testLocalDataShare, 1);
+    kernel->run(*buffer1, *resolution_buf, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<uint32b> results;
+      results.resize(buffer1->size(), 0u);
+      buffer1->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i)
+        ASSERT_EQ(64, results[i]);
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;

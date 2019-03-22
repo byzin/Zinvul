@@ -75,6 +75,9 @@
 !/test/unittest/
 !/test/unittest/*.hpp
 !/test/unittest/*.cpp
+!/test/scripts/
+!/test/scripts/*.sh
+!/test/scripts/*.cmd
 
 # Build directories
 !/build/

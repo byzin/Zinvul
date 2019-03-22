@@ -33,6 +33,38 @@
 
 /*!
   */
+uint32b zGetGlobalSize(const uint32b dimension)
+{
+  const uint32b size = get_global_size(dimension);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetGlobalSizeX()
+{
+  const uint32b size = zGetGlobalSize(0);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetGlobalSizeY()
+{
+  const uint32b size = zGetGlobalSize(1);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetGlobalSizeZ()
+{
+  const uint32b size = zGetGlobalSize(2);
+  return size;
+}
+
+/*!
+  */
 uint32b zGetGlobalId(const uint32b dimension)
 {
   const uint32b id = get_global_id(dimension);
@@ -43,7 +75,7 @@ uint32b zGetGlobalId(const uint32b dimension)
   */
 uint32b zGetGlobalIdX()
 {
-  const uint32b id = get_global_id(0);
+  const uint32b id = zGetGlobalId(0);
   return id;
 }
 
@@ -51,7 +83,7 @@ uint32b zGetGlobalIdX()
   */
 uint32b zGetGlobalIdY()
 {
-  const uint32b id = get_global_id(1);
+  const uint32b id = zGetGlobalId(1);
   return id;
 }
 
@@ -59,7 +91,135 @@ uint32b zGetGlobalIdY()
   */
 uint32b zGetGlobalIdZ()
 {
-  const uint32b id = get_global_id(2);
+  const uint32b id = zGetGlobalId(2);
+  return id;
+}
+
+/*!
+  */
+uint32b zGetLocalSize(const uint32b dimension)
+{
+  const uint32b size = get_local_size(dimension);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetLocalSizeX()
+{
+  const uint32b size = zGetLocalSize(0);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetLocalSizeY()
+{
+  const uint32b size = zGetLocalSize(1);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetLocalSizeZ()
+{
+  const uint32b size = zGetLocalSize(2);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetLocalId(const uint32b dimension)
+{
+  const uint32b id = get_local_id(dimension);
+  return id;
+}
+
+/*!
+  */
+uint32b zGetLocalIdX()
+{
+  const uint32b id = zGetLocalId(0);
+  return id;
+}
+
+/*!
+  */
+uint32b zGetLocalIdY()
+{
+  const uint32b id = zGetLocalId(1);
+  return id;
+}
+
+/*!
+  */
+uint32b zGetLocalIdZ()
+{
+  const uint32b id = zGetLocalId(2);
+  return id;
+}
+
+/*!
+  */
+uint32b zGetNumGroups(const uint32b dimension)
+{
+  const uint32b size = get_num_groups(dimension);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetNumGroupsX()
+{
+  const uint32b size = zGetNumGroups(0);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetNumGroupsY()
+{
+  const uint32b size = zGetNumGroups(1);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetNumGroupsZ()
+{
+  const uint32b size = zGetNumGroups(2);
+  return size;
+}
+
+/*!
+  */
+uint32b zGetGroupId(const uint32b dimension)
+{
+  const uint32b id = get_group_id(dimension);
+  return id;
+}
+
+/*!
+  */
+uint32b zGetGroupIdX()
+{
+  const uint32b id = zGetGroupId(0);
+  return id;
+}
+
+/*!
+  */
+uint32b zGetGroupIdY()
+{
+  const uint32b id = zGetGroupId(1);
+  return id;
+}
+
+/*!
+  */
+uint32b zGetGroupIdZ()
+{
+  const uint32b id = zGetGroupId(2);
   return id;
 }
 

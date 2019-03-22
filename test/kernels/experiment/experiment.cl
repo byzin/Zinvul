@@ -32,10 +32,27 @@ __kernel void experiment(__global float* buffer1,
   }
 }
 
-uint32b increment(const uint32b value)
-{
-  return value + 1u;
-}
+/*!
+  */
+//__kernel void experiment(__global float* buffer1,
+//    __global float2* buffer2,
+//    __global float3* buffer3,
+//    __global float4* buffer4)
+//{
+//  const uint32b index = zGetGlobalIdX();
+//  const uint32b id = zGetLocalIdX();
+//  local float data[64];
+//  if (index == 0) {
+//    float x = buffer1[index];
+//    data[id] = 2.0f * x;
+//    buffer1[index] = data[id];
+//  }
+//}
+
+//uint32b increment(const uint32b value)
+//{
+//  return value + 1u;
+//}
 
 /*!
   */

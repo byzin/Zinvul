@@ -39,7 +39,7 @@ CpuDevice::CpuDevice(DeviceOptions& options) noexcept :
     Device(options),
     thread_manager_{options.cpu_num_of_threads_, memoryResource()}
 {
-  initWorkgroupSize(options.cpu_subgroup_size_);
+  initWorkgroupSize(1);
   ZISC_ASSERT(0 < subgroupSize(), "The subgroup size is zero.");
 }
 
@@ -118,20 +118,15 @@ void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
   std::atomic<uint32b> id{0};
   auto task = [this, &command, &works, &id](const uint, const uint)
   {
-    uint32b n = std::accumulate(works.begin(), works.end(),
-                                1u, std::multiplies<uint32b>());
-    n = (n % subgroupSize() == 0) ? n / subgroupSize() : n / subgroupSize() + 1;
+    const uint32b n = std::accumulate(works.begin(), works.end(),
+                                      1u, std::multiplies<uint32b>());
 
     GroupType instance;
     instance.__setMutex(&mutex_);
-    instance.__setLocalWorkSize(workgroupSize<kDimension>());
     instance.__setWorkGroupSize(calcWorkGroupSize(works));
     for (uint32b group_id = id++; group_id < n; group_id = id++) {
       instance.__setWorkGroupId(group_id);
-      for (uint32b local_id = 0; local_id < subgroupSize(); ++local_id) {
-        instance.__setLocalWorkId(local_id);
-        command(instance);
-      }
+      command(instance);
     }
   };
 

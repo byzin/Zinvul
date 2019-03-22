@@ -36,26 +36,6 @@ KernelGroup::~KernelGroup() noexcept
 /*!
   */
 inline
-void KernelGroup::__setLocalWorkId(const uint32b id) noexcept
-{
-  local_work_id_[0] = id % local_work_size_[0];
-  local_work_id_[1] = (id / local_work_size_[0]) % local_work_size_[1];
-  local_work_id_[2] = id / (local_work_size_[0] * local_work_size_[1]);
-  ZISC_ASSERT(local_work_id_[2] < local_work_size_[2],
-              "The local ID is invalid: ID=", id);
-}
-
-/*!
-  */
-inline
-void KernelGroup::__setLocalWorkSize(const std::array<uint32b, 3>& size) noexcept
-{
-  local_work_size_ = size;
-}
-
-/*!
-  */
-inline
 void KernelGroup::__setMutex(zisc::SpinLockMutex* mutex) noexcept
 {
   mutex_ = mutex;
@@ -88,8 +68,7 @@ void KernelGroup::__setWorkGroupSize(const std::array<uint32b, 3>& size) noexcep
 inline
 cl::size_t KernelGroup::get_global_id(const uint32b dimension) const noexcept
 {
-  const auto id = get_group_id(dimension) * get_local_size(dimension) +
-                  get_local_id(dimension);
+  const auto id = get_group_id(dimension);
   return id;
 }
 
@@ -106,7 +85,7 @@ cl::size_t KernelGroup::get_global_offset(const uint32b /* dimension */) const n
 inline
 cl::size_t KernelGroup::get_global_size(const uint32b dimension) const noexcept
 {
-  return get_local_size(dimension) * get_num_groups(dimension);
+  return get_num_groups(dimension);
 }
 
 /*!
@@ -123,23 +102,17 @@ cl::size_t KernelGroup::get_group_id(const uint32b dimension) const noexcept
 /*!
   */
 inline
-cl::size_t KernelGroup::get_local_id(const uint32b dimension) const noexcept
+cl::size_t KernelGroup::get_local_id(const uint32b /* dimension */) const noexcept
 {
-  const cl::size_t id = zisc::isInBounds(dimension, 0u, get_work_dim())
-      ? local_work_id_[dimension]
-      : 0;
-  return id;
+  return 0;
 }
 
 /*!
   */
 inline
-cl::size_t KernelGroup::get_local_size(const uint32b dimension) const noexcept
+cl::size_t KernelGroup::get_local_size(const uint32b /* dimension */) const noexcept
 {
-  const cl::size_t size = zisc::isInBounds(dimension, 0u, get_work_dim())
-      ? local_work_size_[dimension]
-      : 1;
-  return size;
+  return 1;
 }
 
 /*!

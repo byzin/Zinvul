@@ -22,6 +22,7 @@ function(getTestWarningOption test_warning_flags)
     if(Z_CLANG)
       list(APPEND warning_flags -Wno-covered-switch-default
                                 -Wno-exit-time-destructors
+                                -Wno-extra-semi-stmt
                                 -Wno-float-equal
                                 -Wno-global-constructors
                                 -Wno-old-style-cast
