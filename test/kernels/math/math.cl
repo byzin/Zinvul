@@ -1936,34 +1936,42 @@ __kernel void testzMix(
       results1, results2, results3, results4);
 }
 
+int32b getClampInput(const size_t i)
+{
+  const int32b x_list[] = {0, 1, INT_MAX, -1, INT_MIN};
+  return x_list[i];
+}
+
 #define ZINVUL_TEST_CLAMP(clamp1, clamp2, clamp3, clamp4, results1, results2, results3, results4) \
   const uint32b index = zGetGlobalIdX(); \
   if (index == 0) { \
     size_t i = 0; \
-    const int32b x_list[] = {0, 1, INT_MAX, -1, INT_MIN}; \
     for (size_t j = 0; j < 5; ++j) { \
       const int32b minval = 0; \
       const int32b maxval = 0; \
-      results1[i++] = x_list[j]; \
+      const int32b x = getClampInput(j); \
+      results1[i++] = x; \
       results1[i++] = minval; \
       results1[i++] = maxval; \
-      results1[i++] = clamp1(x_list[j], minval, maxval); \
+      results1[i++] = clamp1(x, minval, maxval); \
     } \
     for (size_t j = 0; j < 5; ++j) { \
       const int32b minval = -1; \
       const int32b maxval = 1; \
-      results1[i++] = x_list[j]; \
+      const int32b x = getClampInput(j); \
+      results1[i++] = x; \
       results1[i++] = minval; \
       results1[i++] = maxval; \
-      results1[i++] = clamp1(x_list[j], minval, maxval); \
+      results1[i++] = clamp1(x, minval, maxval); \
     } \
     for (size_t j = 0; j < 5; ++j) { \
       const int32b minval = INT_MIN; \
       const int32b maxval = INT_MAX; \
-      results1[i++] = x_list[j]; \
+      const int32b x = getClampInput(j); \
+      results1[i++] = x; \
       results1[i++] = minval; \
       results1[i++] = maxval; \
-      results1[i++] = clamp1(x_list[j], minval, maxval); \
+      results1[i++] = clamp1(x, minval, maxval); \
     } \
     i = 0; \
     { \
@@ -2051,34 +2059,42 @@ __kernel void testzClamp(__global int32b* results1,
       results1, results2, results3, results4);
 }
 
+uint32b getClampUInput(const size_t i)
+{
+  const uint32b x_list[] = {0u, 1u, 2u, UINT_MAX};
+  return x_list[i];
+}
+
 #define ZINVUL_TEST_CLAMPU(clamp1, clamp2, clamp3, clamp4, results1, results2, results3, results4) \
   const uint32b index = zGetGlobalIdX(); \
   if (index == 0) { \
     size_t i = 0; \
-    const uint32b x_list[] = {0u, 1u, 2u, UINT_MAX}; \
     for (size_t j = 0; j < 4; ++j) { \
       const uint32b minval = 0u; \
       const uint32b maxval = 0u; \
-      results1[i++] = x_list[j]; \
+      const uint32b x = getClampUInput(j); \
+      results1[i++] = x; \
       results1[i++] = minval; \
       results1[i++] = maxval; \
-      results1[i++] = clamp1(x_list[j], minval, maxval); \
+      results1[i++] = clamp1(x, minval, maxval); \
     } \
     for (size_t j = 0; j < 4; ++j) { \
       const uint32b minval = 1u; \
       const uint32b maxval = 3u; \
-      results1[i++] = x_list[j]; \
+      const uint32b x = getClampUInput(j); \
+      results1[i++] = x; \
       results1[i++] = minval; \
       results1[i++] = maxval; \
-      results1[i++] = clamp1(x_list[j], minval, maxval); \
+      results1[i++] = clamp1(x, minval, maxval); \
     } \
     for (size_t j = 0; j < 4; ++j) { \
       const uint32b minval = 0u; \
       const uint32b maxval = UINT_MAX; \
-      results1[i++] = x_list[j]; \
+      const uint32b x = getClampUInput(j); \
+      results1[i++] = x; \
       results1[i++] = minval; \
       results1[i++] = maxval; \
-      results1[i++] = clamp1(x_list[j], minval, maxval); \
+      results1[i++] = clamp1(x, minval, maxval); \
     } \
     i = 0; \
     { \
@@ -2166,34 +2182,42 @@ __kernel void testzClampU(__global uint32b* results1,
       results1, results2, results3, results4);
 }
 
+float getClampFInput(const size_t i)
+{
+  const float x_list[] = {0.0f, 1.0f, FLT_MAX, -1.0f, -FLT_MAX, INFINITY, -INFINITY};
+  return x_list[i];
+}
+
 #define ZINVUL_TEST_CLAMPF(clamp1, clamp2f, clamp2, clamp3f, clamp3, clamp4f, clamp4, results1, results2, results3, results4) \
   const uint32b index = zGetGlobalIdX(); \
   if (index == 0) { \
     size_t i = 0; \
-    const float x_list[] = {0.0f, 1.0f, FLT_MAX, -1.0f, -FLT_MAX, INFINITY, -INFINITY}; \
     for (size_t j = 0; j < 7; ++j) { \
       const float minval = 0.0f; \
       const float maxval = 0.0f; \
-      results1[i++] = x_list[j]; \
+      const float x = getClampFInput(j); \
+      results1[i++] = x; \
       results1[i++] = minval; \
       results1[i++] = maxval; \
-      results1[i++] = clamp1(x_list[j], minval, maxval); \
+      results1[i++] = clamp1(x, minval, maxval); \
     } \
     for (size_t j = 0; j < 7; ++j) { \
       const float minval = -1.0f; \
       const float maxval = 1.0f; \
-      results1[i++] = x_list[j]; \
+      const float x = getClampFInput(j); \
+      results1[i++] = x; \
       results1[i++] = minval; \
       results1[i++] = maxval; \
-      results1[i++] = clamp1(x_list[j], minval, maxval); \
+      results1[i++] = clamp1(x, minval, maxval); \
     } \
     for (size_t j = 0; j < 7; ++j) { \
       const float minval = -INFINITY; \
       const float maxval = INFINITY; \
-      results1[i++] = x_list[j]; \
+      const float x = getClampFInput(j); \
+      results1[i++] = x; \
       results1[i++] = minval; \
       results1[i++] = maxval; \
-      results1[i++] = clamp1(x_list[j], minval, maxval); \
+      results1[i++] = clamp1(x, minval, maxval); \
     } \
     i = 0; \
     { \
@@ -2975,49 +2999,32 @@ kernel void testzRadian(global float* results1,
     { \
       int x = 0; \
       for (int i = 0; i < 32; ++i) { \
-        x = 0; \
-        for (int j = 0; j < i; ++j) \
-          x = (x << 1) | 1; \
         results1[i] = clz1(x); \
+        x = (x << 1) | 1; \
       } \
     } \
     { \
       int2 x = zMakeInt2(0, 0); \
       for (int i = 0; i < 32; ++i) { \
-        x.x = 0; \
-        x.y = 0; \
-        for (int j = 0; j < i; ++j) \
-          x = (x << 1) | 1; \
-        x.y = x.y / 2; \
-        results2[i] = clz2(x); \
+        const int2 y = x / zMakeInt2(1, 2); \
+        results2[i] = clz2(y); \
+        x = (x << 1) | 1; \
       } \
     } \
     { \
       int3 x = zMakeInt3(0, 0, 0); \
       for (int i = 0; i < 32; ++i) { \
-        x.x = 0; \
-        x.y = 0; \
-        x.z = 0; \
-        for (int j = 0; j < i; ++j) \
-          x = (x << 1) | 1; \
-        x.y = x.y / 2; \
-        x.z = x.z / 3; \
-        results3[i] = clz3(x); \
+        const int3 y = x / zMakeInt3(1, 2, 3); \
+        results3[i] = clz3(y); \
+        x = (x << 1) | 1; \
       } \
     } \
     { \
       int4 x = zMakeInt4(0, 0, 0, 0); \
       for (int i = 0; i < 32; ++i) { \
-        x.x = 0; \
-        x.y = 0; \
-        x.z = 0; \
-        x.w = 0; \
-        for (int j = 0; j < i; ++j) \
-          x = (x << 1) | 1; \
-        x.y = x.y / 2; \
-        x.z = x.z / 3; \
-        x.w = x.w / 5; \
-        results4[i] = clz4(x); \
+        const int4 y = x / zMakeInt4(1, 2, 3, 5); \
+        results4[i] = clz4(y); \
+        x = (x << 1) | 1; \
       } \
     } \
   }
@@ -3055,49 +3062,32 @@ __kernel void testzClz(__global int32b* results1,
     { \
       uint x = 0u; \
       for (uint i = 0u; i < 32u; ++i) { \
-        x = 0u; \
-        for (uint j = 0u; j < i; ++j) \
-          x = (x << 1u) | 1u; \
         results1[i] = clz1(x); \
+        x = (x << 1u) | 1u; \
       } \
     } \
     { \
       uint2 x = zMakeUInt2(0u, 0u); \
       for (uint i = 0u; i < 32u; ++i) { \
-        x.x = 0u; \
-        x.y = 0u; \
-        for (uint j = 0u; j < i; ++j) \
-          x = (x << 1u) | 1u; \
-        x.y = x.y / 2u; \
-        results2[i] = clz2(x); \
+        const uint2 y = x / zMakeUInt2(1u, 2u); \
+        results2[i] = clz2(y); \
+        x = (x << 1u) | 1u; \
       } \
     } \
     { \
       uint3 x = zMakeUInt3(0u, 0u, 0u); \
       for (uint i = 0u; i < 32u; ++i) { \
-        x.x = 0u; \
-        x.y = 0u; \
-        x.z = 0u; \
-        for (uint j = 0u; j < i; ++j) \
-          x = (x << 1u) | 1u; \
-        x.y = x.y / 2u; \
-        x.z = x.z / 3u; \
-        results3[i] = clz3(x); \
+        const uint3 y = x / zMakeUInt3(1u, 2u, 3u); \
+        results3[i] = clz3(y); \
+        x = (x << 1u) | 1u; \
       } \
     } \
     { \
       uint4 x = zMakeUInt4(0u, 0u, 0u, 0u); \
       for (uint i = 0u; i < 32u; ++i) { \
-        x.x = 0u; \
-        x.y = 0u; \
-        x.z = 0u; \
-        x.w = 0u; \
-        for (uint j = 0u; j < i; ++j) \
-          x = (x << 1u) | 1u; \
-        x.y = x.y / 2u; \
-        x.z = x.z / 3u; \
-        x.w = x.w / 5u; \
-        results4[i] = clz4(x); \
+        const uint4 y = x / zMakeUInt4(1u, 2u, 3u, 5u); \
+        results4[i] = clz4(y); \
+        x = (x << 1u) | 1u; \
       } \
     } \
   }
@@ -3135,49 +3125,32 @@ __kernel void testzClzU(__global uint32b* results1,
     { \
       int x = 0; \
       for (int i = 0; i < 32; ++i) { \
-        x = 0; \
-        for (int j = 0; j < i; ++j) \
-          x = (x << 1) | 1; \
         results1[i] = popcount1(x); \
+        x = (x << 1) | 1; \
       } \
     } \
     { \
       int2 x = zMakeInt2(0, 0); \
       for (int i = 0; i < 32; ++i) { \
-        x.x = 0; \
-        x.y = 0; \
-        for (int j = 0; j < i; ++j) \
-          x = (x << 1) | 1; \
-        x.y = x.y / 2; \
-        results2[i] = popcount2(x); \
+        const int2 y = x / zMakeInt2(1, 2); \
+        results2[i] = popcount2(y); \
+        x = (x << 1) | 1; \
       } \
     } \
     { \
       int3 x = zMakeInt3(0, 0, 0); \
       for (int i = 0; i < 32; ++i) { \
-        x.x = 0; \
-        x.y = 0; \
-        x.z = 0; \
-        for (int j = 0; j < i; ++j) \
-          x = (x << 1) | 1; \
-        x.y = x.y / 2; \
-        x.z = x.z / 3; \
-        results3[i] = popcount3(x); \
+        const int3 y = x / zMakeInt3(1, 2, 3); \
+        results3[i] = popcount3(y); \
+        x = (x << 1) | 1; \
       } \
     } \
     { \
       int4 x = zMakeInt4(0, 0, 0, 0); \
       for (int i = 0; i < 32; ++i) { \
-        x.x = 0; \
-        x.y = 0; \
-        x.z = 0; \
-        x.w = 0; \
-        for (int j = 0; j < i; ++j) \
-          x = (x << 1) | 1; \
-        x.y = x.y / 2; \
-        x.z = x.z / 3; \
-        x.w = x.w / 5; \
-        results4[i] = popcount4(x); \
+        const int4 y = x / zMakeInt4(1, 2, 3, 5); \
+        results4[i] = popcount4(y); \
+        x = (x << 1) | 1; \
       } \
     } \
   }
@@ -3221,49 +3194,32 @@ __kernel void testzPopcount(__global int32b* results1,
     { \
       uint x = 0u; \
       for (uint i = 0u; i < 32u; ++i) { \
-        x = 0u; \
-        for (uint j = 0u; j < i; ++j) \
-          x = (x << 1u) | 1u; \
         results1[i] = popcount1(x); \
+        x = (x << 1u) | 1u; \
       } \
     } \
     { \
       uint2 x = zMakeUInt2(0u, 0u); \
       for (uint i = 0u; i < 32u; ++i) { \
-        x.x = 0u; \
-        x.y = 0u; \
-        for (uint j = 0u; j < i; ++j) \
-          x = (x << 1u) | 1u; \
-        x.y = x.y / 2u; \
-        results2[i] = popcount2(x); \
+        const uint2 y = x / zMakeUInt2(1u, 2u); \
+        results2[i] = popcount2(y); \
+        x = (x << 1u) | 1u; \
       } \
     } \
     { \
       uint3 x = zMakeUInt3(0u, 0u, 0u); \
       for (uint i = 0u; i < 32u; ++i) { \
-        x.x = 0u; \
-        x.y = 0u; \
-        x.z = 0u; \
-        for (uint j = 0u; j < i; ++j) \
-          x = (x << 1u) | 1u; \
-        x.y = x.y / 2u; \
-        x.z = x.z / 3u; \
-        results3[i] = popcount3(x); \
+        const uint3 y = x / zMakeUInt3(1u, 2u, 3u); \
+        results3[i] = popcount3(y); \
+        x = (x << 1u) | 1u; \
       } \
     } \
     { \
       uint4 x = zMakeUInt4(0u, 0u, 0u, 0u); \
       for (uint i = 0u; i < 32u; ++i) { \
-        x.x = 0u; \
-        x.y = 0u; \
-        x.z = 0u; \
-        x.w = 0u; \
-        for (uint j = 0u; j < i; ++j) \
-          x = (x << 1u) | 1u; \
-        x.y = x.y / 2u; \
-        x.z = x.z / 3u; \
-        x.w = x.w / 5u; \
-        results4[i] = popcount4(x); \
+        const uint4 y = x / zMakeUInt4(1u, 2u, 3u, 5u); \
+        results4[i] = popcount4(y); \
+        x = (x << 1u) | 1u; \
       } \
     } \
   }
