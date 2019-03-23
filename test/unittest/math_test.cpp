@@ -41,9 +41,9 @@ TEST(MathTest, ConstantValueTest)
 
     constexpr std::size_t n_int = 16;
     constexpr std::size_t n_float = 44;
-    auto int_values = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto int_values = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     int_values->setSize(n_int);
-    auto float_values = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto float_values = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     float_values->setSize(n_float);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testConstantValues, 1);
@@ -204,13 +204,13 @@ TEST(MathTest, CeilTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(36);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(16);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(16);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testCeil, 1);
@@ -275,13 +275,13 @@ TEST(MathTest, zCeilImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(36);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(16);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(16);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzCeilImpl, 1);
@@ -346,13 +346,13 @@ TEST(MathTest, zCeilTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(36);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(16);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(16);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzCeil, 1);
@@ -417,13 +417,13 @@ TEST(MathTest, FloorTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testFloor, 1);
@@ -488,13 +488,13 @@ TEST(MathTest, zFloorImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzFloorImpl, 1);
@@ -559,13 +559,13 @@ TEST(MathTest, zFloorTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzFloor, 1);
@@ -630,13 +630,13 @@ TEST(MathTest, TruncTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testTrunc, 1);
@@ -701,13 +701,13 @@ TEST(MathTest, zTruncImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzTruncImpl, 1);
@@ -772,13 +772,13 @@ TEST(MathTest, zTruncTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzTrunc, 1);
@@ -843,13 +843,13 @@ TEST(MathTest, RoundTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testRound, 1);
@@ -914,13 +914,13 @@ TEST(MathTest, zRoundImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzRoundImpl, 1);
@@ -985,13 +985,13 @@ TEST(MathTest, zRoundTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzRound, 1);
@@ -1056,13 +1056,13 @@ TEST(MathTest, AbsTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(2);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(1);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(1);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), math, testAbs, 1);
@@ -1111,13 +1111,13 @@ TEST(MathTest, zAbsImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(2);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(1);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(1);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzAbsImpl, 1);
@@ -1166,13 +1166,13 @@ TEST(MathTest, zAbsTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(2);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(1);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(1);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzAbs, 1);
@@ -1221,13 +1221,13 @@ TEST(MathTest, AbsFTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(2);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(1);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(1);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), math, testAbsF, 1);
@@ -1276,13 +1276,13 @@ TEST(MathTest, zAbsFImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(2);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(1);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(1);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzAbsFImpl, 1);
@@ -1331,13 +1331,13 @@ TEST(MathTest, zAbsFTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(2);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(1);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(1);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzAbsF, 1);
@@ -1386,13 +1386,13 @@ TEST(MathTest, zIsAlmostSameTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(6);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(1);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(1);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzIsAlmostSame, 1);
@@ -1445,13 +1445,13 @@ TEST(MathTest, zIsOddTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(5);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(1);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(1);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzIsOdd, 1);
@@ -1503,13 +1503,13 @@ TEST(MathTest, zIsOddUTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(5);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(1);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(1);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(1);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzIsOddU, 1);
@@ -1560,13 +1560,13 @@ TEST(MathTest, MaxTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 30;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMax, 1);
@@ -1639,13 +1639,13 @@ TEST(MathTest, zMaxImplTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 30;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMaxImpl, 1);
@@ -1718,13 +1718,13 @@ TEST(MathTest, zMaxTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 30;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMax, 1);
@@ -1797,13 +1797,13 @@ TEST(MathTest, MaxUTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 18;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMaxU, 1);
@@ -1876,13 +1876,13 @@ TEST(MathTest, zMaxUImplTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 18;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMaxUImpl, 1);
@@ -1955,13 +1955,13 @@ TEST(MathTest, zMaxUTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 18;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMaxU, 1);
@@ -2034,13 +2034,13 @@ TEST(MathTest, MinTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 30;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMin, 1);
@@ -2113,13 +2113,13 @@ TEST(MathTest, zMinImplTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 30;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMinImpl, 1);
@@ -2192,13 +2192,13 @@ TEST(MathTest, zMinTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 30;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMin, 1);
@@ -2271,13 +2271,13 @@ TEST(MathTest, MinUTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 18;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMinU, 1);
@@ -2350,13 +2350,13 @@ TEST(MathTest, zMinUImplTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 18;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMinUImpl, 1);
@@ -2429,13 +2429,13 @@ TEST(MathTest, zMinUTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 18;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMinU, 1);
@@ -2508,13 +2508,13 @@ TEST(MathTest, MaxFTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 48;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMaxF, 1);
@@ -2587,13 +2587,13 @@ TEST(MathTest, zMaxFImplTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 48;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMaxFImpl, 1);
@@ -2666,13 +2666,13 @@ TEST(MathTest, zMaxFTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 48;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMaxF, 1);
@@ -2745,13 +2745,13 @@ TEST(MathTest, MinFTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 48;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMinF, 1);
@@ -2824,13 +2824,13 @@ TEST(MathTest, zMinFImplTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 48;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMinFImpl, 1);
@@ -2903,13 +2903,13 @@ TEST(MathTest, zMinFTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 48;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMinF, 1);
@@ -2981,13 +2981,13 @@ TEST(MathTest, MixTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result1->setSize(3);
-    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result2->setSize(6);
-    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result3->setSize(6);
-    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result4->setSize(6);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMix, 1);
@@ -3082,13 +3082,13 @@ TEST(MathTest, zMixImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result1->setSize(3);
-    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result2->setSize(6);
-    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result3->setSize(6);
-    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result4->setSize(6);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMixImpl, 1);
@@ -3183,13 +3183,13 @@ TEST(MathTest, zMixTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result1->setSize(3);
-    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result2->setSize(6);
-    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result3->setSize(6);
-    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto mix_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     mix_result4->setSize(6);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMix, 1);
@@ -3285,13 +3285,13 @@ TEST(MathTest, ClampTest)
     std::cout << getTestDeviceInfo(*device);
 
     const std::size_t n = 15 * 4;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(8);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(8);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(8);
 
     auto kernel = makeZinvulKernel(device.get(), math, testClamp, 1);
@@ -3368,13 +3368,13 @@ TEST(MathTest, zClampImplTest)
     std::cout << getTestDeviceInfo(*device);
 
     const std::size_t n = 15 * 4;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(8);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(8);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(8);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzClampImpl, 1);
@@ -3451,13 +3451,13 @@ TEST(MathTest, zClampTest)
     std::cout << getTestDeviceInfo(*device);
 
     const std::size_t n = 15 * 4;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(8);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(8);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(8);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzClamp, 1);
@@ -3534,13 +3534,13 @@ TEST(MathTest, ClampUTest)
     std::cout << getTestDeviceInfo(*device);
 
     const std::size_t n = 12 * 4;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(8);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(8);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(8);
 
     auto kernel = makeZinvulKernel(device.get(), math, testClampU, 1);
@@ -3617,13 +3617,13 @@ TEST(MathTest, zClampUImplTest)
     std::cout << getTestDeviceInfo(*device);
 
     const std::size_t n = 12 * 4;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(8);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(8);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(8);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzClampUImpl, 1);
@@ -3700,13 +3700,13 @@ TEST(MathTest, zClampUTest)
     std::cout << getTestDeviceInfo(*device);
 
     const std::size_t n = 12 * 4;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(8);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(8);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(8);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzClampU, 1);
@@ -3783,13 +3783,13 @@ TEST(MathTest, ClampFTest)
     std::cout << getTestDeviceInfo(*device);
 
     const std::size_t n = 21 * 4;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(16);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(16);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testClampF, 1);
@@ -3866,13 +3866,13 @@ TEST(MathTest, zClampFImplTest)
     std::cout << getTestDeviceInfo(*device);
 
     const std::size_t n = 21 * 4;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(16);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(16);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzClampFImpl, 1);
@@ -3949,13 +3949,13 @@ TEST(MathTest, zClampFTest)
     std::cout << getTestDeviceInfo(*device);
 
     const std::size_t n = 21 * 4;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(16);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(16);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzClampF, 1);
@@ -4031,13 +4031,13 @@ TEST(MathTest, ClzTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testClz, 1);
@@ -4112,13 +4112,13 @@ TEST(MathTest, zClzImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzClzImpl, 1);
@@ -4193,13 +4193,13 @@ TEST(MathTest, zClzTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzClz, 1);
@@ -4274,13 +4274,13 @@ TEST(MathTest, ClzUTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testClzU, 1);
@@ -4355,13 +4355,13 @@ TEST(MathTest, zClzUImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzClzUImpl, 1);
@@ -4436,13 +4436,13 @@ TEST(MathTest, zClzUTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzClzU, 1);
@@ -4517,13 +4517,13 @@ TEST(MathTest, PopcountTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testPopcount, 1);
@@ -4598,13 +4598,13 @@ TEST(MathTest, zPopcountImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzPopcountImpl, 1);
@@ -4679,13 +4679,13 @@ TEST(MathTest, zPopcountTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzPopcount, 1);
@@ -4760,13 +4760,13 @@ TEST(MathTest, PopcountUTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testPopcountU, 1);
@@ -4841,13 +4841,13 @@ TEST(MathTest, zPopcountUImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzPopcountUImpl, 1);
@@ -4922,13 +4922,13 @@ TEST(MathTest, zPopcountUTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(32);
-    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(32);
-    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(32);
-    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(32);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzPopcountU, 1);
@@ -5002,21 +5002,21 @@ TEST(MathTest, FractTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1i->setSize(18);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2i->setSize(8);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3i->setSize(8);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
-    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4i->setSize(8);
 
     auto kernel = makeZinvulKernel(device.get(), math, testFract, 1);
@@ -5100,21 +5100,21 @@ TEST(MathTest, zFractImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1i->setSize(18);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2i->setSize(8);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3i->setSize(8);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
-    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4i->setSize(8);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzFractImpl, 1);
@@ -5198,21 +5198,21 @@ TEST(MathTest, zFractTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1i = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1i->setSize(18);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2i = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2i->setSize(8);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3i = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3i->setSize(8);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
-    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4i = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4i->setSize(8);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzFract, 1);
@@ -5296,13 +5296,13 @@ TEST(MathTest, ModTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMod, 1);
@@ -5373,13 +5373,13 @@ TEST(MathTest, zModImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzModImpl, 1);
@@ -5450,13 +5450,13 @@ TEST(MathTest, zModTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result1->setSize(36);
-    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result2->setSize(16);
-    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     result3->setSize(16);
-    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     result4->setSize(16);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzMod, 1);
@@ -5527,13 +5527,13 @@ TEST(MathTest, RadianTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto radian_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result1->setSize(2);
-    auto radian_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result2->setSize(2);
-    auto radian_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result3->setSize(2);
-    auto radian_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result4->setSize(2);
 
     auto kernel = makeZinvulKernel(device.get(), math, testRadian, 1);
@@ -5593,13 +5593,13 @@ TEST(MathTest, zRadianImplTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto radian_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result1->setSize(2);
-    auto radian_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result2->setSize(2);
-    auto radian_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result3->setSize(2);
-    auto radian_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result4->setSize(2);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzRadianImpl, 1);
@@ -5659,13 +5659,13 @@ TEST(MathTest, zRadianTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto radian_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result1->setSize(2);
-    auto radian_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result2->setSize(2);
-    auto radian_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result3->setSize(2);
-    auto radian_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto radian_result4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     radian_result4->setSize(2);
 
     auto kernel = makeZinvulKernel(device.get(), math, testzRadian, 1);
@@ -5728,23 +5728,23 @@ TEST(MathTest, FrLdexpTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(3 * (resolution + 2));
-    auto results_exp1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp1->setSize(resolution + 2);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3 * resolution);
-    auto results_exp2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp2->setSize(resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3 * resolution);
-    auto results_exp3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp3->setSize(resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3 * resolution);
-    auto results_exp4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp4->setSize(resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -5875,23 +5875,23 @@ TEST(MathTest, zFrLdexpImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(3 * (resolution + 2));
-    auto results_exp1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp1->setSize(resolution + 2);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3 * resolution);
-    auto results_exp2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp2->setSize(resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3 * resolution);
-    auto results_exp3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp3->setSize(resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3 * resolution);
-    auto results_exp4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp4->setSize(resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -6022,23 +6022,23 @@ TEST(MathTest, zFrLdexpTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(3 * (resolution + 2));
-    auto results_exp1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp1->setSize(resolution + 2);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3 * resolution);
-    auto results_exp2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp2->setSize(resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3 * resolution);
-    auto results_exp3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp3->setSize(resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3 * resolution);
-    auto results_exp4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp4->setSize(resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -6170,23 +6170,23 @@ TEST(MathTest, zFrLdexpBiasedImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(3 * (resolution + 2));
-    auto results_exp1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp1->setSize(resolution + 2);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3 * resolution);
-    auto results_exp2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp2->setSize(resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3 * resolution);
-    auto results_exp3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp3->setSize(resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3 * resolution);
-    auto results_exp4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp4->setSize(resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -6322,23 +6322,23 @@ TEST(MathTest, zFrLdexpBiasedTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(3 * (resolution + 2));
-    auto results_exp1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp1->setSize(resolution + 2);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3 * resolution);
-    auto results_exp2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp2->setSize(resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3 * resolution);
-    auto results_exp3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp3->setSize(resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3 * resolution);
-    auto results_exp4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results_exp4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results_exp4->setSize(resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -6533,9 +6533,9 @@ TEST(MathTest, MakeNormalTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(4 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -6614,15 +6614,15 @@ TEST(MathTest, ExpTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 3));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -6756,15 +6756,15 @@ TEST(MathTest, zExpImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 3));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -6898,15 +6898,15 @@ TEST(MathTest, zExpTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 3));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -7040,15 +7040,15 @@ TEST(MathTest, LogTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -7182,15 +7182,15 @@ TEST(MathTest, zLogImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -7324,15 +7324,15 @@ TEST(MathTest, zLogTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -7466,15 +7466,15 @@ TEST(MathTest, Log2Test)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -7608,15 +7608,15 @@ TEST(MathTest, zLog2ImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -7750,15 +7750,15 @@ TEST(MathTest, zLog2Test)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -7892,15 +7892,15 @@ TEST(MathTest, PowTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(9 * (resolution + 3));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -8167,15 +8167,15 @@ TEST(MathTest, zPowImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(9 * (resolution + 3));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -8443,15 +8443,15 @@ TEST(MathTest, zPowTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(9 * (resolution + 3));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -8719,15 +8719,15 @@ TEST(MathTest, zPownTest)
 
     constexpr uint32b resolution = 32u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(9 * resolution);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -8994,15 +8994,15 @@ TEST(MathTest, RsqrtTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * resolution);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -9136,15 +9136,15 @@ TEST(MathTest, zRsqrtImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * resolution);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -9278,15 +9278,15 @@ TEST(MathTest, zRsqrtTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * resolution);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -9420,15 +9420,15 @@ TEST(MathTest, SqrtTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -9562,15 +9562,15 @@ TEST(MathTest, zSqrtImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -9704,15 +9704,15 @@ TEST(MathTest, zSqrtTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -9846,15 +9846,15 @@ TEST(MathTest, zCbrtTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -9986,15 +9986,15 @@ TEST(MathTest, SinTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -10128,15 +10128,15 @@ TEST(MathTest, zSinImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -10270,15 +10270,15 @@ TEST(MathTest, zSinTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -10412,15 +10412,15 @@ TEST(MathTest, CosTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -10554,15 +10554,15 @@ TEST(MathTest, zCosImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -10696,15 +10696,15 @@ TEST(MathTest, zCosTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -10838,15 +10838,15 @@ TEST(MathTest, zSincosImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(3 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -11020,15 +11020,15 @@ TEST(MathTest, zSincosTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(3 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(3 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(3 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(3 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -11204,15 +11204,15 @@ TEST(MathTest, TanTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -11346,15 +11346,15 @@ TEST(MathTest, zTanImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -11488,15 +11488,15 @@ TEST(MathTest, zTanTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -11630,15 +11630,15 @@ TEST(MathTest, AsinTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -11772,15 +11772,15 @@ TEST(MathTest, zAsinImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -11914,15 +11914,15 @@ TEST(MathTest, zAsinTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -12056,15 +12056,15 @@ TEST(MathTest, AcosTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -12198,15 +12198,15 @@ TEST(MathTest, zAcosImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -12340,15 +12340,15 @@ TEST(MathTest, zAcosTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 2));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -12482,15 +12482,15 @@ TEST(MathTest, AtanTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 3));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -12624,15 +12624,15 @@ TEST(MathTest, zAtanImplTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 3));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -12766,15 +12766,15 @@ TEST(MathTest, zAtanTest)
 
     constexpr uint32b resolution = 1000000u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(2 * (resolution + 3));
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(2 * resolution);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(2 * resolution);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(2 * resolution);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -12912,13 +12912,13 @@ TEST(MathTest, DotTest)
     const std::size_t n3 = 3;
     const std::size_t n3f4 = 3;
     const std::size_t n4 = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testDot, 1);
@@ -12995,13 +12995,13 @@ TEST(MathTest, zDotImplTest)
     const std::size_t n3 = 3;
     const std::size_t n3f4 = 3;
     const std::size_t n4 = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzDotImpl, 1);
@@ -13078,13 +13078,13 @@ TEST(MathTest, zDotTest)
     const std::size_t n3 = 3;
     const std::size_t n3f4 = 3;
     const std::size_t n4 = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzDot, 1);
@@ -13159,9 +13159,9 @@ TEST(MathTest, CrossTest)
 
     const std::size_t n3 = 4;
     const std::size_t n4 = 4;
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
 #if defined(Z_MAC)
@@ -13239,9 +13239,9 @@ TEST(MathTest, zCrossImplTest)
 
     const std::size_t n3 = 4;
     const std::size_t n4 = 4;
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzCrossImpl, 1);
@@ -13315,9 +13315,9 @@ TEST(MathTest, zCrossTest)
 
     const std::size_t n3 = 4;
     const std::size_t n4 = 4;
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzCross, 1);
@@ -13393,13 +13393,13 @@ TEST(MathTest, LengthTest)
     const std::size_t n3 = 3;
     const std::size_t n3f4 = 3;
     const std::size_t n4 = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testLength, 1);
@@ -13473,13 +13473,13 @@ TEST(MathTest, zLengthImplTest)
     const std::size_t n3 = 3;
     const std::size_t n3f4 = 3;
     const std::size_t n4 = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzLengthImpl, 1);
@@ -13553,13 +13553,13 @@ TEST(MathTest, zLengthTest)
     const std::size_t n3 = 3;
     const std::size_t n3f4 = 3;
     const std::size_t n4 = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzLength, 1);
@@ -13633,13 +13633,13 @@ TEST(MathTest, DistanceTest)
     const std::size_t n3 = 3;
     const std::size_t n3f4 = 3;
     const std::size_t n4 = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testDistance, 1);
@@ -13713,13 +13713,13 @@ TEST(MathTest, zDistanceImplTest)
     const std::size_t n3 = 3;
     const std::size_t n3f4 = 3;
     const std::size_t n4 = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzDistanceImpl, 1);
@@ -13793,13 +13793,13 @@ TEST(MathTest, zDistanceTest)
     const std::size_t n3 = 3;
     const std::size_t n3f4 = 3;
     const std::size_t n4 = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzDistance, 1);
@@ -13873,13 +13873,13 @@ TEST(MathTest, NormalizeTest)
     const std::size_t n3 = 4;
     const std::size_t n3f4 = 4;
     const std::size_t n4 = 4;
-    auto results1 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testNormalize, 1);
@@ -13993,13 +13993,13 @@ TEST(MathTest, zNormalizeImplTest)
     const std::size_t n3 = 4;
     const std::size_t n3f4 = 4;
     const std::size_t n4 = 4;
-    auto results1 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzNormalizeImpl, 1);
@@ -14114,13 +14114,13 @@ TEST(MathTest, zNormalizeTest)
     const std::size_t n3 = 4;
     const std::size_t n3f4 = 4;
     const std::size_t n4 = 4;
-    auto results1 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n2);
-    auto results2 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n3);
-    auto results3 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n3f4);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n4);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), math, testzNormalize, 1);

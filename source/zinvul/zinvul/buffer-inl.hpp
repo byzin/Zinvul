@@ -40,7 +40,7 @@ Buffer<T>::~Buffer() noexcept
 template <typename T> inline
 bool Buffer<T>::isDestination() const noexcept
 {
-  return (usage_flag_ & BufferUsage::kDst) == BufferUsage::kDst;
+  return (usage_flag_ & BufferUsage::kTDst) == BufferUsage::kTDst;
 }
 
 /*!
@@ -88,7 +88,7 @@ bool Buffer<T>::isHostWritable() const noexcept
 template <typename T> inline
 bool Buffer<T>::isSource() const noexcept
 {
-  return (usage_flag_ & BufferUsage::kSrc) == BufferUsage::kSrc;
+  return (usage_flag_ & BufferUsage::kTSrc) == BufferUsage::kTSrc;
 }
 
 /*!

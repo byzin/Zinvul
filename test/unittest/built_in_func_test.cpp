@@ -33,16 +33,16 @@ TEST(BuiltInFuncTest, WorkItem1DTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer1->setSize(9);
-    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     buffer2->setSize(resolution);
     {
       std::vector<uint32b> work_item_table;
       work_item_table.resize(buffer2->size(), 0u);
       buffer2->write(work_item_table.data(), work_item_table.size(), 0, 0);
     }
-    auto buffer3 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto buffer3 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     buffer3->setSize(1);
     buffer3->write(&resolution, 1, 0, 0);
 
@@ -89,16 +89,16 @@ TEST(BuiltInFuncTest, WorkItem2DTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer1->setSize(9);
-    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     buffer2->setSize(resolution.x * resolution.y);
     {
       std::vector<uint32b> work_item_table;
       work_item_table.resize(buffer2->size(), 0u);
       buffer2->write(work_item_table.data(), work_item_table.size(), 0, 0);
     }
-    auto buffer3 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceDst);
+    auto buffer3 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTDst);
     buffer3->setSize(1);
     {
       buffer3->write(&resolution, 1, 0, 0);
@@ -147,16 +147,16 @@ TEST(BuiltInFuncTest, WorkItem3DTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer1->setSize(9);
-    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     buffer2->setSize(resolution.x * resolution.y * resolution.z);
     {
       std::vector<uint32b> work_item_table;
       work_item_table.resize(buffer2->size(), 0u);
       buffer2->write(work_item_table.data(), work_item_table.size(), 0, 0);
     }
-    auto buffer3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceDst);
+    auto buffer3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTDst);
     buffer3->setSize(1);
     {
       buffer3->write(&resolution, 1, 0, 0);
@@ -205,9 +205,9 @@ TEST(BuiltInFuncTest, LocalDataShareTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer1->setSize(resolution);
-    auto resolution_buf = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buf = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buf->setSize(1);
     resolution_buf->write(&resolution, 1, 0, 0);
 
@@ -240,51 +240,51 @@ TEST(BuiltInFuncTest, AtomicFuncTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto add_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto add_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     add_table->setSize(resolution);
-    auto add_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto add_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     add_result->setSize(1);
-    auto sub_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto sub_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     sub_table->setSize(resolution);
-    auto sub_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto sub_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     sub_result->setSize(1);
-    auto xchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto xchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     xchg_table->setSize(resolution);
-    auto xchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto xchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     xchg_result->setSize(1);
-    auto inc_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto inc_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     inc_table->setSize(resolution);
-    auto inc_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto inc_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     inc_result->setSize(1);
-    auto dec_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto dec_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     dec_table->setSize(resolution);
-    auto dec_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto dec_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     dec_result->setSize(1);
-    auto cmpxchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto cmpxchg_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     cmpxchg_table->setSize(resolution);
-    auto cmpxchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto cmpxchg_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     cmpxchg_result->setSize(1);
-    auto min_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto min_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     min_table->setSize(resolution);
-    auto min_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto min_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     min_result->setSize(1);
-    auto max_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto max_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     max_table->setSize(resolution);
-    auto max_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto max_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     max_result->setSize(1);
-    auto and_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto and_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     and_table->setSize(resolution);
-    auto and_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto and_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     and_result->setSize(1);
-    auto or_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto or_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     or_table->setSize(resolution);
-    auto or_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto or_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     or_result->setSize(1);
-    auto xor_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto xor_table = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     xor_table->setSize(resolution);
-    auto xor_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto xor_result = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     xor_result->setSize(1);
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -376,13 +376,13 @@ TEST(BuiltInFuncTest, AtomicAddPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -390,7 +390,7 @@ TEST(BuiltInFuncTest, AtomicAddPositiveTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -428,13 +428,13 @@ TEST(BuiltInFuncTest, AtomicAddNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -442,7 +442,7 @@ TEST(BuiltInFuncTest, AtomicAddNegativeTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -480,13 +480,13 @@ TEST(BuiltInFuncTest, AtomicAddUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -494,7 +494,7 @@ TEST(BuiltInFuncTest, AtomicAddUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -532,13 +532,13 @@ TEST(BuiltInFuncTest, zAtomicAddPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -546,7 +546,7 @@ TEST(BuiltInFuncTest, zAtomicAddPositiveTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -584,13 +584,13 @@ TEST(BuiltInFuncTest, zAtomicAddNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -598,7 +598,7 @@ TEST(BuiltInFuncTest, zAtomicAddNegativeTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -636,13 +636,13 @@ TEST(BuiltInFuncTest, zAtomicAddUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -650,7 +650,7 @@ TEST(BuiltInFuncTest, zAtomicAddUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -688,13 +688,13 @@ TEST(BuiltInFuncTest, AtomicSubPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -702,7 +702,7 @@ TEST(BuiltInFuncTest, AtomicSubPositiveTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -740,13 +740,13 @@ TEST(BuiltInFuncTest, AtomicSubNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -754,7 +754,7 @@ TEST(BuiltInFuncTest, AtomicSubNegativeTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -792,13 +792,13 @@ TEST(BuiltInFuncTest, AtomicSubUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = resolution;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -806,7 +806,7 @@ TEST(BuiltInFuncTest, AtomicSubUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -843,13 +843,13 @@ TEST(BuiltInFuncTest, zAtomicSubPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -857,7 +857,7 @@ TEST(BuiltInFuncTest, zAtomicSubPositiveTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -895,13 +895,13 @@ TEST(BuiltInFuncTest, zAtomicSubNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -909,7 +909,7 @@ TEST(BuiltInFuncTest, zAtomicSubNegativeTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -947,13 +947,13 @@ TEST(BuiltInFuncTest, zAtomicSubUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = resolution;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -961,7 +961,7 @@ TEST(BuiltInFuncTest, zAtomicSubUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -998,13 +998,13 @@ TEST(BuiltInFuncTest, AtomicXchgPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1012,7 +1012,7 @@ TEST(BuiltInFuncTest, AtomicXchgPositiveTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1056,13 +1056,13 @@ TEST(BuiltInFuncTest, AtomicXchgNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1070,7 +1070,7 @@ TEST(BuiltInFuncTest, AtomicXchgNegativeTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1115,13 +1115,13 @@ TEST(BuiltInFuncTest, AtomicXchgUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1129,7 +1129,7 @@ TEST(BuiltInFuncTest, AtomicXchgUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1173,13 +1173,13 @@ TEST(BuiltInFuncTest, zAtomicXchgPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1187,7 +1187,7 @@ TEST(BuiltInFuncTest, zAtomicXchgPositiveTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1231,13 +1231,13 @@ TEST(BuiltInFuncTest, zAtomicXchgNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1245,7 +1245,7 @@ TEST(BuiltInFuncTest, zAtomicXchgNegativeTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1290,13 +1290,13 @@ TEST(BuiltInFuncTest, zAtomicXchgUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1304,7 +1304,7 @@ TEST(BuiltInFuncTest, zAtomicXchgUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1348,13 +1348,13 @@ TEST(BuiltInFuncTest, AtomicIncTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1362,7 +1362,7 @@ TEST(BuiltInFuncTest, AtomicIncTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1400,13 +1400,13 @@ TEST(BuiltInFuncTest, AtomicIncUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1414,7 +1414,7 @@ TEST(BuiltInFuncTest, AtomicIncUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1452,13 +1452,13 @@ TEST(BuiltInFuncTest, AtomicDecTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1466,7 +1466,7 @@ TEST(BuiltInFuncTest, AtomicDecTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1504,13 +1504,13 @@ TEST(BuiltInFuncTest, AtomicDecUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = resolution;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1518,7 +1518,7 @@ TEST(BuiltInFuncTest, AtomicDecUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1555,13 +1555,13 @@ TEST(BuiltInFuncTest, zAtomicIncTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1569,7 +1569,7 @@ TEST(BuiltInFuncTest, zAtomicIncTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1607,13 +1607,13 @@ TEST(BuiltInFuncTest, zAtomicIncUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1621,7 +1621,7 @@ TEST(BuiltInFuncTest, zAtomicIncUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1659,13 +1659,13 @@ TEST(BuiltInFuncTest, zAtomicDecTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1673,7 +1673,7 @@ TEST(BuiltInFuncTest, zAtomicDecTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1711,13 +1711,13 @@ TEST(BuiltInFuncTest, zAtomicDecUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = resolution;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1725,7 +1725,7 @@ TEST(BuiltInFuncTest, zAtomicDecUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1762,13 +1762,13 @@ TEST(BuiltInFuncTest, AtomicCmpxchgPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1776,7 +1776,7 @@ TEST(BuiltInFuncTest, AtomicCmpxchgPositiveTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1814,13 +1814,13 @@ TEST(BuiltInFuncTest, AtomicCmpxchgNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1828,7 +1828,7 @@ TEST(BuiltInFuncTest, AtomicCmpxchgNegativeTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1866,13 +1866,13 @@ TEST(BuiltInFuncTest, AtomicCmpxchgUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1880,7 +1880,7 @@ TEST(BuiltInFuncTest, AtomicCmpxchgUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1918,13 +1918,13 @@ TEST(BuiltInFuncTest, zAtomicCmpxchgPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1932,7 +1932,7 @@ TEST(BuiltInFuncTest, zAtomicCmpxchgPositiveTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -1970,13 +1970,13 @@ TEST(BuiltInFuncTest, zAtomicCmpxchgNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -1984,7 +1984,7 @@ TEST(BuiltInFuncTest, zAtomicCmpxchgNegativeTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2022,13 +2022,13 @@ TEST(BuiltInFuncTest, zAtomicCmpxchgUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     table_buff->setSize(resolution);
     {
       std::vector<int32b> init;
@@ -2036,7 +2036,7 @@ TEST(BuiltInFuncTest, zAtomicCmpxchgUintTest)
       std::fill(init.begin(), init.end(), 0);
       table_buff->write(init.data(), init.size(), 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2074,13 +2074,13 @@ TEST(BuiltInFuncTest, AtomicMinPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = std::numeric_limits<int32b>::max();
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2112,13 +2112,13 @@ TEST(BuiltInFuncTest, AtomicMinNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2150,13 +2150,13 @@ TEST(BuiltInFuncTest, AtomicMinUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = std::numeric_limits<uint32b>::max();
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2188,13 +2188,13 @@ TEST(BuiltInFuncTest, AtomicMaxPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = -1;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2226,13 +2226,13 @@ TEST(BuiltInFuncTest, AtomicMaxNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = std::numeric_limits<int32b>::min();
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2264,13 +2264,13 @@ TEST(BuiltInFuncTest, AtomicMaxUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2302,13 +2302,13 @@ TEST(BuiltInFuncTest, zAtomicMinPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = std::numeric_limits<int32b>::max();
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2340,13 +2340,13 @@ TEST(BuiltInFuncTest, zAtomicMinNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2378,13 +2378,13 @@ TEST(BuiltInFuncTest, zAtomicMinUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = std::numeric_limits<uint32b>::max();
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2416,13 +2416,13 @@ TEST(BuiltInFuncTest, zAtomicMaxPositiveTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = -1;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2454,13 +2454,13 @@ TEST(BuiltInFuncTest, zAtomicMaxNegativeTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = std::numeric_limits<int32b>::min();
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2492,13 +2492,13 @@ TEST(BuiltInFuncTest, zAtomicMaxUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
       result_buff->write(&init, 1, 0, 0);
     }
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
@@ -2530,7 +2530,7 @@ TEST(BuiltInFuncTest, AtomicAndTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = -1;
@@ -2564,7 +2564,7 @@ TEST(BuiltInFuncTest, AtomicAndUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = std::numeric_limits<uint32b>::max();
@@ -2598,7 +2598,7 @@ TEST(BuiltInFuncTest, zAtomicAndTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = -1;
@@ -2632,7 +2632,7 @@ TEST(BuiltInFuncTest, zAtomicAndUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = std::numeric_limits<uint32b>::max();
@@ -2666,7 +2666,7 @@ TEST(BuiltInFuncTest, AtomicOrTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
@@ -2701,7 +2701,7 @@ TEST(BuiltInFuncTest, AtomicOrUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
@@ -2736,7 +2736,7 @@ TEST(BuiltInFuncTest, zAtomicOrTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const int32b init = 0;
@@ -2771,7 +2771,7 @@ TEST(BuiltInFuncTest, zAtomicOrUintTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
     result_buff->setSize(1);
     {
       const uint32b init = 0;
@@ -2807,10 +2807,10 @@ TEST(BuiltInFuncTest, RelationalFunctionTest)
     constexpr std::size_t n_scalars = 24;
     constexpr std::size_t n_vectors = 11;
     auto scalar_results =
-        makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+        makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     scalar_results->setSize(n_scalars);
     auto vector_results =
-        makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+        makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     vector_results->setSize(n_vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testRelational, 1);
@@ -2938,13 +2938,13 @@ TEST(BuiltInFuncTest, SelectTest)
     constexpr std::size_t n_2vectors = 2;
     constexpr std::size_t n_3vectors = 2;
     constexpr std::size_t n_4vectors = 2;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n_scalars);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n_2vectors);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n_3vectors);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n_4vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testSelect, 1);
@@ -3017,13 +3017,13 @@ TEST(BuiltInFuncTest, zSelectImplTest)
     constexpr std::size_t n_2vectors = 2;
     constexpr std::size_t n_3vectors = 2;
     constexpr std::size_t n_4vectors = 2;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n_scalars);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n_2vectors);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n_3vectors);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n_4vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelectImpl, 1);
@@ -3096,13 +3096,13 @@ TEST(BuiltInFuncTest, zSelectTest)
     constexpr std::size_t n_2vectors = 2;
     constexpr std::size_t n_3vectors = 2;
     constexpr std::size_t n_4vectors = 2;
-    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n_scalars);
-    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n_2vectors);
-    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n_3vectors);
-    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n_4vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelect, 1);
@@ -3175,13 +3175,13 @@ TEST(BuiltInFuncTest, SelectUTest)
     constexpr std::size_t n_2vectors = 2;
     constexpr std::size_t n_3vectors = 2;
     constexpr std::size_t n_4vectors = 2;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n_scalars);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n_2vectors);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n_3vectors);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n_4vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testSelectU, 1);
@@ -3252,13 +3252,13 @@ TEST(BuiltInFuncTest, zSelectUImplTest)
     constexpr std::size_t n_2vectors = 2;
     constexpr std::size_t n_3vectors = 2;
     constexpr std::size_t n_4vectors = 2;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n_scalars);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n_2vectors);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n_3vectors);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n_4vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelectUImpl, 1);
@@ -3329,13 +3329,13 @@ TEST(BuiltInFuncTest, zSelectUTest)
     constexpr std::size_t n_2vectors = 2;
     constexpr std::size_t n_3vectors = 2;
     constexpr std::size_t n_4vectors = 2;
-    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n_scalars);
-    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n_2vectors);
-    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n_3vectors);
-    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n_4vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelectU, 1);
@@ -3406,13 +3406,13 @@ TEST(BuiltInFuncTest, SelectFTest)
     constexpr std::size_t n_2vectors = 2;
     constexpr std::size_t n_3vectors = 2;
     constexpr std::size_t n_4vectors = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n_scalars);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n_2vectors);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n_3vectors);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n_4vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testSelectF, 1);
@@ -3485,13 +3485,13 @@ TEST(BuiltInFuncTest, zSelectFImplTest)
     constexpr std::size_t n_2vectors = 2;
     constexpr std::size_t n_3vectors = 2;
     constexpr std::size_t n_4vectors = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n_scalars);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n_2vectors);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n_3vectors);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n_4vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelectFImpl, 1);
@@ -3564,13 +3564,13 @@ TEST(BuiltInFuncTest, zSelectFTest)
     constexpr std::size_t n_2vectors = 2;
     constexpr std::size_t n_3vectors = 2;
     constexpr std::size_t n_4vectors = 2;
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(n_scalars);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(n_2vectors);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(n_3vectors);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(n_4vectors);
 
     auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelectF, 1);

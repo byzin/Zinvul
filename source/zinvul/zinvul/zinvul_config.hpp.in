@@ -55,14 +55,14 @@ enum class BufferUsage : uint32b
 {
   kDevice = 0b1u << 0, //!< Memory will be used on device
   kHost = 0b1u << 1, //!< Memory will be mappable on host
-  kSrc = 0b1u << 2, //!< A buffer can be used as a source of a transfer
-  kDst = 0b1u << 3, //!< A buffer can be used as a destination of a transfer
-  kDeviceSrc = zisc::cast<uint32b>(kDevice) | zisc::cast<uint32b>(kSrc),
-  kDeviceDst = zisc::cast<uint32b>(kDevice) | zisc::cast<uint32b>(kDst),
-  kDeviceSrcDst = zisc::cast<uint32b>(kDeviceSrc) | zisc::cast<uint32b>(kDst),
-  kHostSrc = zisc::cast<uint32b>(kHost) | zisc::cast<uint32b>(kSrc),
-  kHostDst = zisc::cast<uint32b>(kHost) | zisc::cast<uint32b>(kDst),
-  kHostSrcDst = zisc::cast<uint32b>(kHostSrc) | zisc::cast<uint32b>(kDst),
+  kTSrc = 0b1u << 2, //!< A buffer can be used as a source of a transfer
+  kTDst = 0b1u << 3, //!< A buffer can be used as a destination of a transfer
+  kDeviceTSrc = zisc::cast<uint32b>(kDevice) | zisc::cast<uint32b>(kTSrc),
+  kDeviceTDst = zisc::cast<uint32b>(kDevice) | zisc::cast<uint32b>(kTDst),
+  kDeviceTSrcDst = zisc::cast<uint32b>(kDeviceTSrc) | zisc::cast<uint32b>(kTDst),
+  kHostTSrc = zisc::cast<uint32b>(kHost) | zisc::cast<uint32b>(kTSrc),
+  kHostTDst = zisc::cast<uint32b>(kHost) | zisc::cast<uint32b>(kTDst),
+  kHostTSrcDst = zisc::cast<uint32b>(kHostTSrc) | zisc::cast<uint32b>(kTDst),
 };
 
 } // namespace zinvul

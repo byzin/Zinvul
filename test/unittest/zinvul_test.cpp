@@ -101,13 +101,13 @@ TEST(Experiment, ZinvulTest)
 
     constexpr uint32b resolution = 1u;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     results1->setSize(1);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     results2->setSize(1);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceSrc);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
     results3->setSize(1);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     results4->setSize(1);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), experiment, experiment, 1);
@@ -161,13 +161,13 @@ TEST(Experiment, ZinvulTest)
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrcDst);
+//    auto result_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrcDst);
 //    result_buff->setSize(1);
 //    {
 //      const uint32b init = 0;
 //      result_buff->write(&init, 1, 0, 0);
 //    }
-//    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceSrcDst);
+//    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
 //    table_buff->setSize(resolution);
 //    {
 //      std::vector<int32b> init;
@@ -175,7 +175,7 @@ TEST(Experiment, ZinvulTest)
 //      std::fill(init.begin(), init.end(), 0);
 //      table_buff->write(init.data(), init.size(), 0, 0);
 //    }
-//    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+//    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
 //    res_buff->setSize(1);
 //    res_buff->write(&resolution, res_buff->size(), 0, 0);
 //

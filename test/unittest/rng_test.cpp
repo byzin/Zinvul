@@ -36,17 +36,17 @@ TEST(RngTest, Cmj64Test)
     constexpr uint32b seed = 123456789u;
     constexpr uint32b root_n = 8;
     constexpr uint32b num_of_samples = 100;
-    auto result_1d = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto result_1d = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result_1d->setSize(num_of_samples);
-    auto result_2d = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+    auto result_2d = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result_2d->setSize(num_of_samples);
-    auto seed_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto seed_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     seed_buffer->setSize(1);
     seed_buffer->write(&seed, seed_buffer->size(), 0, 0);
-    auto root_n_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto root_n_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     root_n_buffer->setSize(1);
     root_n_buffer->write(&root_n, root_n_buffer->size(), 0, 0);
-    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     iteration_buffer->setSize(1);
     iteration_buffer->write(&num_of_samples, iteration_buffer->size(), 0, 0);
 
@@ -99,17 +99,17 @@ TEST(RngTest, Cmj64Test)
 //    constexpr uint32b seed = 123456789u;
 //    constexpr uint32b root_n = 9;
 //    constexpr uint32b num_of_samples = 100;
-//    auto result_1d = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+//    auto result_1d = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    result_1d->setSize(num_of_samples);
-//    auto result_2d = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
+//    auto result_2d = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
 //    result_2d->setSize(num_of_samples);
-//    auto seed_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+//    auto seed_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
 //    seed_buffer->setSize(1);
 //    seed_buffer->write(&seed, seed_buffer->size(), 0, 0);
-//    auto root_n_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+//    auto root_n_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
 //    root_n_buffer->setSize(1);
 //    root_n_buffer->write(&root_n, root_n_buffer->size(), 0, 0);
-//    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+//    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
 //    iteration_buffer->setSize(1);
 //    iteration_buffer->write(&num_of_samples, iteration_buffer->size(), 0, 0);
 //
@@ -163,14 +163,14 @@ TEST(RngTest, Cmj64ImageTest)
     constexpr uint32b resolution_y = 1080;
     constexpr uint32b resolution = resolution_x * resolution_y;
     constexpr uint32b root_n = 8;
-    auto image_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    auto image_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     image_buffer->setSize(3 * resolution);
-    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     iteration_buffer->setSize(1);
-    auto root_n_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto root_n_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     root_n_buffer->setSize(1);
     root_n_buffer->write(&root_n, root_n_buffer->size(), 0, 0);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
@@ -221,14 +221,14 @@ TEST(RngTest, Cmj64ImageTest)
 //    constexpr uint32b resolution_y = 1080;
 //    constexpr uint32b resolution = resolution_x * resolution_y;
 //    constexpr uint32b root_n = 9;
-//    auto image_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+//    auto image_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    image_buffer->setSize(3 * resolution);
-//    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+//    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
 //    iteration_buffer->setSize(1);
-//    auto root_n_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+//    auto root_n_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
 //    root_n_buffer->setSize(1);
 //    root_n_buffer->write(&root_n, root_n_buffer->size(), 0, 0);
-//    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
+//    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
 //    resolution_buffer->setSize(1);
 //    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 //

@@ -175,7 +175,7 @@ void VulkanBuffer<T>::read(Type* data,
     device_->unmapMemory(*this);
   }
   else {
-    VulkanBuffer<Type> dst{device_, BufferUsage::kHost | BufferUsage::kDst};
+    VulkanBuffer<Type> dst{device_, BufferUsage::kHost | BufferUsage::kTDst};
     dst.setSize(count);
     copyTo(&dst, count, offset, 0, queue_index);
     dst.read(data, count, 0, queue_index);
@@ -217,7 +217,7 @@ void VulkanBuffer<T>::write(const Type* data,
     device_->unmapMemory(*this);
   }
   else {
-    VulkanBuffer<Type> src{device_, BufferUsage::kHost | BufferUsage::kSrc};
+    VulkanBuffer<Type> src{device_, BufferUsage::kHost | BufferUsage::kTSrc};
     src.setSize(count);
     src.write(data, count, 0, queue_index);
     src.copyTo(this, count, 0, offset, queue_index);
