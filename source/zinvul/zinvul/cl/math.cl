@@ -14,6 +14,19 @@
 #include "utility.cl"
 
 // Constants
+#define zCharMax 127
+#define zCharMin (-zCharMax - 1)
+#define zUCharMax 255u
+#define zShortMax 32767
+#define zShortMin (-zShortMax - 1)
+#define zUShortMax 65535u
+#define zIntMax 2147483647
+#define zIntMin (-zIntMax - 1)
+#define zUIntMax 0xffffffffu
+#define zLongMax 0x7fffffffffffffffl
+#define zLongMin (-zLongMax - 1l)
+#define zULongMax 0xfffffffffffffffful
+
 #define zFloatMax 3.402823466e+38f
 #define zFloatMin 1.175494351e-38f
 #define zFloatEpsilon 1.192092896e-07f
