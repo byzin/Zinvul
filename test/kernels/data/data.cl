@@ -258,27 +258,27 @@ __kernel void testUint16bBuffer(__global uint16b* buffer)
 
 /*!
   */
-__kernel void testInt64bBuffer(__global int64b* buffer)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index <= USHRT_MAX) {
-    int64b v = (int64b)index + (int64b)SHRT_MIN;
-    v = v << 32l;
-    buffer[index] = v;
-  }
-}
+//__kernel void testInt64bBuffer(__global int64b* buffer)
+//{
+//  const uint32b index = zGetGlobalIdX();
+//  if (index <= USHRT_MAX) {
+//    int64b v = (int64b)index + (int64b)SHRT_MIN;
+//    v = v << 32l;
+//    buffer[index] = v;
+//  }
+//}
 
 /*!
   */
-__kernel void testUint64bBuffer(__global uint64b* buffer)
-{
-  const uint32b index = zGetGlobalIdX();
-  if (index <= USHRT_MAX) {
-    uint64b v = (uint64b)index;
-    v = v << 32ul;
-    buffer[index] = v;
-  }
-}
+//__kernel void testUint64bBuffer(__global uint64b* buffer)
+//{
+//  const uint32b index = zGetGlobalIdX();
+//  if (index <= USHRT_MAX) {
+//    uint64b v = (uint64b)index;
+//    v = v << 32ul;
+//    buffer[index] = v;
+//  }
+//}
 
 /*!
   */

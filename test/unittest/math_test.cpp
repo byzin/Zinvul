@@ -43,9 +43,9 @@ TEST(MathTest, ConstantValueTest)
     constexpr std::size_t n_float = 44;
     auto int_values = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     int_values->setSize(n_int);
-    auto max_values = makeBuffer<int64b>(device.get(), BufferUsage::kDeviceTSrc);
+    auto max_values = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     max_values->setSize(8);
-    auto umax_values = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
+    auto umax_values = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     umax_values->setSize(4);
     auto float_values = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     float_values->setSize(n_float);
@@ -93,73 +93,73 @@ TEST(MathTest, ConstantValueTest)
     }
 
     {
-      std::array<int64b, 8> results;
+      std::array<int32b, 8> results;
       max_values->read(results.data(), results.size(), 0, 0);
       {
-        constexpr int64b expected = std::numeric_limits<int8b>::max();
-        const int64b result = results[0];
+        constexpr int32b expected = std::numeric_limits<int8b>::max();
+        const int32b result = results[0];
         ASSERT_EQ(expected, result) << "The constant 'zCharMax' is wrong.";
       }
       {
-        constexpr int64b expected = std::numeric_limits<int8b>::min();
-        const int64b result = results[1];
+        constexpr int32b expected = std::numeric_limits<int8b>::min();
+        const int32b result = results[1];
         ASSERT_EQ(expected, result) << "The constant 'zCharMin' is wrong.";
       }
       {
-        constexpr int64b expected = std::numeric_limits<int16b>::max();
-        const int64b result = results[2];
+        constexpr int32b expected = std::numeric_limits<int16b>::max();
+        const int32b result = results[2];
         ASSERT_EQ(expected, result) << "The constant 'zShortMax' is wrong.";
       }
       {
-        constexpr int64b expected = std::numeric_limits<int16b>::min();
-        const int64b result = results[3];
+        constexpr int32b expected = std::numeric_limits<int16b>::min();
+        const int32b result = results[3];
         ASSERT_EQ(expected, result) << "The constant 'zShortMin' is wrong.";
       }
       {
-        constexpr int64b expected = std::numeric_limits<int32b>::max();
-        const int64b result = results[4];
+        constexpr int32b expected = std::numeric_limits<int32b>::max();
+        const int32b result = results[4];
         ASSERT_EQ(expected, result) << "The constant 'zIntMax' is wrong.";
       }
       {
-        constexpr int64b expected = std::numeric_limits<int32b>::min();
-        const int64b result = results[5];
+        constexpr int32b expected = std::numeric_limits<int32b>::min();
+        const int32b result = results[5];
         ASSERT_EQ(expected, result) << "The constant 'zIntMin' is wrong.";
       }
-      {
-        constexpr int64b expected = std::numeric_limits<int64b>::max();
-        const int64b result = results[6];
-        ASSERT_EQ(expected, result) << "The constant 'zLongMax' is wrong.";
-      }
-      {
-        constexpr int64b expected = std::numeric_limits<int64b>::min();
-        const int64b result = results[7];
-        ASSERT_EQ(expected, result) << "The constant 'zLongMin' is wrong.";
-      }
+//      {
+//        constexpr int64b expected = std::numeric_limits<int64b>::max();
+//        const int64b result = results[6];
+//        ASSERT_EQ(expected, result) << "The constant 'zLongMax' is wrong.";
+//      }
+//      {
+//        constexpr int64b expected = std::numeric_limits<int64b>::min();
+//        const int64b result = results[7];
+//        ASSERT_EQ(expected, result) << "The constant 'zLongMin' is wrong.";
+//      }
     }
 
     {
-      std::array<uint64b, 4> results;
+      std::array<uint32b, 4> results;
       umax_values->read(results.data(), results.size(), 0, 0);
       {
-        constexpr uint64b expected = std::numeric_limits<uint8b>::max();
-        const uint64b result = results[0];
+        constexpr uint32b expected = std::numeric_limits<uint8b>::max();
+        const uint32b result = results[0];
         ASSERT_EQ(expected, result) << "The constant 'zUCharMax' is wrong.";
       }
       {
-        constexpr uint64b expected = std::numeric_limits<uint16b>::max();
-        const uint64b result = results[1];
+        constexpr uint32b expected = std::numeric_limits<uint16b>::max();
+        const uint32b result = results[1];
         ASSERT_EQ(expected, result) << "The constant 'zUShortMax' is wrong.";
       }
       {
-        constexpr uint64b expected = std::numeric_limits<uint32b>::max();
-        const uint64b result = results[2];
+        constexpr uint32b expected = std::numeric_limits<uint32b>::max();
+        const uint32b result = results[2];
         ASSERT_EQ(expected, result) << "The constant 'zUIntMax' is wrong.";
       }
-      {
-        constexpr uint64b expected = std::numeric_limits<uint64b>::max();
-        const uint64b result = results[3];
-        ASSERT_EQ(expected, result) << "The constant 'zULongMax' is wrong.";
-      }
+//      {
+//        constexpr uint64b expected = std::numeric_limits<uint64b>::max();
+//        const uint64b result = results[3];
+//        ASSERT_EQ(expected, result) << "The constant 'zULongMax' is wrong.";
+//      }
     }
 
     {

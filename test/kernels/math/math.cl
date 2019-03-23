@@ -1263,8 +1263,8 @@ __kernel void testzRound(
 /*!
   */
 kernel void testConstantValues(global int32b* int_values,
-    global int64b* max_values,
-    global uint64b* umax_values,
+    global int32b* max_values,
+    global uint32b* umax_values,
     global float* float_values)
 {
   const uint32b index = zGetGlobalIdX();
@@ -1296,13 +1296,13 @@ kernel void testConstantValues(global int32b* int_values,
     max_values[int_index++] = zShortMin;
     max_values[int_index++] = zIntMax;
     max_values[int_index++] = zIntMin;
-    max_values[int_index++] = zLongMax;
-    max_values[int_index++] = zLongMin;
+//    max_values[int_index++] = zLongMax;
+//    max_values[int_index++] = zLongMin;
     int_index = 0;
     umax_values[int_index++] = zUCharMax;
     umax_values[int_index++] = zUShortMax;
     umax_values[int_index++] = zUIntMax;
-    umax_values[int_index++] = zULongMax;
+//    umax_values[int_index++] = zULongMax;
     // Float
     float_values[float_index++] = MAXFLOAT;
     float_values[float_index++] = INFINITY;

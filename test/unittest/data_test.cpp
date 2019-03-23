@@ -1066,76 +1066,77 @@ TEST(DataTest, Uint16bBufferTest)
   }
 }
 
-TEST(DataTest, Int64bBufferTest)
-{
-  using namespace zinvul;
+//TEST(DataTest, Int64bBufferTest)
+//{
+//  using namespace zinvul;
+//
+//  auto options = makeTestOptions();
+//  auto device_list = makeTestDeviceList(options);
+//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//    auto& device = device_list[number];
+//    std::cout << getTestDeviceInfo(*device);
+//
+//    constexpr uint32b resolution = 0b1u << (sizeof(uint16b) * 8);
+//
+//    auto buffer = makeBuffer<int64b>(device.get(), BufferUsage::kDeviceTSrc);
+//    buffer->setSize(resolution);
+//
+//    auto kernel = makeZinvulKernel(device.get(), data, testInt64bBuffer, 1);
+//    kernel->run(*buffer, {resolution}, 0);
+//    device->waitForCompletion();
+//
+//    {
+//      std::vector<int64b> results;
+//      results.resize(resolution, 0);
+//      buffer->read(results.data(), results.size(), 0, 0);
+//      for (std::size_t i = 0; i < resolution; ++i) {
+//        int64b e = zisc::cast<int64b>(std::numeric_limits<int16b>::min()) +
+//            zisc::cast<int64b>(i);
+//        e = e << 32l;
+//        const int64b expected = e;
+//        const int64b result = results[i];
+//        ASSERT_EQ(expected, result) << "Int64b buffer doesn't work";
+//      }
+//    }
+//
+//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+//  }
+//}
 
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
+//TEST(DataTest, Uint64bBufferTest)
+//{
+//  using namespace zinvul;
+//
+//  auto options = makeTestOptions();
+//  auto device_list = makeTestDeviceList(options);
+//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//    auto& device = device_list[number];
+//    std::cout << getTestDeviceInfo(*device);
+//
+//    constexpr uint32b resolution = 0b1u << (sizeof(uint16b) * 8);
+//
+//    auto buffer = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
+//    buffer->setSize(resolution);
+//
+//    auto kernel = makeZinvulKernel(device.get(), data, testUint64bBuffer, 1);
+//    kernel->run(*buffer, {resolution}, 0);
+//    device->waitForCompletion();
+//
+//    {
+//      std::vector<uint64b> results;
+//      results.resize(resolution, 0);
+//      buffer->read(results.data(), results.size(), 0, 0);
+//      for (std::size_t i = 0; i < resolution; ++i) {
+//        const uint64b expected = zisc::cast<uint64b>(i) << 32ul;
+//        const uint64b result = results[i];
+//        ASSERT_EQ(expected, result) << "Uint64b buffer doesn't work";
+//      }
+//    }
+//
+//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+//  }
+//}
 
-    constexpr uint32b resolution = 0b1u << (sizeof(uint16b) * 8);
-
-    auto buffer = makeBuffer<int64b>(device.get(), BufferUsage::kDeviceTSrc);
-    buffer->setSize(resolution);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testInt64bBuffer, 1);
-    kernel->run(*buffer, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<int64b> results;
-      results.resize(resolution, 0);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < resolution; ++i) {
-        int64b e = zisc::cast<int64b>(std::numeric_limits<int16b>::min()) +
-            zisc::cast<int64b>(i);
-        e = e << 32l;
-        const int64b expected = e;
-        const int64b result = results[i];
-        ASSERT_EQ(expected, result) << "Int64b buffer doesn't work";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, Uint64bBufferTest)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 0b1u << (sizeof(uint16b) * 8);
-
-    auto buffer = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
-    buffer->setSize(resolution);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testUint64bBuffer, 1);
-    kernel->run(*buffer, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<uint64b> results;
-      results.resize(resolution, 0);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < resolution; ++i) {
-        const uint64b expected = zisc::cast<uint64b>(i) << 32ul;
-        const uint64b result = results[i];
-        ASSERT_EQ(expected, result) << "Uint64b buffer doesn't work";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
 TEST(DataTest, CastToUint8bBufferTest)
 {
   using namespace zinvul;
