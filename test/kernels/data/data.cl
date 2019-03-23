@@ -214,6 +214,74 @@ __kernel void testVariablePointer(global Ray1* ray1_table, global Ray2* ray2_tab
 
 /*!
   */
+__kernel void testInt8bBuffer(__global int8b* buffer)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index <= UCHAR_MAX) {
+    const int32b v = (int32b)index + CHAR_MIN;
+    buffer[index] = (int8b)v;
+  }
+}
+
+/*!
+  */
+__kernel void testUint8bBuffer(__global uint8b* buffer)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index <= UCHAR_MAX) {
+    const uint8b v = (uint8b)index;
+    buffer[index] = v;
+  }
+}
+
+/*!
+  */
+__kernel void testInt16bBuffer(__global int16b* buffer)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index <= USHRT_MAX) {
+    const int32b v = (int32b)index + SHRT_MIN;
+    buffer[index] = (int16b)v;
+  }
+}
+
+/*!
+  */
+__kernel void testUint16bBuffer(__global uint16b* buffer)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index <= USHRT_MAX) {
+    const uint16b v = (uint16b)index;
+    buffer[index] = v;
+  }
+}
+
+/*!
+  */
+__kernel void testInt64bBuffer(__global int64b* buffer)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index <= USHRT_MAX) {
+    int64b v = (int64b)index + (int64b)SHRT_MIN;
+    v = v << 32l;
+    buffer[index] = v;
+  }
+}
+
+/*!
+  */
+__kernel void testUint64bBuffer(__global uint64b* buffer)
+{
+  const uint32b index = zGetGlobalIdX();
+  if (index <= USHRT_MAX) {
+    uint64b v = (uint64b)index;
+    v = v << 32ul;
+    buffer[index] = v;
+  }
+}
+
+/*!
+  */
 __kernel void testCastUint32bToUint2(__global uint32b* buffer,
     const uint32b resolution)
 {
