@@ -10,8 +10,6 @@ set(__test_root__ ${CMAKE_CURRENT_LIST_DIR})
 
 
 function(initTestOption)
-  set(option_description "Add casting-to-int8-pointer tests.")
-  setBooleanOption(ZINVUL_TEST_INT8_POINTER OFF ${option_description})
 endfunction(initTestOption)
 
 
@@ -57,9 +55,6 @@ function(buildUnitTest)
 
   # Test kernels
   # Data
-  if(ZINVUL_TEST_INT8_POINTER)
-    list(APPEND data_definitions ZINVUL_TEST_INT8_POINTER)
-  endif()
   set(data_dir ${__test_root__}/kernels/data)
   file(GLOB_RECURSE data_cl_files ${data_dir}/*.cl)
   makeKernelGroup(data data_source_files data_definitions

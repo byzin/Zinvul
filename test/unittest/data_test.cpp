@@ -1279,636 +1279,6 @@ TEST(DataTest, RelationalOperationsTest)
   }
 }
 
-TEST(DataTest, CastUint32bToUint2)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint32bToUint2, 1);
-    kernel->run(*(buffer->treatAs<uint32b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::uint2> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const uint32b v = zisc::cast<uint32b>(2 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint32b* to uint2* failed.";
-        ASSERT_EQ(v + 1, result.y) << "Casting uint32b* to uint2* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint32bToUint4)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint32bToUint4, 1);
-    kernel->run(*(buffer->treatAs<uint32b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::uint4> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const uint32b v = zisc::cast<uint32b>(4 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint32b* to uint4* failed.";
-        ASSERT_EQ(v + 1, result.y) << "Casting uint32b* to uint4* failed.";
-        ASSERT_EQ(v + 2, result.z) << "Casting uint32b* to uint4* failed.";
-        ASSERT_EQ(v + 3, result.w) << "Casting uint32b* to uint4* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint32bToFloat)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint32bToFloat, 1);
-    kernel->run(*(buffer->treatAs<uint32b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<float> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const float v = zisc::cast<float>(i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result) << "Casting uint32b* to float* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint32bToFloat2)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint32bToFloat2, 1);
-    kernel->run(*(buffer->treatAs<uint32b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::float2> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const float v = zisc::cast<float>(2 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint32b* to float2* failed.";
-        ASSERT_EQ(v + 1.0f, result.y) << "Casting uint32b* to float2* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint32bToFloat4)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint32bToFloat4, 1);
-    kernel->run(*(buffer->treatAs<uint32b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::float4> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const float v = zisc::cast<float>(4 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint32b* to float4* failed.";
-        ASSERT_EQ(v + 1.0f, result.y) << "Casting uint32b* to float4* failed.";
-        ASSERT_EQ(v + 2.0f, result.z) << "Casting uint32b* to float4* failed.";
-        ASSERT_EQ(v + 3.0f, result.w) << "Casting uint32b* to float4* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint32bToRay)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<::Ray1>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint32bToRay, 1);
-    kernel->run(*(buffer->treatAs<uint32b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<::Ray1> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const auto& result = results[i];
-        const auto& o = result.origin_;
-        ASSERT_FLOAT_EQ(1.0f, o.x) << "Casting uint32b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(2.0f, o.y) << "Casting uint32b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(3.0f, o.z) << "Casting uint32b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(4.0f, o.w) << "Casting uint32b* to Ray1* failed.";
-        const auto& d = result.dir_;
-        ASSERT_FLOAT_EQ(1.0f, d.x) << "Casting uint32b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(1.0f, d.y) << "Casting uint32b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(1.0f, d.z) << "Casting uint32b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(1.0f, d.w) << "Casting uint32b* to Ray1* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-namespace {
-
-using TestData1 = zinvul::data::KernelGroup::TestData1;
-static_assert(sizeof(TestData1) == 48, "The size of TestData1 is wrong.");
-
-} // namespace
-
-TEST(DataTest, CastUint32bToTestData1)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<::TestData1>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint32bToTestData1, 1);
-    kernel->run(*(buffer->treatAs<uint32b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<::TestData1> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const auto& result = results[i];
-        const auto& v1 = result.v1_;
-        ASSERT_FLOAT_EQ(1.0f, v1.x) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(2.0f, v1.y) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(3.0f, v1.z) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(4.0f, v1.w) << "Casting uint32b* to TestData1* failed.";
-        const auto& v2 = result.v2_;
-        ASSERT_EQ(1, v2.x) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_EQ(2, v2.y) << "Casting uint32b* to TestData1* failed.";
-        const auto& v3 = result.v3_;
-        ASSERT_EQ(1, v3.x) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_EQ(2, v3.y) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_EQ(3, v3.z) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_EQ(4, v3.w) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(10.0f, result.v4_) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_EQ(10, result.v5_) << "Casting uint32b* to TestData1* failed.";
-        const auto& v6 = result.v6_;
-        ASSERT_EQ(1, v6.x) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_EQ(2, v6.y) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_EQ(3, v6.z) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_EQ(4, v6.w) << "Casting uint32b* to TestData1* failed.";
-        const auto& v7 = result.v7_;
-        ASSERT_EQ(-10, v7.x) << "Casting uint32b* to TestData1* failed.";
-        ASSERT_EQ(10, v7.y) << "Casting uint32b* to TestData1* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-#if defined(ZINVUL_TEST_INT8_POINTER)
-
-TEST(DataTest, Int8PointerTest)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 128;
-
-    auto buffer0 = makeBuffer<int8b>(device.get(), BufferUsage::kDeviceDst);
-    buffer0->setSize(resolution);
-    {
-      std::array<int8b, resolution> init;
-      for (std::size_t i = 0; i < init.size(); ++i)
-        init[i] = zisc::cast<int8b>(i);
-      buffer0->write(init.data(), init.size(), 0, 0);
-    }
-
-    auto buffer1 = makeBuffer<int8b>(device.get(), BufferUsage::kDeviceSrc);
-    buffer1->setSize(resolution);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testInt8Pointer, 1);
-    kernel->run(*buffer0, *buffer1, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<int8b, resolution> results;
-      buffer1->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const int8b expected = -zisc::cast<int8b>(i);
-        ASSERT_EQ(expected, results[i]) << i << ": int8b pointer is wrong.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, Uint8PointerTest)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 128;
-
-    auto buffer0 = makeBuffer<uint8b>(device.get(), BufferUsage::kDeviceDst);
-    buffer0->setSize(resolution);
-    {
-      std::array<uint8b, resolution> init;
-      for (std::size_t i = 0; i < init.size(); ++i)
-        init[i] = zisc::cast<uint8b>(i);
-      buffer0->write(init.data(), init.size(), 0, 0);
-    }
-
-    auto buffer1 = makeBuffer<uint8b>(device.get(), BufferUsage::kDeviceSrc);
-    buffer1->setSize(resolution);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testUint8Pointer, 1);
-    kernel->run(*buffer0, *buffer1, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::array<uint8b, resolution> results;
-      buffer1->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const uint8b expected = zisc::cast<uint8b>(2 * i);
-        ASSERT_EQ(expected, results[i]) << i << ": uint8b pointer is wrong.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint8bToUint32b)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint8bToUint32b, 1);
-    kernel->run(*(buffer->treatAs<uint8b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<uint32b> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const uint32b v = zisc::cast<uint32b>(i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result) << "Casting uint8b* to uint32b* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint16bToUint32b)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint16bToUint32b, 1);
-    kernel->run(*(buffer->treatAs<uint16b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<uint32b> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const uint32b v = zisc::cast<uint32b>(i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result) << "Casting uint16b* to uint32b* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint8bToUint2)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint8bToUint2, 1);
-    kernel->run(*(buffer->treatAs<uint8b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::uint2> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const uint32b v = zisc::cast<uint32b>(2 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint8b* to uint2* failed.";
-        ASSERT_EQ(v + 1, result.y) << "Casting uint8b* to uint2* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint16bToUint2)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint16bToUint2, 1);
-    kernel->run(*(buffer->treatAs<uint16b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::uint2> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const uint32b v = zisc::cast<uint32b>(2 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint16b* to uint2* failed.";
-        ASSERT_EQ(v + 1, result.y) << "Casting uint16b* to uint2* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint8bToUint4)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint8bToUint4, 1);
-    kernel->run(*(buffer->treatAs<uint8b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::uint4> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const uint32b v = zisc::cast<uint32b>(4 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint8b* to uint4* failed.";
-        ASSERT_EQ(v + 1, result.y) << "Casting uint8b* to uint4* failed.";
-        ASSERT_EQ(v + 2, result.z) << "Casting uint8b* to uint4* failed.";
-        ASSERT_EQ(v + 3, result.w) << "Casting uint8b* to uint4* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint16bToUint4)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint16bToUint4, 1);
-    kernel->run(*(buffer->treatAs<uint16b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::uint4> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const uint32b v = zisc::cast<uint32b>(4 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint16b* to uint4* failed.";
-        ASSERT_EQ(v + 1, result.y) << "Casting uint16b* to uint4* failed.";
-        ASSERT_EQ(v + 2, result.z) << "Casting uint16b* to uint4* failed.";
-        ASSERT_EQ(v + 3, result.w) << "Casting uint16b* to uint4* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
 TEST(DataTest, CastUint8bToFloat)
 {
   using namespace zinvul;
@@ -1921,25 +1291,48 @@ TEST(DataTest, CastUint8bToFloat)
 
     constexpr uint32b resolution = 100000;
 
-    auto buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
+    auto buffer1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    buffer1->setSize(resolution);
+
+    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceDst);
+    buffer2->setSize(resolution);
+    {
+      std::vector<float> inputs;
+      inputs.resize(resolution);
+      for (std::size_t i = 0; i < resolution; ++i)
+        inputs[i] = zisc::cast<float>(i);
+      buffer2->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    buffer3->setSize(resolution);
 
     auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
     auto kernel = makeZinvulKernel(device.get(), data, testCastUint8bToFloat, 1);
-    kernel->run(*(buffer->treatAs<uint8b>()), *res_buff, {resolution}, 0);
+    kernel->run(*(buffer1->treatAs<uint8b>()), *(buffer2->treatAs<uint8b>()), *buffer3, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
     {
-      std::vector<float> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const float v = zisc::cast<float>(i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result) << "Casting uint8b* to float* failed.";
+      std::vector<float> wresults;
+      wresults.resize(resolution);
+      buffer1->read(wresults.data(), wresults.size(), 0, 0);
+      std::vector<float> rresults;
+      rresults.resize(resolution);
+      buffer3->read(rresults.data(), rresults.size(), 0, 0);
+      for (std::size_t i = 0; i < wresults.size(); ++i) {
+        {
+          const float expected = zisc::cast<float>(i);
+          const auto result = wresults[i];
+          ASSERT_EQ(expected, result) << "Casting uint8b* to float* failed.";
+        }
+        {
+          const float expected = zisc::cast<float>(i);
+          const auto result = rresults[i];
+          ASSERT_EQ(expected, result) << "Casting uint8b* to float* failed.";
+        }
       }
     }
 
@@ -1959,25 +1352,48 @@ TEST(DataTest, CastUint16bToFloat)
 
     constexpr uint32b resolution = 100000;
 
-    auto buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
+    auto buffer1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    buffer1->setSize(resolution);
+
+    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceDst);
+    buffer2->setSize(resolution);
+    {
+      std::vector<float> inputs;
+      inputs.resize(resolution);
+      for (std::size_t i = 0; i < resolution; ++i)
+        inputs[i] = zisc::cast<float>(i);
+      buffer2->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    buffer3->setSize(resolution);
 
     auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
     auto kernel = makeZinvulKernel(device.get(), data, testCastUint16bToFloat, 1);
-    kernel->run(*(buffer->treatAs<uint16b>()), *res_buff, {resolution}, 0);
+    kernel->run(*(buffer1->treatAs<uint16b>()), *(buffer2->treatAs<uint16b>()), *buffer3, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
     {
-      std::vector<float> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const float v = zisc::cast<float>(i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result) << "Casting uint16b* to float* failed.";
+      std::vector<float> wresults;
+      wresults.resize(resolution);
+      buffer1->read(wresults.data(), wresults.size(), 0, 0);
+      std::vector<float> rresults;
+      rresults.resize(resolution);
+      buffer3->read(rresults.data(), rresults.size(), 0, 0);
+      for (std::size_t i = 0; i < wresults.size(); ++i) {
+        {
+          const float expected = zisc::cast<float>(i);
+          const auto result = wresults[i];
+          ASSERT_EQ(expected, result) << "Casting uint16b* to float* failed.";
+        }
+        {
+          const float expected = zisc::cast<float>(i);
+          const auto result = rresults[i];
+          ASSERT_EQ(expected, result) << "Casting uint16b* to float* failed.";
+        }
       }
     }
 
@@ -1985,7 +1401,7 @@ TEST(DataTest, CastUint16bToFloat)
   }
 }
 
-TEST(DataTest, CastUint8bToFloat2)
+TEST(DataTest, CastUint32bToFloat)
 {
   using namespace zinvul;
 
@@ -1997,362 +1413,51 @@ TEST(DataTest, CastUint8bToFloat2)
 
     constexpr uint32b resolution = 100000;
 
-    auto buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
+    auto buffer1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    buffer1->setSize(resolution);
+
+    auto buffer2 = makeBuffer<float>(device.get(), BufferUsage::kDeviceDst);
+    buffer2->setSize(resolution);
+    {
+      std::vector<float> inputs;
+      inputs.resize(resolution);
+      for (std::size_t i = 0; i < resolution; ++i)
+        inputs[i] = zisc::cast<float>(i);
+      buffer2->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer3 = makeBuffer<float>(device.get(), BufferUsage::kDeviceSrc);
+    buffer3->setSize(resolution);
 
     auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint8bToFloat2, 1);
-    kernel->run(*(buffer->treatAs<uint8b>()), *res_buff, {resolution}, 0);
+    auto kernel = makeZinvulKernel(device.get(), data, testCastUint32bToFloat, 1);
+    kernel->run(*(buffer1->treatAs<uint32b>()), *(buffer2->treatAs<uint32b>()), *buffer3, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
     {
-      std::vector<cl::float2> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const float v = zisc::cast<float>(2 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint8b* to float2* failed.";
-        ASSERT_EQ(v + 1.0f, result.y) << "Casting uint8b* to float2* failed.";
+      std::vector<float> wresults;
+      wresults.resize(resolution);
+      buffer1->read(wresults.data(), wresults.size(), 0, 0);
+      std::vector<float> rresults;
+      rresults.resize(resolution);
+      buffer3->read(rresults.data(), rresults.size(), 0, 0);
+      for (std::size_t i = 0; i < wresults.size(); ++i) {
+        {
+          const float expected = zisc::cast<float>(i);
+          const auto result = wresults[i];
+          ASSERT_EQ(expected, result) << "Casting uint32b* to float* failed.";
+        }
+        {
+          const float expected = zisc::cast<float>(i);
+          const auto result = rresults[i];
+          ASSERT_EQ(expected, result) << "Casting uint32b* to float* failed.";
+        }
       }
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
-
-TEST(DataTest, CastUint16bToFloat2)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint16bToFloat2, 1);
-    kernel->run(*(buffer->treatAs<uint16b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::float2> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const float v = zisc::cast<float>(2 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint16b* to float2* failed.";
-        ASSERT_EQ(v + 1.0f, result.y) << "Casting uint16b* to float2* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint8bToFloat4)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint8bToFloat4, 1);
-    kernel->run(*(buffer->treatAs<uint8b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::float4> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const float v = zisc::cast<float>(4 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint8b* to float4* failed.";
-        ASSERT_EQ(v + 1.0f, result.y) << "Casting uint8b* to float4* failed.";
-        ASSERT_EQ(v + 2.0f, result.z) << "Casting uint8b* to float4* failed.";
-        ASSERT_EQ(v + 3.0f, result.w) << "Casting uint8b* to float4* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint16bToFloat4)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint16bToFloat4, 1);
-    kernel->run(*(buffer->treatAs<uint16b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<cl::float4> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const float v = zisc::cast<float>(4 * i);
-        const auto result = results[i];
-        ASSERT_EQ(v, result.x) << "Casting uint16b* to float4* failed.";
-        ASSERT_EQ(v + 1.0f, result.y) << "Casting uint16b* to float4* failed.";
-        ASSERT_EQ(v + 2.0f, result.z) << "Casting uint16b* to float4* failed.";
-        ASSERT_EQ(v + 3.0f, result.w) << "Casting uint16b* to float4* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint8bToRay)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<::Ray1>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint8bToRay, 1);
-    kernel->run(*(buffer->treatAs<uint8b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<::Ray1> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const auto& result = results[i];
-        const auto& o = result.origin_;
-        ASSERT_FLOAT_EQ(1.0f, o.x) << "Casting uint8b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(2.0f, o.y) << "Casting uint8b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(3.0f, o.z) << "Casting uint8b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(4.0f, o.w) << "Casting uint8b* to Ray1* failed.";
-        const auto& d = result.dir_;
-        ASSERT_FLOAT_EQ(1.0f, d.x) << "Casting uint8b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(1.0f, d.y) << "Casting uint8b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(1.0f, d.z) << "Casting uint8b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(1.0f, d.w) << "Casting uint8b* to Ray1* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint16bToRay)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<::Ray1>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint16bToRay, 1);
-    kernel->run(*(buffer->treatAs<uint16b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<::Ray1> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const auto& result = results[i];
-        const auto& o = result.origin_;
-        ASSERT_FLOAT_EQ(1.0f, o.x) << "Casting uint16b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(2.0f, o.y) << "Casting uint16b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(3.0f, o.z) << "Casting uint16b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(4.0f, o.w) << "Casting uint16b* to Ray1* failed.";
-        const auto& d = result.dir_;
-        ASSERT_FLOAT_EQ(1.0f, d.x) << "Casting uint16b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(1.0f, d.y) << "Casting uint16b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(1.0f, d.z) << "Casting uint16b* to Ray1* failed.";
-        ASSERT_FLOAT_EQ(1.0f, d.w) << "Casting uint16b* to Ray1* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint8bToTestData1)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<::TestData1>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint8bToTestData1, 1);
-    kernel->run(*(buffer->treatAs<uint8b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<::TestData1> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const auto& result = results[i];
-        const auto& v1 = result.v1_;
-        ASSERT_FLOAT_EQ(1.0f, v1.x) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(2.0f, v1.y) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(3.0f, v1.z) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(4.0f, v1.w) << "Casting uint8b* to TestData1* failed.";
-        const auto& v2 = result.v2_;
-        ASSERT_EQ(1, v2.x) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_EQ(2, v2.y) << "Casting uint8b* to TestData1* failed.";
-        const auto& v3 = result.v3_;
-        ASSERT_EQ(1, v3.x) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_EQ(2, v3.y) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_EQ(3, v3.z) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_EQ(4, v3.w) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(10.0f, result.v4_) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_EQ(10, result.v5_) << "Casting uint8b* to TestData1* failed.";
-        const auto& v6 = result.v6_;
-        ASSERT_EQ(1, v6.x) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_EQ(2, v6.y) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_EQ(3, v6.z) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_EQ(4, v6.w) << "Casting uint8b* to TestData1* failed.";
-        const auto& v7 = result.v7_;
-        ASSERT_EQ(-10, v7.x) << "Casting uint8b* to TestData1* failed.";
-        ASSERT_EQ(10, v7.y) << "Casting uint8b* to TestData1* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, CastUint16bToTestData1)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 100000;
-
-    auto buffer = makeBuffer<::TestData1>(device.get(), BufferUsage::kDeviceSrc);
-    buffer->setSize(resolution);
-
-    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceDst);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, 1, 0, 0);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint16bToTestData1, 1);
-    kernel->run(*(buffer->treatAs<uint16b>()), *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<::TestData1> results;
-      results.resize(resolution);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
-        const auto& result = results[i];
-        const auto& v1 = result.v1_;
-        ASSERT_FLOAT_EQ(1.0f, v1.x) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(2.0f, v1.y) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(3.0f, v1.z) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(4.0f, v1.w) << "Casting uint16b* to TestData1* failed.";
-        const auto& v2 = result.v2_;
-        ASSERT_EQ(1, v2.x) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_EQ(2, v2.y) << "Casting uint16b* to TestData1* failed.";
-        const auto& v3 = result.v3_;
-        ASSERT_EQ(1, v3.x) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_EQ(2, v3.y) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_EQ(3, v3.z) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_EQ(4, v3.w) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_FLOAT_EQ(10.0f, result.v4_) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_EQ(10, result.v5_) << "Casting uint16b* to TestData1* failed.";
-        const auto& v6 = result.v6_;
-        ASSERT_EQ(1, v6.x) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_EQ(2, v6.y) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_EQ(3, v6.z) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_EQ(4, v6.w) << "Casting uint16b* to TestData1* failed.";
-        const auto& v7 = result.v7_;
-        ASSERT_EQ(-10, v7.x) << "Casting uint16b* to TestData1* failed.";
-        ASSERT_EQ(10, v7.y) << "Casting uint16b* to TestData1* failed.";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-#endif // ZINVUL_TEST_INT8_POINTER
