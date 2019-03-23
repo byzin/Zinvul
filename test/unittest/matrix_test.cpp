@@ -50,7 +50,7 @@ TEST(MathTest, zInitMatrix2x2Test)
       input_buf->write(&matrix, 1, 0, 0);
     }
     auto output_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
-    output_buf->setSize(3);
+    output_buf->setSize(6);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMatrix2x2Init, 1);
     kernel->run(*input_buf, *output_buf, {1}, 0);
@@ -59,7 +59,7 @@ TEST(MathTest, zInitMatrix2x2Test)
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
 
     {
-      std::array<ZMatrix2x2, 3> results;
+      std::array<ZMatrix2x2, 6> results;
       output_buf->read(results.data(), results.size(), 0, 0);
       {
         const auto& matrix = results[0];
@@ -72,13 +72,37 @@ TEST(MathTest, zInitMatrix2x2Test)
       {
         const auto& matrix = results[1];
         for (std::size_t i = 0; i < 4; ++i) {
-          const float expected = zisc::cast<float>(i);
+          const float expected = zisc::cast<float>(i * 2);
           const float result = matrix.m_[i];
           ASSERT_EQ(expected, result) << "Matrix2x2 initialization failed.";
         }
       }
       {
         const auto& matrix = results[2];
+        for (std::size_t i = 0; i < 4; ++i) {
+          const float expected = zisc::cast<float>(i);
+          const float result = matrix.m_[i];
+          ASSERT_EQ(expected, result) << "Matrix2x2 initialization failed.";
+        }
+      }
+      {
+        const auto& matrix = results[3];
+        for (std::size_t i = 0; i < 4; ++i) {
+          const float expected = zisc::cast<float>(i);
+          const float result = matrix.m_[i];
+          ASSERT_EQ(expected, result) << "Matrix2x2 initialization failed.";
+        }
+      }
+      {
+        const auto& matrix = results[4];
+        for (std::size_t i = 0; i < 4; ++i) {
+          const float expected = zisc::cast<float>(i);
+          const float result = matrix.m_[i];
+          ASSERT_EQ(expected, result) << "Matrix2x2 initialization failed.";
+        }
+      }
+      {
+        const auto& matrix = results[5];
         for (std::size_t i = 0; i < 4; ++i) {
           const float expected = zisc::cast<float>(i);
           const float result = matrix.m_[i];
@@ -110,7 +134,7 @@ TEST(MathTest, zInitMatrix3x3Test)
       input_buf->write(&matrix, 1, 0, 0);
     }
     auto output_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
-    output_buf->setSize(3);
+    output_buf->setSize(6);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMatrix3x3Init, 1);
     kernel->run(*input_buf, *output_buf, {1}, 0);
@@ -119,7 +143,7 @@ TEST(MathTest, zInitMatrix3x3Test)
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
 
     {
-      std::array<ZMatrix3x3, 3> results;
+      std::array<ZMatrix3x3, 6> results;
       output_buf->read(results.data(), results.size(), 0, 0);
       {
         const auto& matrix = results[0];
@@ -132,13 +156,37 @@ TEST(MathTest, zInitMatrix3x3Test)
       {
         const auto& matrix = results[1];
         for (std::size_t i = 0; i < 9; ++i) {
-          const float expected = zisc::cast<float>(i);
+          const float expected = zisc::cast<float>(i * 2);
           const float result = matrix.m_[i];
           ASSERT_EQ(expected, result) << "Matrix3x3 initialization failed.";
         }
       }
       {
         const auto& matrix = results[2];
+        for (std::size_t i = 0; i < 9; ++i) {
+          const float expected = zisc::cast<float>(i);
+          const float result = matrix.m_[i];
+          ASSERT_EQ(expected, result) << "Matrix3x3 initialization failed.";
+        }
+      }
+      {
+        const auto& matrix = results[3];
+        for (std::size_t i = 0; i < 9; ++i) {
+          const float expected = zisc::cast<float>(i);
+          const float result = matrix.m_[i];
+          ASSERT_EQ(expected, result) << "Matrix3x3 initialization failed.";
+        }
+      }
+      {
+        const auto& matrix = results[4];
+        for (std::size_t i = 0; i < 9; ++i) {
+          const float expected = zisc::cast<float>(i);
+          const float result = matrix.m_[i];
+          ASSERT_EQ(expected, result) << "Matrix3x3 initialization failed.";
+        }
+      }
+      {
+        const auto& matrix = results[5];
         for (std::size_t i = 0; i < 9; ++i) {
           const float expected = zisc::cast<float>(i);
           const float result = matrix.m_[i];
@@ -171,7 +219,7 @@ TEST(MathTest, zInitMatrix4x4Test)
       input_buf->write(&matrix, 1, 0, 0);
     }
     auto output_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
-    output_buf->setSize(3);
+    output_buf->setSize(6);
 
     auto kernel = makeZinvulKernel(device.get(), math, testMatrix4x4Init, 1);
     kernel->run(*input_buf, *output_buf, {1}, 0);
@@ -180,7 +228,7 @@ TEST(MathTest, zInitMatrix4x4Test)
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
 
     {
-      std::array<ZMatrix4x4, 3> results;
+      std::array<ZMatrix4x4, 6> results;
       output_buf->read(results.data(), results.size(), 0, 0);
       {
         const auto& matrix = results[0];
@@ -193,13 +241,37 @@ TEST(MathTest, zInitMatrix4x4Test)
       {
         const auto& matrix = results[1];
         for (std::size_t i = 0; i < 16; ++i) {
-          const float expected = zisc::cast<float>(i);
+          const float expected = zisc::cast<float>(i * 2);
           const float result = matrix.m_[i];
           ASSERT_EQ(expected, result) << "Matrix4x4 initialization failed.";
         }
       }
       {
         const auto& matrix = results[2];
+        for (std::size_t i = 0; i < 16; ++i) {
+          const float expected = zisc::cast<float>(i);
+          const float result = matrix.m_[i];
+          ASSERT_EQ(expected, result) << "Matrix4x4 initialization failed.";
+        }
+      }
+      {
+        const auto& matrix = results[3];
+        for (std::size_t i = 0; i < 16; ++i) {
+          const float expected = zisc::cast<float>(i);
+          const float result = matrix.m_[i];
+          ASSERT_EQ(expected, result) << "Matrix4x4 initialization failed.";
+        }
+      }
+      {
+        const auto& matrix = results[4];
+        for (std::size_t i = 0; i < 16; ++i) {
+          const float expected = zisc::cast<float>(i);
+          const float result = matrix.m_[i];
+          ASSERT_EQ(expected, result) << "Matrix4x4 initialization failed.";
+        }
+      }
+      {
+        const auto& matrix = results[5];
         for (std::size_t i = 0; i < 16; ++i) {
           const float expected = zisc::cast<float>(i);
           const float result = matrix.m_[i];
