@@ -4234,28 +4234,32 @@ float4 zAcos4(const float4 x)
 //! Compute dot product
 float zDot2Impl(const float2 p0, const float2 p1)
 {
-  const float result = (p0.x * p1.x) + (p0.y * p1.y);
+  const float2 d = p0 * p1;
+  const float result = d.x + d.y;
   return result;
 }
 
 //! Compute dot product
 float zDot3Impl(const float3 p0, const float3 p1)
 {
-  const float result = (p0.x * p1.x) + (p0.y * p1.y) + (p0.z * p1.z);
+  const float3 d = p0 * p1;
+  const float result = d.x + d.y + d.z;
   return result;
 }
 
 //! Compute dot product
 float zDot3F4Impl(const float4 p0, const float4 p1)
 {
-  const float result = (p0.x * p1.x) + (p0.y * p1.y) + (p0.z * p1.z);
+  const float4 d = p0 * p1;
+  const float result = d.x + d.y + d.z;
   return result;
 }
 
 //! Compute dot product
 float zDot4Impl(const float4 p0, const float4 p1)
 {
-  const float result = (p0.x * p1.x) + (p0.y * p1.y) + (p0.z * p1.z) + (p0.w * p1.w);
+  const float4 d = p0 * p1;
+  const float result = d.x + d.y + d.z + d.w;
   return result;
 }
 

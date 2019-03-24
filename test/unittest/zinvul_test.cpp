@@ -89,6 +89,66 @@ TEST(ZinvulTest, VulkanDeviceTest)
 }
 #endif // ZINVUL_ENABLE_VULKAN_BACKEND
 
+//TEST(Experiment, ZinvulTest)
+//{
+//  using zisc::cast;
+//  using namespace zinvul;
+//  auto options = makeTestOptions();
+//  auto device_list = makeTestDeviceList(options);
+//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//    auto& device = device_list[number];
+//    std::cout << getTestDeviceInfo(*device);
+//
+//    constexpr uint32b resolution = 1u;
+//
+//    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
+//    results1->setSize(1);
+//    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
+//    results2->setSize(1);
+//    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
+//    results3->setSize(1);
+//    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
+//    results4->setSize(1);
+//
+//    auto kernel = zinvul::makeZinvulKernel(device.get(), experiment, experiment, 1);
+//    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+//    device->waitForCompletion();
+//
+//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+//
+//    const char* error_message = "The '' func is failed.";
+//    // Scalar
+//    {
+//      std::vector<float> results;
+//      results.resize(1);
+//      results1->read(results.data(), results.size(), 0, 0);
+//    }
+//
+//    // Vector2
+//    {
+//      std::vector<cl::float2> results;
+//      results.resize(1);
+//      results2->read(results.data(), results.size(), 0, 0);
+//    }
+//
+//    // Vector3
+//    {
+//      std::vector<cl::float3> results;
+//      results.resize(1);
+//      results3->read(results.data(), results.size(), 0, 0);
+//    }
+//
+//    // Vector4
+//    {
+//      std::vector<cl::float4> results;
+//      results.resize(1);
+//      results4->read(results.data(), results.size(), 0, 0);
+//    }
+//
+//    std::cout << std::endl;
+//  }
+//}
+
 TEST(Experiment, ZinvulTest)
 {
   using zisc::cast;
@@ -96,54 +156,23 @@ TEST(Experiment, ZinvulTest)
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
   for (std::size_t number = 0; number < device_list.size(); ++number) {
+    if (number == 0)
+      continue;
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 1u;
+    using ZMatrix2x2 = zinvul::experiment::KernelGroup::ZMatrix2x2;
 
-    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
-    results1->setSize(1);
-    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
-    results2->setSize(1);
-    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
-    results3->setSize(1);
-    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
-    results4->setSize(1);
+    auto input_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
+    input_buf->setSize(2);
+    auto output_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
+    output_buf->setSize(2);
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), experiment, experiment, 1);
-    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+    kernel->run(*input_buf, *output_buf, {1}, 0);
     device->waitForCompletion();
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-
-    const char* error_message = "The '' func is failed.";
-    // Scalar
-    {
-      std::vector<float> results;
-      results.resize(1);
-      results1->read(results.data(), results.size(), 0, 0);
-    }
-
-    // Vector2
-    {
-      std::vector<cl::float2> results;
-      results.resize(1);
-      results2->read(results.data(), results.size(), 0, 0);
-    }
-
-    // Vector3
-    {
-      std::vector<cl::float3> results;
-      results.resize(1);
-      results3->read(results.data(), results.size(), 0, 0);
-    }
-
-    // Vector4
-    {
-      std::vector<cl::float4> results;
-      results.resize(1);
-      results4->read(results.data(), results.size(), 0, 0);
-    }
 
     std::cout << std::endl;
   }

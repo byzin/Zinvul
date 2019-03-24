@@ -19,16 +19,33 @@
 
 /*!
   */
-__kernel void experiment(__global float* buffer1,
-    __global float2* buffer2,
-    __global float3* buffer3,
-    __global float4* buffer4)
+//__kernel void experiment(__global float* buffer1,
+//    __global float2* buffer2,
+//    __global float3* buffer3,
+//    __global float4* buffer4)
+//{
+//  const uint32b index = zGetGlobalIdX();
+//  if (index == 0) {
+//    float x = buffer1[index];
+//    x = 2.0f * x;
+//    buffer1[index] = x;
+//  }
+//}
+
+/*!
+  */
+__kernel void experiment(__global ZMatrix2x2* inputs,
+    __global ZMatrix2x2* outputs)
 {
   const uint32b index = zGetGlobalIdX();
   if (index == 0) {
-    float x = buffer1[index];
-    x = 2.0f * x;
-    buffer1[index] = x;
+    {
+      ZMatrix2x2 result;
+      outputs[0] = result;
+    }
+    {
+      zSetMat2x2ElemG(&outputs[1], 0, 0, 0.0f);
+    }
   }
 }
 

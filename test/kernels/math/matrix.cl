@@ -20,19 +20,20 @@ __kernel void testMatrix2x2Init(__global ZMatrix2x2* inputs,
   const uint32b index = zGetGlobalIdX();
   __local ZMatrix2x2 mat[2];
   if (index == 0) {
+    const size_t n = 2;
     // Setter, getter
     // Mat1
     {
       ZMatrix2x2 m;
-      for (size_t column = 0; column < 2; ++column) {
-        for (size_t row = 0; row < 2; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           float v = zGetMat2x2ElemG(inputs, row, column);
           v = 2.0f * v;
           zSetMat2x2Elem(&m, row, column, v);
         }
       }
-      for (size_t column = 0; column < 2; ++column) {
-        for (size_t row = 0; row < 2; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           const float v = zGetMat2x2Elem(&m, row, column);
           zSetMat2x2ElemG(&outputs[0], row, column, v);
         }
@@ -40,15 +41,15 @@ __kernel void testMatrix2x2Init(__global ZMatrix2x2* inputs,
     }
     // Mat2
     {
-      for (size_t column = 0; column < 2; ++column) {
-        for (size_t row = 0; row < 2; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           float v = zGetMat2x2ElemG(inputs, row, column);
           v = 2.0f * v;
           zSetMat2x2ElemL(&mat[0], row, column, v);
         }
       }
-      for (size_t column = 0; column < 2; ++column) {
-        for (size_t row = 0; row < 2; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           const float v = zGetMat2x2ElemL(&mat[0], row, column);
           zSetMat2x2ElemG(&outputs[1], row, column, v);
         }
@@ -61,11 +62,11 @@ __kernel void testMatrix2x2Init(__global ZMatrix2x2* inputs,
       ZMatrix2x2 m;
       zInitMat2x2(&m, 0.0f, 1.0f,
                       2.0f, 3.0f);
-      for (size_t row = 0; row < 2; ++row) {
+      for (size_t row = 0; row < n; ++row) {
         const float2 vector = zGetMat2x2RowVec(&m, row);
         zSetMat2x2RowVecG(&outputs[2], row, vector);
       }
-      for (size_t column = 0; column < 2; ++column) {
+      for (size_t column = 0; column < n; ++column) {
         const float2 vector = zGetMat2x2ColumnVec(&m, column);
         zSetMat2x2ColumnVecG(&outputs[3], column, vector);
       }
@@ -74,11 +75,11 @@ __kernel void testMatrix2x2Init(__global ZMatrix2x2* inputs,
     {
       zInitMat2x2L(&mat[1], 0.0f, 1.0f,
                             2.0f, 3.0f);
-      for (size_t row = 0; row < 2; ++row) {
+      for (size_t row = 0; row < n; ++row) {
         const float2 vector = zGetMat2x2RowVecL(&mat[1], row);
         zSetMat2x2RowVecG(&outputs[4], row, vector);
       }
-      for (size_t column = 0; column < 2; ++column) {
+      for (size_t column = 0; column < n; ++column) {
         const float2 vector = zGetMat2x2ColumnVecL(&mat[1], column);
         zSetMat2x2ColumnVecG(&outputs[5], column, vector);
       }
@@ -92,19 +93,20 @@ __kernel void testMatrix3x3Init(__global ZMatrix3x3* inputs,
   const uint32b index = zGetGlobalIdX();
   __local ZMatrix3x3 mat[2];
   if (index == 0) {
+    const size_t n = 3;
     // Setter, getter
     // Mat1
     {
       ZMatrix3x3 m;
-      for (size_t column = 0; column < 3; ++column) {
-        for (size_t row = 0; row < 3; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           float v = zGetMat3x3ElemG(inputs, row, column);
           v = 2.0f * v;
           zSetMat3x3Elem(&m, row, column, v);
         }
       }
-      for (size_t column = 0; column < 3; ++column) {
-        for (size_t row = 0; row < 3; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           const float v = zGetMat3x3Elem(&m, row, column);
           zSetMat3x3ElemG(&outputs[0], row, column, v);
         }
@@ -112,15 +114,15 @@ __kernel void testMatrix3x3Init(__global ZMatrix3x3* inputs,
     }
     // Mat2
     {
-      for (size_t column = 0; column < 3; ++column) {
-        for (size_t row = 0; row < 3; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           float v = zGetMat3x3ElemG(inputs, row, column);
           v = 2.0f * v;
           zSetMat3x3ElemL(&mat[0], row, column, v);
         }
       }
-      for (size_t column = 0; column < 3; ++column) {
-        for (size_t row = 0; row < 3; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           const float v = zGetMat3x3ElemL(&mat[0], row, column);
           zSetMat3x3ElemG(&outputs[1], row, column, v);
         }
@@ -134,11 +136,11 @@ __kernel void testMatrix3x3Init(__global ZMatrix3x3* inputs,
       zInitMat3x3(&m, 0.0f, 1.0f, 2.0f,
                       3.0f, 4.0f, 5.0f,
                       6.0f, 7.0f, 8.0f);
-      for (size_t row = 0; row < 3; ++row) {
+      for (size_t row = 0; row < n; ++row) {
         const float3 vector = zGetMat3x3RowVec(&m, row);
         zSetMat3x3RowVecG(&outputs[2], row, vector);
       }
-      for (size_t column = 0; column < 3; ++column) {
+      for (size_t column = 0; column < n; ++column) {
         const float3 vector = zGetMat3x3ColumnVec(&m, column);
         zSetMat3x3ColumnVecG(&outputs[3], column, vector);
       }
@@ -148,11 +150,11 @@ __kernel void testMatrix3x3Init(__global ZMatrix3x3* inputs,
       zInitMat3x3L(&mat[1], 0.0f, 1.0f, 2.0f,
                             3.0f, 4.0f, 5.0f,
                             6.0f, 7.0f, 8.0f);
-      for (size_t row = 0; row < 3; ++row) {
+      for (size_t row = 0; row < n; ++row) {
         const float3 vector = zGetMat3x3RowVecL(&mat[1], row);
         zSetMat3x3RowVecG(&outputs[4], row, vector);
       }
-      for (size_t column = 0; column < 3; ++column) {
+      for (size_t column = 0; column < n; ++column) {
         const float3 vector = zGetMat3x3ColumnVecL(&mat[1], column);
         zSetMat3x3ColumnVecG(&outputs[5], column, vector);
       }
@@ -166,19 +168,20 @@ __kernel void testMatrix4x4Init(__global ZMatrix4x4* inputs,
   const uint32b index = zGetGlobalIdX();
   __local ZMatrix4x4 mat[2];
   if (index == 0) {
+    const size_t n = 4;
     // Setter, getter
     // Mat1
     {
       ZMatrix4x4 m;
-      for (size_t column = 0; column < 4; ++column) {
-        for (size_t row = 0; row < 4; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           float v = zGetMat4x4ElemG(inputs, row, column);
           v = 2.0f * v;
           zSetMat4x4Elem(&m, row, column, v);
         }
       }
-      for (size_t column = 0; column < 4; ++column) {
-        for (size_t row = 0; row < 4; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           const float v = zGetMat4x4Elem(&m, row, column);
           zSetMat4x4ElemG(&outputs[0], row, column, v);
         }
@@ -186,15 +189,15 @@ __kernel void testMatrix4x4Init(__global ZMatrix4x4* inputs,
     }
     // Mat2
     {
-      for (size_t column = 0; column < 4; ++column) {
-        for (size_t row = 0; row < 4; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           float v = zGetMat4x4ElemG(inputs, row, column);
           v = 2.0f * v;
           zSetMat4x4ElemL(&mat[0], row, column, v);
         }
       }
-      for (size_t column = 0; column < 4; ++column) {
-        for (size_t row = 0; row < 4; ++row) {
+      for (size_t row = 0; row < n; ++row) {
+        for (size_t column = 0; column < n; ++column) {
           const float v = zGetMat4x4ElemL(&mat[0], row, column);
           zSetMat4x4ElemG(&outputs[1], row, column, v);
         }
@@ -209,11 +212,11 @@ __kernel void testMatrix4x4Init(__global ZMatrix4x4* inputs,
                       4.0f, 5.0f, 6.0f, 7.0f,
                       8.0f, 9.0f, 10.0f, 11.0f,
                       12.0f, 13.0f, 14.0f, 15.0f);
-      for (size_t row = 0; row < 4; ++row) {
+      for (size_t row = 0; row < n; ++row) {
         const float4 vector = zGetMat4x4RowVec(&m, row);
         zSetMat4x4RowVecG(&outputs[2], row, vector);
       }
-      for (size_t column = 0; column < 4; ++column) {
+      for (size_t column = 0; column < n; ++column) {
         const float4 vector = zGetMat4x4ColumnVec(&m, column);
         zSetMat4x4ColumnVecG(&outputs[3], column, vector);
       }
@@ -224,16 +227,97 @@ __kernel void testMatrix4x4Init(__global ZMatrix4x4* inputs,
                             4.0f, 5.0f, 6.0f, 7.0f,
                             8.0f, 9.0f, 10.0f, 11.0f,
                             12.0f, 13.0f, 14.0f, 15.0f);
-      for (size_t row = 0; row < 4; ++row) {
+      for (size_t row = 0; row < n; ++row) {
         const float4 vector = zGetMat4x4RowVecL(&mat[1], row);
         zSetMat4x4RowVecG(&outputs[4], row, vector);
       }
-      for (size_t column = 0; column < 4; ++column) {
+      for (size_t column = 0; column < n; ++column) {
         const float4 vector = zGetMat4x4ColumnVecL(&mat[1], column);
         zSetMat4x4ColumnVecG(&outputs[5], column, vector);
       }
     }
   }
 }
+
+//__kernel void testMatrix2x2Addition(__global ZMatrix2x2* inputs,
+//    __global ZMatrix2x2* outputs)
+//{
+//  __local ZMatrix2x2 mat[3];
+//  const uint32b index = zGetGlobalIdX();
+//  if (index == 0) {
+//    size_t i = 0;
+//    {
+//      ZMatrix2x2 lhs;
+//      ZMatrix2x2 rhs;
+//      zCopyMat2x2GP(&inputs[0], &lhs);
+//      zCopyMat2x2GP(&inputs[1], &rhs);
+////      const ZMatrix2x2 lhs = inputs[0];
+////      const ZMatrix2x2 rhs = inputs[1];
+//      ZMatrix2x2 result;
+//      zAddMat2x2(&lhs, &rhs, &result);
+//      zCopyMat2x2PG(&result, &outputs[i++]);
+//    }
+////    {
+////      const ZMatrix2x2 lhs = inputs[0];
+////      const ZMatrix2x2 rhs = inputs[1];
+////      zAddMat2x2L(&lhs, &rhs, &mat[0]);
+////      initMat2x2G(&mat[0], &outputs[i++]);
+////    }
+////    {
+////      const ZMatrix2x2 lhs = inputs[0];
+////      const ZMatrix2x2 rhs = inputs[1];
+////      zAddMat2x2G(&lhs, &rhs, &outputs[i++]);
+////    }
+//
+////    {
+////      initMat2x2L(&inputs[0], &mat[0]);
+////      initMat2x2L(&inputs[1], &mat[1]);
+////      ZMatrix2x2 result;
+////      zAddLMat2x2(&mat[0], &mat[1], &result);
+////      outputs[i++] = result;
+////    }
+////    {
+////      initMat2x2L(&inputs[0], &mat[0]);
+////      initMat2x2L(&inputs[1], &mat[1]);
+////      zAddLMat2x2L(&mat[0], &mat[1], &mat[2]);
+////      initMat2x2G(&mat[2], &outputs[i++]);
+////    }
+////    {
+////      initMat2x2L(&inputs[0], &mat[0]);
+////      initMat2x2L(&inputs[1], &mat[1]);
+////      zAddLMat2x2G(&mat[0], &mat[1], &outputs[i++]);
+////    }
+////
+////    {
+////      const __global ZMatrix2x2* lhs = &inputs[0];
+////      const __global ZMatrix2x2* rhs = &inputs[1];
+////      ZMatrix2x2 result;
+////      zAddGMat2x2(lhs, rhs, &result);
+////      outputs[i++] = result;
+////    }
+////    {
+////      const __global ZMatrix2x2* lhs = &inputs[0];
+////      const __global ZMatrix2x2* rhs = &inputs[1];
+////      zAddGMat2x2L(lhs, rhs, &mat[0]);
+////      initMat2x2G(&mat[0], &outputs[i++]);
+////    }
+////    {
+////      const __global ZMatrix2x2* lhs = &inputs[0];
+////      const __global ZMatrix2x2* rhs = &inputs[1];
+////      zAddGMat2x2G(lhs, rhs, &outputs[i++]);
+////    }
+////
+////    {
+////      const ZMatrix2x2 lhs = inputs[0];
+////      const __local ZMatrix2x2* rhs = &mat[1];
+////      zAddL1Mat2x2G(&lhs, rhs, &outputs[i++]);
+////    }
+////    {
+////      const ZMatrix2x2 lhs = inputs[0];
+////      const __global ZMatrix2x2* rhs = &inputs[1];
+////      zAddG1Mat2x2G(&lhs, rhs, &outputs[i++]);
+////    }
+//  }
+//}
 
 #endif /* ZINVUL_MATH_TEST_MATRIX_CL */
