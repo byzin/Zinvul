@@ -1054,7 +1054,7 @@ void zAddLMat2x2G(const __local ZMatrix2x2* lhs,
 }
 
 //! Perform matrix addition
-void zAddL1Mat2x2(const __private ZMatrix2x2* lhs,
+void zAddPLMat2x2(const __private ZMatrix2x2* lhs,
                   const __local ZMatrix2x2* rhs,
                   __private ZMatrix2x2* dst)
 {
@@ -1062,7 +1062,7 @@ void zAddL1Mat2x2(const __private ZMatrix2x2* lhs,
 }
 
 //! Perform matrix addition
-void zAddL1Mat2x2L(const __private ZMatrix2x2* lhs,
+void zAddPLMat2x2L(const __private ZMatrix2x2* lhs,
                    const __local ZMatrix2x2* rhs,
                    __local ZMatrix2x2* dst)
 {
@@ -1070,7 +1070,7 @@ void zAddL1Mat2x2L(const __private ZMatrix2x2* lhs,
 }
 
 //! Perform matrix addition
-void zAddL1Mat2x2G(const __private ZMatrix2x2* lhs,
+void zAddPLMat2x2G(const __private ZMatrix2x2* lhs,
                    const __local ZMatrix2x2* rhs,
                    __global ZMatrix2x2* dst)
 {
@@ -1102,7 +1102,7 @@ void zAddGMat2x2G(const __global ZMatrix2x2* lhs,
 }
 
 //! Perform matrix addition
-void zAddG1Mat2x2(const __private ZMatrix2x2* lhs,
+void zAddPGMat2x2(const __private ZMatrix2x2* lhs,
                   const __global ZMatrix2x2* rhs,
                   __private ZMatrix2x2* dst)
 {
@@ -1110,7 +1110,7 @@ void zAddG1Mat2x2(const __private ZMatrix2x2* lhs,
 }
 
 //! Perform matrix addition
-void zAddG1Mat2x2L(const __private ZMatrix2x2* lhs,
+void zAddPGMat2x2L(const __private ZMatrix2x2* lhs,
                    const __global ZMatrix2x2* rhs,
                    __local ZMatrix2x2* dst)
 {
@@ -1118,7 +1118,7 @@ void zAddG1Mat2x2L(const __private ZMatrix2x2* lhs,
 }
 
 //! Perform matrix addition
-void zAddG1Mat2x2G(const __private ZMatrix2x2* lhs,
+void zAddPGMat2x2G(const __private ZMatrix2x2* lhs,
                    const __global ZMatrix2x2* rhs,
                    __global ZMatrix2x2* dst)
 {
@@ -1202,7 +1202,7 @@ void zSubLMat2x2G(const __local ZMatrix2x2* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubL1Mat2x2(const __private ZMatrix2x2* lhs,
+void zSubPLMat2x2(const __private ZMatrix2x2* lhs,
                   const __local ZMatrix2x2* rhs,
                   __private ZMatrix2x2* dst)
 {
@@ -1210,7 +1210,7 @@ void zSubL1Mat2x2(const __private ZMatrix2x2* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubL1Mat2x2L(const __private ZMatrix2x2* lhs,
+void zSubPLMat2x2L(const __private ZMatrix2x2* lhs,
                    const __local ZMatrix2x2* rhs,
                    __local ZMatrix2x2* dst)
 {
@@ -1218,7 +1218,7 @@ void zSubL1Mat2x2L(const __private ZMatrix2x2* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubL1Mat2x2G(const __private ZMatrix2x2* lhs,
+void zSubPLMat2x2G(const __private ZMatrix2x2* lhs,
                    const __local ZMatrix2x2* rhs,
                    __global ZMatrix2x2* dst)
 {
@@ -1250,7 +1250,7 @@ void zSubGMat2x2G(const __global ZMatrix2x2* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubG1Mat2x2(const __private ZMatrix2x2* lhs,
+void zSubPGMat2x2(const __private ZMatrix2x2* lhs,
                   const __global ZMatrix2x2* rhs,
                   __private ZMatrix2x2* dst)
 {
@@ -1258,7 +1258,7 @@ void zSubG1Mat2x2(const __private ZMatrix2x2* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubG1Mat2x2L(const __private ZMatrix2x2* lhs,
+void zSubPGMat2x2L(const __private ZMatrix2x2* lhs,
                    const __global ZMatrix2x2* rhs,
                    __local ZMatrix2x2* dst)
 {
@@ -1266,7 +1266,7 @@ void zSubG1Mat2x2L(const __private ZMatrix2x2* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubG1Mat2x2G(const __private ZMatrix2x2* lhs,
+void zSubPGMat2x2G(const __private ZMatrix2x2* lhs,
                    const __global ZMatrix2x2* rhs,
                    __global ZMatrix2x2* dst)
 {
@@ -1350,7 +1350,7 @@ void zAddLMat3x3G(const __local ZMatrix3x3* lhs,
 }
 
 //! Perform matrix addition
-void zAddL1Mat3x3(const __private ZMatrix3x3* lhs,
+void zAddPLMat3x3(const __private ZMatrix3x3* lhs,
                   const __local ZMatrix3x3* rhs,
                   __private ZMatrix3x3* dst)
 {
@@ -1358,7 +1358,7 @@ void zAddL1Mat3x3(const __private ZMatrix3x3* lhs,
 }
 
 //! Perform matrix addition
-void zAddL1Mat3x3L(const __private ZMatrix3x3* lhs,
+void zAddPLMat3x3L(const __private ZMatrix3x3* lhs,
                    const __local ZMatrix3x3* rhs,
                    __local ZMatrix3x3* dst)
 {
@@ -1366,7 +1366,7 @@ void zAddL1Mat3x3L(const __private ZMatrix3x3* lhs,
 }
 
 //! Perform matrix addition
-void zAddL1Mat3x3G(const __private ZMatrix3x3* lhs,
+void zAddPLMat3x3G(const __private ZMatrix3x3* lhs,
                    const __local ZMatrix3x3* rhs,
                    __global ZMatrix3x3* dst)
 {
@@ -1398,7 +1398,7 @@ void zAddGMat3x3G(const __global ZMatrix3x3* lhs,
 }
 
 //! Perform matrix addition
-void zAddG1Mat3x3(const __private ZMatrix3x3* lhs,
+void zAddPGMat3x3(const __private ZMatrix3x3* lhs,
                   const __global ZMatrix3x3* rhs,
                   __private ZMatrix3x3* dst)
 {
@@ -1406,7 +1406,7 @@ void zAddG1Mat3x3(const __private ZMatrix3x3* lhs,
 }
 
 //! Perform matrix addition
-void zAddG1Mat3x3L(const __private ZMatrix3x3* lhs,
+void zAddPGMat3x3L(const __private ZMatrix3x3* lhs,
                    const __global ZMatrix3x3* rhs,
                    __local ZMatrix3x3* dst)
 {
@@ -1414,7 +1414,7 @@ void zAddG1Mat3x3L(const __private ZMatrix3x3* lhs,
 }
 
 //! Perform matrix addition
-void zAddG1Mat3x3G(const __private ZMatrix3x3* lhs,
+void zAddPGMat3x3G(const __private ZMatrix3x3* lhs,
                    const __global ZMatrix3x3* rhs,
                    __global ZMatrix3x3* dst)
 {
@@ -1498,7 +1498,7 @@ void zSubLMat3x3G(const __local ZMatrix3x3* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubL1Mat3x3(const __private ZMatrix3x3* lhs,
+void zSubPLMat3x3(const __private ZMatrix3x3* lhs,
                   const __local ZMatrix3x3* rhs,
                   __private ZMatrix3x3* dst)
 {
@@ -1506,7 +1506,7 @@ void zSubL1Mat3x3(const __private ZMatrix3x3* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubL1Mat3x3L(const __private ZMatrix3x3* lhs,
+void zSubPLMat3x3L(const __private ZMatrix3x3* lhs,
                    const __local ZMatrix3x3* rhs,
                    __local ZMatrix3x3* dst)
 {
@@ -1514,7 +1514,7 @@ void zSubL1Mat3x3L(const __private ZMatrix3x3* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubL1Mat3x3G(const __private ZMatrix3x3* lhs,
+void zSubPLMat3x3G(const __private ZMatrix3x3* lhs,
                    const __local ZMatrix3x3* rhs,
                    __global ZMatrix3x3* dst)
 {
@@ -1546,7 +1546,7 @@ void zSubGMat3x3G(const __global ZMatrix3x3* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubG1Mat3x3(const __private ZMatrix3x3* lhs,
+void zSubPGMat3x3(const __private ZMatrix3x3* lhs,
                   const __global ZMatrix3x3* rhs,
                   __private ZMatrix3x3* dst)
 {
@@ -1554,7 +1554,7 @@ void zSubG1Mat3x3(const __private ZMatrix3x3* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubG1Mat3x3L(const __private ZMatrix3x3* lhs,
+void zSubPGMat3x3L(const __private ZMatrix3x3* lhs,
                    const __global ZMatrix3x3* rhs,
                    __local ZMatrix3x3* dst)
 {
@@ -1562,7 +1562,7 @@ void zSubG1Mat3x3L(const __private ZMatrix3x3* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubG1Mat3x3G(const __private ZMatrix3x3* lhs,
+void zSubPGMat3x3G(const __private ZMatrix3x3* lhs,
                    const __global ZMatrix3x3* rhs,
                    __global ZMatrix3x3* dst)
 {
@@ -1646,7 +1646,7 @@ void zAddLMat4x4G(const __local ZMatrix4x4* lhs,
 }
 
 //! Perform matrix addition
-void zAddL1Mat4x4(const __private ZMatrix4x4* lhs,
+void zAddPLMat4x4(const __private ZMatrix4x4* lhs,
                   const __local ZMatrix4x4* rhs,
                   __private ZMatrix4x4* dst)
 {
@@ -1654,7 +1654,7 @@ void zAddL1Mat4x4(const __private ZMatrix4x4* lhs,
 }
 
 //! Perform matrix addition
-void zAddL1Mat4x4L(const __private ZMatrix4x4* lhs,
+void zAddPLMat4x4L(const __private ZMatrix4x4* lhs,
                    const __local ZMatrix4x4* rhs,
                    __local ZMatrix4x4* dst)
 {
@@ -1662,7 +1662,7 @@ void zAddL1Mat4x4L(const __private ZMatrix4x4* lhs,
 }
 
 //! Perform matrix addition
-void zAddL1Mat4x4G(const __private ZMatrix4x4* lhs,
+void zAddPLMat4x4G(const __private ZMatrix4x4* lhs,
                    const __local ZMatrix4x4* rhs,
                    __global ZMatrix4x4* dst)
 {
@@ -1694,7 +1694,7 @@ void zAddGMat4x4G(const __global ZMatrix4x4* lhs,
 }
 
 //! Perform matrix addition
-void zAddG1Mat4x4(const __private ZMatrix4x4* lhs,
+void zAddPGMat4x4(const __private ZMatrix4x4* lhs,
                   const __global ZMatrix4x4* rhs,
                   __private ZMatrix4x4* dst)
 {
@@ -1702,7 +1702,7 @@ void zAddG1Mat4x4(const __private ZMatrix4x4* lhs,
 }
 
 //! Perform matrix addition
-void zAddG1Mat4x4L(const __private ZMatrix4x4* lhs,
+void zAddPGMat4x4L(const __private ZMatrix4x4* lhs,
                    const __global ZMatrix4x4* rhs,
                    __local ZMatrix4x4* dst)
 {
@@ -1710,7 +1710,7 @@ void zAddG1Mat4x4L(const __private ZMatrix4x4* lhs,
 }
 
 //! Perform matrix addition
-void zAddG1Mat4x4G(const __private ZMatrix4x4* lhs,
+void zAddPGMat4x4G(const __private ZMatrix4x4* lhs,
                    const __global ZMatrix4x4* rhs,
                    __global ZMatrix4x4* dst)
 {
@@ -1794,7 +1794,7 @@ void zSubLMat4x4G(const __local ZMatrix4x4* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubL1Mat4x4(const __private ZMatrix4x4* lhs,
+void zSubPLMat4x4(const __private ZMatrix4x4* lhs,
                   const __local ZMatrix4x4* rhs,
                   __private ZMatrix4x4* dst)
 {
@@ -1802,7 +1802,7 @@ void zSubL1Mat4x4(const __private ZMatrix4x4* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubL1Mat4x4L(const __private ZMatrix4x4* lhs,
+void zSubPLMat4x4L(const __private ZMatrix4x4* lhs,
                    const __local ZMatrix4x4* rhs,
                    __local ZMatrix4x4* dst)
 {
@@ -1810,7 +1810,7 @@ void zSubL1Mat4x4L(const __private ZMatrix4x4* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubL1Mat4x4G(const __private ZMatrix4x4* lhs,
+void zSubPLMat4x4G(const __private ZMatrix4x4* lhs,
                    const __local ZMatrix4x4* rhs,
                    __global ZMatrix4x4* dst)
 {
@@ -1842,7 +1842,7 @@ void zSubGMat4x4G(const __global ZMatrix4x4* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubG1Mat4x4(const __private ZMatrix4x4* lhs,
+void zSubPGMat4x4(const __private ZMatrix4x4* lhs,
                   const __global ZMatrix4x4* rhs,
                   __private ZMatrix4x4* dst)
 {
@@ -1850,7 +1850,7 @@ void zSubG1Mat4x4(const __private ZMatrix4x4* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubG1Mat4x4L(const __private ZMatrix4x4* lhs,
+void zSubPGMat4x4L(const __private ZMatrix4x4* lhs,
                    const __global ZMatrix4x4* rhs,
                    __local ZMatrix4x4* dst)
 {
@@ -1858,7 +1858,7 @@ void zSubG1Mat4x4L(const __private ZMatrix4x4* lhs,
 }
 
 //! Perform matrix subtraction
-void zSubG1Mat4x4G(const __private ZMatrix4x4* lhs,
+void zSubPGMat4x4G(const __private ZMatrix4x4* lhs,
                    const __global ZMatrix4x4* rhs,
                    __global ZMatrix4x4* dst)
 {
@@ -1890,7 +1890,7 @@ void zSubLGMat4x4G(const __local ZMatrix4x4* lhs,
 }
 
 //! Perform matrix multiplication
-#define ZINVUL_MUL_MAT_IMPL(n, floatn, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, dotn, lhs, rhs, dst) \
+#define ZINVUL_MUL_MAT_ROW_IMPL(n, floatn, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, dotn, lhs, rhs, dst) \
     for (size_t row = 0; row < n; ++row) { \
       const floatn l = lhs_row_vec_getter(lhs, row); \
       for (size_t column = 0; column < n; ++column) { \
@@ -1901,15 +1901,42 @@ void zSubLGMat4x4G(const __local ZMatrix4x4* lhs,
     }
 
 //! Perform matrix multiplication
-#define ZINVUL_MUL_MAT2x2_IMPL(lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, lhs, rhs, dst) \
-    ZINVUL_MUL_MAT_IMPL(2, float2, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, zDot2, lhs, rhs, dst)
+#define ZINVUL_MUL_MAT_COLUMN_IMPL(n, floatn, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, dotn, lhs, rhs, dst) \
+    for (size_t column = 0; column < n; ++column) { \
+      const floatn r = rhs_column_vec_getter(rhs, column); \
+      for (size_t row = 0; row < n; ++row) { \
+        const floatn l = lhs_row_vec_getter(lhs, row); \
+        const float d = dotn(l, r); \
+        dst_setter(dst, row, column, d); \
+      } \
+    }
+
+//! Perform matrix multiplication
+#define ZINVUL_MUL_MAT_SCALAR_IMPL(n, floatn, lhs_row_vec_getter, dst_row_vec_setter, lhs, rhs, dst) \
+    for (size_t row = 0; row < n; ++row) { \
+      const floatn l = lhs_row_vec_getter(lhs, row); \
+      const floatn d = l * rhs; \
+      dst_row_vec_setter(dst, row, d); \
+    }
+
+//! Perform matrix multiplication
+#define ZINVUL_MUL_MAT2x2_ROW_IMPL(lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, lhs, rhs, dst) \
+    ZINVUL_MUL_MAT_ROW_IMPL(2, float2, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, zDot2, lhs, rhs, dst)
+
+//! Perform matrix multiplication
+#define ZINVUL_MUL_MAT2x2_COLUMN_IMPL(lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, lhs, rhs, dst) \
+    ZINVUL_MUL_MAT_COLUMN_IMPL(2, float2, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, zDot2, lhs, rhs, dst)
+
+//! Perform matrix multiplication
+#define ZINVUL_MUL_MAT2x2_SCALAR_IMPL(lhs_row_vec_getter, dst_row_vec_setter, lhs, rhs, dst) \
+    ZINVUL_MUL_MAT_SCALAR_IMPL(2, float2, lhs_row_vec_getter, dst_row_vec_setter, lhs, rhs, dst)
 
 //! Perform matrix multiplication
 void zMulMat2x2(const __private ZMatrix2x2* lhs,
                 const __private ZMatrix2x2* rhs,
                 __private ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVec, zSetMat2x2Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVec, zSetMat2x2Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -1917,7 +1944,7 @@ void zMulMat2x2L(const __private ZMatrix2x2* lhs,
                  const __private ZMatrix2x2* rhs,
                  __local ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVec, zSetMat2x2ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVec, zSetMat2x2ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -1925,7 +1952,7 @@ void zMulMat2x2G(const __private ZMatrix2x2* lhs,
                  const __private ZMatrix2x2* rhs,
                  __global ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVec, zSetMat2x2ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVec, zSetMat2x2ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -1933,7 +1960,7 @@ void zMulLMat2x2(const __local ZMatrix2x2* lhs,
                  const __local ZMatrix2x2* rhs,
                  __private ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecL, zSetMat2x2Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecL, zSetMat2x2Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -1941,7 +1968,7 @@ void zMulLMat2x2L(const __local ZMatrix2x2* lhs,
                   const __local ZMatrix2x2* rhs,
                   __local ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecL, zSetMat2x2ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecL, zSetMat2x2ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -1949,31 +1976,55 @@ void zMulLMat2x2G(const __local ZMatrix2x2* lhs,
                   const __local ZMatrix2x2* rhs,
                   __global ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecL, zSetMat2x2ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecL, zSetMat2x2ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulL1Mat2x2(const __private ZMatrix2x2* lhs,
+void zMulLPMat2x2(const __local ZMatrix2x2* lhs,
+                  const __private ZMatrix2x2* rhs,
+                  __private ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVec, zSetMat2x2Elem, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLPMat2x2L(const __local ZMatrix2x2* lhs,
+                   const __private ZMatrix2x2* rhs,
+                   __local ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVec, zSetMat2x2ElemL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLPMat2x2G(const __local ZMatrix2x2* lhs,
+                   const __private ZMatrix2x2* rhs,
+                   __global ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVec, zSetMat2x2ElemG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulPLMat2x2(const __private ZMatrix2x2* lhs,
                   const __local ZMatrix2x2* rhs,
                   __private ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecL, zSetMat2x2Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_COLUMN_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecL, zSetMat2x2Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulL1Mat2x2L(const __private ZMatrix2x2* lhs,
+void zMulPLMat2x2L(const __private ZMatrix2x2* lhs,
                    const __local ZMatrix2x2* rhs,
                    __local ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecL, zSetMat2x2ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_COLUMN_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecL, zSetMat2x2ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulL1Mat2x2G(const __private ZMatrix2x2* lhs,
+void zMulPLMat2x2G(const __private ZMatrix2x2* lhs,
                    const __local ZMatrix2x2* rhs,
                    __global ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecL, zSetMat2x2ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_COLUMN_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecL, zSetMat2x2ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -1981,7 +2032,7 @@ void zMulGMat2x2(const __global ZMatrix2x2* lhs,
                  const __global ZMatrix2x2* rhs,
                  __private ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVecG, zSetMat2x2Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVecG, zSetMat2x2Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -1989,7 +2040,7 @@ void zMulGMat2x2L(const __global ZMatrix2x2* lhs,
                   const __global ZMatrix2x2* rhs,
                   __local ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVecG, zSetMat2x2ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVecG, zSetMat2x2ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -1997,31 +2048,79 @@ void zMulGMat2x2G(const __global ZMatrix2x2* lhs,
                   const __global ZMatrix2x2* rhs,
                   __global ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVecG, zSetMat2x2ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVecG, zSetMat2x2ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulG1Mat2x2(const __private ZMatrix2x2* lhs,
+void zMulGPMat2x2(const __global ZMatrix2x2* lhs,
+                  const __private ZMatrix2x2* rhs,
+                  __private ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVec, zSetMat2x2Elem, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGPMat2x2L(const __global ZMatrix2x2* lhs,
+                   const __private ZMatrix2x2* rhs,
+                   __local ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVec, zSetMat2x2ElemL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGPMat2x2G(const __global ZMatrix2x2* lhs,
+                   const __private ZMatrix2x2* rhs,
+                   __global ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVec, zSetMat2x2ElemG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulPGMat2x2(const __private ZMatrix2x2* lhs,
                   const __global ZMatrix2x2* rhs,
                   __private ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecG, zSetMat2x2Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_COLUMN_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecG, zSetMat2x2Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulG1Mat2x2L(const __private ZMatrix2x2* lhs,
+void zMulPGMat2x2L(const __private ZMatrix2x2* lhs,
                    const __global ZMatrix2x2* rhs,
                    __local ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecG, zSetMat2x2ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_COLUMN_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecG, zSetMat2x2ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulG1Mat2x2G(const __private ZMatrix2x2* lhs,
+void zMulPGMat2x2G(const __private ZMatrix2x2* lhs,
                    const __global ZMatrix2x2* rhs,
                    __global ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecG, zSetMat2x2ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_COLUMN_IMPL(zGetMat2x2RowVec, zGetMat2x2ColumnVecG, zSetMat2x2ElemG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGLMat2x2(const __global ZMatrix2x2* lhs,
+                  const __local ZMatrix2x2* rhs,
+                  __private ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVecL, zSetMat2x2Elem, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGLMat2x2L(const __global ZMatrix2x2* lhs,
+                   const __local ZMatrix2x2* rhs,
+                   __local ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVecL, zSetMat2x2ElemL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGLMat2x2G(const __global ZMatrix2x2* lhs,
+                   const __local ZMatrix2x2* rhs,
+                   __global ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_ROW_IMPL(zGetMat2x2RowVecG, zGetMat2x2ColumnVecL, zSetMat2x2ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2029,7 +2128,7 @@ void zMulLGMat2x2(const __local ZMatrix2x2* lhs,
                   const __global ZMatrix2x2* rhs,
                   __private ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecG, zSetMat2x2Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_COLUMN_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecG, zSetMat2x2Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2037,7 +2136,7 @@ void zMulLGMat2x2L(const __local ZMatrix2x2* lhs,
                    const __global ZMatrix2x2* rhs,
                    __local ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecG, zSetMat2x2ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_COLUMN_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecG, zSetMat2x2ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2045,19 +2144,99 @@ void zMulLGMat2x2G(const __local ZMatrix2x2* lhs,
                    const __global ZMatrix2x2* rhs,
                    __global ZMatrix2x2* dst)
 {
-  ZINVUL_MUL_MAT2x2_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecG, zSetMat2x2ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT2x2_COLUMN_IMPL(zGetMat2x2RowVecL, zGetMat2x2ColumnVecG, zSetMat2x2ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-#define ZINVUL_MUL_MAT3x3_IMPL(lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, lhs, rhs, dst) \
-    ZINVUL_MUL_MAT_IMPL(3, float3, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, zDot3, lhs, rhs, dst)
+void zMulMat2x2S(const __private ZMatrix2x2* lhs,
+                 const float rhs,
+                 __private ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_SCALAR_IMPL(zGetMat2x2RowVec, zSetMat2x2RowVec, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulMat2x2SL(const __private ZMatrix2x2* lhs,
+                  const float rhs,
+                  __local ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_SCALAR_IMPL(zGetMat2x2RowVec, zSetMat2x2RowVecL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulMat2x2SG(const __private ZMatrix2x2* lhs,
+                  const float rhs,
+                  __global ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_SCALAR_IMPL(zGetMat2x2RowVec, zSetMat2x2RowVecG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLMat2x2S(const __local ZMatrix2x2* lhs,
+                  const float rhs,
+                  __private ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_SCALAR_IMPL(zGetMat2x2RowVecL, zSetMat2x2RowVec, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLMat2x2SL(const __local ZMatrix2x2* lhs,
+                   const float rhs,
+                   __local ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_SCALAR_IMPL(zGetMat2x2RowVecL, zSetMat2x2RowVecL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLMat2x2SG(const __local ZMatrix2x2* lhs,
+                   const float rhs,
+                   __global ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_SCALAR_IMPL(zGetMat2x2RowVecL, zSetMat2x2RowVecG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGMat2x2S(const __global ZMatrix2x2* lhs,
+                  const float rhs,
+                  __private ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_SCALAR_IMPL(zGetMat2x2RowVecG, zSetMat2x2RowVec, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGMat2x2SL(const __global ZMatrix2x2* lhs,
+                   const float rhs,
+                   __local ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_SCALAR_IMPL(zGetMat2x2RowVecG, zSetMat2x2RowVecL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGMat2x2SG(const __global ZMatrix2x2* lhs,
+                   const float rhs,
+                   __global ZMatrix2x2* dst)
+{
+  ZINVUL_MUL_MAT2x2_SCALAR_IMPL(zGetMat2x2RowVecG, zSetMat2x2RowVecG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+#define ZINVUL_MUL_MAT3x3_ROW_IMPL(lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, lhs, rhs, dst) \
+    ZINVUL_MUL_MAT_ROW_IMPL(3, float3, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, zDot3, lhs, rhs, dst)
+
+//! Perform matrix multiplication
+#define ZINVUL_MUL_MAT3x3_COLUMN_IMPL(lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, lhs, rhs, dst) \
+    ZINVUL_MUL_MAT_COLUMN_IMPL(3, float3, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, zDot3, lhs, rhs, dst)
+
+//! Perform matrix multiplication
+#define ZINVUL_MUL_MAT3x3_SCALAR_IMPL(lhs_row_vec_getter, dst_row_vec_setter, lhs, rhs, dst) \
+    ZINVUL_MUL_MAT_SCALAR_IMPL(3, float3, lhs_row_vec_getter, dst_row_vec_setter, lhs, rhs, dst)
 
 //! Perform matrix multiplication
 void zMulMat3x3(const __private ZMatrix3x3* lhs,
                 const __private ZMatrix3x3* rhs,
                 __private ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVec, zSetMat3x3Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVec, zSetMat3x3Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2065,7 +2244,7 @@ void zMulMat3x3L(const __private ZMatrix3x3* lhs,
                  const __private ZMatrix3x3* rhs,
                  __local ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVec, zSetMat3x3ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVec, zSetMat3x3ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2073,7 +2252,7 @@ void zMulMat3x3G(const __private ZMatrix3x3* lhs,
                  const __private ZMatrix3x3* rhs,
                  __global ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVec, zSetMat3x3ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVec, zSetMat3x3ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2081,7 +2260,7 @@ void zMulLMat3x3(const __local ZMatrix3x3* lhs,
                  const __local ZMatrix3x3* rhs,
                  __private ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecL, zSetMat3x3Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecL, zSetMat3x3Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2089,7 +2268,7 @@ void zMulLMat3x3L(const __local ZMatrix3x3* lhs,
                   const __local ZMatrix3x3* rhs,
                   __local ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecL, zSetMat3x3ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecL, zSetMat3x3ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2097,31 +2276,55 @@ void zMulLMat3x3G(const __local ZMatrix3x3* lhs,
                   const __local ZMatrix3x3* rhs,
                   __global ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecL, zSetMat3x3ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecL, zSetMat3x3ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulL1Mat3x3(const __private ZMatrix3x3* lhs,
+void zMulLPMat3x3(const __local ZMatrix3x3* lhs,
+                  const __private ZMatrix3x3* rhs,
+                  __private ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVec, zSetMat3x3Elem, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLPMat3x3L(const __local ZMatrix3x3* lhs,
+                   const __private ZMatrix3x3* rhs,
+                   __local ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVec, zSetMat3x3ElemL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLPMat3x3G(const __local ZMatrix3x3* lhs,
+                   const __private ZMatrix3x3* rhs,
+                   __global ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVec, zSetMat3x3ElemG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulPLMat3x3(const __private ZMatrix3x3* lhs,
                   const __local ZMatrix3x3* rhs,
                   __private ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecL, zSetMat3x3Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_COLUMN_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecL, zSetMat3x3Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulL1Mat3x3L(const __private ZMatrix3x3* lhs,
+void zMulPLMat3x3L(const __private ZMatrix3x3* lhs,
                    const __local ZMatrix3x3* rhs,
                    __local ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecL, zSetMat3x3ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_COLUMN_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecL, zSetMat3x3ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulL1Mat3x3G(const __private ZMatrix3x3* lhs,
+void zMulPLMat3x3G(const __private ZMatrix3x3* lhs,
                    const __local ZMatrix3x3* rhs,
                    __global ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecL, zSetMat3x3ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_COLUMN_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecL, zSetMat3x3ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2129,7 +2332,7 @@ void zMulGMat3x3(const __global ZMatrix3x3* lhs,
                  const __global ZMatrix3x3* rhs,
                  __private ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVecG, zSetMat3x3Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVecG, zSetMat3x3Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2137,7 +2340,7 @@ void zMulGMat3x3L(const __global ZMatrix3x3* lhs,
                   const __global ZMatrix3x3* rhs,
                   __local ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVecG, zSetMat3x3ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVecG, zSetMat3x3ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2145,31 +2348,79 @@ void zMulGMat3x3G(const __global ZMatrix3x3* lhs,
                   const __global ZMatrix3x3* rhs,
                   __global ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVecG, zSetMat3x3ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVecG, zSetMat3x3ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulG1Mat3x3(const __private ZMatrix3x3* lhs,
+void zMulGPMat3x3(const __global ZMatrix3x3* lhs,
+                  const __private ZMatrix3x3* rhs,
+                  __private ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVec, zSetMat3x3Elem, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGPMat3x3L(const __global ZMatrix3x3* lhs,
+                   const __private ZMatrix3x3* rhs,
+                   __local ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVec, zSetMat3x3ElemL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGPMat3x3G(const __global ZMatrix3x3* lhs,
+                   const __private ZMatrix3x3* rhs,
+                   __global ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVec, zSetMat3x3ElemG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulPGMat3x3(const __private ZMatrix3x3* lhs,
                   const __global ZMatrix3x3* rhs,
                   __private ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecG, zSetMat3x3Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_COLUMN_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecG, zSetMat3x3Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulG1Mat3x3L(const __private ZMatrix3x3* lhs,
+void zMulPGMat3x3L(const __private ZMatrix3x3* lhs,
                    const __global ZMatrix3x3* rhs,
                    __local ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecG, zSetMat3x3ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_COLUMN_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecG, zSetMat3x3ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulG1Mat3x3G(const __private ZMatrix3x3* lhs,
+void zMulPGMat3x3G(const __private ZMatrix3x3* lhs,
                    const __global ZMatrix3x3* rhs,
                    __global ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecG, zSetMat3x3ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_COLUMN_IMPL(zGetMat3x3RowVec, zGetMat3x3ColumnVecG, zSetMat3x3ElemG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGLMat3x3(const __global ZMatrix3x3* lhs,
+                  const __local ZMatrix3x3* rhs,
+                  __private ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVecL, zSetMat3x3Elem, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGLMat3x3L(const __global ZMatrix3x3* lhs,
+                   const __local ZMatrix3x3* rhs,
+                   __local ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVecL, zSetMat3x3ElemL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGLMat3x3G(const __global ZMatrix3x3* lhs,
+                   const __local ZMatrix3x3* rhs,
+                   __global ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_ROW_IMPL(zGetMat3x3RowVecG, zGetMat3x3ColumnVecL, zSetMat3x3ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2177,7 +2428,7 @@ void zMulLGMat3x3(const __local ZMatrix3x3* lhs,
                   const __global ZMatrix3x3* rhs,
                   __private ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecG, zSetMat3x3Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_COLUMN_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecG, zSetMat3x3Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2185,7 +2436,7 @@ void zMulLGMat3x3L(const __local ZMatrix3x3* lhs,
                    const __global ZMatrix3x3* rhs,
                    __local ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecG, zSetMat3x3ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_COLUMN_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecG, zSetMat3x3ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2193,19 +2444,99 @@ void zMulLGMat3x3G(const __local ZMatrix3x3* lhs,
                    const __global ZMatrix3x3* rhs,
                    __global ZMatrix3x3* dst)
 {
-  ZINVUL_MUL_MAT3x3_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecG, zSetMat3x3ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT3x3_COLUMN_IMPL(zGetMat3x3RowVecL, zGetMat3x3ColumnVecG, zSetMat3x3ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-#define ZINVUL_MUL_MAT4x4_IMPL(lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, lhs, rhs, dst) \
-    ZINVUL_MUL_MAT_IMPL(4, float4, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, zDot4, lhs, rhs, dst)
+void zMulMat3x3S(const __private ZMatrix3x3* lhs,
+                 const float rhs,
+                 __private ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_SCALAR_IMPL(zGetMat3x3RowVec, zSetMat3x3RowVec, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulMat3x3SL(const __private ZMatrix3x3* lhs,
+                  const float rhs,
+                  __local ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_SCALAR_IMPL(zGetMat3x3RowVec, zSetMat3x3RowVecL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulMat3x3SG(const __private ZMatrix3x3* lhs,
+                  const float rhs,
+                  __global ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_SCALAR_IMPL(zGetMat3x3RowVec, zSetMat3x3RowVecG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLMat3x3S(const __local ZMatrix3x3* lhs,
+                  const float rhs,
+                  __private ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_SCALAR_IMPL(zGetMat3x3RowVecL, zSetMat3x3RowVec, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLMat3x3SL(const __local ZMatrix3x3* lhs,
+                   const float rhs,
+                   __local ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_SCALAR_IMPL(zGetMat3x3RowVecL, zSetMat3x3RowVecL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLMat3x3SG(const __local ZMatrix3x3* lhs,
+                   const float rhs,
+                   __global ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_SCALAR_IMPL(zGetMat3x3RowVecL, zSetMat3x3RowVecG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGMat3x3S(const __global ZMatrix3x3* lhs,
+                  const float rhs,
+                  __private ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_SCALAR_IMPL(zGetMat3x3RowVecG, zSetMat3x3RowVec, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGMat3x3SL(const __global ZMatrix3x3* lhs,
+                   const float rhs,
+                   __local ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_SCALAR_IMPL(zGetMat3x3RowVecG, zSetMat3x3RowVecL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGMat3x3SG(const __global ZMatrix3x3* lhs,
+                   const float rhs,
+                   __global ZMatrix3x3* dst)
+{
+  ZINVUL_MUL_MAT3x3_SCALAR_IMPL(zGetMat3x3RowVecG, zSetMat3x3RowVecG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+#define ZINVUL_MUL_MAT4x4_ROW_IMPL(lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, lhs, rhs, dst) \
+    ZINVUL_MUL_MAT_ROW_IMPL(4, float4, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, zDot4, lhs, rhs, dst)
+
+//! Perform matrix multiplication
+#define ZINVUL_MUL_MAT4x4_COLUMN_IMPL(lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, lhs, rhs, dst) \
+    ZINVUL_MUL_MAT_COLUMN_IMPL(4, float4, lhs_row_vec_getter, rhs_column_vec_getter, dst_setter, zDot4, lhs, rhs, dst)
+
+//! Perform matrix multiplication
+#define ZINVUL_MUL_MAT4x4_SCALAR_IMPL(lhs_row_vec_getter, dst_row_vec_setter, lhs, rhs, dst) \
+    ZINVUL_MUL_MAT_SCALAR_IMPL(4, float4, lhs_row_vec_getter, dst_row_vec_setter, lhs, rhs, dst)
 
 //! Perform matrix multiplication
 void zMulMat4x4(const __private ZMatrix4x4* lhs,
                 const __private ZMatrix4x4* rhs,
                 __private ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVec, zSetMat4x4Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVec, zSetMat4x4Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2213,7 +2544,7 @@ void zMulMat4x4L(const __private ZMatrix4x4* lhs,
                  const __private ZMatrix4x4* rhs,
                  __local ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVec, zSetMat4x4ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVec, zSetMat4x4ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2221,7 +2552,7 @@ void zMulMat4x4G(const __private ZMatrix4x4* lhs,
                  const __private ZMatrix4x4* rhs,
                  __global ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVec, zSetMat4x4ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVec, zSetMat4x4ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2229,7 +2560,7 @@ void zMulLMat4x4(const __local ZMatrix4x4* lhs,
                  const __local ZMatrix4x4* rhs,
                  __private ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecL, zSetMat4x4Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecL, zSetMat4x4Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2237,7 +2568,7 @@ void zMulLMat4x4L(const __local ZMatrix4x4* lhs,
                   const __local ZMatrix4x4* rhs,
                   __local ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecL, zSetMat4x4ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecL, zSetMat4x4ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2245,31 +2576,55 @@ void zMulLMat4x4G(const __local ZMatrix4x4* lhs,
                   const __local ZMatrix4x4* rhs,
                   __global ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecL, zSetMat4x4ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecL, zSetMat4x4ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulL1Mat4x4(const __private ZMatrix4x4* lhs,
+void zMulLPMat4x4(const __local ZMatrix4x4* lhs,
+                  const __private ZMatrix4x4* rhs,
+                  __private ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVec, zSetMat4x4Elem, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLPMat4x4L(const __local ZMatrix4x4* lhs,
+                   const __private ZMatrix4x4* rhs,
+                   __local ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVec, zSetMat4x4ElemL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLPMat4x4G(const __local ZMatrix4x4* lhs,
+                   const __private ZMatrix4x4* rhs,
+                   __global ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVec, zSetMat4x4ElemG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulPLMat4x4(const __private ZMatrix4x4* lhs,
                   const __local ZMatrix4x4* rhs,
                   __private ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecL, zSetMat4x4Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_COLUMN_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecL, zSetMat4x4Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulL1Mat4x4L(const __private ZMatrix4x4* lhs,
+void zMulPLMat4x4L(const __private ZMatrix4x4* lhs,
                    const __local ZMatrix4x4* rhs,
                    __local ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecL, zSetMat4x4ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_COLUMN_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecL, zSetMat4x4ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulL1Mat4x4G(const __private ZMatrix4x4* lhs,
+void zMulPLMat4x4G(const __private ZMatrix4x4* lhs,
                    const __local ZMatrix4x4* rhs,
                    __global ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecL, zSetMat4x4ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_COLUMN_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecL, zSetMat4x4ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2277,7 +2632,7 @@ void zMulGMat4x4(const __global ZMatrix4x4* lhs,
                  const __global ZMatrix4x4* rhs,
                  __private ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVecG, zSetMat4x4Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVecG, zSetMat4x4Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2285,7 +2640,7 @@ void zMulGMat4x4L(const __global ZMatrix4x4* lhs,
                   const __global ZMatrix4x4* rhs,
                   __local ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVecG, zSetMat4x4ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVecG, zSetMat4x4ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2293,31 +2648,79 @@ void zMulGMat4x4G(const __global ZMatrix4x4* lhs,
                   const __global ZMatrix4x4* rhs,
                   __global ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVecG, zSetMat4x4ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVecG, zSetMat4x4ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulG1Mat4x4(const __private ZMatrix4x4* lhs,
+void zMulGPMat4x4(const __global ZMatrix4x4* lhs,
+                  const __private ZMatrix4x4* rhs,
+                  __private ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVec, zSetMat4x4Elem, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGPMat4x4L(const __global ZMatrix4x4* lhs,
+                   const __private ZMatrix4x4* rhs,
+                   __local ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVec, zSetMat4x4ElemL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGPMat4x4G(const __global ZMatrix4x4* lhs,
+                   const __private ZMatrix4x4* rhs,
+                   __global ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVec, zSetMat4x4ElemG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulPGMat4x4(const __private ZMatrix4x4* lhs,
                   const __global ZMatrix4x4* rhs,
                   __private ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecG, zSetMat4x4Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_COLUMN_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecG, zSetMat4x4Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulG1Mat4x4L(const __private ZMatrix4x4* lhs,
+void zMulPGMat4x4L(const __private ZMatrix4x4* lhs,
                    const __global ZMatrix4x4* rhs,
                    __local ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecG, zSetMat4x4ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_COLUMN_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecG, zSetMat4x4ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
-void zMulG1Mat4x4G(const __private ZMatrix4x4* lhs,
+void zMulPGMat4x4G(const __private ZMatrix4x4* lhs,
                    const __global ZMatrix4x4* rhs,
                    __global ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecG, zSetMat4x4ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_COLUMN_IMPL(zGetMat4x4RowVec, zGetMat4x4ColumnVecG, zSetMat4x4ElemG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGLMat4x4(const __global ZMatrix4x4* lhs,
+                  const __local ZMatrix4x4* rhs,
+                  __private ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVecL, zSetMat4x4Elem, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGLMat4x4L(const __global ZMatrix4x4* lhs,
+                   const __local ZMatrix4x4* rhs,
+                   __local ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVecL, zSetMat4x4ElemL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGLMat4x4G(const __global ZMatrix4x4* lhs,
+                   const __local ZMatrix4x4* rhs,
+                   __global ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_ROW_IMPL(zGetMat4x4RowVecG, zGetMat4x4ColumnVecL, zSetMat4x4ElemG, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2325,7 +2728,7 @@ void zMulLGMat4x4(const __local ZMatrix4x4* lhs,
                   const __global ZMatrix4x4* rhs,
                   __private ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecG, zSetMat4x4Elem, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_COLUMN_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecG, zSetMat4x4Elem, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2333,7 +2736,7 @@ void zMulLGMat4x4L(const __local ZMatrix4x4* lhs,
                    const __global ZMatrix4x4* rhs,
                    __local ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecG, zSetMat4x4ElemL, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_COLUMN_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecG, zSetMat4x4ElemL, lhs, rhs, dst);
 }
 
 //! Perform matrix multiplication
@@ -2341,7 +2744,79 @@ void zMulLGMat4x4G(const __local ZMatrix4x4* lhs,
                    const __global ZMatrix4x4* rhs,
                    __global ZMatrix4x4* dst)
 {
-  ZINVUL_MUL_MAT4x4_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecG, zSetMat4x4ElemG, lhs, rhs, dst);
+  ZINVUL_MUL_MAT4x4_COLUMN_IMPL(zGetMat4x4RowVecL, zGetMat4x4ColumnVecG, zSetMat4x4ElemG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulMat4x4S(const __private ZMatrix4x4* lhs,
+                 const float rhs,
+                 __private ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_SCALAR_IMPL(zGetMat4x4RowVec, zSetMat4x4RowVec, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulMat4x4SL(const __private ZMatrix4x4* lhs,
+                  const float rhs,
+                  __local ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_SCALAR_IMPL(zGetMat4x4RowVec, zSetMat4x4RowVecL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulMat4x4SG(const __private ZMatrix4x4* lhs,
+                  const float rhs,
+                  __global ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_SCALAR_IMPL(zGetMat4x4RowVec, zSetMat4x4RowVecG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLMat4x4S(const __local ZMatrix4x4* lhs,
+                  const float rhs,
+                  __private ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_SCALAR_IMPL(zGetMat4x4RowVecL, zSetMat4x4RowVec, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLMat4x4SL(const __local ZMatrix4x4* lhs,
+                   const float rhs,
+                   __local ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_SCALAR_IMPL(zGetMat4x4RowVecL, zSetMat4x4RowVecL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulLMat4x4SG(const __local ZMatrix4x4* lhs,
+                   const float rhs,
+                   __global ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_SCALAR_IMPL(zGetMat4x4RowVecL, zSetMat4x4RowVecG, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGMat4x4S(const __global ZMatrix4x4* lhs,
+                  const float rhs,
+                  __private ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_SCALAR_IMPL(zGetMat4x4RowVecG, zSetMat4x4RowVec, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGMat4x4SL(const __global ZMatrix4x4* lhs,
+                   const float rhs,
+                   __local ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_SCALAR_IMPL(zGetMat4x4RowVecG, zSetMat4x4RowVecL, lhs, rhs, dst);
+}
+
+//! Perform matrix multiplication
+void zMulGMat4x4SG(const __global ZMatrix4x4* lhs,
+                   const float rhs,
+                   __global ZMatrix4x4* dst)
+{
+  ZINVUL_MUL_MAT4x4_SCALAR_IMPL(zGetMat4x4RowVecG, zSetMat4x4RowVecG, lhs, rhs, dst);
 }
 
 #endif /* ZINVUL_MATRIX_CL */
