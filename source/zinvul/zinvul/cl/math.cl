@@ -4580,6 +4580,4 @@ float4 zNormalize4(const float4 p)
   return result;
 }
 
-#include "matrix.cl"
-
 #endif /* ZINVUL_MATH_CL */

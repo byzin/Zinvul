@@ -836,6 +836,162 @@ void zCopyMat2x2GL(const __global ZMatrix2x2* src, __local ZMatrix2x2* dst)
   ZINVUL_COPY_MAT2x2_IMPL(src, dst);
 }
 
+//! Load a 2x2 matrix
+ZMatrix2x2 zLoadMat2x2L(const __local ZMatrix2x2* src)
+{
+  const ZMatrix2x2 matrix = *src;
+  return matrix;
+}
+
+//! Load a 2x2 matrix
+ZMatrix2x2 zLoadMat2x2G(const __global ZMatrix2x2* src)
+{
+  const ZMatrix2x2 matrix = *src;
+  return matrix;
+}
+
+//! Copy a 3x3 matrix from src to dst
+#define ZINVUL_COPY_MAT3x3_IMPL(src, dst) ZINVUL_COPY_MAT_IMPL(9, src, dst)
+
+//! Copy a matrix from src to dst
+void zCopyMat3x3(const __private ZMatrix3x3* src, __private ZMatrix3x3* dst)
+{
+  ZINVUL_COPY_MAT3x3_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat3x3PL(const __private ZMatrix3x3* src, __local ZMatrix3x3* dst)
+{
+  ZINVUL_COPY_MAT3x3_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat3x3LP(const __local ZMatrix3x3* src, __private ZMatrix3x3* dst)
+{
+  ZINVUL_COPY_MAT3x3_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat3x3PG(const __private ZMatrix3x3* src, __global ZMatrix3x3* dst)
+{
+  ZINVUL_COPY_MAT3x3_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat3x3GP(const __global ZMatrix3x3* src, __private ZMatrix3x3* dst)
+{
+  ZINVUL_COPY_MAT3x3_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat3x3L(const __local ZMatrix3x3* src, __local ZMatrix3x3* dst)
+{
+  ZINVUL_COPY_MAT3x3_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat3x3G(const __global ZMatrix3x3* src, __global ZMatrix3x3* dst)
+{
+  ZINVUL_COPY_MAT3x3_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat3x3LG(const __local ZMatrix3x3* src, __global ZMatrix3x3* dst)
+{
+  ZINVUL_COPY_MAT3x3_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat3x3GL(const __global ZMatrix3x3* src, __local ZMatrix3x3* dst)
+{
+  ZINVUL_COPY_MAT3x3_IMPL(src, dst);
+}
+
+//! Load a 3x3 matrix
+ZMatrix3x3 zLoadMat3x3L(const __local ZMatrix3x3* src)
+{
+  const ZMatrix3x3 matrix = *src;
+  return matrix;
+}
+
+//! Load a 3x3 matrix
+ZMatrix3x3 zLoadMat3x3G(const __global ZMatrix3x3* src)
+{
+  const ZMatrix3x3 matrix = *src;
+  return matrix;
+}
+
+//! Copy a 4x4 matrix from src to dst
+#define ZINVUL_COPY_MAT4x4_IMPL(src, dst) ZINVUL_COPY_MAT_IMPL(16, src, dst)
+
+//! Copy a matrix from src to dst
+void zCopyMat4x4(const __private ZMatrix4x4* src, __private ZMatrix4x4* dst)
+{
+  ZINVUL_COPY_MAT4x4_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat4x4PL(const __private ZMatrix4x4* src, __local ZMatrix4x4* dst)
+{
+  ZINVUL_COPY_MAT4x4_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat4x4LP(const __local ZMatrix4x4* src, __private ZMatrix4x4* dst)
+{
+  ZINVUL_COPY_MAT4x4_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat4x4PG(const __private ZMatrix4x4* src, __global ZMatrix4x4* dst)
+{
+  ZINVUL_COPY_MAT4x4_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat4x4GP(const __global ZMatrix4x4* src, __private ZMatrix4x4* dst)
+{
+  ZINVUL_COPY_MAT4x4_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat4x4L(const __local ZMatrix4x4* src, __local ZMatrix4x4* dst)
+{
+  ZINVUL_COPY_MAT4x4_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat4x4G(const __global ZMatrix4x4* src, __global ZMatrix4x4* dst)
+{
+  ZINVUL_COPY_MAT4x4_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat4x4LG(const __local ZMatrix4x4* src, __global ZMatrix4x4* dst)
+{
+  ZINVUL_COPY_MAT4x4_IMPL(src, dst);
+}
+
+//! Copy a matrix from src to dst
+void zCopyMat4x4GL(const __global ZMatrix4x4* src, __local ZMatrix4x4* dst)
+{
+  ZINVUL_COPY_MAT4x4_IMPL(src, dst);
+}
+
+//! Load a 4x4 matrix
+ZMatrix4x4 zLoadMat4x4L(const __local ZMatrix4x4* src)
+{
+  const ZMatrix4x4 matrix = *src;
+  return matrix;
+}
+
+//! Load a 4x4 matrix
+ZMatrix4x4 zLoadMat4x4G(const __global ZMatrix4x4* src)
+{
+  const ZMatrix4x4 matrix = *src;
+  return matrix;
+}
+
 //! Perform matrix operations 
 #define ZINVUL_ADDSUB_MAT_IMPL(n, floatn, lhs_row_vec_getter, rhs_row_vec_getter, dst_row_vec_setter, op, lhs, rhs, dst) \
     for (size_t row = 0; row < n; ++row) { \
