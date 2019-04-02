@@ -858,4 +858,466 @@ __kernel void testMatrix2x2Multiplication(const __global ZMatrix2x2* inputs,
   }
 }
 
+__kernel void testMatrix2x2ScalarMultiplication(const __global ZMatrix2x2* inputs,
+    __global ZMatrix2x2* outputs)
+{
+  __local ZMatrix2x2 mat[3];
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    size_t i = 0;
+    //
+    {
+      const ZMatrix2x2 lhs = zLoadMat2x2G(&inputs[0]);
+      const float rhs = 3.0f;
+      ZMatrix2x2 result = zMakeMat2x2(0.0f, 0.0f,
+                                      0.0f, 0.0f);
+      zMulMat2x2S(&lhs, rhs, &result);
+      zCopyMat2x2PG(&result, &outputs[i++]);
+    }
+    {
+      const ZMatrix2x2 lhs = zLoadMat2x2G(&inputs[0]);
+      const float rhs = 3.0f;
+      zMulMat2x2SL(&lhs, rhs, &mat[0]);
+      zCopyMat2x2LG(&mat[0], &outputs[i++]);
+    }
+    {
+      const ZMatrix2x2 lhs = zLoadMat2x2G(&inputs[0]);
+      const float rhs = 3.0f;
+      zMulMat2x2SG(&lhs, rhs, &outputs[i++]);
+    }
+    //
+    {
+      __local ZMatrix2x2* lhs = &mat[0];
+      zCopyMat2x2GL(&inputs[0], lhs);
+      const float rhs = 3.0f;
+      ZMatrix2x2 result = zMakeMat2x2(0.0f, 0.0f,
+                                      0.0f, 0.0f);
+      zMulLMat2x2S(lhs, rhs, &result);
+      zCopyMat2x2PG(&result, &outputs[i++]);
+    }
+    {
+      __local ZMatrix2x2* lhs = &mat[0];
+      zCopyMat2x2GL(&inputs[0], lhs);
+      const float rhs = 3.0f;
+      zMulLMat2x2SL(lhs, rhs, &mat[1]);
+      zCopyMat2x2LG(&mat[1], &outputs[i++]);
+    }
+    {
+      __local ZMatrix2x2* lhs = &mat[0];
+      zCopyMat2x2GL(&inputs[0], lhs);
+      const float rhs = 3.0f;
+      zMulLMat2x2SG(lhs, rhs, &outputs[i++]);
+    }
+    //
+    {
+      const __global ZMatrix2x2* lhs = &inputs[0];
+      const float rhs = 3.0f;
+      ZMatrix2x2 result = zMakeMat2x2(0.0f, 0.0f,
+                                      0.0f, 0.0f);
+      zMulGMat2x2S(lhs, rhs, &result);
+      zCopyMat2x2PG(&result, &outputs[i++]);
+    }
+    {
+      const __global ZMatrix2x2* lhs = &inputs[0];
+      const float rhs = 3.0f;
+      zMulGMat2x2SL(lhs, rhs, &mat[0]);
+      zCopyMat2x2LG(&mat[0], &outputs[i++]);
+    }
+    {
+      const __global ZMatrix2x2* lhs = &inputs[0];
+      const float rhs = 3.0f;
+      zMulGMat2x2SG(lhs, rhs, &outputs[i++]);
+    }
+  }
+}
+
+__kernel void testMatrix3x3Multiplication(const __global ZMatrix3x3* inputs,
+    __global ZMatrix3x3* outputs)
+{
+  __local ZMatrix3x3 mat[3];
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    size_t i = 0;
+    //
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      const ZMatrix3x3 rhs = zLoadMat3x3G(&inputs[1]);
+      ZMatrix3x3 result = zMakeMat3x3(0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f);
+      zMulMat3x3(&lhs, &rhs, &result);
+      zCopyMat3x3PG(&result, &outputs[i++]);
+    }
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      const ZMatrix3x3 rhs = zLoadMat3x3G(&inputs[1]);
+      zMulMat3x3L(&lhs, &rhs, &mat[0]);
+      zCopyMat3x3LG(&mat[0], &outputs[i++]);
+    }
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      const ZMatrix3x3 rhs = zLoadMat3x3G(&inputs[1]);
+      zMulMat3x3G(&lhs, &rhs, &outputs[i++]);
+    }
+    //
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      __local ZMatrix3x3* rhs = &mat[0];
+      zCopyMat3x3GL(&inputs[1], rhs);
+      ZMatrix3x3 result = zMakeMat3x3(0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f);
+      zMulPLMat3x3(&lhs, rhs, &result);
+      zCopyMat3x3PG(&result, &outputs[i++]);
+      zMulLPMat3x3(rhs, &lhs, &result);
+      zCopyMat3x3PG(&result, &outputs[i++]);
+    }
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      __local ZMatrix3x3* rhs = &mat[0];
+      zCopyMat3x3GL(&inputs[1], rhs);
+      zMulPLMat3x3L(&lhs, rhs, &mat[1]);
+      zCopyMat3x3LG(&mat[1], &outputs[i++]);
+      zMulLPMat3x3L(rhs, &lhs, &mat[1]);
+      zCopyMat3x3LG(&mat[1], &outputs[i++]);
+    }
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      __local ZMatrix3x3* rhs = &mat[0];
+      zCopyMat3x3GL(&inputs[1], rhs);
+      zMulPLMat3x3G(&lhs, rhs, &outputs[i++]);
+      zMulLPMat3x3G(rhs, &lhs, &outputs[i++]);
+    }
+    //
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      const __global ZMatrix3x3* rhs = &inputs[1];
+      ZMatrix3x3 result = zMakeMat3x3(0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f);
+      zMulPGMat3x3(&lhs, rhs, &result);
+      zCopyMat3x3PG(&result, &outputs[i++]);
+      zMulGPMat3x3(rhs, &lhs, &result);
+      zCopyMat3x3PG(&result, &outputs[i++]);
+    }
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      const __global ZMatrix3x3* rhs = &inputs[1];
+      zMulPGMat3x3L(&lhs, rhs, &mat[0]);
+      zCopyMat3x3LG(&mat[0], &outputs[i++]);
+      zMulGPMat3x3L(rhs, &lhs, &mat[0]);
+      zCopyMat3x3LG(&mat[0], &outputs[i++]);
+    }
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      const __global ZMatrix3x3* rhs = &inputs[1];
+      zMulPGMat3x3G(&lhs, rhs, &outputs[i++]);
+      zMulGPMat3x3G(rhs, &lhs, &outputs[i++]);
+    }
+    //
+    {
+      __local ZMatrix3x3* lhs = &mat[0];
+      zCopyMat3x3GL(&inputs[0], lhs);
+      const __global ZMatrix3x3* rhs = &inputs[1];
+      ZMatrix3x3 result = zMakeMat3x3(0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f);
+      zMulLGMat3x3(lhs, rhs, &result);
+      zCopyMat3x3PG(&result, &outputs[i++]);
+      zMulGLMat3x3(rhs, lhs, &result);
+      zCopyMat3x3PG(&result, &outputs[i++]);
+    }
+    {
+      __local ZMatrix3x3* lhs = &mat[0];
+      zCopyMat3x3GL(&inputs[0], lhs);
+      const __global ZMatrix3x3* rhs = &inputs[1];
+      zMulLGMat3x3L(lhs, rhs, &mat[1]);
+      zCopyMat3x3LG(&mat[1], &outputs[i++]);
+      zMulGLMat3x3L(rhs, lhs, &mat[1]);
+      zCopyMat3x3LG(&mat[1], &outputs[i++]);
+    }
+    {
+      __local ZMatrix3x3* lhs = &mat[0];
+      zCopyMat3x3GL(&inputs[0], lhs);
+      const __global ZMatrix3x3* rhs = &inputs[1];
+      zMulLGMat3x3G(lhs, rhs, &outputs[i++]);
+      zMulGLMat3x3G(rhs, lhs, &outputs[i++]);
+    }
+  }
+}
+
+__kernel void testMatrix3x3ScalarMultiplication(const __global ZMatrix3x3* inputs,
+    __global ZMatrix3x3* outputs)
+{
+  __local ZMatrix3x3 mat[3];
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    size_t i = 0;
+    //
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      const float rhs = 3.0f;
+      ZMatrix3x3 result = zMakeMat3x3(0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f);
+      zMulMat3x3S(&lhs, rhs, &result);
+      zCopyMat3x3PG(&result, &outputs[i++]);
+    }
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      const float rhs = 3.0f;
+      zMulMat3x3SL(&lhs, rhs, &mat[0]);
+      zCopyMat3x3LG(&mat[0], &outputs[i++]);
+    }
+    {
+      const ZMatrix3x3 lhs = zLoadMat3x3G(&inputs[0]);
+      const float rhs = 3.0f;
+      zMulMat3x3SG(&lhs, rhs, &outputs[i++]);
+    }
+    //
+    {
+      __local ZMatrix3x3* lhs = &mat[0];
+      zCopyMat3x3GL(&inputs[0], lhs);
+      const float rhs = 3.0f;
+      ZMatrix3x3 result = zMakeMat3x3(0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f);
+      zMulLMat3x3S(lhs, rhs, &result);
+      zCopyMat3x3PG(&result, &outputs[i++]);
+    }
+    {
+      __local ZMatrix3x3* lhs = &mat[0];
+      zCopyMat3x3GL(&inputs[0], lhs);
+      const float rhs = 3.0f;
+      zMulLMat3x3SL(lhs, rhs, &mat[1]);
+      zCopyMat3x3LG(&mat[1], &outputs[i++]);
+    }
+    {
+      __local ZMatrix3x3* lhs = &mat[0];
+      zCopyMat3x3GL(&inputs[0], lhs);
+      const float rhs = 3.0f;
+      zMulLMat3x3SG(lhs, rhs, &outputs[i++]);
+    }
+    //
+    {
+      const __global ZMatrix3x3* lhs = &inputs[0];
+      const float rhs = 3.0f;
+      ZMatrix3x3 result = zMakeMat3x3(0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f);
+      zMulGMat3x3S(lhs, rhs, &result);
+      zCopyMat3x3PG(&result, &outputs[i++]);
+    }
+    {
+      const __global ZMatrix3x3* lhs = &inputs[0];
+      const float rhs = 3.0f;
+      zMulGMat3x3SL(lhs, rhs, &mat[0]);
+      zCopyMat3x3LG(&mat[0], &outputs[i++]);
+    }
+    {
+      const __global ZMatrix3x3* lhs = &inputs[0];
+      const float rhs = 3.0f;
+      zMulGMat3x3SG(lhs, rhs, &outputs[i++]);
+    }
+  }
+}
+
+__kernel void testMatrix4x4Multiplication(const __global ZMatrix4x4* inputs,
+    __global ZMatrix4x4* outputs)
+{
+  __local ZMatrix4x4 mat[3];
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    size_t i = 0;
+    //
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      const ZMatrix4x4 rhs = zLoadMat4x4G(&inputs[1]);
+      ZMatrix4x4 result = zMakeMat4x4(0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f);
+      zMulMat4x4(&lhs, &rhs, &result);
+      zCopyMat4x4PG(&result, &outputs[i++]);
+    }
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      const ZMatrix4x4 rhs = zLoadMat4x4G(&inputs[1]);
+      zMulMat4x4L(&lhs, &rhs, &mat[0]);
+      zCopyMat4x4LG(&mat[0], &outputs[i++]);
+    }
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      const ZMatrix4x4 rhs = zLoadMat4x4G(&inputs[1]);
+      zMulMat4x4G(&lhs, &rhs, &outputs[i++]);
+    }
+    //
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      __local ZMatrix4x4* rhs = &mat[0];
+      zCopyMat4x4GL(&inputs[1], rhs);
+      ZMatrix4x4 result = zMakeMat4x4(0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f);
+      zMulPLMat4x4(&lhs, rhs, &result);
+      zCopyMat4x4PG(&result, &outputs[i++]);
+      zMulLPMat4x4(rhs, &lhs, &result);
+      zCopyMat4x4PG(&result, &outputs[i++]);
+    }
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      __local ZMatrix4x4* rhs = &mat[0];
+      zCopyMat4x4GL(&inputs[1], rhs);
+      zMulPLMat4x4L(&lhs, rhs, &mat[1]);
+      zCopyMat4x4LG(&mat[1], &outputs[i++]);
+      zMulLPMat4x4L(rhs, &lhs, &mat[1]);
+      zCopyMat4x4LG(&mat[1], &outputs[i++]);
+    }
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      __local ZMatrix4x4* rhs = &mat[0];
+      zCopyMat4x4GL(&inputs[1], rhs);
+      zMulPLMat4x4G(&lhs, rhs, &outputs[i++]);
+      zMulLPMat4x4G(rhs, &lhs, &outputs[i++]);
+    }
+    //
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      const __global ZMatrix4x4* rhs = &inputs[1];
+      ZMatrix4x4 result = zMakeMat4x4(0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f);
+      zMulPGMat4x4(&lhs, rhs, &result);
+      zCopyMat4x4PG(&result, &outputs[i++]);
+      zMulGPMat4x4(rhs, &lhs, &result);
+      zCopyMat4x4PG(&result, &outputs[i++]);
+    }
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      const __global ZMatrix4x4* rhs = &inputs[1];
+      zMulPGMat4x4L(&lhs, rhs, &mat[0]);
+      zCopyMat4x4LG(&mat[0], &outputs[i++]);
+      zMulGPMat4x4L(rhs, &lhs, &mat[0]);
+      zCopyMat4x4LG(&mat[0], &outputs[i++]);
+    }
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      const __global ZMatrix4x4* rhs = &inputs[1];
+      zMulPGMat4x4G(&lhs, rhs, &outputs[i++]);
+      zMulGPMat4x4G(rhs, &lhs, &outputs[i++]);
+    }
+    //
+    {
+      __local ZMatrix4x4* lhs = &mat[0];
+      zCopyMat4x4GL(&inputs[0], lhs);
+      const __global ZMatrix4x4* rhs = &inputs[1];
+      ZMatrix4x4 result = zMakeMat4x4(0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f);
+      zMulLGMat4x4(lhs, rhs, &result);
+      zCopyMat4x4PG(&result, &outputs[i++]);
+      zMulGLMat4x4(rhs, lhs, &result);
+      zCopyMat4x4PG(&result, &outputs[i++]);
+    }
+    {
+      __local ZMatrix4x4* lhs = &mat[0];
+      zCopyMat4x4GL(&inputs[0], lhs);
+      const __global ZMatrix4x4* rhs = &inputs[1];
+      zMulLGMat4x4L(lhs, rhs, &mat[1]);
+      zCopyMat4x4LG(&mat[1], &outputs[i++]);
+      zMulGLMat4x4L(rhs, lhs, &mat[1]);
+      zCopyMat4x4LG(&mat[1], &outputs[i++]);
+    }
+    {
+      __local ZMatrix4x4* lhs = &mat[0];
+      zCopyMat4x4GL(&inputs[0], lhs);
+      const __global ZMatrix4x4* rhs = &inputs[1];
+      zMulLGMat4x4G(lhs, rhs, &outputs[i++]);
+      zMulGLMat4x4G(rhs, lhs, &outputs[i++]);
+    }
+  }
+}
+
+__kernel void testMatrix4x4ScalarMultiplication(const __global ZMatrix4x4* inputs,
+    __global ZMatrix4x4* outputs)
+{
+  __local ZMatrix4x4 mat[3];
+  const uint32b index = zGetGlobalIdX();
+  if (index == 0) {
+    size_t i = 0;
+    //
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      const float rhs = 3.0f;
+      ZMatrix4x4 result = zMakeMat4x4(0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f);
+      zMulMat4x4S(&lhs, rhs, &result);
+      zCopyMat4x4PG(&result, &outputs[i++]);
+    }
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      const float rhs = 3.0f;
+      zMulMat4x4SL(&lhs, rhs, &mat[0]);
+      zCopyMat4x4LG(&mat[0], &outputs[i++]);
+    }
+    {
+      const ZMatrix4x4 lhs = zLoadMat4x4G(&inputs[0]);
+      const float rhs = 3.0f;
+      zMulMat4x4SG(&lhs, rhs, &outputs[i++]);
+    }
+    //
+    {
+      __local ZMatrix4x4* lhs = &mat[0];
+      zCopyMat4x4GL(&inputs[0], lhs);
+      const float rhs = 3.0f;
+      ZMatrix4x4 result = zMakeMat4x4(0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f);
+      zMulLMat4x4S(lhs, rhs, &result);
+      zCopyMat4x4PG(&result, &outputs[i++]);
+    }
+    {
+      __local ZMatrix4x4* lhs = &mat[0];
+      zCopyMat4x4GL(&inputs[0], lhs);
+      const float rhs = 3.0f;
+      zMulLMat4x4SL(lhs, rhs, &mat[1]);
+      zCopyMat4x4LG(&mat[1], &outputs[i++]);
+    }
+    {
+      __local ZMatrix4x4* lhs = &mat[0];
+      zCopyMat4x4GL(&inputs[0], lhs);
+      const float rhs = 3.0f;
+      zMulLMat4x4SG(lhs, rhs, &outputs[i++]);
+    }
+    //
+    {
+      const __global ZMatrix4x4* lhs = &inputs[0];
+      const float rhs = 3.0f;
+      ZMatrix4x4 result = zMakeMat4x4(0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.0f, 0.0f);
+      zMulGMat4x4S(lhs, rhs, &result);
+      zCopyMat4x4PG(&result, &outputs[i++]);
+    }
+    {
+      const __global ZMatrix4x4* lhs = &inputs[0];
+      const float rhs = 3.0f;
+      zMulGMat4x4SL(lhs, rhs, &mat[0]);
+      zCopyMat4x4LG(&mat[0], &outputs[i++]);
+    }
+    {
+      const __global ZMatrix4x4* lhs = &inputs[0];
+      const float rhs = 3.0f;
+      zMulGMat4x4SG(lhs, rhs, &outputs[i++]);
+    }
+  }
+}
+
 #endif /* ZINVUL_MATH_TEST_MATRIX_CL */
