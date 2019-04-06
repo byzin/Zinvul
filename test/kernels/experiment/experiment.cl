@@ -41,11 +41,17 @@ __kernel void experiment(__global ZMatrix2x2* inputs,
   const uint32b index = zGetGlobalIdX();
   if (index == 0) {
     {
-      ZMatrix2x2 result;
+      const ZMatrix2x2 lhs = inputs[0];
+      const ZMatrix2x2 rhs = inputs[1];
+      ZMatrix2x2 result = zMakeMat2x2(0.0f, 0.0f,
+                                      0.0f, 0.0f);
+      zAddMat2x2(&lhs, &rhs, &result);
       outputs[0] = result;
     }
     {
-      zSetMat2x2ElemG(&outputs[1], 0, 0, 0.0f);
+      const __global ZMatrix2x2* lhs = &inputs[0];
+      const __global ZMatrix2x2* rhs = &inputs[1];
+      zAddGMat2x2G(lhs, rhs, &outputs[1]);
     }
   }
 }

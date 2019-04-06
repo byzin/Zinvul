@@ -162,9 +162,15 @@ TEST(Experiment, ZinvulTest)
     std::cout << getTestDeviceInfo(*device);
 
     using ZMatrix2x2 = zinvul::experiment::KernelGroup::ZMatrix2x2;
+    zinvul::experiment::KernelGroup k;
 
     auto input_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
     input_buf->setSize(2);
+    {
+      const auto matrix = k.zMakeMat2x2(0.0f, 1.0f, 2.0f, 3.0f);
+      std::array<ZMatrix2x2, 2> mat_list{{matrix, matrix}};
+      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
+    }
     auto output_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
     output_buf->setSize(2);
 
@@ -173,6 +179,19 @@ TEST(Experiment, ZinvulTest)
     device->waitForCompletion();
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    {
+      std::array<ZMatrix2x2, 2> results;
+      output_buf->read(results.data(), results.size(), 0, 0);
+      for (std::size_t id = 0; id < results.size(); ++id) {
+        const auto& matrix = results[id];
+        for (std::size_t i = 0; i < 4; ++i) {
+          const float expected = zisc::cast<float>(i * 2);
+          const float result = matrix.m_[i];
+          ASSERT_FLOAT_EQ(expected, result) << "[" << id << "]: Matrix2x2 addition failed.";
+        }
+      }
+    }
 
     std::cout << std::endl;
   }
