@@ -2,7 +2,7 @@
   \file kernel-inl.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -23,17 +23,17 @@ namespace zinvul {
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-Kernel<GroupType, kDimension, ArgumentTypes...>::~Kernel() noexcept
+Kernel<KGroupType, kDimension, ArgumentTypes...>::~Kernel() noexcept
 {
 }
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-constexpr std::size_t Kernel<GroupType, kDimension, ArgumentTypes...>::
+constexpr std::size_t Kernel<KGroupType, kDimension, ArgumentTypes...>::
     numOfArguments() noexcept
 {
   constexpr std::size_t size = sizeof...(ArgumentTypes);
@@ -42,9 +42,9 @@ constexpr std::size_t Kernel<GroupType, kDimension, ArgumentTypes...>::
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-constexpr std::size_t Kernel<GroupType, kDimension, ArgumentTypes...>::
+constexpr std::size_t Kernel<KGroupType, kDimension, ArgumentTypes...>::
     workgroupDimension() noexcept
 {
   return kDimension;

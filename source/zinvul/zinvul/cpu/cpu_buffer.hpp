@@ -2,7 +2,7 @@
   \file cpu_buffer.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -12,6 +12,7 @@
 
 // Standard C++ library
 #include <cstddef>
+#include <type_traits>
 // Zisc
 #include "zisc/memory_resource.hpp"
 // Zinvul
@@ -31,6 +32,8 @@ class CpuBuffer : public Buffer<T>
  public:
   //! The type of the buffer. "const", "volatile" and "reference" are removed
   using Type = typename Buffer<T>::Type;
+  using Pointer = typename Buffer<T>::Pointer;
+  using ConstPointer = typename Buffer<T>::ConstPointer;
 
 
   //! Create an empty buffer
@@ -57,10 +60,10 @@ class CpuBuffer : public Buffer<T>
               const uint32b queue_index) const noexcept override;
 
   //! Return a data from a cpu buffer
-  Type* data() noexcept;
+  Pointer data() noexcept;
 
   //! Return a data from a cpu buffer
-  const Type* data() const noexcept;
+  ConstPointer data() const noexcept;
 
   //! Return the device type
   DeviceType deviceType() const noexcept override;
@@ -69,7 +72,7 @@ class CpuBuffer : public Buffer<T>
   std::size_t memoryUsage() const noexcept override;
 
   //! Read a data from a buffer
-  void read(Type* host_data,
+  void read(Pointer host_data,
             const std::size_t count,
             const std::size_t offset,
             const uint32b queue_index) const noexcept override;
@@ -81,7 +84,7 @@ class CpuBuffer : public Buffer<T>
   std::size_t size() const noexcept override;
 
   //! Write a data to a buffer
-  void write(const Type* host_data,
+  void write(ConstPointer host_data,
              const std::size_t count,
              const std::size_t offset,
              const uint32b queue_index) noexcept override;

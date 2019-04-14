@@ -2,7 +2,7 @@
   \file vulkan_kernel.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -30,10 +30,10 @@ template <typename> class VulkanBuffer;
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
-class VulkanKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
+class VulkanKernel : public Kernel<KGroupType, kDimension, ArgumentTypes...>
 {
-  using KernelBase = Kernel<GroupType, kDimension, ArgumentTypes...>;
+  using KernelBase = Kernel<KGroupType, kDimension, ArgumentTypes...>;
   template <typename Type>
   using BufferRef = typename KernelBase::template BufferRef<Type>;
 

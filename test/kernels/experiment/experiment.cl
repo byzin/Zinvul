@@ -18,43 +18,59 @@
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
+using namespace zinvul;
+
 /*!
   */
-//__kernel void experiment(__global float* buffer1,
-//    __global float2* buffer2,
-//    __global float3* buffer3,
-//    __global float4* buffer4)
+//__kernel void experiment(const uint32b resolution)
 //{
-//  const uint32b index = zGetGlobalIdX();
-//  if (index == 0) {
-//    float x = buffer1[index];
-//    x = 2.0f * x;
-//    buffer1[index] = x;
+////  const uint32b index = zGetGlobalIdX();
+//  const uint32b index = get_global_id(0);
+//  if (index < resolution) {
+//    ;
 //  }
 //}
 
 /*!
   */
-__kernel void experiment(__global ZMatrix2x2* inputs,
-    __global ZMatrix2x2* outputs)
+__kernel void experiment(ConstGlobalPtr<float> buffer1,
+    GlobalPtr<float> results1,
+    GlobalPtr<float2> results2,
+    GlobalPtr<float3> results3,
+    GlobalPtr<float4> results4,
+    const uint32b resolution)
 {
-  const uint32b index = zGetGlobalIdX();
-  if (index == 0) {
-    {
-      const ZMatrix2x2 lhs = inputs[0];
-      const ZMatrix2x2 rhs = inputs[1];
-      ZMatrix2x2 result = zMakeMat2x2(0.0f, 0.0f,
-                                      0.0f, 0.0f);
-      zAddMat2x2(&lhs, &rhs, &result);
-      outputs[0] = result;
-    }
-    {
-      const __global ZMatrix2x2* lhs = &inputs[0];
-      const __global ZMatrix2x2* rhs = &inputs[1];
-      zAddGMat2x2G(lhs, rhs, &outputs[1]);
-    }
+//  const uint32b index = zGetGlobalIdX();
+  const uint32b index = get_global_id(0);
+  if (index < resolution) {
+    float x = buffer1[index];
+    x = 2.0f * x;
+    results1[index] = x;
   }
 }
+
+/*!
+  */
+//__kernel void experiment(__global ZMatrix2x2* inputs,
+//    __global ZMatrix2x2* outputs)
+//{
+//  const uint32b index = zGetGlobalIdX();
+//  if (index == 0) {
+//    {
+//      const ZMatrix2x2 lhs = inputs[0];
+//      const ZMatrix2x2 rhs = inputs[1];
+//      ZMatrix2x2 result = zMakeMat2x2(0.0f, 0.0f,
+//                                      0.0f, 0.0f);
+//      zAddMat2x2(&lhs, &rhs, &result);
+//      outputs[0] = result;
+//    }
+//    {
+//      const __global ZMatrix2x2* lhs = &inputs[0];
+//      const __global ZMatrix2x2* rhs = &inputs[1];
+//      zAddGMat2x2G(lhs, rhs, &outputs[1]);
+//    }
+//  }
+//}
 
 /*!
   */

@@ -2,7 +2,7 @@
   \file vulkan_buffer-inl.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -162,14 +162,14 @@ std::size_t VulkanBuffer<T>::memoryUsage() const noexcept
 /*!
   */
 template <typename T> inline
-void VulkanBuffer<T>::read(Type* data,
+void VulkanBuffer<T>::read(Pointer data,
                            const std::size_t count,
                            const std::size_t offset,
                            const uint32b queue_index) const noexcept
 {
   ZISC_ASSERT(this->isHostReadable(), "The buffer isn't readable.");
   if (this->isHostBuffer()) {
-    const Type* source = zisc::cast<const Type*>(device_->mapMemory(*this));
+    ConstPointer source = zisc::cast<ConstPointer>(device_->mapMemory(*this));
     const std::size_t s = sizeof(Type) * count;
     std::memcpy(data, source + offset, s);
     device_->unmapMemory(*this);
@@ -204,14 +204,14 @@ std::size_t VulkanBuffer<T>::size() const noexcept
 /*!
   */
 template <typename T> inline
-void VulkanBuffer<T>::write(const Type* data,
+void VulkanBuffer<T>::write(ConstPointer data,
                             const std::size_t count,
                             const std::size_t offset,
                             const uint32b queue_index) noexcept
 {
   ZISC_ASSERT(this->isHostWritable(), "The buffer isn't writable.");
   if (this->isHostBuffer()) {
-    Type* dest = zisc::cast<Type*>(device_->mapMemory(*this));
+    Pointer dest = zisc::cast<Pointer>(device_->mapMemory(*this));
     const std::size_t s = sizeof(Type) * count;
     std::memcpy(dest + offset, data, s);
     device_->unmapMemory(*this);

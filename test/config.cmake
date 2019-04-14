@@ -1,7 +1,7 @@
 # file: config.cmake
 # author: Sho Ikeda
 #
-# Copyright (c) 2015-2018 Sho Ikeda
+# Copyright (c) 2015-2019 Sho Ikeda
 # This software is released under the MIT License.
 # http://opensource.org/licenses/mit-license.php
 # 
@@ -107,11 +107,11 @@ function(buildUnitTest)
                                               ${PROJECT_BINARY_DIR}/include
                                               ${zisc_include_dirs}
                                               ${zinvul_include_dirs})
-  target_include_directories(UnitTest SYSTEM PRIVATE Vulkan::Vulkan
+  target_include_directories(UnitTest SYSTEM PRIVATE ${Vulkan_INCLUDE_DIRS}
                                                      ${vma_include_dir}
                                                      ${gtest_include_dir})
   target_link_libraries(UnitTest PRIVATE ${CMAKE_THREAD_LIBS_INIT}
-                                         Vulkan::Vulkan
+                                         ${Vulkan_LIBRARIES}
                                          ${cxx_linker_flags}
                                          ${zisc_linker_flags}
                                          ${zinvul_linker_flags}

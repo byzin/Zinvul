@@ -2,7 +2,7 @@
   \file vulkan_buffer.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -32,6 +32,8 @@ class VulkanBuffer : public Buffer<T>
  public:
   //! The type of the buffer. "const", "volatile" and "reference" are removed
   using Type = typename Buffer<T>::Type;
+  using Pointer = typename Buffer<T>::Pointer;
+  using ConstPointer = typename Buffer<T>::ConstPointer;
 
 
   //! Create an empty buffer
@@ -85,7 +87,7 @@ class VulkanBuffer : public Buffer<T>
   std::size_t memoryUsage() const noexcept override;
 
   //! Read a data from a buffer
-  void read(Type* data,
+  void read(Pointer data,
             const std::size_t count,
             const std::size_t offset,
             const uint32b queue_index) const noexcept override;
@@ -97,7 +99,7 @@ class VulkanBuffer : public Buffer<T>
   std::size_t size() const noexcept override;
 
   //! Write a data to a buffer
-  void write(const Type* data,
+  void write(ConstPointer data,
              const std::size_t count,
              const std::size_t offset,
              const uint32b queue_index) noexcept override;

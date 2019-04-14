@@ -2,7 +2,7 @@
   \file utility-inl.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -28,12 +28,108 @@ namespace zinvul {
 
 namespace cl {
 
+static thread_local std::array<uint32b, 3> __work_group_id{{0, 0, 0}}; //!< Referred by cl get_group_id()
+static thread_local std::array<uint32b, 3> __work_group_size{{0, 0, 0}}; //!< Referred by cl get_group_size()
+
 /*!
   */
 template <typename Type> inline
 void printf(const char* format, const Type& value) noexcept
 {
   std::printf(format, value);
+}
+
+/*!
+  */
+inline
+void __setWorkGroupId(const uint32b id) noexcept
+{
+  __work_group_id[0] = id % __work_group_size[0];
+  __work_group_id[1] = (id / __work_group_size[0]) % __work_group_size[1];
+  __work_group_id[2] = id / (__work_group_size[0] * __work_group_size[1]);
+  ZISC_ASSERT(__work_group_id[2] < __work_group_size[2],
+              "The workgroup ID is invalid: ID=", id);
+}
+
+/*!
+  */
+inline
+void __setWorkGroupSize(const std::array<uint32b, 3>& size) noexcept
+{
+  __work_group_size = size;
+}
+
+// OpenCL functions
+
+/*!
+  */
+inline
+size_t get_global_id(const uint32b dimension) noexcept
+{
+  const auto id = get_group_id(dimension);
+  return id;
+}
+
+/*!
+  */
+inline
+constexpr size_t get_global_offset(const uint32b /* dimension */) noexcept
+{
+  return 0;
+}
+
+/*!
+  */
+inline
+size_t get_global_size(const uint32b dimension) noexcept
+{
+  return get_num_groups(dimension);
+}
+
+/*!
+  */
+inline
+size_t get_group_id(const uint32b dimension) noexcept
+{
+  const size_t id = zisc::isInBounds(dimension, 0u, get_work_dim())
+      ? __work_group_id[dimension]
+      : 0;
+  return id;
+}
+
+/*!
+  */
+inline
+constexpr size_t get_local_id(const uint32b /* dimension */) noexcept
+{
+  return 0;
+}
+
+/*!
+  */
+inline
+constexpr size_t get_local_size(const uint32b /* dimension */) noexcept
+{
+  return 1;
+}
+
+/*!
+  */
+inline
+size_t get_num_groups(const uint32b dimension) noexcept
+{
+  const cl::size_t size = zisc::isInBounds(dimension, 0u, get_work_dim())
+      ? __work_group_size[dimension]
+      : 1;
+  return size;
+}
+
+/*!
+  */
+inline
+constexpr uint32b get_work_dim() noexcept
+{
+  return 3;
 }
 
 namespace inner {

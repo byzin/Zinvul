@@ -2,7 +2,7 @@
   \file cpu_device.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -35,8 +35,7 @@ template <typename> class CpuBuffer;
 class CpuDevice : public Device
 {
  public:
-  template <typename GroupType>
-  using Command = zisc::FunctionReference<void (GroupType&)>;
+  using Command = zisc::FunctionReference<void ()>;
 
 
   //! Initialize a cpu device
@@ -61,15 +60,16 @@ class CpuDevice : public Device
   //! Make a kernel
   template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
   UniqueKernel<GroupType, kDimension, ArgumentTypes...> makeKernel(
-      const typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction func) noexcept;
+      const typename Kernel<GroupType, kDimension, ArgumentTypes...>::Function func)
+          noexcept;
 
   //! Return the number of threads
   std::size_t numOfThreads() const noexcept;
 
   //! Submit a command
-  template <std::size_t kDimension, typename GroupType>
+  template <std::size_t kDimension>
   void submit(const std::array<uint32b, kDimension>& works,
-              const Command<GroupType>& command) noexcept;
+              const Command& command) noexcept;
 
   //! Wait this thread until all commands in the queue are completed
   void waitForCompletion() const noexcept override;

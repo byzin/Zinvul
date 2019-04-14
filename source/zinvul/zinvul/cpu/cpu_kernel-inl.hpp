@@ -2,7 +2,7 @@
   \file cpu_kernel-inl.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -30,11 +30,11 @@ namespace zinvul {
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-CpuKernel<GroupType, kDimension, ArgumentTypes...>::CpuKernel(
+CpuKernel<KGroupType, kDimension, ArgumentTypes...>::CpuKernel(
     CpuDevice* device,
-    const KernelFunction kernel_func) noexcept :
+    const Function kernel_func) noexcept :
         device_{device}
 {
   setKernel(kernel_func);
@@ -42,9 +42,9 @@ CpuKernel<GroupType, kDimension, ArgumentTypes...>::CpuKernel(
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-CpuDevice* CpuKernel<GroupType, kDimension, ArgumentTypes...>::device() noexcept
+CpuDevice* CpuKernel<KGroupType, kDimension, ArgumentTypes...>::device() noexcept
 {
   ZISC_ASSERT(device_ != nullptr, "The assigned device is null.");
   return device_;
@@ -52,9 +52,9 @@ CpuDevice* CpuKernel<GroupType, kDimension, ArgumentTypes...>::device() noexcept
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-const CpuDevice* CpuKernel<GroupType, kDimension, ArgumentTypes...>::device()
+const CpuDevice* CpuKernel<KGroupType, kDimension, ArgumentTypes...>::device()
     const noexcept
 {
   ZISC_ASSERT(device_ != nullptr, "The assigned device is null.");
@@ -63,9 +63,9 @@ const CpuDevice* CpuKernel<GroupType, kDimension, ArgumentTypes...>::device()
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-DeviceType CpuKernel<GroupType, kDimension, ArgumentTypes...>::deviceType()
+DeviceType CpuKernel<KGroupType, kDimension, ArgumentTypes...>::deviceType()
     const noexcept
 {
   return DeviceType::kCpu;
@@ -73,10 +73,10 @@ DeviceType CpuKernel<GroupType, kDimension, ArgumentTypes...>::deviceType()
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-auto CpuKernel<GroupType, kDimension, ArgumentTypes...>::kernel() const noexcept
-    -> KernelFunction
+auto CpuKernel<KGroupType, kDimension, ArgumentTypes...>::kernel() const noexcept
+    -> Function
 {
   ZISC_ASSERT(kernel_ != nullptr, "The kernel function is null.");
   return kernel_;
@@ -84,9 +84,9 @@ auto CpuKernel<GroupType, kDimension, ArgumentTypes...>::kernel() const noexcept
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-bool CpuKernel<GroupType, kDimension, ArgumentTypes...>::hasKernel() const noexcept
+bool CpuKernel<KGroupType, kDimension, ArgumentTypes...>::hasKernel() const noexcept
 {
   const bool result = kernel_ != nullptr;
   return result;
@@ -94,30 +94,39 @@ bool CpuKernel<GroupType, kDimension, ArgumentTypes...>::hasKernel() const noexc
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
-void CpuKernel<GroupType, kDimension, ArgumentTypes...>::setKernel(
-    const KernelFunction kernel_func) noexcept
+void CpuKernel<KGroupType, kDimension, ArgumentTypes...>::setKernel(
+    const Function kernel_func) noexcept
 {
   kernel_ = kernel_func;
 }
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
 template <typename Type> inline
-Type CpuKernel<GroupType, kDimension, ArgumentTypes...>::refer(
+Type CpuKernel<KGroupType, kDimension, ArgumentTypes...>::refer(
     BufferRef<Type> buffer) const noexcept
 {
   ZISC_ASSERT(buffer.deviceType() == DeviceType::kCpu,
               "The device type of the buffer isn't cpu.");
   ZISC_ASSERT(0 < buffer.size(), "The buffer is empty.");
-  using CpuBufferP = std::add_pointer_t<CpuBuffer<std::remove_cv_t<std::remove_pointer_t<Type>>>>;
+
+  using ClArgType = typename KernelBase::template ClArgType<Type>;
+  using CpuBufferP = std::add_pointer_t<CpuBuffer<typename ClArgType::Type>>;
   auto cpu_buffer = zisc::cast<CpuBufferP>(&buffer);
-  if constexpr (std::is_pointer_v<Type>)
-    return cpu_buffer->data();
+
+  if constexpr (ClArgType::kIsAddressSpacePointer)
+  {
+    Type argument{cpu_buffer->data()};
+    return argument;
+  }
   else
-    return *(cpu_buffer->data());
+  {
+    auto& argument = *(cpu_buffer->data());
+    return argument;
+  }
 }
 
 } // namespace zinvul

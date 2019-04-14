@@ -2,7 +2,7 @@
   \file cpu_kernel.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -26,20 +26,20 @@ template <typename> class CpuBuffer;
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
-class CpuKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
+template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
+class CpuKernel : public Kernel<KGroupType, kDimension, ArgumentTypes...>
 {
-  using KernelBase = Kernel<GroupType, kDimension, ArgumentTypes...>;
+  using KernelBase = Kernel<KGroupType, kDimension, ArgumentTypes...>;
   template <typename Type>
   using BufferRef = typename KernelBase::template BufferRef<Type>;
 
  public:
-  using KernelGroupType = typename KernelBase::KernelGroupType;
-  using KernelFunction = typename KernelBase::KernelFunction;
+  using GroupType = typename KernelBase::GroupType;
+  using Function = typename KernelBase::Function;
 
 
    //! Construct a kernel
-  CpuKernel(CpuDevice* device, const KernelFunction kernel) noexcept;
+  CpuKernel(CpuDevice* device, const Function kernel) noexcept;
 
 
   //! Return an assigned device
@@ -52,7 +52,7 @@ class CpuKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
   DeviceType deviceType() const noexcept override;
 
   //! Return a kernel function
-  KernelFunction kernel() const noexcept;
+  Function kernel() const noexcept;
 
   //! Check if this has a kernel
   bool hasKernel() const noexcept;
@@ -62,16 +62,15 @@ class CpuKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
            const std::array<uint32b, kDimension> works,
            const uint32b /* queue_index*/) noexcept override
   {
-    const auto command =[this, &args...](KernelGroupType& instance)
+    const auto command =[this, &args...]()
     {
-      (instance.*kernel())(refer<ArgumentTypes>(args)...);
+      (*kernel())(refer<ArgumentTypes>(args)...);
     };
-    using Command = typename CpuDevice::Command<KernelGroupType>;
-    device_->submit(works, Command{command});
+    device_->submit(works, CpuDevice::Command{command});
   }
 
   //! Set a kernel function
-  void setKernel(const KernelFunction kernel) noexcept;
+  void setKernel(const Function kernel) noexcept;
 
  private:
   //! Refer to a buffer
@@ -80,7 +79,7 @@ class CpuKernel : public Kernel<GroupType, kDimension, ArgumentTypes...>
 
 
   CpuDevice* device_ = nullptr;
-  KernelFunction kernel_ = nullptr;
+  Function kernel_ = nullptr;
 };
 
 } // namespace zinvul

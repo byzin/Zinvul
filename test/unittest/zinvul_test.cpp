@@ -101,50 +101,15 @@ TEST(ZinvulTest, VulkanDeviceTest)
 //
 //    constexpr uint32b resolution = 1u;
 //
-//    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
-//    results1->setSize(1);
-//    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
-//    results2->setSize(1);
-//    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
-//    results3->setSize(1);
-//    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
-//    results4->setSize(1);
+//    auto resolution_buf = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+//    resolution_buf->setSize(1);
+//    resolution_buf->write(&resolution, 1, 0, 0);
 //
 //    auto kernel = zinvul::makeZinvulKernel(device.get(), experiment, experiment, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {resolution}, 0);
+//    kernel->run(*resolution_buf, {resolution}, 0);
 //    device->waitForCompletion();
 //
 //    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//
-//    const char* error_message = "The '' func is failed.";
-//    // Scalar
-//    {
-//      std::vector<float> results;
-//      results.resize(1);
-//      results1->read(results.data(), results.size(), 0, 0);
-//    }
-//
-//    // Vector2
-//    {
-//      std::vector<cl::float2> results;
-//      results.resize(1);
-//      results2->read(results.data(), results.size(), 0, 0);
-//    }
-//
-//    // Vector3
-//    {
-//      std::vector<cl::float3> results;
-//      results.resize(1);
-//      results3->read(results.data(), results.size(), 0, 0);
-//    }
-//
-//    // Vector4
-//    {
-//      std::vector<cl::float4> results;
-//      results.resize(1);
-//      results4->read(results.data(), results.size(), 0, 0);
-//    }
-//
 //    std::cout << std::endl;
 //  }
 //}
@@ -156,46 +121,124 @@ TEST(Experiment, ZinvulTest)
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
   for (std::size_t number = 0; number < device_list.size(); ++number) {
-    if (number == 0)
-      continue;
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    using ZMatrix2x2 = zinvul::experiment::KernelGroup::ZMatrix2x2;
-    zinvul::experiment::KernelGroup k;
+    constexpr uint32b resolution = 100u;
 
-    auto input_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
-    input_buf->setSize(2);
+    auto buffer1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTDst);
+    buffer1->setSize(resolution);
     {
-      const auto matrix = k.zMakeMat2x2(0.0f, 1.0f, 2.0f, 3.0f);
-      std::array<ZMatrix2x2, 2> mat_list{{matrix, matrix}};
-      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
+      std::vector<float> inputs;
+      inputs.resize(resolution);
+      for (std::size_t i = 0; i < inputs.size(); ++i)
+        inputs[i] = zisc::cast<float>(i);
+      buffer1->write(inputs.data(), inputs.size(), 0, 0);
     }
-    auto output_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
-    output_buf->setSize(2);
+    auto results1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
+    results1->setSize(resolution);
+    auto results2 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
+    results2->setSize(resolution);
+    auto results3 = makeBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
+    results3->setSize(resolution);
+    auto results4 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
+    results4->setSize(resolution);
+    auto resolution_buf = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    resolution_buf->setSize(1);
+    resolution_buf->write(&resolution, 1, 0, 0);
+
 
     auto kernel = zinvul::makeZinvulKernel(device.get(), experiment, experiment, 1);
-    kernel->run(*input_buf, *output_buf, {1}, 0);
+    kernel->run(*buffer1, *results1, *results2, *results3, *results4, *resolution_buf, {resolution}, 0);
     device->waitForCompletion();
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
 
+    const char* error_message = "The '' func is failed.";
+    // Scalar
     {
-      std::array<ZMatrix2x2, 2> results;
-      output_buf->read(results.data(), results.size(), 0, 0);
-      for (std::size_t id = 0; id < results.size(); ++id) {
-        const auto& matrix = results[id];
-        for (std::size_t i = 0; i < 4; ++i) {
-          const float expected = zisc::cast<float>(i * 2);
-          const float result = matrix.m_[i];
-          ASSERT_FLOAT_EQ(expected, result) << "[" << id << "]: Matrix2x2 addition failed.";
-        }
+      std::vector<float> results;
+      results.resize(resolution);
+      results1->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const float expected = 2.0f * zisc::cast<float>(i);
+        const float result = results[i];
+        ASSERT_FLOAT_EQ(expected, result) << error_message;
       }
+    }
+
+    // Vector2
+    {
+      std::vector<cl::float2> results;
+      results.resize(resolution);
+      results2->read(results.data(), results.size(), 0, 0);
+    }
+
+    // Vector3
+    {
+      std::vector<cl::float3> results;
+      results.resize(resolution);
+      results3->read(results.data(), results.size(), 0, 0);
+    }
+
+    // Vector4
+    {
+      std::vector<cl::float4> results;
+      results.resize(resolution);
+      results4->read(results.data(), results.size(), 0, 0);
     }
 
     std::cout << std::endl;
   }
 }
+
+//TEST(Experiment, ZinvulTest)
+//{
+//  using zisc::cast;
+//  using namespace zinvul;
+//  auto options = makeTestOptions();
+//  auto device_list = makeTestDeviceList(options);
+//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//    if (number == 0)
+//      continue;
+//    auto& device = device_list[number];
+//    std::cout << getTestDeviceInfo(*device);
+//
+//    using ZMatrix2x2 = zinvul::experiment::KernelGroup::ZMatrix2x2;
+//    zinvul::experiment::KernelGroup k;
+//
+//    auto input_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
+//    input_buf->setSize(2);
+//    {
+//      const auto matrix = k.zMakeMat2x2(0.0f, 1.0f, 2.0f, 3.0f);
+//      std::array<ZMatrix2x2, 2> mat_list{{matrix, matrix}};
+//      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
+//    }
+//    auto output_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
+//    output_buf->setSize(2);
+//
+//    auto kernel = zinvul::makeZinvulKernel(device.get(), experiment, experiment, 1);
+//    kernel->run(*input_buf, *output_buf, {1}, 0);
+//    device->waitForCompletion();
+//
+//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+//
+//    {
+//      std::array<ZMatrix2x2, 2> results;
+//      output_buf->read(results.data(), results.size(), 0, 0);
+//      for (std::size_t id = 0; id < results.size(); ++id) {
+//        const auto& matrix = results[id];
+//        for (std::size_t i = 0; i < 4; ++i) {
+//          const float expected = zisc::cast<float>(i * 2);
+//          const float result = matrix.m_[i];
+//          ASSERT_FLOAT_EQ(expected, result) << "[" << id << "]: Matrix2x2 addition failed.";
+//        }
+//      }
+//    }
+//
+//    std::cout << std::endl;
+//  }
+//}
 
 //TEST(Experiment, ZinvulTest)
 //{

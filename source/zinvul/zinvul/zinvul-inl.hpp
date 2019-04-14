@@ -2,7 +2,7 @@
   \file zinvul-inl.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -91,14 +91,13 @@ namespace inner {
 template <typename, typename ...ArgumentTypes> struct KernelFunction;
 
 template <typename GroupType, typename ...ArgumentTypes>
-struct KernelFunction<void (GroupType::*)(ArgumentTypes...)>
+struct KernelFunction<GroupType, void (*)(ArgumentTypes...)>
 {
-  template <std::size_t kDimension>
-  using Function = typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction;
+  using Function = void (*)(ArgumentTypes...);
 
   template <std::size_t kDimension>
   static auto make(Device* device,
-                   const Function<kDimension> kernel_func,
+                   const Function kernel_func,
                    const char* kernel_name) noexcept
   {
     UniqueKernel<GroupType, kDimension, ArgumentTypes...> kernel;
@@ -136,10 +135,8 @@ struct KernelFunction<void (GroupType::*)(ArgumentTypes...)>
   */
 #undef makeZinvulKernel
 #define makeZinvulKernel(device, kernel_group, kernel, dimension) \
-    inner::KernelFunction<decltype(&zinvul:: kernel_group ::KernelGroup:: kernel )>\
-        ::make< dimension >(device, \
-                            &zinvul:: kernel_group ::KernelGroup:: kernel , \
-                            #kernel )
+    inner::KernelFunction<zinvul:: kernel_group ::KernelGroup, decltype(&zinvul::cl:: kernel )>\
+        ::make< dimension >(device, &zinvul::cl:: kernel , #kernel )
 
 } // namespace zinvul
 

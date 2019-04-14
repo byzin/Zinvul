@@ -2,7 +2,7 @@
   \file utility.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -10,6 +10,8 @@
 #ifndef ZINVUL_CL_UTILITY_HPP
 #define ZINVUL_CL_UTILITY_HPP
 
+// Standard C++ library
+#include <array>
 // Zinvul
 #include "types.hpp"
 #include "vector.hpp"
@@ -19,9 +21,43 @@ namespace zinvul {
 
 namespace cl {
 
+//! Set the work group ID
+void __setWorkGroupId(const uint32b id) noexcept;
+
+//! Set the work group size
+void __setWorkGroupSize(const std::array<uint32b, 3>& size) noexcept;
+
+// OpenCL functions
+
 //! Write the result of the format to stdout
 template <typename Type>
 void printf(const char* format, const Type& value) noexcept;
+
+// Work-Item functions
+
+//! Return the global work-item ID
+size_t get_global_id(const uint32b dimension) noexcept;
+
+//! Return the offset values
+constexpr size_t get_global_offset(const uint32b dimension) noexcept;
+
+//! Return the number of global work-items
+size_t get_global_size(const uint32b dimension) noexcept;
+
+//! Return the work-group ID
+size_t get_group_id(const uint32b dimension) noexcept;
+
+//! Return the unique local work-item ID
+constexpr size_t get_local_id(const uint32b dimension) noexcept;
+
+//! Return the number of local work-item
+constexpr size_t get_local_size(const uint32b dimension) noexcept;
+
+//! Return the number of work-groups that will execute a kernel
+size_t get_num_groups(const uint32b dimension) noexcept;
+
+//! Return the number of dimensions in use
+constexpr uint32b get_work_dim() noexcept;
 
 //! Convert to a char value
 template <typename Type>

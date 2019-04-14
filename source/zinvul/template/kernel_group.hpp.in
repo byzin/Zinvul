@@ -2,7 +2,7 @@
   \file @kernel_group_name@.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -20,6 +20,8 @@
 // Zinvul
 #include "zinvul/kernel_group.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/cppcl/address_space_pointer.hpp"
+#include "zinvul/cppcl/atomic.hpp"
 #include "zinvul/cppcl/math.hpp"
 #include "zinvul/cppcl/relational.hpp"
 #include "zinvul/cppcl/types.hpp"
@@ -33,21 +35,23 @@
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #endif // Z_CLANG
 
-@define_cpp_address_qualifiers_code@
+@define_cppcl_qualifiers_code@
 
 namespace zinvul {
 
-namespace @kernel_group_name@ {
+namespace cl {
 
-using namespace zinvul::cl;
+@kernel_include_lines@
+
+} // namespace cl
+
+namespace @kernel_group_name@ {
 
 /*!
   */
 class KernelGroup : public zinvul::KernelGroup
 {
  public:
-@kernel_include_lines@
-
   //! Return the group number
   uint32b __getKernelGroupNumber() const noexcept override
   {
@@ -95,7 +99,7 @@ class KernelGroup : public zinvul::KernelGroup
 
 } // namespace zinvul
 
-@undefine_cpp_address_qualifiers_code@
+@undefine_cppcl_qualifiers_code@
 
 #ifdef Z_CLANG
 #pragma clang diagnostic pop

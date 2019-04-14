@@ -1,7 +1,7 @@
 # file: config.cmake
 # author: Sho Ikeda
 #
-# Copyright (c) 2015-2018 Sho Ikeda
+# Copyright (c) 2015-2019 Sho Ikeda
 # This software is released under the MIT License.
 # http://opensource.org/licenses/mit-license.php
 # 
@@ -234,40 +234,26 @@ function(loadZinvul zinvul_source_files zinvul_include_dirs zinvul_compile_flags
 endfunction(loadZinvul)
 
 
-macro(getCppAddressQualifiersCodeImpl address_qualifier)
-  string(APPEND define_address_qualifiers_code "#ifdef ${address_qualifier}\n")
-  string(APPEND define_address_qualifiers_code "static_assert(false, \"The macro '${address_qualifier}' is already defined.\");\n")
-  string(APPEND define_address_qualifiers_code "#endif // ${address_qualifier}\n")
-  if("${address_qualifier}" MATCHES "constant")
-    set(cpp_address_qualifier "static constexpr")
-  else()
-    set(cpp_address_qualifier "")
-  endif()
-  string(APPEND define_address_qualifiers_code "#define ${address_qualifier} ${cpp_address_qualifier}\n")
-  string(APPEND undefine_address_qualifiers_code "#undef ${address_qualifier}\n")
-endmacro(getCppAddressQualifiersCodeImpl)
+macro(getCppClQualifiersCodeImpl qualifier definition)
+  string(APPEND define_qualifiers_code "#ifdef ${qualifier}\n")
+  string(APPEND define_qualifiers_code "static_assert(false, \"The macro '${qualifier}' is already defined.\");\n")
+  string(APPEND define_qualifiers_code "#endif // ${qualifier}\n")
+  string(APPEND define_qualifiers_code "#define ${qualifier} ${definition}\n")
+  string(APPEND undefine_qualifiers_code "#undef ${qualifier}\n")
+endmacro(getCppClQualifiersCodeImpl)
 
 
-function(getCppAddressQualifiersCode define_cpp_address_qualifiers_code undefine_cpp_address_qualifiers_code)
+function(getCppClQualifiersCode define_cppcl_qualifiers_code undefine_cppcl_qualifiers_code)
 
-  set(define_address_qualifiers "")
-  set(undefine_address_qualifiers "")
-  getCppAddressQualifiersCodeImpl(__kernel)
-  getCppAddressQualifiersCodeImpl(kernel)
-  getCppAddressQualifiersCodeImpl(__global)
-  getCppAddressQualifiersCodeImpl(global)
-  getCppAddressQualifiersCodeImpl(__local)
-  getCppAddressQualifiersCodeImpl(local)
-  getCppAddressQualifiersCodeImpl(__constant)
-  getCppAddressQualifiersCodeImpl(constant)
-  getCppAddressQualifiersCodeImpl(__private)
-  #  getCppAddressQualifiersCodeImpl(private)
-
+  set(define_qualifiers "")
+  set(undefine_qualifiers "")
+  getCppClQualifiersCodeImpl(__kernel "")
+  getCppClQualifiersCodeImpl(kernel "")
 
   # Output
-  set(${define_cpp_address_qualifiers_code} ${define_address_qualifiers_code} PARENT_SCOPE)
-  set(${undefine_cpp_address_qualifiers_code} ${undefine_address_qualifiers_code} PARENT_SCOPE)
-endfunction(getCppAddressQualifiersCode)
+  set(${define_cppcl_qualifiers_code} ${define_qualifiers_code} PARENT_SCOPE)
+  set(${undefine_cppcl_qualifiers_code} ${undefine_qualifiers_code} PARENT_SCOPE)
+endfunction(getCppClQualifiersCode)
 
 
 function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definitions)
@@ -294,7 +280,7 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
   set(baked_spv_file_path ${PROJECT_BINARY_DIR}/zinvul/baked_${kernel_group_name}_spirv.hpp)
 
   # C++ backend
-  getCppAddressQualifiersCode(define_cpp_address_qualifiers_code undefine_cpp_address_qualifiers_code)
+  getCppClQualifiersCode(define_cppcl_qualifiers_code undefine_cppcl_qualifiers_code)
   set(definitions "" ${ZINVUL_DEFINITIONS})
   set(kernel_hpp_file_path ${PROJECT_BINARY_DIR}/include/zinvul/${kernel_group_name}.hpp)
   configure_file(${__zinvul_root__}/template/kernel_group.hpp.in
@@ -326,10 +312,14 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     endforeach(definition)
     if(Z_DEBUG_MODE)
       list(APPEND clspv_options -O=0 -D=Z_DEBUG_MODE)
-      list(APPEND clspv_options -enable-implicit-null-checks -enable-value-profiling -no-inline-single)
+      list(APPEND clspv_options -keep-unused-arguments)
     elseif(Z_RELEASE_MODE)
       list(APPEND clspv_options -O=3 -D=Z_RELEASE_MODE)
-      list(APPEND clspv_options -cl-finite-math-only -cl-no-signed-zeros -enable-objc-arc-opts)
+      list(APPEND clspv_options -cl-no-signed-zeros
+                                -cost-kind=throughput
+                                -expensive-combines
+                                -instcombine-code-sinking
+                                )
     endif()
     if(Z_WINDOWS)
       list(APPEND clspv_options -D=Z_WINDOWS)
@@ -338,7 +328,13 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     elseif(Z_MAC)
       list(APPEND clspv_options -D=Z_MAC)
     endif()
-    list(APPEND clspv_options -cl-denorms-are-zero -f16bit_storage -int8)
+    list(APPEND clspv_options -c++
+                              -cl-denorms-are-zero
+                              -cl-finite-math-only
+                              -f16bit_storage
+                              -inline-entry-points
+                              -int8
+                              )
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
                                -I=${__zinvul_root__}
                                -o=${spv_file_path} ${cl_file_path})

@@ -2,7 +2,7 @@
   \file cpu_buffer-inl.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -76,7 +76,7 @@ void CpuBuffer<T>::copyTo(Buffer<Type>* dst,
 /*!
   */
 template <typename T> inline
-auto CpuBuffer<T>::data() noexcept -> Type*
+auto CpuBuffer<T>::data() noexcept -> Pointer
 {
   return buffer_.data();
 }
@@ -84,7 +84,7 @@ auto CpuBuffer<T>::data() noexcept -> Type*
 /*!
   */
 template <typename T> inline
-auto CpuBuffer<T>::data() const noexcept -> const Type*
+auto CpuBuffer<T>::data() const noexcept -> ConstPointer
 {
   return buffer_.data();
 }
@@ -109,7 +109,7 @@ std::size_t CpuBuffer<T>::memoryUsage() const noexcept
 /*!
   */
 template <typename T> inline
-void CpuBuffer<T>::read(Type* host_data,
+void CpuBuffer<T>::read(Pointer host_data,
                         const std::size_t count,
                         const std::size_t offset,
                         const uint32b) const noexcept
@@ -139,7 +139,7 @@ std::size_t CpuBuffer<T>::size() const noexcept
 /*!
   */
 template <typename T> inline
-void CpuBuffer<T>::write(const Type* host_data,
+void CpuBuffer<T>::write(ConstPointer host_data,
                          const std::size_t count,
                          const std::size_t offset,
                          const uint32b) noexcept

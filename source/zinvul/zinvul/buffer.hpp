@@ -2,7 +2,7 @@
   \file buffer.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -30,6 +30,8 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
  public:
   //! The type of the buffer. "const", "volatile" and "reference" are removed
   using Type = std::remove_reference_t<std::remove_cv_t<T>>;
+  using Pointer = std::add_pointer_t<Type>;
+  using ConstPointer = std::add_pointer_t<std::add_const_t<Type>>;
 
 
   //! Initialize a buffer
@@ -77,7 +79,7 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
   virtual std::size_t memoryUsage() const noexcept = 0;
 
   //! Read a data from a buffer
-  virtual void read(Type* data,
+  virtual void read(Pointer data,
                     const std::size_t count,
                     const std::size_t offset,
                     const uint32b queue_index) const noexcept = 0;
@@ -100,7 +102,7 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
   BufferUsage usage() const noexcept;
 
   //! Write a data to a buffer
-  virtual void write(const Type* data,
+  virtual void write(ConstPointer data,
                      const std::size_t count,
                      const std::size_t offset,
                      const uint32b queue_index) noexcept = 0;

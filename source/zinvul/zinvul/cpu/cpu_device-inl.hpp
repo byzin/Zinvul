@@ -2,7 +2,7 @@
   \file cpu_device-inl.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -29,6 +29,8 @@
 #include "cpu_kernel.hpp"
 #include "zinvul/kernel_group.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/cppcl/atomic.hpp"
+#include "zinvul/cppcl/utility.hpp"
 
 namespace zinvul {
 
@@ -88,7 +90,8 @@ UniqueBuffer<Type> CpuDevice::makeBuffer(const BufferUsage usage_flag) noexcept
 template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
 inline
 UniqueKernel<GroupType, kDimension, ArgumentTypes...> CpuDevice::makeKernel(
-    const typename Kernel<GroupType, kDimension, ArgumentTypes...>::KernelFunction func) noexcept
+    const typename Kernel<GroupType, kDimension, ArgumentTypes...>::Function func)
+        noexcept
 {
   using UniqueCpuKernel = zisc::UniqueMemoryPointer<CpuKernel<GroupType,
                                                               kDimension,
@@ -108,25 +111,20 @@ std::size_t CpuDevice::numOfThreads() const noexcept
 
 /*!
   */
-template <std::size_t kDimension, typename GroupType> inline
+template <std::size_t kDimension> inline
 void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
-                       const Command<GroupType>& command) noexcept
+                       const Command& command) noexcept
 {
-  static_assert(std::is_base_of_v<KernelGroup, GroupType>,
-                "The GroupType isn't derived from zinvul::KernelGroup.");
-
   std::atomic<uint32b> id{0};
   auto task = [this, &command, &works, &id](const uint, const uint)
   {
     const uint32b n = std::accumulate(works.begin(), works.end(),
                                       1u, std::multiplies<uint32b>());
-
-    GroupType instance;
-    instance.__setMutex(&mutex_);
-    instance.__setWorkGroupSize(calcWorkGroupSize(works));
+    cl::__setMutex(&mutex_);
+    cl::__setWorkGroupSize(calcWorkGroupSize(works));
     for (uint32b group_id = id++; group_id < n; group_id = id++) {
-      instance.__setWorkGroupId(group_id);
-      command(instance);
+      cl::__setWorkGroupId(group_id);
+      command();
     }
   };
 

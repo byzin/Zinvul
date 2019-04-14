@@ -2,7 +2,7 @@
   \file test.cpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2018 Sho Ikeda
+  Copyright (c) 2015-2019 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -23,7 +23,9 @@
 #include "zinvul/zinvul.hpp"
 #include "zinvul/zinvul_config.hpp"
 #include "zinvul/cpu/cpu_device.hpp"
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
 #include "zinvul/vulkan/vulkan_device.hpp"
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
 
 /*!
   */
@@ -74,6 +76,7 @@ std::string getTestDeviceInfo(const zinvul::Device& device)
     info += "  Threads: "s + std::to_string(d->numOfThreads()) + "\n"s;
     break;
    }
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
    case zinvul::DeviceType::kVulkan: {
     auto d = static_cast<const zinvul::VulkanDevice*>(&device);
     const auto& device_info = d->physicalDeviceInfo();
@@ -83,6 +86,7 @@ std::string getTestDeviceInfo(const zinvul::Device& device)
     info += "  Subgroup: "s + std::to_string(device.subgroupSize()) + "\n"s;
     break;
    }
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
    default: {
     info = "## Device: Unknown\n"s;
     break;
