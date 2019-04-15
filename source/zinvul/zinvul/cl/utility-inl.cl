@@ -1,5 +1,5 @@
 /*!
-  \file utility.cl
+  \file utility-inl.cl
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -7,9 +7,10 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_UTILITY_CL
-#define ZINVUL_UTILITY_CL
+#ifndef ZINVUL_UTILITY_INL_CL
+#define ZINVUL_UTILITY_INL_CL
 
+#include "utility.cl"
 // Zinvul
 #include "types.cl"
 
@@ -34,31 +35,77 @@
 
 namespace zinvul {
 
-// Work-Item functions
+/*!
+  */
+inline
+uint32b getGlobalSize(const uint32b dimension)
+{
+  const uint32b size = get_global_size(dimension);
+  return size;
+}
 
-//! Return the number of global work-items
-uint32b getGlobalSize(const uint32b dimension);
+/*!
+  */
+inline
+uint32b getGlobalSizeX()
+{
+  const uint32b size = getGlobalSize(0);
+  return size;
+}
 
-//! Return the number of global work-items of x dimension
-uint32b getGlobalSizeX();
+/*!
+  */
+inline
+uint32b getGlobalSizeY()
+{
+  const uint32b size = getGlobalSize(1);
+  return size;
+}
 
-//! Return the number of global work-items of y dimension
-uint32b getGlobalSizeY();
+/*!
+  */
+inline
+uint32b getGlobalSizeZ()
+{
+  const uint32b size = getGlobalSize(2);
+  return size;
+}
 
-//! Return the number of global work-items of z dimension
-uint32b getGlobalSizeZ();
+/*!
+  */
+inline
+uint32b getGlobalId(const uint32b dimension)
+{
+  const uint32b id = get_global_id(dimension);
+  return id;
+}
 
-//! Return the global work-item ID
-uint32b getGlobalId(const uint32b dimension);
+/*!
+  */
+inline
+uint32b getGlobalIdX()
+{
+  const uint32b id = getGlobalId(0);
+  return id;
+}
 
-//! Return the global work-item ID of x dimension
-uint32b getGlobalIdX();
+/*!
+  */
+inline
+uint32b getGlobalIdY()
+{
+  const uint32b id = getGlobalId(1);
+  return id;
+}
 
-//! Return the global work-item ID of y dimension
-uint32b getGlobalIdY();
-
-//! Return the global work-item ID of z dimension
-uint32b getGlobalIdZ();
+/*!
+  */
+inline
+uint32b getGlobalIdZ()
+{
+  const uint32b id = getGlobalId(2);
+  return id;
+}
 
 ///*!
 //  */
@@ -187,331 +234,7 @@ uint32b getGlobalIdZ();
 //  const uint32b id = zGetGroupId(2);
 //  return id;
 //}
-//
-///*!
-//  */
-//char2 zMakeChar2(const int8b x, const int8b y)
-//{
-//#if defined(ZINVUL_CPU)
-//  const char2 value{x, y};
-//#else // ZINVUL_CPU
-//  const char2 value = (char2)(x, y);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//char3 zMakeChar3(const int8b x, const int8b y, const int8b z)
-//{
-//#if defined(ZINVUL_CPU)
-//  const char3 value{x, y, z};
-//#else // ZINVUL_CPU
-//  const char3 value = (char3)(x, y, z);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//char4 zMakeChar4(const int8b x, const int8b y, const int8b z, const int8b w)
-//{
-//#if defined(ZINVUL_CPU)
-//  const char4 value{x, y, z, w};
-//#else // ZINVUL_CPU
-//  const char4 value = (char4)(x, y, z, w);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//uchar2 zMakeUChar2(const uint8b x, const uint8b y)
-//{
-//#if defined(ZINVUL_CPU)
-//  const uchar2 value{x, y};
-//#else // ZINVUL_CPU
-//  const uchar2 value = (uchar2)(x, y);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//uchar3 zMakeUChar3(const uint8b x, const uint8b y, const uint8b z)
-//{
-//#if defined(ZINVUL_CPU)
-//  const uchar3 value{x, y, z};
-//#else // ZINVUL_CPU
-//  const uchar3 value = (uchar3)(x, y, z);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//uchar4 zMakeUChar4(const uint8b x, const uint8b y, const uint8b z, const uint8b w)
-//{
-//#if defined(ZINVUL_CPU)
-//  const uchar4 value{x, y, z, w};
-//#else // ZINVUL_CPU
-//  const uchar4 value = (uchar4)(x, y, z, w);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//short2 zMakeShort2(const int16b x, const int16b y)
-//{
-//#if defined(ZINVUL_CPU)
-//  const short2 value{x, y};
-//#else // ZINVUL_CPU
-//  const short2 value = (short2)(x, y);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//short3 zMakeShort3(const int16b x, const int16b y, const int16b z)
-//{
-//#if defined(ZINVUL_CPU)
-//  const short3 value{x, y, z};
-//#else // ZINVUL_CPU
-//  const short3 value = (short3)(x, y, z);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//short4 zMakeShort4(const int16b x, const int16b y, const int16b z, const int16b w)
-//{
-//#if defined(ZINVUL_CPU)
-//  const short4 value{x, y, z, w};
-//#else // ZINVUL_CPU
-//  const short4 value = (short4)(x, y, z, w);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//ushort2 zMakeUShort2(const uint16b x, const uint16b y)
-//{
-//#if defined(ZINVUL_CPU)
-//  const ushort2 value{x, y};
-//#else // ZINVUL_CPU
-//  const ushort2 value = (ushort2)(x, y);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//ushort3 zMakeUShort3(const uint16b x, const uint16b y, const uint16b z)
-//{
-//#if defined(ZINVUL_CPU)
-//  const ushort3 value{x, y, z};
-//#else // ZINVUL_CPU
-//  const ushort3 value = (ushort3)(x, y, z);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//ushort4 zMakeUShort4(const uint16b x, const uint16b y, const uint16b z, const uint16b w)
-//{
-//#if defined(ZINVUL_CPU)
-//  const ushort4 value{x, y, z, w};
-//#else // ZINVUL_CPU
-//  const ushort4 value = (ushort4)(x, y, z, w);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//int2 zMakeInt2(const int32b x, const int32b y)
-//{
-//#if defined(ZINVUL_CPU)
-//  const int2 value{x, y};
-//#else // ZINVUL_CPU
-//  const int2 value = (int2)(x, y);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//int3 zMakeInt3(const int32b x, const int32b y, const int32b z)
-//{
-//#if defined(ZINVUL_CPU)
-//  const int3 value{x, y, z};
-//#else // ZINVUL_CPU
-//  const int3 value = (int3)(x, y, z);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//int4 zMakeInt4(const int32b x, const int32b y, const int32b z, const int32b w)
-//{
-//#if defined(ZINVUL_CPU)
-//  const int4 value{x, y, z, w};
-//#else // ZINVUL_CPU
-//  const int4 value = (int4)(x, y, z, w);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//uint2 zMakeUInt2(const uint32b x, const uint32b y)
-//{
-//#if defined(ZINVUL_CPU)
-//  const uint2 value{x, y};
-//#else // ZINVUL_CPU
-//  const uint2 value = (uint2)(x, y);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//uint3 zMakeUInt3(const uint32b x, const uint32b y, const uint32b z)
-//{
-//#if defined(ZINVUL_CPU)
-//  const uint3 value{x, y, z};
-//#else // ZINVUL_CPU
-//  const uint3 value = (uint3)(x, y, z);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//uint4 zMakeUInt4(const uint32b x, const uint32b y, const uint32b z, const uint32b w)
-//{
-//#if defined(ZINVUL_CPU)
-//  const uint4 value{x, y, z, w};
-//#else // ZINVUL_CPU
-//  const uint4 value = (uint4)(x, y, z, w);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//long2 zMakeLong2(const int64b x, const int64b y)
-//{
-//#if defined(ZINVUL_CPU)
-//  const long2 value{x, y};
-//#else // ZINVUL_CPU
-//  const long2 value = (long2)(x, y);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//long3 zMakeLong3(const int64b x, const int64b y, const int64b z)
-//{
-//#if defined(ZINVUL_CPU)
-//  const long3 value{x, y, z};
-//#else // ZINVUL_CPU
-//  const long3 value = (long3)(x, y, z);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//long4 zMakeLong4(const int64b x, const int64b y, const int64b z, const int64b w)
-//{
-//#if defined(ZINVUL_CPU)
-//  const long4 value{x, y, z, w};
-//#else // ZINVUL_CPU
-//  const long4 value = (long4)(x, y, z, w);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//ulong2 zMakeULong2(const uint64b x, const uint64b y)
-//{
-//#if defined(ZINVUL_CPU)
-//  const ulong2 value{x, y};
-//#else // ZINVUL_CPU
-//  const ulong2 value = (ulong2)(x, y);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//ulong3 zMakeULong3(const uint64b x, const uint64b y, const uint64b z)
-//{
-//#if defined(ZINVUL_CPU)
-//  const ulong3 value{x, y, z};
-//#else // ZINVUL_CPU
-//  const ulong3 value = (ulong3)(x, y, z);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//ulong4 zMakeULong4(const uint64b x, const uint64b y, const uint64b z, const uint64b w)
-//{
-//#if defined(ZINVUL_CPU)
-//  const ulong4 value{x, y, z, w};
-//#else // ZINVUL_CPU
-//  const ulong4 value = (ulong4)(x, y, z, w);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//float2 zMakeFloat2(const float x, const float y)
-//{
-//#if defined(ZINVUL_CPU)
-//  const float2 value{x, y};
-//#else // ZINVUL_CPU
-//  const float2 value = (float2)(x, y);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//float3 zMakeFloat3(const float x, const float y, const float z)
-//{
-//#if defined(ZINVUL_CPU)
-//  const float3 value{x, y, z};
-//#else // ZINVUL_CPU
-//  const float3 value = (float3)(x, y, z);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
-///*!
-//  */
-//float4 zMakeFloat4(const float x, const float y, const float z, const float w)
-//{
-//#if defined(ZINVUL_CPU)
-//  const float4 value{x, y, z, w};
-//#else // ZINVUL_CPU
-//  const float4 value = (float4)(x, y, z, w);
-//#endif // ZINVUL_CPU
-//  return value;
-//}
-//
+
 ////! Convert int2 to uint2
 //uint2 zI2ToU2(const int2 value)
 //{
@@ -755,16 +478,110 @@ uint32b getGlobalIdZ();
 //  return result;
 //}
 
-//! Convert type from T to Type
-template <typename Type, typename T>
-Type cast(T&& value);
+namespace inner {
 
-//! Treat T* as Type*
-template <typename Type, typename T>
-Type treatAs(T&& object);
+/*!
+  */
+template <typename Type>
+struct TypeConverter
+{
+  template <typename T>
+  static Type cast(T&& value)
+  {
+    auto result = static_cast<Type>(value);
+    return result;
+  }
+
+  template <typename T>
+  static Type treatAs(T&& object)
+  {
+    auto result = reinterpret_cast<Type>(object);
+    return result;
+  }
+};
+
+#define ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(Type) \
+    ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(Type, Type)
+
+#define ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(Type, name) \
+  template <> \
+  struct TypeConverter< Type > \
+  { \
+    template <typename T> \
+    static Type cast(T&& value) \
+    { \
+      auto result = convert_ ## name (value); \
+      return result; \
+    } \
+    template <typename T> \
+    static Type treatAs(T&& object) \
+    { \
+      auto result = *reinterpret_cast< const Type* >(&object); \
+      return result; \
+    } \
+  }
+
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(int8b, char);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(char2);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(char3);
+//ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(char4);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(uint8b, uchar);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uchar2);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uchar3);
+//ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uchar4);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(int16b, short);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(short2);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(short3);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(short4);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(uint16b, ushort);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ushort2);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ushort3);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ushort4);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(int32b, int);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(int2);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(int3);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(int4);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(uint32b, uint);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uint2);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uint3);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uint4);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(int64b, long);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(long2);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(long3);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(long4);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(uint64b, ulong);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ulong2);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ulong3);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ulong4);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(float);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(float2);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(float3);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(float4);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double2);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double3);
+ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double4);
+
+} // namespace inner
+
+/*!
+  */
+template <typename Type, typename T> inline
+Type cast(T&& value)
+{
+  auto result = inner::TypeConverter<Type>::cast(value);
+  return result;
+}
+
+/*!
+  */
+template <typename Type, typename T> inline
+Type treatAs(T&& object)
+{
+  auto result = inner::TypeConverter<Type>::treatAs(object);
+  return result;
+}
 
 } // namespace zinvul
 
-#include "utility-inl.cl"
-
-#endif /* ZINVUL_UTILITY_CL */
+#endif /* ZINVUL_UTILITY_INL_CL */

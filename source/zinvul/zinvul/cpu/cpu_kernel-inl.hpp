@@ -117,7 +117,7 @@ Type CpuKernel<KGroupType, kDimension, ArgumentTypes...>::refer(
   using CpuBufferP = std::add_pointer_t<CpuBuffer<typename ClArgType::Type>>;
   auto cpu_buffer = zisc::cast<CpuBufferP>(&buffer);
 
-  if constexpr (ClArgType::kIsAddressSpacePointer)
+  if constexpr (ClArgType::kIsPointer)
   {
     Type argument{cpu_buffer->data()};
     return argument;

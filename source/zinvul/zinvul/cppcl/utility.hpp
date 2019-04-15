@@ -203,6 +203,22 @@ float3 convert_float3(const Vector<Type, 3>& value) noexcept;
 template <typename Type>
 float4 convert_float4(const Vector<Type, 4>& value) noexcept;
 
+//! Convert to a double value
+template <typename Type>
+double convert_double(Type&& value) noexcept;
+
+//! Convert to a double2 value
+template <typename Type>
+double2 convert_double2(const Vector<Type, 2>& value) noexcept;
+
+//! Convert to a double3 value
+template <typename Type>
+double3 convert_double3(const Vector<Type, 3>& value) noexcept;
+
+//! Convert to a double4 value
+template <typename Type>
+double4 convert_double4(const Vector<Type, 4>& value) noexcept;
+
 //! A data is reinterpreted as a char data
 template <typename Type>
 int8b as_char(Type&& value) noexcept;
@@ -346,6 +362,22 @@ float3 as_float3(Type&& value) noexcept;
 //! A data is reinterpreted as a float4 data
 template <typename Type>
 float4 as_float4(Type&& value) noexcept;
+
+//! A data is reinterpreted as a double data
+template <typename Type>
+double as_double(Type&& value) noexcept;
+
+//! A data is reinterpreted as a double2 data
+template <typename Type>
+double2 as_double2(Type&& value) noexcept;
+
+//! A data is reinterpreted as a double3 data
+template <typename Type>
+double3 as_double3(Type&& value) noexcept;
+
+//! A data is reinterpreted as a double4 data
+template <typename Type>
+double4 as_double4(Type&& value) noexcept;
 
 } // namespace cl
 

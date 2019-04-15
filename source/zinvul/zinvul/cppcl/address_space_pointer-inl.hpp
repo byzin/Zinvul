@@ -12,6 +12,7 @@
 
 #include "address_space_pointer.hpp"
 // Standard C++ library
+#include <cstddef>
 #include <type_traits>
 // Zisc
 #include "zisc/utility.hpp"
@@ -208,6 +209,7 @@ auto AddressSpacePointer<T, kAddressSpaceType>::get() const noexcept
 template <typename Type, AddressSpaceType kAddressSpaceType> inline
 auto operator+(AddressSpacePointer<Type, kAddressSpaceType>& p,
                const ptrdiff_t n) noexcept
+    -> AddressSpacePointer<Type, kAddressSpaceType>
 {
   const auto result = p.get() + n;
   return AddressSpacePointer<Type, kAddressSpaceType>{result};
@@ -218,6 +220,7 @@ auto operator+(AddressSpacePointer<Type, kAddressSpaceType>& p,
 template <typename Type, AddressSpaceType kAddressSpaceType> inline
 auto operator+(const ptrdiff_t n,
                AddressSpacePointer<Type, kAddressSpaceType>& p) noexcept
+    -> AddressSpacePointer<Type, kAddressSpaceType>
 {
   const auto result = p + n;
   return result;
@@ -228,6 +231,7 @@ auto operator+(const ptrdiff_t n,
 template <typename Type, AddressSpaceType kAddressSpaceType> inline
 auto operator-(AddressSpacePointer<Type, kAddressSpaceType>& p,
                const ptrdiff_t n) noexcept
+    -> AddressSpacePointer<Type, kAddressSpaceType>
 {
   const auto result = p.get() - n;
   return AddressSpacePointer<Type, kAddressSpaceType>{result};
@@ -241,6 +245,106 @@ ptrdiff_t operator-(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
 {
   const ptrdiff_t diff = zisc::cast<ptrdiff_t>(lhs.get() - rhs.get());
   return diff;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+bool operator==(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+{
+  const bool result = lhs.get() == rhs.get();
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+bool operator==(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+                const std::nullptr_t rhs) noexcept
+{
+  const bool result = lhs.get() == rhs;
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+bool operator==(const std::nullptr_t lhs,
+                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+{
+  const bool result = lhs == rhs.get();
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+bool operator!=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+{
+  const bool result = lhs.get() != rhs.get();
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+bool operator!=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+                const std::nullptr_t rhs) noexcept
+{
+  const bool result = lhs.get() != rhs;
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+bool operator!=(const std::nullptr_t lhs,
+                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+{
+  const bool result = lhs != rhs.get();
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+bool operator<(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+               const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+{
+  const bool result = lhs.get() < rhs.get();
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+bool operator<=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+{
+  const bool result = lhs.get() <= rhs.get();
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+bool operator>(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+               const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+{
+  const bool result = lhs.get() > rhs.get();
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+bool operator>=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+{
+  const bool result = lhs.get() >= rhs.get();
+  return result;
 }
 
 } // namespace cl

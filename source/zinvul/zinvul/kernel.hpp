@@ -43,9 +43,9 @@ class Kernel : private zisc::NonCopyable<Kernel<KGroupType, kDimension, Argument
   template <typename T, cl::AddressSpaceType kASpaceType = cl::AddressSpaceType::kPrivate>
   struct ArgType
   {
-    using Type = std::remove_cv_t<T>;
+    using Type = std::remove_pointer_t<std::remove_cv_t<T>>;
     static constexpr cl::AddressSpaceType kAddressSpaceType = kASpaceType;
-    static constexpr bool kIsAddressSpacePointer = false;
+    static constexpr bool kIsPointer = std::is_pointer_v<T>;
   };
 
   template <typename T, cl::AddressSpaceType kASpaceType>
@@ -53,7 +53,7 @@ class Kernel : private zisc::NonCopyable<Kernel<KGroupType, kDimension, Argument
   {
     using Type = std::remove_cv_t<T>;
     static constexpr cl::AddressSpaceType kAddressSpaceType = kASpaceType;
-    static constexpr bool kIsAddressSpacePointer = true;
+    static constexpr bool kIsPointer = true;
   };
 
  protected:

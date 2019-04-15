@@ -11,6 +11,7 @@
 #define ZINVUL_CL_ADDRESS_SPACE_POINTER_HPP
 
 // Standard C++ library
+#include <cstddef>
 #include <type_traits>
 // Zinvul
 #include "types.hpp"
@@ -132,6 +133,66 @@ AddressSpacePointer<Type, kAddressSpaceType> operator-(
 //! Compute the distance between lhs and rhs
 template <typename Type, AddressSpaceType kAddressSpaceType>
 ptrdiff_t operator-(
+    const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+    const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept;
+
+//! Return true if lhs is equal to rhs, false otherwise
+template <typename Type, AddressSpaceType kAddressSpaceType>
+bool operator==(
+    const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+    const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept;
+
+//! Return true if lhs is equal to rhs, false otherwise
+template <typename Type, AddressSpaceType kAddressSpaceType>
+bool operator==(
+    const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+    const std::nullptr_t rhs) noexcept;
+
+//! Return true if lhs is equal to rhs, false otherwise
+template <typename Type, AddressSpaceType kAddressSpaceType>
+bool operator==(
+    const std::nullptr_t lhs,
+    const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept;
+
+//! Return true if lhs is not equal to rhs, false otherwise
+template <typename Type, AddressSpaceType kAddressSpaceType>
+bool operator!=(
+    const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+    const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept;
+
+//! Return true if lhs is not equal to rhs, false otherwise
+template <typename Type, AddressSpaceType kAddressSpaceType>
+bool operator!=(
+    const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+    const std::nullptr_t rhs) noexcept;
+
+//! Return true if lhs is not equal to rhs, false otherwise
+template <typename Type, AddressSpaceType kAddressSpaceType>
+bool operator!=(
+    const std::nullptr_t lhs,
+    const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept;
+
+//! Return true if lhs is less than rhs, false otherwise
+template <typename Type, AddressSpaceType kAddressSpaceType>
+bool operator<(
+    const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+    const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept;
+
+//! Return true if lhs is less than or equal rhs, false otherwise
+template <typename Type, AddressSpaceType kAddressSpaceType>
+bool operator<=(
+    const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+    const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept;
+
+//! Return true if lhs is greater than rhs, false otherwise
+template <typename Type, AddressSpaceType kAddressSpaceType>
+bool operator>(
+    const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+    const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept;
+
+//! Return true if lhs is greater than or equal rhs, false otherwise
+template <typename Type, AddressSpaceType kAddressSpaceType>
+bool operator>=(
     const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
     const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept;
 

@@ -34,6 +34,9 @@ struct alignas(2 * sizeof(Type)) Vector<Type, 2>
   //! Initialize a vector
   Vector() noexcept;
 
+  //! Initialize all elements of a vector by v
+  Vector(const Type v) noexcept;
+
   //! Initialize a vector
   Vector(const Type v0, const Type v1) noexcept;
 
@@ -60,6 +63,9 @@ struct alignas(4 * sizeof(Type)) Vector<Type, 3>
 {
   //! Initialize a vector
   Vector() noexcept;
+
+  //! Initialize all elements of a vector by v
+  Vector(const Type v) noexcept;
 
   //! Initialize a vector
   Vector(const Type v0, const Type v1, const Type v2) noexcept;
@@ -89,6 +95,9 @@ struct alignas(4 * sizeof(Type)) Vector<Type, 4>
 {
   //! Initialize a vector
   Vector() noexcept;
+
+  //! Initialize all elements of a vector by v
+  Vector(const Type v) noexcept;
 
   //! Initialize a vector
   Vector(const Type v0, const Type v1, const Type v2, const Type v3) noexcept;

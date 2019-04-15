@@ -28,8 +28,14 @@ namespace cl {
 /*!
   */
 template <typename Type> inline
-Vector<Type, 2>::Vector() noexcept :
-    Vector(zisc::cast<Type>(0), zisc::cast<Type>(0))
+Vector<Type, 2>::Vector() noexcept : Vector(zisc::cast<Type>(0))
+{
+}
+
+/*!
+  */
+template <typename Type> inline
+Vector<Type, 2>::Vector(const Type v) noexcept : Vector(v, v)
 {
 }
 
@@ -73,8 +79,14 @@ constexpr std::size_t Vector<Type, 2>::size() noexcept
 /*!
   */
 template <typename Type> inline
-Vector<Type, 3>::Vector() noexcept :
-    Vector(zisc::cast<Type>(0), zisc::cast<Type>(0), zisc::cast<Type>(0))
+Vector<Type, 3>::Vector() noexcept : Vector(zisc::cast<Type>(0))
+{
+}
+
+/*!
+  */
+template <typename Type> inline
+Vector<Type, 3>::Vector(const Type v) noexcept : Vector(v, v, v)
 {
 }
 
@@ -120,9 +132,14 @@ constexpr std::size_t Vector<Type, 3>::size() noexcept
 /*!
   */
 template <typename Type> inline
-Vector<Type, 4>::Vector() noexcept :
-    Vector(zisc::cast<Type>(0), zisc::cast<Type>(0),
-           zisc::cast<Type>(0), zisc::cast<Type>(0))
+Vector<Type, 4>::Vector() noexcept : Vector(zisc::cast<Type>(0))
+{
+}
+
+/*!
+  */
+template <typename Type> inline
+Vector<Type, 4>::Vector(const Type v) noexcept : Vector(v, v, v, v)
 {
 }
 

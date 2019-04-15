@@ -438,6 +438,37 @@ float4 convert_float4(const Vector<Type, 4>& value) noexcept
 /*!
   */
 template <typename Type> inline
+double convert_double(Type&& value) noexcept
+{
+  return zisc::cast<double>(value);
+}
+
+/*!
+  */
+template <typename Type> inline
+double2 convert_double2(const Vector<Type, 2>& value) noexcept
+{
+  return inner::convertToVector<Type, double, 2>(value);
+}
+
+/*!
+  */
+template <typename Type> inline
+double3 convert_double3(const Vector<Type, 3>& value) noexcept
+{
+  return inner::convertToVector<Type, double, 3>(value);
+}
+
+/*!
+  */
+template <typename Type> inline
+double4 convert_double4(const Vector<Type, 4>& value) noexcept
+{
+  return inner::convertToVector<Type, double, 4>(value);
+}
+/*!
+  */
+template <typename Type> inline
 int8b as_char(Type&& value) noexcept
 {
   return *zisc::treatAs<const int8b*>(&value);
@@ -721,6 +752,38 @@ template <typename Type> inline
 float4 as_float4(Type&& value) noexcept
 {
   return *zisc::treatAs<const float4*>(&value);
+}
+
+/*!
+  */
+template <typename Type> inline
+double as_double(Type&& value) noexcept
+{
+  return *zisc::treatAs<const double*>(&value);
+}
+
+/*!
+  */
+template <typename Type> inline
+double2 as_double2(Type&& value) noexcept
+{
+  return *zisc::treatAs<const double2*>(&value);
+}
+
+/*!
+  */
+template <typename Type> inline
+double3 as_double3(Type&& value) noexcept
+{
+  return *zisc::treatAs<const double3*>(&value);
+}
+
+/*!
+  */
+template <typename Type> inline
+double4 as_double4(Type&& value) noexcept
+{
+  return *zisc::treatAs<const double4*>(&value);
 }
 
 } // namespace cl

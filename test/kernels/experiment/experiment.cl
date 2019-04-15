@@ -24,8 +24,7 @@ using namespace zinvul;
   */
 //__kernel void experiment(const uint32b resolution)
 //{
-////  const uint32b index = zGetGlobalIdX();
-//  const uint32b index = get_global_id(0);
+//  const uint32b index = getGlobalIdX();
 //  if (index < resolution) {
 //    ;
 //  }
@@ -40,8 +39,7 @@ __kernel void experiment(ConstGlobalPtr<float> buffer1,
     GlobalPtr<float4> results4,
     const uint32b resolution)
 {
-//  const uint32b index = zGetGlobalIdX();
-  const uint32b index = get_global_id(0);
+  const uint32b index = getGlobalIdX();
   if (index < resolution) {
     float x = buffer1[index];
     x = 2.0f * x;
