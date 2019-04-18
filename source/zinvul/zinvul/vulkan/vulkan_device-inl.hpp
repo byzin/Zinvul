@@ -12,7 +12,6 @@
 
 #include "vulkan_device.hpp"
 // Standard C++ library
-#include <array>
 #include <cstddef>
 #include <cstring>
 #include <cstdio>
@@ -664,14 +663,16 @@ void VulkanDevice::initDebugMessenger() noexcept
 inline
 void VulkanDevice::initDevice() noexcept
 {
-  const std::array<const char*, 1> layers{{
-    "VK_LAYER_LUNARG_standard_validation"
-    }};
-  const std::array<const char*, 4> extensions{{
+  std::vector<const char*> layers{};
+  const std::vector<const char*> extensions{{
       VK_KHR_8BIT_STORAGE_EXTENSION_NAME,
       VK_KHR_16BIT_STORAGE_EXTENSION_NAME,
       VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
       VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME}};
+
+  if (isDebugModeEnabled()) {
+    layers.emplace_back("VK_LAYER_LUNARG_standard_validation");
+  }
 
   const auto& device_info = physicalDeviceInfo();
   vk::PhysicalDeviceFeatures device_features;
@@ -776,9 +777,8 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
                                   options.app_version_patch_);
   instance_ = makeInstance(app_info_);
   ZISC_ASSERT(instance_, "Vulkan instance creation failed.");
-#ifdef Z_DEBUG_MODE
-  initDebugMessenger();
-#endif // Z_DEBUG_MODE
+  if (isDebugModeEnabled())
+    initDebugMessenger();
   initPhysicalDevice(options);
   queue_family_index_ = findQueueFamilyForShader();
 
@@ -814,16 +814,31 @@ void VulkanDevice::initPhysicalDevice(const DeviceOptions& options) noexcept
 /*!
   */
 inline
+constexpr bool VulkanDevice::isDebugModeEnabled() noexcept
+{
+#if defined(ZINVUL_ENABLE_VALIDATION_LAYERS)
+  constexpr bool is_debug_mode = true;
+#else // ZINVUL_ENABLE_VALIDATION_LAYERS
+  constexpr bool is_debug_mode = false;
+#endif // ZINVUL_ENABLE_VALIDATION_LAYERS
+  return is_debug_mode;
+}
+
+/*!
+  */
+inline
 vk::Instance VulkanDevice::makeInstance(const vk::ApplicationInfo& app_info)
     noexcept
 {
-  const std::array<const char*, 1> layers{{
-    "VK_LAYER_LUNARG_standard_validation"
-    }};
-  const std::array<const char*, 2> extensions{{
-    VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+  std::vector<const char*> layers{};
+  std::vector<const char*> extensions{
     VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
-  }};
+  };
+
+  if (isDebugModeEnabled()) {
+    layers.emplace_back("VK_LAYER_LUNARG_standard_validation");
+    extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+  }
 
   const vk::InstanceCreateInfo createInfo{vk::InstanceCreateFlags{},
                                           &app_info,

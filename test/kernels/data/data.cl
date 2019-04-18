@@ -19,46 +19,31 @@ using namespace zinvul;
 __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst);
 __kernel void copyBufferTest(ConstGlobalPtr<uint32b> src, GlobalPtr<uint32b> dst);
 __kernel void multiplyBufferTest(GlobalPtr<int32b> table, const uint32b resolution);
-__kernel void getTypeSize(GlobalPtr<uint32b> size_table);
 __kernel void testInt8bBuffer(GlobalPtr<int8b> buffer);
 __kernel void testUint8bBuffer(GlobalPtr<uint8b> buffer);
 __kernel void testInt16bBuffer(GlobalPtr<int16b> buffer);
 __kernel void testUint16bBuffer(GlobalPtr<uint16b> buffer);
-__kernel void testInt64bBuffer(GlobalPtr<int64b> buffer);
-__kernel void testUint64bBuffer(GlobalPtr<uint64b> buffer);
 __kernel void testTypeCast(
     ConstGlobalPtr<int32b> iinputs,
     ConstGlobalPtr<uint32b> uinputs,
     ConstGlobalPtr<float> finputs,
     GlobalPtr<int8b> ibuffer1,
     GlobalPtr<int32b> ibuffer2,
-    GlobalPtr<int64b> ibuffer3,
-    GlobalPtr<int4> ibuffer4,
-    GlobalPtr<long4> ibuffer5,
+    GlobalPtr<int4> ibuffer3,
     GlobalPtr<uint8b> ubuffer1,
     GlobalPtr<uint32b> ubuffer2,
-    GlobalPtr<uint64b> ubuffer3,
-    GlobalPtr<uint4> ubuffer4,
-    GlobalPtr<ulong4> ubuffer5,
+    GlobalPtr<uint4> ubuffer3,
     GlobalPtr<float> fbuffer1,
-    GlobalPtr<float4> fbuffer2,
-    GlobalPtr<double> dbuffer1,
-    GlobalPtr<double4> dbuffer2);
+    GlobalPtr<float4> fbuffer2);
 /*!
   */
 __kernel void testTypeReinterpreting(
     ConstGlobalPtr<uint32b> uinputs1,
-    ConstGlobalPtr<uint64b> uinputs2,
     ConstGlobalPtr<float> finputs1,
-    ConstGlobalPtr<double> finputs2,
     GlobalPtr<uint32b> ubuffer1,
-    GlobalPtr<uint64b> ubuffer2,
-    GlobalPtr<uint4> ubuffer3,
-    GlobalPtr<ulong4> ubuffer4,
+    GlobalPtr<uint4> ubuffer2,
     GlobalPtr<float> fbuffer1,
-    GlobalPtr<double> fbuffer2,
-    GlobalPtr<float4> fbuffer3,
-    GlobalPtr<double4> fbuffer4);
+    GlobalPtr<float4> fbuffer2);
 
 namespace test {
 
@@ -164,73 +149,6 @@ __kernel void multiplyBufferTest(GlobalPtr<int32b> table, const uint32b resoluti
 
 /*!
   */
-__kernel void getTypeSize(GlobalPtr<uint32b> size_table)
-{
-  const uint32b index = getGlobalIdX();
-  if (index == 0) {
-    uint32b table_index = 0;
-    size_table[table_index++] = sizeof(char);
-    size_table[table_index++] = sizeof(int8b);
-    size_table[table_index++] = sizeof(short);
-    size_table[table_index++] = sizeof(int16b);
-    size_table[table_index++] = sizeof(int);
-    size_table[table_index++] = sizeof(int32b);
-    size_table[table_index++] = sizeof(long);
-    size_table[table_index++] = sizeof(int64b);
-    size_table[table_index++] = sizeof(unsigned char);
-    size_table[table_index++] = sizeof(uchar);
-    size_table[table_index++] = sizeof(uint8b);
-    size_table[table_index++] = sizeof(unsigned short);
-    size_table[table_index++] = sizeof(ushort);
-    size_table[table_index++] = sizeof(uint16b);
-    size_table[table_index++] = sizeof(unsigned int);
-    size_table[table_index++] = sizeof(uint);
-    size_table[table_index++] = sizeof(uint32b);
-    size_table[table_index++] = sizeof(unsigned long);
-    size_table[table_index++] = sizeof(ulong);
-    size_table[table_index++] = sizeof(uint64b);
-    size_table[table_index++] = sizeof(half);
-    size_table[table_index++] = sizeof(float);
-    size_table[table_index++] = sizeof(double);
-    size_table[table_index++] = sizeof(char2);
-    size_table[table_index++] = sizeof(char3);
-    size_table[table_index++] = sizeof(char4);
-    size_table[table_index++] = sizeof(short2);
-    size_table[table_index++] = sizeof(short3);
-    size_table[table_index++] = sizeof(short4);
-    size_table[table_index++] = sizeof(int2);
-    size_table[table_index++] = sizeof(int3);
-    size_table[table_index++] = sizeof(int4);
-    size_table[table_index++] = sizeof(long2);
-    size_table[table_index++] = sizeof(long3);
-    size_table[table_index++] = sizeof(long4);
-    size_table[table_index++] = sizeof(uchar2);
-    size_table[table_index++] = sizeof(uchar3);
-    size_table[table_index++] = sizeof(uchar4);
-    size_table[table_index++] = sizeof(ushort2);
-    size_table[table_index++] = sizeof(ushort3);
-    size_table[table_index++] = sizeof(ushort4);
-    size_table[table_index++] = sizeof(uint2);
-    size_table[table_index++] = sizeof(uint3);
-    size_table[table_index++] = sizeof(uint4);
-    size_table[table_index++] = sizeof(ulong2);
-    size_table[table_index++] = sizeof(ulong3);
-    size_table[table_index++] = sizeof(ulong4);
-    size_table[table_index++] = sizeof(half2);
-    size_table[table_index++] = sizeof(half3);
-    size_table[table_index++] = sizeof(half4);
-    size_table[table_index++] = sizeof(float2);
-    size_table[table_index++] = sizeof(float3);
-    size_table[table_index++] = sizeof(float4);
-    size_table[table_index++] = sizeof(double2);
-    size_table[table_index++] = sizeof(double3);
-    size_table[table_index++] = sizeof(double4);
-    size_table[table_index] = table_index;
-  }
-}
-
-/*!
-  */
 __kernel void testTypeCast(
     ConstGlobalPtr<int32b> iinputs,
     ConstGlobalPtr<uint32b> uinputs,
@@ -238,21 +156,14 @@ __kernel void testTypeCast(
 
     GlobalPtr<int8b> ibuffer1,
     GlobalPtr<int32b> ibuffer2,
-    GlobalPtr<int64b> ibuffer3,
-    GlobalPtr<int4> ibuffer4,
-    GlobalPtr<long4> ibuffer5,
+    GlobalPtr<int4> ibuffer3,
 
     GlobalPtr<uint8b> ubuffer1,
     GlobalPtr<uint32b> ubuffer2,
-    GlobalPtr<uint64b> ubuffer3,
-    GlobalPtr<uint4> ubuffer4,
-    GlobalPtr<ulong4> ubuffer5,
+    GlobalPtr<uint4> ubuffer3,
 
     GlobalPtr<float> fbuffer1,
-    GlobalPtr<float4> fbuffer2,
-
-    GlobalPtr<double> dbuffer1,
-    GlobalPtr<double4> dbuffer2)
+    GlobalPtr<float4> fbuffer2)
 {
   const uint32b index = getGlobalIdX();
   if (index == 0) {
@@ -286,42 +197,16 @@ __kernel void testTypeCast(
         ibuffer2[i + 4] = r;
       }
     }
-    // int64b
-    {
-      for (size_t i = 0; i < 4; ++i) {
-        const uint32b v = uinputs[i];
-        const auto r = cast<int64b>(v);
-        ibuffer3[i] = r;
-      }
-    }
-    {
-      for (size_t i = 0; i < 4; ++i) {
-        const float v = -finputs[i];
-        const auto r = cast<int64b>(v);
-        ibuffer3[i + 4] = r;
-      }
-    }
     // int4
     {
       const uint4 v{uinputs[0], uinputs[1], uinputs[2], uinputs[3]};
       const auto r = cast<int4>(v);
-      ibuffer4[0] = r;
+      ibuffer3[0] = r;
     }
     {
       const float4 v{-finputs[0], -finputs[1], -finputs[2], -finputs[3]};
       const auto r = cast<int4>(v);
-      ibuffer4[1] = r;
-    }
-    // long4
-    {
-      const uint4 v{uinputs[0], uinputs[1], uinputs[2], uinputs[3]};
-      const auto r = cast<long4>(v);
-      ibuffer5[0] = r;
-    }
-    {
-      const float4 v{-finputs[0], -finputs[1], -finputs[2], -finputs[3]};
-      const auto r = cast<long4>(v);
-      ibuffer5[1] = r;
+      ibuffer3[1] = r;
     }
 
     // uint8b
@@ -340,35 +225,16 @@ __kernel void testTypeCast(
         ubuffer2[i] = r;
       }
     }
-    // uint64b
-    {
-      for (size_t i = 0; i < 4; ++i) {
-        const float v = finputs[i];
-        const auto r = cast<uint64b>(v);
-        ubuffer3[i] = r;
-      }
-    }
     // uint4
     {
       const int4 v{iinputs[0], iinputs[1], iinputs[2], iinputs[3]};
       const auto r = cast<uint4>(v);
-      ubuffer4[0] = r;
+      ubuffer3[0] = r;
     }
     {
       const float4 v{finputs[0], finputs[1], finputs[2], finputs[3]};
       const auto r = cast<uint4>(v);
-      ubuffer4[1] = r;
-    }
-    // ulong4
-    {
-      const int4 v{iinputs[0], iinputs[1], iinputs[2], iinputs[3]};
-      const auto r = cast<ulong4>(v);
-      ubuffer5[0] = r;
-    }
-    {
-      const float4 v{finputs[0], finputs[1], finputs[2], finputs[3]};
-      const auto r = cast<ulong4>(v);
-      ubuffer5[1] = r;
+      ubuffer3[1] = r;
     }
 
     // float
@@ -395,31 +261,6 @@ __kernel void testTypeCast(
       const auto r = cast<float4>(v);
       fbuffer2[1] = r;
     }
-
-    // double
-    {
-      for (size_t i = 0; i < 4; ++i) {
-        const uint32b v = uinputs[i];
-        const auto r = cast<double>(v);
-        dbuffer1[i] = r;
-      }
-      for (size_t i = 0; i < 4; ++i) {
-        const int32b v = -iinputs[i];
-        const auto r = cast<double>(v);
-        dbuffer1[i + 4] = r;
-      }
-    }
-    // double4
-    {
-      const uint4 v{uinputs[0], uinputs[1], uinputs[2], uinputs[3]};
-      const auto r = cast<double4>(v);
-      dbuffer2[0] = r;
-    }
-    {
-      const int4 v{-iinputs[0], -iinputs[1], -iinputs[2], -iinputs[3]};
-      const auto r = cast<double4>(v);
-      dbuffer2[1] = r;
-    }
   }
 }
 
@@ -427,17 +268,11 @@ __kernel void testTypeCast(
   */
 __kernel void testTypeReinterpreting(
     ConstGlobalPtr<uint32b> uinputs1,
-    ConstGlobalPtr<uint64b> uinputs2,
     ConstGlobalPtr<float> finputs1,
-    ConstGlobalPtr<double> finputs2,
     GlobalPtr<uint32b> ubuffer1,
-    GlobalPtr<uint64b> ubuffer2,
-    GlobalPtr<uint4> ubuffer3,
-    GlobalPtr<ulong4> ubuffer4,
+    GlobalPtr<uint4> ubuffer2,
     GlobalPtr<float> fbuffer1,
-    GlobalPtr<double> fbuffer2,
-    GlobalPtr<float4> fbuffer3,
-    GlobalPtr<double4> fbuffer4)
+    GlobalPtr<float4> fbuffer2)
 {
   const uint32b index = getGlobalIdX();
   if (index == 0) {
@@ -454,40 +289,16 @@ __kernel void testTypeReinterpreting(
         ubuffer1[i + 4] = r;
       }
     }
-    // uint64b
-    {
-      for (size_t i = 0; i < 4; ++i) {
-        const double v = finputs2[i];
-        const uint64b r = treatAs<uint64b>(v);
-        ubuffer2[i] = r;
-      }
-      for (size_t i = 0; i < 4; ++i) {
-        const double v = finputs2[i];
-        const uint64b r = *treatAs<const uint64b*>(&v);
-        ubuffer2[i + 4] = r;
-      }
-    }
     // uint4
     {
       const float4 v{finputs1[0], finputs1[1], finputs1[2], finputs1[3]};
       const uint4 r = treatAs<uint4>(v);
-      ubuffer3[0] = r;
+      ubuffer2[0] = r;
     }
     {
       const float4 v{finputs1[0], finputs1[1], finputs1[2], finputs1[3]};
       const uint4 r = *treatAs<const uint4*>(&v);
-      ubuffer3[1] = r;
-    }
-    // ulong4
-    {
-      const double4 v{finputs2[0], finputs2[1], finputs2[2], finputs2[3]};
-      const ulong4 r = treatAs<ulong4>(v);
-      ubuffer4[0] = r;
-    }
-    {
-      const double4 v{finputs2[0], finputs2[1], finputs2[2], finputs2[3]};
-      const ulong4 r = *treatAs<const ulong4*>(&v);
-      ubuffer4[1] = r;
+      ubuffer2[1] = r;
     }
 
     // float
@@ -503,40 +314,16 @@ __kernel void testTypeReinterpreting(
         fbuffer1[i + 4] = r;
       }
     }
-    // double
-    {
-      for (size_t i = 0; i < 4; ++i) {
-        const uint64b v = uinputs2[i];
-        const double r = treatAs<double>(v);
-        fbuffer2[i] = r;
-      }
-      for (size_t i = 0; i < 4; ++i) {
-        const uint64b v = uinputs2[i];
-        const double r = *treatAs<const double*>(&v);
-        fbuffer2[i + 4] = r;
-      }
-    }
     // float4
     {
       const uint4 v{uinputs1[0], uinputs1[1], uinputs1[2], uinputs1[3]};
       const float4 r = treatAs<float4>(v);
-      fbuffer3[0] = r;
+      fbuffer2[0] = r;
     }
     {
       const uint4 v{uinputs1[0], uinputs1[1], uinputs1[2], uinputs1[3]};
       const float4 r = *treatAs<const float4*>(&v);
-      fbuffer3[1] = r;
-    }
-    // double4 
-    {
-      const ulong4 v{uinputs2[0], uinputs2[1], uinputs2[2], uinputs2[3]};
-      const double4 r = treatAs<double4>(v);
-      fbuffer4[0] = r;
-    }
-    {
-      const ulong4 v{uinputs2[0], uinputs2[1], uinputs2[2], uinputs2[3]};
-      const double4 r = *treatAs<const double4*>(&v);
-      fbuffer4[1] = r;
+      fbuffer2[1] = r;
     }
   }
 }
@@ -644,30 +431,6 @@ __kernel void testUint16bBuffer(GlobalPtr<uint16b> buffer)
   const uint32b index = getGlobalIdX();
   if (index <= USHRT_MAX) {
     const uint16b v = cast<uint16b>(index);
-    buffer[index] = v;
-  }
-}
-
-/*!
-  */
-__kernel void testInt64bBuffer(GlobalPtr<int64b> buffer)
-{
-  const uint32b index = getGlobalIdX();
-  if (index <= USHRT_MAX) {
-    int64b v = cast<int64b>(index) + cast<int64b>(SHRT_MIN);
-    v = v << 32l;
-    buffer[index] = v;
-  }
-}
-
-/*!
-  */
-__kernel void testUint64bBuffer(GlobalPtr<uint64b> buffer)
-{
-  const uint32b index = getGlobalIdX();
-  if (index <= USHRT_MAX) {
-    uint64b v = cast<uint64b>(index);
-    v = v << 32ul;
     buffer[index] = v;
   }
 }

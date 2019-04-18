@@ -10,6 +10,9 @@ set(__zinvul_root__ ${CMAKE_CURRENT_LIST_DIR})
 set(__zinvul_num_of_groups__ -1 CACHE INTERNAL "")
 
 function(initZinvulOption)
+  set(option_description "Enable validation layers.")
+  setBooleanOption(ZINVUL_ENABLE_VALIDATION_LAYERS ON ${option_description})
+
   set(option_description "Bake vulkan kernels into a binary.")
   setBooleanOption(ZINVUL_BAKE_KERNELS OFF ${option_description})
 
@@ -95,6 +98,10 @@ endfunction(initZinvulOption)
 function(getZinvulKernelOption zinvul_compile_flags zinvul_definitions)
   set(compile_flags "")
   set(definitions "")
+
+  if(ZINVUL_ENABLE_VALIDATION_LAYERS)
+    list(APPEND definitions ZINVUL_ENABLE_VALIDATION_LAYERS)
+  endif()
 
   # Relational
   if(ZINVUL_MATH_BUILTIN_SELECT)

@@ -190,149 +190,6 @@ TEST(DataTest, CopyBufferTest)
   }
 }
 
-TEST(DataTest, TypeSizeTest)
-{
-  using namespace zinvul;
-
-  constexpr std::size_t num_of_tables = 57;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
-    buffer1->setSize(num_of_tables);
-
-    auto kernel = makeZinvulKernel(device.get(), data, getTypeSize, 1);
-    kernel->run(*buffer1, {1}, 0);
-    device->waitForCompletion();
-
-    std::vector<uint32b> result;
-    result.resize(num_of_tables);
-    buffer1->read(result.data(), result.size(), 0, 0);
-
-    std::size_t table_index = 0;
-    EXPECT_EQ(sizeof(int8b), result[table_index++])
-        << "Using 'char' isn't recommended.";
-    EXPECT_EQ(sizeof(int8b), result[table_index++])
-        << "The size of 'int8b' is wrong.";
-    EXPECT_EQ(sizeof(int16b), result[table_index++])
-        << "Using 'short' isn't recommended.";
-    EXPECT_EQ(sizeof(int16b), result[table_index++])
-        << "The size of 'int16b' is wrong.";
-    EXPECT_EQ(sizeof(int32b), result[table_index++])
-        << "Using 'int' isn't recommended.";
-    EXPECT_EQ(sizeof(int32b), result[table_index++])
-        << "The size of 'int32b' is wrong.";
-    EXPECT_EQ(sizeof(int64b), result[table_index++])
-        << "Using 'long' isn't recommended.";
-    EXPECT_EQ(sizeof(int64b), result[table_index++])
-        << "The size of 'int64b' is wrong.";
-    EXPECT_EQ(sizeof(uint8b), result[table_index++])
-        << "Using 'unsigned char' isn't recommended.";
-    EXPECT_EQ(sizeof(uint8b), result[table_index++])
-        << "Using 'uchar' isn't recommended.";
-    EXPECT_EQ(sizeof(uint8b), result[table_index++])
-        << "The size of 'uint8b' is wrong.";
-    EXPECT_EQ(sizeof(uint16b), result[table_index++])
-        << "Using 'unsigned short' isn't recommended.";
-    EXPECT_EQ(sizeof(uint16b), result[table_index++])
-        << "Using 'ushort' isn't recommended.";
-    EXPECT_EQ(sizeof(uint16b), result[table_index++])
-        << "The size of 'uint16b' is wrong.";
-    EXPECT_EQ(sizeof(uint32b), result[table_index++])
-        << "Using 'unsigned int' isn't recommended.";
-    EXPECT_EQ(sizeof(uint32b), result[table_index++])
-        << "Using 'uint' isn't recommended.";
-    EXPECT_EQ(sizeof(uint32b), result[table_index++])
-        << "The size of 'uint32b' is wrong.";
-    EXPECT_EQ(sizeof(uint64b), result[table_index++])
-        << "Using 'unsigned long' isn't recommended.";
-    EXPECT_EQ(sizeof(uint64b), result[table_index++])
-        << "Using 'ulong' isn't recommended.";
-    EXPECT_EQ(sizeof(uint64b), result[table_index++])
-        << "The size of 'uint64b' is wrong.";
-    EXPECT_EQ(sizeof(cl::half), result[table_index++])
-        << "The size of 'half' is wrong.";
-    EXPECT_EQ(sizeof(float), result[table_index++])
-        << "The size of 'float' is wrong.";
-    EXPECT_EQ(sizeof(double), result[table_index++])
-        << "The size of 'double' is wrong.";
-    EXPECT_EQ(sizeof(cl::char2), result[table_index++])
-        << "The size of 'char2' is wrong.";
-    EXPECT_EQ(sizeof(cl::char3), result[table_index++])
-        << "The size of 'char3' is wrong.";
-    EXPECT_EQ(sizeof(cl::char4), result[table_index++])
-        << "The size of 'char4' is wrong.";
-    EXPECT_EQ(sizeof(cl::short2), result[table_index++])
-        << "The size of 'short2' is wrong.";
-    EXPECT_EQ(sizeof(cl::short3), result[table_index++])
-        << "The size of 'short3' is wrong.";
-    EXPECT_EQ(sizeof(cl::short4), result[table_index++])
-        << "The size of 'short4' is wrong.";
-    EXPECT_EQ(sizeof(cl::int2), result[table_index++])
-        << "The size of 'int2' is wrong.";
-    EXPECT_EQ(sizeof(cl::int3), result[table_index++])
-        << "The size of 'int3' is wrong.";
-    EXPECT_EQ(sizeof(cl::int4), result[table_index++])
-        << "The size of 'int4' is wrong.";
-    EXPECT_EQ(sizeof(cl::long2), result[table_index++])
-        << "The size of 'long2' is wrong.";
-    EXPECT_EQ(sizeof(cl::long3), result[table_index++])
-        << "The size of 'long3' is wrong.";
-    EXPECT_EQ(sizeof(cl::long4), result[table_index++])
-        << "The size of 'long4' is wrong.";
-    EXPECT_EQ(sizeof(cl::uchar2), result[table_index++])
-        << "The size of 'uchar2' is wrong.";
-    EXPECT_EQ(sizeof(cl::uchar3), result[table_index++])
-        << "The size of 'uchar3' is wrong.";
-    EXPECT_EQ(sizeof(cl::uchar4), result[table_index++])
-        << "The size of 'uchar4' is wrong.";
-    EXPECT_EQ(sizeof(cl::ushort2), result[table_index++])
-        << "The size of 'ushort2' is wrong.";
-    EXPECT_EQ(sizeof(cl::ushort3), result[table_index++])
-        << "The size of 'ushort3' is wrong.";
-    EXPECT_EQ(sizeof(cl::ushort4), result[table_index++])
-        << "The size of 'ushort4' is wrong.";
-    EXPECT_EQ(sizeof(cl::uint2), result[table_index++])
-        << "The size of 'uint2' is wrong.";
-    EXPECT_EQ(sizeof(cl::uint3), result[table_index++])
-        << "The size of 'uint3' is wrong.";
-    EXPECT_EQ(sizeof(cl::uint4), result[table_index++])
-        << "The size of 'uint4' is wrong.";
-    EXPECT_EQ(sizeof(cl::ulong2), result[table_index++])
-        << "The size of 'ulong2' is wrong.";
-    EXPECT_EQ(sizeof(cl::ulong3), result[table_index++])
-        << "The size of 'ulong3' is wrong.";
-    EXPECT_EQ(sizeof(cl::ulong4), result[table_index++])
-        << "The size of 'ulong4' is wrong.";
-    EXPECT_EQ(sizeof(cl::half2), result[table_index++])
-        << "The size of 'half2' is wrong.";
-    EXPECT_EQ(sizeof(cl::half3), result[table_index++])
-        << "The size of 'half3' is wrong.";
-    EXPECT_EQ(sizeof(cl::half4), result[table_index++])
-        << "The size of 'half4' is wrong.";
-    EXPECT_EQ(sizeof(cl::float2), result[table_index++])
-        << "The size of 'float2' is wrong.";
-    EXPECT_EQ(sizeof(cl::float3), result[table_index++])
-        << "The size of 'float3' is wrong.";
-    EXPECT_EQ(sizeof(cl::float4), result[table_index++])
-        << "The size of 'float4' is wrong.";
-    EXPECT_EQ(sizeof(cl::double2), result[table_index++])
-        << "The size of 'double2' is wrong.";
-    EXPECT_EQ(sizeof(cl::double3), result[table_index++])
-        << "The size of 'double3' is wrong.";
-    EXPECT_EQ(sizeof(cl::double4), result[table_index++])
-        << "The size of 'double4' is wrong.";
-    constexpr std::size_t num_of_types = num_of_tables - 1;
-    EXPECT_EQ(num_of_types, result[table_index]);
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
 TEST(DataTest, TypeCastTest)
 {
   using namespace zinvul;
@@ -366,38 +223,26 @@ TEST(DataTest, TypeCastTest)
     ibuffer1->setSize(8);
     auto ibuffer2 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     ibuffer2->setSize(8);
-    auto ibuffer3 = makeBuffer<int64b>(device.get(), BufferUsage::kDeviceTSrc);
-    ibuffer3->setSize(8);
-    auto ibuffer4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
-    ibuffer4->setSize(2);
-    auto ibuffer5 = makeBuffer<cl::long4>(device.get(), BufferUsage::kDeviceTSrc);
-    ibuffer5->setSize(2);
+    auto ibuffer3 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
+    ibuffer3->setSize(2);
 
     auto ubuffer1 = makeBuffer<uint8b>(device.get(), BufferUsage::kDeviceTSrc);
     ubuffer1->setSize(4);
     auto ubuffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     ubuffer2->setSize(4);
-    auto ubuffer3 = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
-    ubuffer3->setSize(4);
-    auto ubuffer4 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
-    ubuffer4->setSize(2);
-    auto ubuffer5 = makeBuffer<cl::ulong4>(device.get(), BufferUsage::kDeviceTSrc);
-    ubuffer5->setSize(4);
+    auto ubuffer3 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
+    ubuffer3->setSize(2);
 
     auto fbuffer1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     fbuffer1->setSize(8);
     auto fbuffer2 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     fbuffer2->setSize(2);
-    auto dbuffer1 = makeBuffer<double>(device.get(), BufferUsage::kDeviceTSrc);
-    dbuffer1->setSize(8);
-    auto dbuffer2 = makeBuffer<cl::double4>(device.get(), BufferUsage::kDeviceTSrc);
-    dbuffer2->setSize(2);
 
     auto kernel = makeZinvulKernel(device.get(), data, testTypeCast, 1);
     kernel->run(*iinputs, *uinputs, *finputs,
-        *ibuffer1, *ibuffer2, *ibuffer3, *ibuffer4, *ibuffer5,
-        *ubuffer1, *ubuffer2, *ubuffer3, *ubuffer4, *ubuffer5,
-        *fbuffer1, *fbuffer2, *dbuffer1, *dbuffer2,
+        *ibuffer1, *ibuffer2, *ibuffer3,
+        *ubuffer1, *ubuffer2, *ubuffer3,
+        *fbuffer1, *fbuffer2,
         {1}, 0);
     device->waitForCompletion();
 
@@ -434,24 +279,9 @@ TEST(DataTest, TypeCastTest)
       }
     }
     {
-      std::vector<int64b> results;
-      results.resize(ibuffer3->size(), 0);
-      ibuffer3->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        const int64b expected = zisc::cast<int64b>(i + 1);
-        const int64b result = results[i];
-        ASSERT_EQ(expected, result) << "The func 'cast<int64b>' failed.";
-      }
-      for (std::size_t i = 0; i < 4; ++i) {
-        const int64b expected = -zisc::cast<int64b>(i + 1);
-        const int64b result = results[i + 4];
-        ASSERT_EQ(expected, result) << "The func 'cast<int64b>' failed.";
-      }
-    }
-    {
       std::vector<cl::int4> results;
-      results.resize(ibuffer4->size());
-      ibuffer4->read(results.data(), results.size(), 0, 0);
+      results.resize(ibuffer3->size());
+      ibuffer3->read(results.data(), results.size(), 0, 0);
       for (std::size_t i = 0; i < 4; ++i) {
         const int32b expected = zisc::cast<int32b>(i + 1);
         const int32b result = results[0][i];
@@ -461,21 +291,6 @@ TEST(DataTest, TypeCastTest)
         const int32b expected = -zisc::cast<int32b>(i + 1);
         const int32b result = results[1][i];
         ASSERT_EQ(expected, result) << "The func 'cast<int4>' failed.";
-      }
-    }
-    {
-      std::vector<cl::long4> results;
-      results.resize(ibuffer5->size());
-      ibuffer5->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        const int64b expected = zisc::cast<int64b>(i + 1);
-        const int64b result = results[0][i];
-        ASSERT_EQ(expected, result) << "The func 'cast<long4>' failed.";
-      }
-      for (std::size_t i = 0; i < 4; ++i) {
-        const int64b expected = -zisc::cast<int64b>(i + 1);
-        const int64b result = results[1][i];
-        ASSERT_EQ(expected, result) << "The func 'cast<long4>' failed.";
       }
     }
 
@@ -500,19 +315,9 @@ TEST(DataTest, TypeCastTest)
       }
     }
     {
-      std::vector<uint64b> results;
-      results.resize(ubuffer3->size(), 0);
-      ubuffer3->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        const uint64b expected = zisc::cast<uint64b>(i + 1);
-        const uint64b result = results[i];
-        ASSERT_EQ(expected, result) << "The func 'cast<uint64b>' failed.";
-      }
-    }
-    {
       std::vector<cl::uint4> results;
-      results.resize(ubuffer4->size());
-      ubuffer4->read(results.data(), results.size(), 0, 0);
+      results.resize(ubuffer3->size());
+      ubuffer3->read(results.data(), results.size(), 0, 0);
       for (std::size_t i = 0; i < 4; ++i) {
         const uint32b expected = zisc::cast<uint32b>(i + 1);
         const uint32b result = results[0][i];
@@ -522,21 +327,6 @@ TEST(DataTest, TypeCastTest)
         const uint32b expected = zisc::cast<uint32b>(i + 1);
         const uint32b result = results[1][i];
         ASSERT_EQ(expected, result) << "The func 'cast<uint4>' failed.";
-      }
-    }
-    {
-      std::vector<cl::ulong4> results;
-      results.resize(ubuffer5->size());
-      ubuffer5->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        const uint64b expected = zisc::cast<uint64b>(i + 1);
-        const uint64b result = results[0][i];
-        ASSERT_EQ(expected, result) << "The func 'cast<ulong4>' failed.";
-      }
-      for (std::size_t i = 0; i < 4; ++i) {
-        const uint64b expected = zisc::cast<uint64b>(i + 1);
-        const uint64b result = results[1][i];
-        ASSERT_EQ(expected, result) << "The func 'cast<ulong4>' failed.";
       }
     }
 
@@ -570,37 +360,6 @@ TEST(DataTest, TypeCastTest)
         ASSERT_FLOAT_EQ(expected, result) << "The func 'cast<float4>' failed.";
       }
     }
-
-    {
-      std::vector<double> results;
-      results.resize(dbuffer1->size(), 0);
-      dbuffer1->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double expected = zisc::cast<double>(i + 1);
-        const double result = results[i];
-        ASSERT_FLOAT_EQ(expected, result) << "The func 'cast<double>' failed.";
-      }
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double expected = -zisc::cast<double>(i + 1);
-        const double result = results[i + 4];
-        ASSERT_FLOAT_EQ(expected, result) << "The func 'cast<double>' failed.";
-      }
-    }
-    {
-      std::vector<cl::double4> results;
-      results.resize(dbuffer2->size());
-      dbuffer2->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double expected = zisc::cast<double>(i + 1);
-        const double result = results[0][i];
-        ASSERT_FLOAT_EQ(expected, result) << "The func 'cast<double4>' failed.";
-      }
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double expected = -zisc::cast<double>(i + 1);
-        const double result = results[1][i];
-        ASSERT_FLOAT_EQ(expected, result) << "The func 'cast<double4>' failed.";
-      }
-    }
   }
 }
 
@@ -624,16 +383,6 @@ TEST(DataTest, TypeReinterpretingTest)
       }
       uinputs1->write(inputs.data(), inputs.size(), 0, 0);
     }
-    auto uinputs2 = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTDst);
-    uinputs2->setSize(4);
-    {
-      std::array<uint64b, 4> inputs;
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double v = zisc::cast<double>(i + 1);
-        inputs[i] = *zisc::treatAs<const uint64b*>(&v);
-      }
-      uinputs2->write(inputs.data(), inputs.size(), 0, 0);
-    }
 
     auto finputs1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTDst);
     finputs1->setSize(4);
@@ -641,35 +390,21 @@ TEST(DataTest, TypeReinterpretingTest)
       std::array<float, 4> inputs{{1.0f, 2.0f, 3.0f, 4.0f}};
       finputs1->write(inputs.data(), inputs.size(), 0, 0);
     }
-    auto finputs2 = makeBuffer<double>(device.get(), BufferUsage::kDeviceTDst);
-    finputs2->setSize(4);
-    {
-      std::array<double, 4> inputs{{1.0, 2.0, 3.0, 4.0}};
-      finputs2->write(inputs.data(), inputs.size(), 0, 0);
-    }
 
     auto ubuffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     ubuffer1->setSize(8);
-    auto ubuffer2 = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
-    ubuffer2->setSize(8);
-    auto ubuffer3 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
-    ubuffer3->setSize(2);
-    auto ubuffer4 = makeBuffer<cl::ulong4>(device.get(), BufferUsage::kDeviceTSrc);
-    ubuffer4->setSize(2);
+    auto ubuffer2 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
+    ubuffer2->setSize(2);
 
     auto fbuffer1 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     fbuffer1->setSize(8);
-    auto fbuffer2 = makeBuffer<double>(device.get(), BufferUsage::kDeviceTSrc);
-    fbuffer2->setSize(8);
-    auto fbuffer3 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
-    fbuffer3->setSize(2);
-    auto fbuffer4 = makeBuffer<cl::double4>(device.get(), BufferUsage::kDeviceTSrc);
-    fbuffer4->setSize(2);
+    auto fbuffer2 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
+    fbuffer2->setSize(2);
 
     auto kernel = makeZinvulKernel(device.get(), data, testTypeReinterpreting, 1);
-    kernel->run(*uinputs1, *uinputs2, *finputs1, *finputs2,
-        *ubuffer1, *ubuffer2, *ubuffer3, *ubuffer4,
-        *fbuffer1, *fbuffer2, *fbuffer3, *fbuffer4,
+    kernel->run(*uinputs1, *finputs1,
+        *ubuffer1, *ubuffer2,
+        *fbuffer1, *fbuffer2,
         {1}, 0);
     device->waitForCompletion();
 
@@ -693,26 +428,9 @@ TEST(DataTest, TypeReinterpretingTest)
       }
     }
     {
-      std::vector<uint64b> results;
+      std::vector<cl::uint4> results;
       results.resize(ubuffer2->size(), 0);
       ubuffer2->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double v = zisc::cast<double>(i + 1);
-        const uint64b expected = *zisc::treatAs<const uint64b*>(&v);
-        const uint64b result = results[i];
-        ASSERT_EQ(expected, result) << "The func 'treatAs<uint64b>' failed.";
-      }
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double v = zisc::cast<double>(i + 1);
-        const uint64b expected = *zisc::treatAs<const uint64b*>(&v);
-        const uint64b result = results[i + 4];
-        ASSERT_EQ(expected, result) << "The func 'treatAs<uint64b>' failed.";
-      }
-    }
-    {
-      std::vector<cl::uint4> results;
-      results.resize(ubuffer3->size(), 0);
-      ubuffer3->read(results.data(), results.size(), 0, 0);
       for (std::size_t i = 0; i < 4; ++i) {
         const float v = zisc::cast<float>(i + 1);
         const uint32b expected = *zisc::treatAs<const uint32b*>(&v);
@@ -724,23 +442,6 @@ TEST(DataTest, TypeReinterpretingTest)
         const uint32b expected = *zisc::treatAs<const uint32b*>(&v);
         const uint32b result = results[1][i];
         ASSERT_EQ(expected, result) << "The func 'treatAs<uint4>' failed.";
-      }
-    }
-    {
-      std::vector<cl::ulong4> results;
-      results.resize(ubuffer4->size(), 0);
-      ubuffer4->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double v = zisc::cast<double>(i + 1);
-        const uint64b expected = *zisc::treatAs<const uint64b*>(&v);
-        const uint64b result = results[0][i];
-        ASSERT_EQ(expected, result) << "The func 'treatAs<ulong4>' failed.";
-      }
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double v = zisc::cast<double>(i + 1);
-        const uint64b expected = *zisc::treatAs<const uint64b*>(&v);
-        const uint64b result = results[1][i];
-        ASSERT_EQ(expected, result) << "The func 'treatAs<ulong4>' failed.";
       }
     }
 
@@ -760,24 +461,9 @@ TEST(DataTest, TypeReinterpretingTest)
       }
     }
     {
-      std::vector<double> results;
+      std::vector<cl::float4> results;
       results.resize(fbuffer2->size(), 0);
       fbuffer2->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double expected = zisc::cast<double>(i + 1);
-        const double result = results[i];
-        ASSERT_DOUBLE_EQ(expected, result) << "The func 'treatAs<double>' failed.";
-      }
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double expected = zisc::cast<double>(i + 1);
-        const double result = results[i + 4];
-        ASSERT_DOUBLE_EQ(expected, result) << "The func 'treatAs<double>' failed.";
-      }
-    }
-    {
-      std::vector<cl::float4> results;
-      results.resize(fbuffer3->size(), 0);
-      fbuffer3->read(results.data(), results.size(), 0, 0);
       for (std::size_t i = 0; i < 4; ++i) {
         const float expected = zisc::cast<float>(i + 1);
         const float result = results[0][i];
@@ -787,21 +473,6 @@ TEST(DataTest, TypeReinterpretingTest)
         const float expected = zisc::cast<float>(i + 1);
         const float result = results[1][i];
         ASSERT_FLOAT_EQ(expected, result) << "The func 'treatAs<float4>' failed.";
-      }
-    }
-    {
-      std::vector<cl::double4> results;
-      results.resize(fbuffer4->size(), 0);
-      fbuffer4->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double expected = zisc::cast<double>(i + 1);
-        const double result = results[0][i];
-        ASSERT_DOUBLE_EQ(expected, result) << "The func 'treatAs<double4>' failed.";
-      }
-      for (std::size_t i = 0; i < 4; ++i) {
-        const double expected = zisc::cast<double>(i + 1);
-        const double result = results[1][i];
-        ASSERT_DOUBLE_EQ(expected, result) << "The func 'treatAs<double4>' failed.";
       }
     }
   }
@@ -1521,77 +1192,6 @@ TEST(DataTest, Uint16bBufferTest)
         const uint16b expected = zisc::cast<uint16b>(i);
         const uint16b result = results[i];
         ASSERT_EQ(expected, result) << "Uint16b buffer doesn't work";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, Int64bBufferTest)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 0b1u << (sizeof(uint16b) * 8);
-
-    auto buffer = makeBuffer<int64b>(device.get(), BufferUsage::kDeviceTSrc);
-    buffer->setSize(resolution);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testInt64bBuffer, 1);
-    kernel->run(*buffer, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<int64b> results;
-      results.resize(resolution, 0);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < resolution; ++i) {
-        int64b e = zisc::cast<int64b>(std::numeric_limits<int16b>::min()) +
-            zisc::cast<int64b>(i);
-        e = e << 32l;
-        const int64b expected = e;
-        const int64b result = results[i];
-        ASSERT_EQ(expected, result) << "Int64b buffer doesn't work";
-      }
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(DataTest, Uint64bBufferTest)
-{
-  using namespace zinvul;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    constexpr uint32b resolution = 0b1u << (sizeof(uint16b) * 8);
-
-    auto buffer = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
-    buffer->setSize(resolution);
-
-    auto kernel = makeZinvulKernel(device.get(), data, testUint64bBuffer, 1);
-    kernel->run(*buffer, {resolution}, 0);
-    device->waitForCompletion();
-
-    {
-      std::vector<uint64b> results;
-      results.resize(resolution, 0);
-      buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < resolution; ++i) {
-        const uint64b expected = zisc::cast<uint64b>(i) << 32ul;
-        const uint64b result = results[i];
-        ASSERT_EQ(expected, result) << "Uint64b buffer doesn't work";
       }
     }
 

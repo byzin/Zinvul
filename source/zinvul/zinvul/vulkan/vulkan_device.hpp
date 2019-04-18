@@ -188,6 +188,9 @@ class VulkanDevice : public Device
   //! Initialize a physical device
   void initPhysicalDevice(const DeviceOptions& options) noexcept;
 
+  //! Check if debug mode is enabled
+  static constexpr bool isDebugModeEnabled() noexcept;
+
   //! Make a vulkan instance
   static vk::Instance makeInstance(const vk::ApplicationInfo& app_info) noexcept;
 
