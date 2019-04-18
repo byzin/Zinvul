@@ -29,7 +29,7 @@ namespace zinvul {
 
 namespace cl {
 
-namespace inner {
+namespace clinner {
 
 template <typename Float, std::size_t kN> inline
 auto sign(const Vector<Float, kN>& x) noexcept
@@ -385,7 +385,7 @@ auto normalize(const Vector<Float, kN>& p) noexcept
   return result;
 }
 
-} // namespace inner
+} // namespace clinner
 
 /*!
   */
@@ -404,7 +404,7 @@ FloatN sign(const FloatN& x) noexcept
   }
   // Vector
   else {
-    const auto y = inner::sign(x);
+    const auto y = clinner::sign(x);
     return y;
   }
 }
@@ -422,7 +422,7 @@ FloatN ceil(const FloatN& x) noexcept
   }
   // Vector
   else {
-    const auto y = inner::ceil(x);
+    const auto y = clinner::ceil(x);
     return y;
   }
 }
@@ -440,7 +440,7 @@ FloatN floor(const FloatN& x) noexcept
   }
   // Vector
   else {
-    const auto y = inner::floor(x);
+    const auto y = clinner::floor(x);
     return y;
   }
 }
@@ -458,7 +458,7 @@ FloatN trunc(const FloatN& x) noexcept
   }
   // Vector
   else {
-    const auto y = inner::trunc(x);
+    const auto y = clinner::trunc(x);
     return y;
   }
 }
@@ -476,7 +476,7 @@ FloatN round(const FloatN& x) noexcept
   }
   // Vector
   else {
-    const auto y = inner::round(x);
+    const auto y = clinner::round(x);
     return y;
   }
 }
@@ -496,7 +496,7 @@ auto abs(const IntegerN& x) noexcept
   }
   // Vector
   else {
-    const auto y = inner::abs(x);
+    const auto y = clinner::abs(x);
     return y;
   }
 }
@@ -515,7 +515,7 @@ FloatN fabs(const FloatN& x) noexcept
   }
   // Vector
   else {
-    const auto y = inner::fabs(x);
+    const auto y = clinner::fabs(x);
     return y;
   }
 }
@@ -536,7 +536,7 @@ FloatN fract(const FloatN& x, FloatN* iptr) noexcept
   }
   // Vector
   else {
-    const auto y = inner::fract(x, iptr);
+    const auto y = clinner::fract(x, iptr);
     return y;
   }
 }
@@ -554,7 +554,7 @@ FloatN fmod(const FloatN& x, const FloatN& y) noexcept
   }
   // Vector
   else {
-    const auto z = inner::fmod(x, y);
+    const auto z = clinner::fmod(x, y);
     return z;
   }
 }
@@ -572,7 +572,7 @@ Type1N clamp(const Type1N& x, const Type2N& minval, const Type2N& maxval) noexce
     return result;
   }
   else {
-    const auto result = inner::clamp(x, minval, maxval);
+    const auto result = clinner::clamp(x, minval, maxval);
     return result;
   }
 }
@@ -591,7 +591,7 @@ FloatN degrees(const FloatN& r) noexcept
     return d;
   }
   else {
-    const auto d = inner::degrees(r);
+    const auto d = clinner::degrees(r);
     return d;
   }
 }
@@ -608,7 +608,7 @@ FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept
     return result;
   }
   else {
-    const auto result = inner::fma(a, b, c);
+    const auto result = clinner::fma(a, b, c);
     return result;
   }
 }
@@ -627,7 +627,7 @@ TypeN max(const TypeN& x, const TypeN& y) noexcept
     return result;
   }
   else {
-    const auto result = inner::max(x, y);
+    const auto result = clinner::max(x, y);
     return result;
   }
 }
@@ -645,7 +645,7 @@ TypeN min(const TypeN& x, const TypeN& y) noexcept
     return result;
   }
   else {
-    const auto result = inner::min(x, y);
+    const auto result = clinner::min(x, y);
     return result;
   }
 }
@@ -673,7 +673,7 @@ FloatN radians(const FloatN& d) noexcept
     return r;
   }
   else {
-    const auto r = inner::radians(d);
+    const auto r = clinner::radians(d);
     return r;
   }
 }
@@ -690,7 +690,7 @@ FloatN exp(const FloatN& x) noexcept
     return y;
   }
   else {
-    const auto y = inner::exp(x);
+    const auto y = clinner::exp(x);
     return y;
   }
 }
@@ -707,7 +707,7 @@ FloatN log(const FloatN& x) noexcept
     return y;
   }
   else {
-    const auto y = inner::log(x);
+    const auto y = clinner::log(x);
     return y;
   }
 }
@@ -724,7 +724,7 @@ FloatN log2(const FloatN& x) noexcept
     return y;
   }
   else {
-    const auto y = inner::log2(x);
+    const auto y = clinner::log2(x);
     return y;
   }
 }
@@ -741,7 +741,7 @@ FloatN pow(const FloatN& base, const FloatN& e) noexcept
     return y;
   }
   else {
-    const auto y = inner::pow(base, e);
+    const auto y = clinner::pow(base, e);
     return y;
   }
 }
@@ -758,7 +758,7 @@ FloatN rsqrt(const FloatN& x) noexcept
     return y;
   }
   else {
-    const auto y = inner::rsqrt(x);
+    const auto y = clinner::rsqrt(x);
     return y;
   }
 }
@@ -775,7 +775,7 @@ FloatN sqrt(const FloatN& x) noexcept
     return y;
   }
   else {
-    const auto y = inner::sqrt(x);
+    const auto y = clinner::sqrt(x);
     return y;
   }
 }
@@ -792,7 +792,7 @@ FloatN sin(const FloatN& theta) noexcept
     return y;
   }
   else {
-    const auto y = inner::sin(theta);
+    const auto y = clinner::sin(theta);
     return y;
   }
 }
@@ -809,7 +809,7 @@ FloatN cos(const FloatN& theta) noexcept
     return y;
   }
   else {
-    const auto y = inner::cos(theta);
+    const auto y = clinner::cos(theta);
     return y;
   }
 }
@@ -836,7 +836,7 @@ FloatN tan(const FloatN& theta) noexcept
     return y;
   }
   else {
-    const auto y = inner::tan(theta);
+    const auto y = clinner::tan(theta);
     return y;
   }
 }
@@ -853,7 +853,7 @@ FloatN asin(const FloatN& x) noexcept
     return theta;
   }
   else {
-    const auto theta = inner::asin(x);
+    const auto theta = clinner::asin(x);
     return theta;
   }
 }
@@ -870,7 +870,7 @@ FloatN acos(const FloatN& x) noexcept
     return theta;
   }
   else {
-    const auto theta = inner::acos(x);
+    const auto theta = clinner::acos(x);
     return theta;
   }
 }
@@ -887,7 +887,7 @@ FloatN atan(const FloatN& x) noexcept
     return theta;
   }
   else {
-    const auto theta = inner::atan(x);
+    const auto theta = clinner::atan(x);
     return theta;
   }
 }
@@ -905,7 +905,7 @@ FloatN frexp(const FloatN& x, IntegerN* e) noexcept
     return result;
   }
   else {
-    const auto result = inner::frexp(x, e);
+    const auto result = clinner::frexp(x, e);
     return result;
   }
 }
@@ -923,7 +923,7 @@ FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept
     return result;
   }
   else {
-    const auto result = inner::ldexp(x, e);
+    const auto result = clinner::ldexp(x, e);
     return result;
   }
 }
@@ -939,13 +939,13 @@ IntegerN clz(const IntegerN& x) noexcept
   if constexpr (is_scalar_type) {
     IntegerN result = 0;
     constexpr IntegerN n = cast<IntegerN>(8 * sizeof(IntegerN));
-    constexpr IntegerN bit = inner::getClzMsb<IntegerN>();
+    constexpr IntegerN bit = clinner::getClzMsb<IntegerN>();
     for (IntegerN i = 0, b = x; (i < n) && ((b & bit) != bit); ++i, b = b << 1)
       ++result;
     return result;
   }
   else {
-    const auto result = inner::clz(x);
+    const auto result = clinner::clz(x);
     return result;
   }
 }
@@ -969,7 +969,7 @@ IntegerN popcount(const IntegerN& x) noexcept
     return result;
   }
   else {
-    const auto result = inner::popcount(x);
+    const auto result = clinner::popcount(x);
     return result;
   }
 }
@@ -982,7 +982,7 @@ FloatN cross(const FloatN& p0, const FloatN& p1) noexcept
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> ||
                                   std::is_integral_v<FloatN>;
   static_assert(!is_scalar_type, "FloatN should be vector3 or vector4 type.");
-  const auto result = inner::cross(p0, p1);
+  const auto result = clinner::cross(p0, p1);
   return result;
 }
 
@@ -998,7 +998,7 @@ float dot(const FloatN& p0, const FloatN& p1) noexcept
     return result;
   }
   else {
-    const float result = inner::dot(p0, p1);
+    const float result = clinner::dot(p0, p1);
     return result;
   }
 }
@@ -1044,7 +1044,7 @@ FloatN normalize(const FloatN& p) noexcept
     return result;
   }
   else {
-    const auto result = inner::normalize(p);
+    const auto result = clinner::normalize(p);
     return result;
   }
 }

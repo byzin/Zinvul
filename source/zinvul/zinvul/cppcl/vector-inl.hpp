@@ -1070,7 +1070,7 @@ Vector<int32b, kN> operator||(const Vector<Type, kN>& lhs,
   return rhs || lhs;
 }
 
-namespace inner {
+namespace clinner {
 
 template <std::size_t kN> inline
 Vector<float, kN> vload_halfn(const size_t offset, const half* p) noexcept
@@ -1096,7 +1096,7 @@ void vstore_halfn(const Vector<float, kN>& data,
   }
 }
 
-} // namespace inner
+} // namespace clinner
 
 /*!
   */
@@ -1113,7 +1113,7 @@ float vload_half(const size_t offset, const half* p) noexcept
 inline
 float2 vload_half2(const size_t offset, const half* p) noexcept
 {
-  return inner::vload_halfn<2>(offset, p);
+  return clinner::vload_halfn<2>(offset, p);
 }
 
 /*!
@@ -1121,7 +1121,7 @@ float2 vload_half2(const size_t offset, const half* p) noexcept
 inline
 float3 vload_half3(const size_t offset, const half* p) noexcept
 {
-  return inner::vload_halfn<3>(offset, p);
+  return clinner::vload_halfn<3>(offset, p);
 }
 
 /*!
@@ -1129,7 +1129,7 @@ float3 vload_half3(const size_t offset, const half* p) noexcept
 inline
 float4 vload_half4(const size_t offset, const half* p) noexcept
 {
-  return inner::vload_halfn<4>(offset, p);
+  return clinner::vload_halfn<4>(offset, p);
 }
 
 /*!
@@ -1147,7 +1147,7 @@ void vstore_half(const float data, const size_t offset, half* p) noexcept
 inline
 void vstore_half2(const float2& data, const size_t offset, half* p) noexcept
 {
-  inner::vstore_halfn(data, offset, p);
+  clinner::vstore_halfn(data, offset, p);
 }
 
 /*!
@@ -1155,7 +1155,7 @@ void vstore_half2(const float2& data, const size_t offset, half* p) noexcept
 inline
 void vstore_half3(const float3& data, const size_t offset, half* p) noexcept
 {
-  inner::vstore_halfn(data, offset, p);
+  clinner::vstore_halfn(data, offset, p);
 }
 
 /*!
@@ -1163,7 +1163,7 @@ void vstore_half3(const float3& data, const size_t offset, half* p) noexcept
 inline
 void vstore_half4(const float4& data, const size_t offset, half* p) noexcept
 {
-  inner::vstore_halfn(data, offset, p);
+  clinner::vstore_halfn(data, offset, p);
 }
 
 } // namespace cl

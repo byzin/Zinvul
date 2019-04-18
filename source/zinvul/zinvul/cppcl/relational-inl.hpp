@@ -26,7 +26,7 @@ namespace zinvul {
 
 namespace cl {
 
-namespace inner {
+namespace clinner {
 
 template <typename Float> inline
 int32b isequal(const Float lhs, const Float rhs) noexcept
@@ -102,14 +102,14 @@ Vector<Type1, kN> select(const Vector<Type1, kN>& a,
   return result;
 }
 
-} // namespace inner
+} // namespace clinner
 
 /*!
   */
 inline
 int32b isequal(const float lhs, const float rhs) noexcept
 {
-  return inner::isequal(lhs, rhs);
+  return clinner::isequal(lhs, rhs);
 }
 
 /*!
@@ -117,7 +117,7 @@ int32b isequal(const float lhs, const float rhs) noexcept
 inline
 int32b isequal(const double lhs, const double rhs) noexcept
 {
-  return inner::isequal(lhs, rhs);
+  return clinner::isequal(lhs, rhs);
 }
 
 /*!
@@ -135,7 +135,7 @@ Vector<int32b, kN> isequal(const Vector<Float, kN>& lhs,
 inline
 int32b isnotequal(const float lhs, const float rhs) noexcept
 {
-  return inner::isnotequal(lhs, rhs);
+  return clinner::isnotequal(lhs, rhs);
 }
 
 /*!
@@ -143,7 +143,7 @@ int32b isnotequal(const float lhs, const float rhs) noexcept
 inline
 int32b isnotequal(const double lhs, const double rhs) noexcept
 {
-  return inner::isnotequal(lhs, rhs);
+  return clinner::isnotequal(lhs, rhs);
 }
 
 /*!
@@ -161,7 +161,7 @@ Vector<int32b, kN> isnotequal(const Vector<Float, kN>& lhs,
 inline
 int32b isgreater(const float lhs, const float rhs) noexcept
 {
-  return inner::isgreater(lhs, rhs);
+  return clinner::isgreater(lhs, rhs);
 }
 
 /*!
@@ -169,7 +169,7 @@ int32b isgreater(const float lhs, const float rhs) noexcept
 inline
 int32b isgreater(const double lhs, const double rhs) noexcept
 {
-  return inner::isgreater(lhs, rhs);
+  return clinner::isgreater(lhs, rhs);
 }
 
 /*!
@@ -187,7 +187,7 @@ Vector<int32b, kN> isgreater(const Vector<Float, kN>& lhs,
 inline
 int32b isgreaterequal(const float lhs, const float rhs) noexcept
 {
-  return inner::isgreaterequal(lhs, rhs);
+  return clinner::isgreaterequal(lhs, rhs);
 }
 
 /*!
@@ -195,7 +195,7 @@ int32b isgreaterequal(const float lhs, const float rhs) noexcept
 inline
 int32b isgreaterequal(const double lhs, const double rhs) noexcept
 {
-  return inner::isgreaterequal(lhs, rhs);
+  return clinner::isgreaterequal(lhs, rhs);
 }
 
 /*!
@@ -213,7 +213,7 @@ Vector<int32b, kN> isgreaterequal(const Vector<Float, kN>& lhs,
 inline
 int32b isless(const float lhs, const float rhs) noexcept
 {
-  return inner::isless(lhs, rhs);
+  return clinner::isless(lhs, rhs);
 }
 
 /*!
@@ -221,7 +221,7 @@ int32b isless(const float lhs, const float rhs) noexcept
 inline
 int32b isless(const double lhs, const double rhs) noexcept
 {
-  return inner::isless(lhs, rhs);
+  return clinner::isless(lhs, rhs);
 }
 
 /*!
@@ -239,7 +239,7 @@ Vector<int32b, kN> isless(const Vector<Float, kN>& lhs,
 inline
 int32b islessequal(const float lhs, const float rhs) noexcept
 {
-  return inner::islessequal(lhs, rhs);
+  return clinner::islessequal(lhs, rhs);
 }
 
 /*!
@@ -247,7 +247,7 @@ int32b islessequal(const float lhs, const float rhs) noexcept
 inline
 int32b islessequal(const double lhs, const double rhs) noexcept
 {
-  return inner::islessequal(lhs, rhs);
+  return clinner::islessequal(lhs, rhs);
 }
 
 /*!
@@ -265,7 +265,7 @@ Vector<int32b, kN> islessequal(const Vector<Float, kN>& lhs,
 inline
 int32b isinf(const float value) noexcept
 {
-  return inner::isinf(value);
+  return clinner::isinf(value);
 }
 
 /*!
@@ -273,7 +273,7 @@ int32b isinf(const float value) noexcept
 inline
 int32b isinf(const double value) noexcept
 {
-  return inner::isinf(value);
+  return clinner::isinf(value);
 }
 
 /*!
@@ -293,7 +293,7 @@ Vector<int32b, kN> isinf(const Vector<Float, kN>& value) noexcept
 inline
 int32b isnan(const float value) noexcept
 {
-  return inner::isnan(value);
+  return clinner::isnan(value);
 }
 
 /*!
@@ -301,7 +301,7 @@ int32b isnan(const float value) noexcept
 inline
 int32b isnan(const double value) noexcept
 {
-  return inner::isnan(value);
+  return clinner::isnan(value);
 }
 
 /*!
@@ -321,7 +321,7 @@ Vector<int32b, kN> isnan(const Vector<Float, kN>& value) noexcept
 inline
 int32b signbit(const float value) noexcept
 {
-  return inner::signbit(value);
+  return clinner::signbit(value);
 }
 
 /*!
@@ -329,7 +329,7 @@ int32b signbit(const float value) noexcept
 inline
 int32b signbit(const double value) noexcept
 {
-  return inner::signbit(value);
+  return clinner::signbit(value);
 }
 
 /*!
@@ -359,7 +359,7 @@ Type1 select(const Type1& a, const Type1& b, const Type2& c) noexcept
   if constexpr (is_scalar_type1)
     return c ? b : a;
   else
-    return inner::select(a, b, c);
+    return clinner::select(a, b, c);
 }
 
 } // namespace cl
