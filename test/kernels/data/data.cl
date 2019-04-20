@@ -35,8 +35,6 @@ __kernel void testTypeCast(
     GlobalPtr<uint4> ubuffer3,
     GlobalPtr<float> fbuffer1,
     GlobalPtr<float4> fbuffer2);
-/*!
-  */
 __kernel void testTypeReinterpreting(
     ConstGlobalPtr<uint32b> uinputs1,
     ConstGlobalPtr<float> finputs1,
@@ -44,6 +42,19 @@ __kernel void testTypeReinterpreting(
     GlobalPtr<uint4> ubuffer2,
     GlobalPtr<float> fbuffer1,
     GlobalPtr<float4> fbuffer2);
+__kernel void testCastUint8bToFloat(GlobalPtr<uint8b> buffer1,
+    ConstGlobalPtr<uint8b> buffer2,
+    GlobalPtr<float> buffer3,
+    const uint32b resolution);
+__kernel void testCastUint16bToFloat(GlobalPtr<uint16b> buffer1,
+    ConstGlobalPtr<uint16b> buffer2,
+    GlobalPtr<float> buffer3,
+    const uint32b resolution);
+__kernel void testCastUint32bToFloat(GlobalPtr<uint32b> buffer1,
+    ConstGlobalPtr<uint32b> buffer2,
+    GlobalPtr<float> buffer3,
+    const uint32b resolution);
+
 
 namespace test {
 
@@ -54,6 +65,66 @@ struct PointerTest
   int32b v2_ = 15;
   int32b v3_ = 20;
 };
+
+//class OptionTest
+//{
+// public:
+//  void init()
+//  {
+//    data_x_ = 0;
+//    data_y_ = 0;
+//    data_z_ = 0;
+//    data_w_ = 0;
+//  }
+//
+//  uint32b getValue() const
+//  {
+//    const uint32b v = data_y_ >> 16u;
+//    return v;
+//  }
+//
+//  void setValue(const uint32b v)
+//  {
+//    data_y_ = v << 16u;
+//  }
+//
+//  uint32b data_x_;
+//  uint32b data_y_;
+//  uint32b data_z_;
+//  uint32b data_w_;
+//};
+
+//inline
+//uint32b getOptionValue(ConstGlobalPtr<OptionTest> options)
+//{
+//  const uint32b v = options->data_y_ >> 16u;
+//  return v;
+//}
+//
+//inline
+//uint32b getOptionValue(ConstLocalPtr<OptionTest> options)
+//{
+//  const uint32b v = options->data_y_ >> 16u;
+//  return v;
+//}
+//
+//inline
+//void copy(ConstLocalPtr<OptionTest> src, PrivatePtr<OptionTest> dst)
+//{
+//  dst->data_x_ = src->data_x_;
+//  dst->data_y_ = src->data_y_;
+//  dst->data_z_ = src->data_z_;
+//  dst->data_w_ = src->data_w_;
+//}
+//
+//inline
+//void copy(ConstGlobalPtr<OptionTest> src, LocalPtr<OptionTest> dst)
+//{
+//  dst->data_x_ = src->data_x_;
+//  dst->data_y_ = src->data_y_;
+//  dst->data_z_ = src->data_z_;
+//  dst->data_w_ = src->data_w_;
+//}
 
 }
 
@@ -124,6 +195,57 @@ __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst)
     }
   }
 }
+
+///*!
+//  */
+//__kernel void testGlobalInstance1(GlobalPtr<uint32b> results,
+//    ConstGlobalPtr<test::OptionTest> options)
+//{
+//  const uint32b index = getGlobalIdX();
+//  if (index == 0) {
+//    results[0] = test::getOptionValue(options);
+//  }
+//}
+//
+///*!
+//  */
+//__kernel void testGlobalInstance2(GlobalPtr<uint32b> results,
+//    const test::OptionTest options)
+//{
+//  const uint32b index = getGlobalIdX();
+//  if (index == 0) {
+//    results[0] = options.getValue();
+//  }
+//}
+//
+///*!
+//  */
+//__kernel void testLocalInstance1(GlobalPtr<uint32b> results,
+//    ConstGlobalPtr<test::OptionTest> o)
+//{
+//  Local<test::OptionTest> options[2];
+//  const uint32b index = getGlobalIdX();
+//  if (index == 0) {
+//    test::copy(o, options);
+//    ConstLocalPtr<test::OptionTest> option = &options[0];
+//    results[0] = test::getOptionValue(option);
+//  }
+//}
+//
+///*!
+//  */
+//__kernel void testLocalInstance2(GlobalPtr<uint32b> results,
+//    ConstGlobalPtr<test::OptionTest> o)
+//{
+//  Local<test::OptionTest> options[2];
+//  const uint32b index = getGlobalIdX();
+//  if (index == 0) {
+//    options->data_y_ = o->data_y_;
+//    test::OptionTest opt;
+//    test::copy(options, &opt);
+//    results[0] = opt.getValue();
+//  }
+//}
 
 /*!
   */
@@ -435,80 +557,79 @@ __kernel void testUint16bBuffer(GlobalPtr<uint16b> buffer)
   }
 }
 
-///*!
-//  */
-//__kernel void testCastUint8bToFloat(__global uint8b* buffer1,
-//    const __global uint8b* buffer2,
-//    __global float* buffer3,
-//    const uint32b resolution)
-//{
-//  const uint32b index = getGlobalIdX();
-//  if (index < resolution) {
-//    const size_t offset = sizeof(float) / sizeof(uint8b);
-//    // Writing test
-//    {
-//      __global float* data = (__global float*)(buffer1 + offset * index);
-//      const float v = (float)index;
-//      *data = v;
-//    }
-//    // Reading test
-//    {
-//      const __global float* data = (const __global float*)(buffer2 + offset * index);
-//      const float v = *data;
-//      buffer3[index] = v;
-//    }
-//  }
-//}
-//
-///*!
-//  */
-//__kernel void testCastUint16bToFloat(__global uint16b* buffer1,
-//    const __global uint16b* buffer2,
-//    __global float* buffer3,
-//    const uint32b resolution)
-//{
-//  const uint32b index = getGlobalIdX();
-//  if (index < resolution) {
-//    const size_t offset = sizeof(float) / sizeof(uint16b);
-//    // Writing test
-//    {
-//      __global float* data = (__global float*)(buffer1 + offset * index);
-//      const float v = (float)index;
-//      *data = v;
-//    }
-//    // Reading test
-//    {
-//      const __global float* data = (const __global float*)(buffer2 + offset * index);
-//      const float v = *data;
-//      buffer3[index] = v;
-//    }
-//  }
-//}
-//
-///*!
-//  */
-//__kernel void testCastUint32bToFloat(__global uint32b* buffer1,
-//    const __global uint32b* buffer2,
-//    __global float* buffer3,
-//    const uint32b resolution)
-//{
-//  const uint32b index = getGlobalIdX();
-//  if (index < resolution) {
-//    const size_t offset = sizeof(float) / sizeof(uint32b);
-//    // Writing test
-//    {
-//      __global float* data = (__global float*)(buffer1 + offset * index);
-//      const float v = (float)index;
-//      *data = v;
-//    }
-//    // Reading test
-//    {
-//      const __global float* data = (const __global float*)(buffer2 + offset * index);
-//      const float v = *data;
-//      buffer3[index] = v;
-//    }
-//  }
-//}
+/*!
+  */
+__kernel void testCastUint8bToFloat(GlobalPtr<uint8b> buffer1,
+    ConstGlobalPtr<uint8b> buffer2,
+    GlobalPtr<float> buffer3,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = (sizeof(float) / sizeof(uint8b)) * index;
+    // Writing test
+    {
+      GlobalPtr<float> data = treatAs<GlobalPtr<float>>(buffer1 + offset);
+      const float v = cast<float>(index);
+      *data = v;
+    }
+    // Reading test
+    {
+      ConstGlobalPtr<float> data = treatAs<ConstGlobalPtr<float>>(buffer2 + offset);
+      const float v = *data;
+      buffer3[index] = v;
+    }
+  }
+}
 
+/*!
+  */
+__kernel void testCastUint16bToFloat(GlobalPtr<uint16b> buffer1,
+    ConstGlobalPtr<uint16b> buffer2,
+    GlobalPtr<float> buffer3,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = (sizeof(float) / sizeof(uint16b)) * index;
+    // Writing test
+    {
+      GlobalPtr<float> data = treatAs<GlobalPtr<float>>(buffer1 + offset);
+      const float v = cast<float>(index);
+      *data = v;
+    }
+    // Reading test
+    {
+      ConstGlobalPtr<float> data = treatAs<ConstGlobalPtr<float>>(buffer2 + offset);
+      const float v = *data;
+      buffer3[index] = v;
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testCastUint32bToFloat(GlobalPtr<uint32b> buffer1,
+    ConstGlobalPtr<uint32b> buffer2,
+    GlobalPtr<float> buffer3,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    const size_t offset = (sizeof(float) / sizeof(uint32b)) * index;
+    // Writing test
+    {
+      GlobalPtr<float> data = treatAs<GlobalPtr<float>>(buffer1 + offset);
+      const float v = cast<float>(index);
+      *data = v;
+    }
+    // Reading test
+    {
+      ConstGlobalPtr<float> data = treatAs<ConstGlobalPtr<float>>(buffer2 + offset);
+      const float v = *data;
+      buffer3[index] = v;
+    }
+  }
+}
 
 #endif /* ZINVUL_DATA_TEST_DATA_CL */

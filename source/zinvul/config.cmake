@@ -318,15 +318,9 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
       list(APPEND clspv_options -D=${definition})
     endforeach(definition)
     if(Z_DEBUG_MODE)
-      list(APPEND clspv_options -O=0 -D=Z_DEBUG_MODE)
-      list(APPEND clspv_options -keep-unused-arguments)
+      list(APPEND clspv_options -D=Z_DEBUG_MODE)
     elseif(Z_RELEASE_MODE)
-      list(APPEND clspv_options -O=3 -D=Z_RELEASE_MODE)
-      list(APPEND clspv_options -cl-no-signed-zeros
-                                -cost-kind=throughput
-                                -expensive-combines
-                                -instcombine-code-sinking
-                                )
+      list(APPEND clspv_options -D=Z_RELEASE_MODE)
     endif()
     if(Z_WINDOWS)
       list(APPEND clspv_options -D=Z_WINDOWS)
@@ -335,11 +329,16 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     elseif(Z_MAC)
       list(APPEND clspv_options -D=Z_MAC)
     endif()
-    list(APPEND clspv_options -c++
+    list(APPEND clspv_options -O=3
+                              -c++
+                              -cl-no-signed-zeros
+                              -cost-kind=throughput
                               -cl-denorms-are-zero
                               -cl-finite-math-only
+                              -expensive-combines
                               -f16bit_storage
                               -inline-entry-points
+                              -instcombine-code-sinking
                               -int8
                               )
     set(clspv_commands COMMAND ${clspv} ${clspv_options}

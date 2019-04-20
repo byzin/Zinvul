@@ -40,6 +40,8 @@ class AddressSpacePointer
 {
  public:
   using Type = std::remove_volatile_t<T>;
+  using ASpacePointerRef = std::add_lvalue_reference_t<AddressSpacePointer>;
+  using ConstASpacePointerRef = std::add_const_t<ASpacePointerRef>;
   using Reference = std::add_lvalue_reference_t<Type>;
   using ConstReference = std::add_const_t<Reference>;
   using Pointer = std::add_pointer_t<Type>;
@@ -54,7 +56,7 @@ class AddressSpacePointer
 
 
   //! Assign a pointer
-  Reference operator=(Pointer data) noexcept;
+  ASpacePointerRef operator=(Pointer data) noexcept;
 
   //! Check whether this owns an object
   explicit operator bool() const noexcept
@@ -81,10 +83,16 @@ class AddressSpacePointer
   ConstReference operator[](const size_t index) const noexcept;
 
   //! Get a pointer to n-th element and assign it
-  Reference operator+=(const ptrdiff_t n) noexcept;
+  ASpacePointerRef operator+=(const ptrdiff_t n) noexcept;
+
+  //! Get a pointer to n-th element and assign it
+  ASpacePointerRef operator+=(const size_t n) noexcept;
 
   //! Get a pointer to -n-th element and assign it
-  Reference operator-=(const ptrdiff_t n) noexcept;
+  ASpacePointerRef operator-=(const ptrdiff_t n) noexcept;
+
+  //! Get a pointer to -n-th element and assign it
+  ASpacePointerRef operator-=(const size_t n) noexcept;
 
   //! Return a pointer to the managed object
   Pointer operator+() noexcept;
@@ -121,7 +129,19 @@ AddressSpacePointer<Type, kAddressSpaceType> operator+(
 //! Compute a pointer to n-th element
 template <typename Type, AddressSpaceType kAddressSpaceType>
 AddressSpacePointer<Type, kAddressSpaceType> operator+(
+    AddressSpacePointer<Type, kAddressSpaceType>& p,
+    const size_t n) noexcept;
+
+//! Compute a pointer to n-th element
+template <typename Type, AddressSpaceType kAddressSpaceType>
+AddressSpacePointer<Type, kAddressSpaceType> operator+(
     const ptrdiff_t n,
+    AddressSpacePointer<Type, kAddressSpaceType>& p) noexcept;
+
+//! Compute a pointer to n-th element
+template <typename Type, AddressSpaceType kAddressSpaceType>
+AddressSpacePointer<Type, kAddressSpaceType> operator+(
+    const size_t n,
     AddressSpacePointer<Type, kAddressSpaceType>& p) noexcept;
 
 //! Compute a pointer to -n-th element
@@ -129,6 +149,12 @@ template <typename Type, AddressSpaceType kAddressSpaceType>
 AddressSpacePointer<Type, kAddressSpaceType> operator-(
     AddressSpacePointer<Type, kAddressSpaceType>& p,
     const ptrdiff_t n) noexcept;
+
+//! Compute a pointer to -n-th element
+template <typename Type, AddressSpaceType kAddressSpaceType>
+AddressSpacePointer<Type, kAddressSpaceType> operator-(
+    AddressSpacePointer<Type, kAddressSpaceType>& p,
+    const size_t n) noexcept;
 
 //! Compute the distance between lhs and rhs
 template <typename Type, AddressSpaceType kAddressSpaceType>

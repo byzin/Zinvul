@@ -45,7 +45,7 @@ AddressSpacePointer<T, kAddressSpaceType>::AddressSpacePointer(
   */
 template <typename T, AddressSpaceType kAddressSpaceType> inline
 auto AddressSpacePointer<T, kAddressSpaceType>::operator=(
-    Pointer data) noexcept -> Reference
+    Pointer data) noexcept -> ASpacePointerRef
 {
   data_ = data;
   return *this;
@@ -115,22 +115,42 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator[](
   */
 template <typename T, AddressSpaceType kAddressSpaceType> inline
 auto AddressSpacePointer<T, kAddressSpaceType>::operator+=(
-    const ptrdiff_t n) noexcept -> Reference
+    const ptrdiff_t n) noexcept -> ASpacePointerRef
 {
   auto data = get() + n;
   data_ = data;
-  return *data;
+  return *this;
+}
+
+/*!
+  */
+template <typename T, AddressSpaceType kAddressSpaceType> inline
+auto AddressSpacePointer<T, kAddressSpaceType>::operator+=(
+    const size_t n) noexcept -> ASpacePointerRef
+{
+  ASpacePointerRef data = (*this += zisc::cast<ptrdiff_t>(n));
+  return data;
 }
 
 /*!
   */
 template <typename T, AddressSpaceType kAddressSpaceType> inline
 auto AddressSpacePointer<T, kAddressSpaceType>::operator-=(
-    const ptrdiff_t n) noexcept -> Reference
+    const ptrdiff_t n) noexcept -> ASpacePointerRef
 {
   auto data = get() - n;
   data_ = data;
-  return *data;
+  return *this;
+}
+
+/*!
+  */
+template <typename T, AddressSpaceType kAddressSpaceType> inline
+auto AddressSpacePointer<T, kAddressSpaceType>::operator-=(
+    const size_t n) noexcept -> ASpacePointerRef
+{
+  ASpacePointerRef data = (*this -= zisc::cast<ptrdiff_t>(n));
+  return data;
 }
 
 /*!
@@ -218,11 +238,33 @@ auto operator+(AddressSpacePointer<Type, kAddressSpaceType>& p,
 /*!
   */
 template <typename Type, AddressSpaceType kAddressSpaceType> inline
+auto operator+(AddressSpacePointer<Type, kAddressSpaceType>& p,
+               const size_t n) noexcept
+    -> AddressSpacePointer<Type, kAddressSpaceType>
+{
+  auto result = p + zisc::cast<ptrdiff_t>(n);
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
 auto operator+(const ptrdiff_t n,
                AddressSpacePointer<Type, kAddressSpaceType>& p) noexcept
     -> AddressSpacePointer<Type, kAddressSpaceType>
 {
   const auto result = p + n;
+  return result;
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+auto operator+(const size_t n,
+               AddressSpacePointer<Type, kAddressSpaceType>& p) noexcept
+    -> AddressSpacePointer<Type, kAddressSpaceType>
+{
+  auto result = zisc::cast<ptrdiff_t>(n) + p;
   return result;
 }
 
@@ -235,6 +277,17 @@ auto operator-(AddressSpacePointer<Type, kAddressSpaceType>& p,
 {
   const auto result = p.get() - n;
   return AddressSpacePointer<Type, kAddressSpaceType>{result};
+}
+
+/*!
+  */
+template <typename Type, AddressSpaceType kAddressSpaceType> inline
+auto operator-(AddressSpacePointer<Type, kAddressSpaceType>& p,
+               const size_t n) noexcept
+    -> AddressSpacePointer<Type, kAddressSpaceType>
+{
+  auto result = p - zisc::cast<ptrdiff_t>(n);
+  return result;
 }
 
 /*!

@@ -10,6 +10,8 @@
 #ifndef ZINVUL_@kernel_group_name@_CL
 #define ZINVUL_@kernel_group_name@_CL
 
+#pragma clang diagnostic ignored "-Wc++98-compat"
+
 @kernel_include_lines@
 
 #endif /* ZINVUL_@kernel_group_name@_CL */
