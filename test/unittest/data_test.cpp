@@ -494,7 +494,7 @@ TEST(DataTest, TypeCastTest)
       for (std::size_t i = 0; i < 4; ++i) {
         const float expected = -zisc::cast<float>(i + 1);
         const float result = results[i + 4];
-        ASSERT_FLOAT_EQ(expected, result) << "The func 'cast<float>' failed.";
+        EXPECT_FLOAT_EQ(expected, result) << "The func 'cast<float>' failed.";
       }
     }
     {
@@ -509,7 +509,7 @@ TEST(DataTest, TypeCastTest)
       for (std::size_t i = 0; i < 4; ++i) {
         const float expected = -zisc::cast<float>(i + 1);
         const float result = results[1][i];
-        ASSERT_FLOAT_EQ(expected, result) << "The func 'cast<float4>' failed.";
+        EXPECT_FLOAT_EQ(expected, result) << "The func 'cast<float4>' failed.";
       }
     }
   }
