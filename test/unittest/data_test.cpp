@@ -1907,3 +1907,73 @@ TEST(DataTest, NumericLimits64Test)
 }
 
 #endif // !Z_MAC
+
+TEST(DataTest, Fnv1AHashTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer1->setSize(8);
+    auto buffer2 = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer2->setSize(8);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testFnv1AHash, 1);
+    kernel->run(*buffer1, *buffer2, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<uint32b> results;
+      results.resize(8);
+      buffer1->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(0x811c9dc5, results[i++])
+        << "The Fnv1aHash32 is wrong.";
+      ASSERT_EQ(0x811c9dc5, results[i++])
+        << "The Fnv1aHash32 is wrong.";
+      ASSERT_EQ(0xe40c292c, results[i++])
+        << "The Fnv1aHash32 is wrong.";
+      ASSERT_EQ(0xe40c292c, results[i++])
+        << "The Fnv1aHash32 is wrong.";
+      ASSERT_EQ(0xe70c2de5, results[i++])
+        << "The Fnv1aHash32 is wrong.";
+      ASSERT_EQ(0xe70c2de5, results[i++])
+        << "The Fnv1aHash32 is wrong.";
+      ASSERT_EQ(0xbf9cf968, results[i++])
+        << "The Fnv1aHash32 is wrong.";
+      ASSERT_EQ(0xbf9cf968, results[i++])
+        << "The Fnv1aHash32 is wrong.";
+    }
+
+    {
+      std::vector<uint64b> results;
+      results.resize(8);
+      buffer2->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(0xcbf29ce484222325, results[i++])
+        << "The Fnv1aHash64 is wrong.";
+      ASSERT_EQ(0xcbf29ce484222325, results[i++])
+       << "The Fnv1aHash64 is wrong.";
+      ASSERT_EQ(0xaf63dc4c8601ec8c, results[i++])
+        << "The Fnv1aHash64 is wrong.";
+      ASSERT_EQ(0xaf63dc4c8601ec8c, results[i++])
+        << "The Fnv1aHash64 is wrong.";
+      ASSERT_EQ(0xaf63df4c8601f1a5, results[i++])
+        << "The Fnv1aHash64 is wrong.";
+      ASSERT_EQ(0xaf63df4c8601f1a5, results[i++])
+        << "The Fnv1aHash64 is wrong.";
+      ASSERT_EQ(0x85944171f73967e8, results[i++])
+        << "The Fnv1aHash64 is wrong.";
+      ASSERT_EQ(0x85944171f73967e8, results[i++])
+        << "The Fnv1aHash64 is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+

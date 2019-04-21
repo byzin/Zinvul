@@ -10,6 +10,7 @@
 #ifndef ZINVUL_DATA_TEST_DATA_CL
 #define ZINVUL_DATA_TEST_DATA_CL
 
+#include "zinvul/cl/fnv_1a_hash_engine.cl"
 #include "zinvul/cl/limits.cl"
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
@@ -62,6 +63,13 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
     GlobalPtr<int32b> int32_buffer,
     GlobalPtr<uint32b> uint32_buffer,
     GlobalPtr<float> float_buffer);
+#if !defined(Z_MAC)
+__kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
+    GlobalPtr<uint64b> uint64_buffer,
+    GlobalPtr<double> double_buffer);
+#endif // !Z_MAC
+__kernel void testArray(ConstGlobalPtr<uint32b> src,
+    GlobalPtr<uint32b> dst);
 
 
 namespace test {
@@ -733,10 +741,6 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
 
 #if !defined(Z_MAC)
 
-__kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
-    GlobalPtr<uint64b> uint64_buffer,
-    GlobalPtr<double> double_buffer);
-
 /*!
   */
 __kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
@@ -785,5 +789,98 @@ __kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
 }
 
 #endif // !Z_MAC
+
+/*!
+  */
+//__kernel void testArray(ConstGlobalPtr<uint32b> src,
+//    GlobalPtr<uint32b> dst)
+//{
+//  constexpr size_t n = 5;
+//  const uint32b index = getGlobalIdX();
+//  if (index == 0) {
+//    size_t idx = 0;
+//    // Construct
+//    Array<uint32b, n> array;
+//    for (size_t i = 0; i < array.size(); ++i)
+//      array.set(i, i + 1);
+//    for (const auto value : array)
+//      dst[idx++] = value;
+//    array.fill(2);
+//    for (const auto value : array)
+//      dst[idx++] = value;
+//    // Access
+//    for (size_t i = 0; i < array.size(); ++i) {
+//      array[i] = src[i];
+//      dst[idx++] = array[i];
+//    }
+//    // Iterator
+//    uint32b sum = 0;
+//    for (auto ite = array.begin(); ite != array.end(); ++ite)
+//      sum += *ite;
+//    // min max
+//    dst[idx++] = array.getMinIndex();
+//    dst[idx++] = array.getMaxIndex();
+//  }
+//}
+
+/*!
+  */
+__kernel void testFnv1AHash(GlobalPtr<uint32b> hash32_buffer,
+    GlobalPtr<uint64b> hash64_buffer)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    size_t i = 0;
+    {
+      const char seed[] = "";
+      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    {
+      const char seed[] = "a";
+      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    {
+      const char seed[] = "b";
+      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    {
+      const char seed[] = "foobar";
+      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    i = 0;
+    {
+      const char seed[] = "";
+      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    {
+      const char seed[] = "a";
+      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    {
+      const char seed[] = "b";
+      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    {
+      const char seed[] = "foobar";
+      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+  }
+}
 
 #endif /* ZINVUL_DATA_TEST_DATA_CL */
