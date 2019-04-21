@@ -10,6 +10,7 @@
 #ifndef ZINVUL_DATA_TEST_DATA_CL
 #define ZINVUL_DATA_TEST_DATA_CL
 
+#include "zinvul/cl/limits.cl"
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
@@ -54,6 +55,13 @@ __kernel void testCastUint32bToFloat(GlobalPtr<uint32b> buffer1,
     ConstGlobalPtr<uint32b> buffer2,
     GlobalPtr<float> buffer3,
     const uint32b resolution);
+__kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
+    GlobalPtr<uint8b> uint8_buffer,
+    GlobalPtr<int16b> int16_buffer,
+    GlobalPtr<uint16b> uint16_buffer,
+    GlobalPtr<int32b> int32_buffer,
+    GlobalPtr<uint32b> uint32_buffer,
+    GlobalPtr<float> float_buffer);
 
 
 namespace test {
@@ -631,5 +639,151 @@ __kernel void testCastUint32bToFloat(GlobalPtr<uint32b> buffer1,
     }
   }
 }
+
+/*!
+  */
+__kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
+    GlobalPtr<uint8b> uint8_buffer,
+    GlobalPtr<int16b> int16_buffer,
+    GlobalPtr<uint16b> uint16_buffer,
+    GlobalPtr<int32b> int32_buffer,
+    GlobalPtr<uint32b> uint32_buffer,
+    GlobalPtr<float> float_buffer)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    // int8
+    {
+      size_t i = 0;
+      constexpr auto vmin = NumericLimits<int8b>::min();
+      int8_buffer[i++] = vmin;
+      constexpr auto vlow = NumericLimits<int8b>::lowest();
+      int8_buffer[i++] = vlow;
+      constexpr auto vmax = NumericLimits<int8b>::max();
+      int8_buffer[i++] = vmax;
+    }
+    // uint8
+    {
+      size_t i = 0;
+      constexpr auto vmin = NumericLimits<uint8b>::min();
+      uint8_buffer[i++] = vmin;
+      constexpr auto vlow = NumericLimits<uint8b>::lowest();
+      uint8_buffer[i++] = vlow;
+      constexpr auto vmax = NumericLimits<uint8b>::max();
+      uint8_buffer[i++] = vmax;
+    }
+    // int16
+    {
+      size_t i = 0;
+      constexpr auto vmin = NumericLimits<int16b>::min();
+      int16_buffer[i++] = vmin;
+      constexpr auto vlow = NumericLimits<int16b>::lowest();
+      int16_buffer[i++] = vlow;
+      constexpr auto vmax = NumericLimits<int16b>::max();
+      int16_buffer[i++] = vmax;
+    }
+    // uint16
+    {
+      size_t i = 0;
+      constexpr auto vmin = NumericLimits<uint16b>::min();
+      uint16_buffer[i++] = vmin;
+      constexpr auto vlow = NumericLimits<uint16b>::lowest();
+      uint16_buffer[i++] = vlow;
+      constexpr auto vmax = NumericLimits<uint16b>::max();
+      uint16_buffer[i++] = vmax;
+    }
+    // int32
+    {
+      size_t i = 0;
+      constexpr auto vmin = NumericLimits<int32b>::min();
+      int32_buffer[i++] = vmin;
+      constexpr auto vlow = NumericLimits<int32b>::lowest();
+      int32_buffer[i++] = vlow;
+      constexpr auto vmax = NumericLimits<int32b>::max();
+      int32_buffer[i++] = vmax;
+    }
+    // uint32
+    {
+      size_t i = 0;
+      constexpr auto vmin = NumericLimits<uint32b>::min();
+      uint32_buffer[i++] = vmin;
+      constexpr auto vlow = NumericLimits<uint32b>::lowest();
+      uint32_buffer[i++] = vlow;
+      constexpr auto vmax = NumericLimits<uint32b>::max();
+      uint32_buffer[i++] = vmax;
+    }
+    // float 
+    {
+      size_t i = 0;
+      constexpr auto vmin = NumericLimits<float>::min();
+      float_buffer[i++] = vmin;
+      constexpr auto vlow = NumericLimits<float>::lowest();
+      float_buffer[i++] = vlow;
+      constexpr auto vmax = NumericLimits<float>::max();
+      float_buffer[i++] = vmax;
+      constexpr auto vepsilon = NumericLimits<float>::epsilon();
+      float_buffer[i++] = vepsilon;
+      constexpr auto vinfinity = NumericLimits<float>::infinity();
+      float_buffer[i++] = vinfinity;
+      auto vnan = NumericLimits<float>::quietNan();
+      float_buffer[i++] = vnan;
+    }
+  }
+}
+
+#if !defined(Z_MAC)
+
+__kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
+    GlobalPtr<uint64b> uint64_buffer,
+    GlobalPtr<double> double_buffer);
+
+/*!
+  */
+__kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
+    GlobalPtr<uint64b> uint64_buffer,
+    GlobalPtr<double> double_buffer)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    // int64
+    {
+      size_t i = 0;
+      constexpr auto vmin = NumericLimits<int64b>::min();
+      int64_buffer[i++] = vmin;
+      constexpr auto vlow = NumericLimits<int64b>::lowest();
+      int64_buffer[i++] = vlow;
+      constexpr auto vmax = NumericLimits<int64b>::max();
+      int64_buffer[i++] = vmax;
+    }
+    // uint64
+    {
+      size_t i = 0;
+      constexpr auto vmin = NumericLimits<uint64b>::min();
+      uint64_buffer[i++] = vmin;
+      constexpr auto vlow = NumericLimits<uint64b>::lowest();
+      uint64_buffer[i++] = vlow;
+      constexpr auto vmax = NumericLimits<uint64b>::max();
+      uint64_buffer[i++] = vmax;
+    }
+    // double
+    {
+      size_t i = 0;
+      constexpr auto vmin = NumericLimits<double>::min();
+      double_buffer[i++] = vmin;
+      constexpr auto vlow = NumericLimits<double>::lowest();
+      double_buffer[i++] = vlow;
+      constexpr auto vmax = NumericLimits<double>::max();
+      double_buffer[i++] = vmax;
+      constexpr auto vepsilon = NumericLimits<double>::epsilon();
+      double_buffer[i++] = vepsilon;
+      constexpr auto vinfinity = NumericLimits<double>::infinity();
+      double_buffer[i++] = vinfinity;
+      auto vnan = NumericLimits<double>::quietNan();
+      double_buffer[i++] = vnan;
+    }
+  }
+}
+
+#endif // !Z_MAC
 
 #endif /* ZINVUL_DATA_TEST_DATA_CL */

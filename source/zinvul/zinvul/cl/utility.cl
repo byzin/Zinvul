@@ -37,28 +37,28 @@ namespace zinvul {
 // Work-Item functions
 
 //! Return the number of global work-items
-uint32b getGlobalSize(const uint32b dimension);
+uint32b getGlobalSize(const uint32b dimension) noexcept;
 
 //! Return the number of global work-items of x dimension
-uint32b getGlobalSizeX();
+uint32b getGlobalSizeX() noexcept;
 
 //! Return the number of global work-items of y dimension
-uint32b getGlobalSizeY();
+uint32b getGlobalSizeY() noexcept;
 
 //! Return the number of global work-items of z dimension
-uint32b getGlobalSizeZ();
+uint32b getGlobalSizeZ() noexcept;
 
 //! Return the global work-item ID
-uint32b getGlobalId(const uint32b dimension);
+uint32b getGlobalId(const uint32b dimension) noexcept;
 
 //! Return the global work-item ID of x dimension
-uint32b getGlobalIdX();
+uint32b getGlobalIdX() noexcept;
 
 //! Return the global work-item ID of y dimension
-uint32b getGlobalIdY();
+uint32b getGlobalIdY() noexcept;
 
 //! Return the global work-item ID of z dimension
-uint32b getGlobalIdZ();
+uint32b getGlobalIdZ() noexcept;
 
 ///*!
 //  */
@@ -757,11 +757,11 @@ uint32b getGlobalIdZ();
 
 //! Convert type from T to Type
 template <typename Type, typename T>
-Type cast(T&& value);
+Type cast(T&& value) noexcept;
 
 //! Treat T* as Type*
 template <typename Type, typename T>
-Type treatAs(T&& object);
+Type treatAs(T&& object) noexcept;
 
 } // namespace zinvul
 

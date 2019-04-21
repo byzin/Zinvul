@@ -38,7 +38,7 @@ namespace zinvul {
 /*!
   */
 inline
-uint32b getGlobalSize(const uint32b dimension)
+uint32b getGlobalSize(const uint32b dimension) noexcept
 {
   const uint32b size = get_global_size(dimension);
   return size;
@@ -47,7 +47,7 @@ uint32b getGlobalSize(const uint32b dimension)
 /*!
   */
 inline
-uint32b getGlobalSizeX()
+uint32b getGlobalSizeX() noexcept
 {
   const uint32b size = getGlobalSize(0);
   return size;
@@ -56,7 +56,7 @@ uint32b getGlobalSizeX()
 /*!
   */
 inline
-uint32b getGlobalSizeY()
+uint32b getGlobalSizeY() noexcept
 {
   const uint32b size = getGlobalSize(1);
   return size;
@@ -65,7 +65,7 @@ uint32b getGlobalSizeY()
 /*!
   */
 inline
-uint32b getGlobalSizeZ()
+uint32b getGlobalSizeZ() noexcept
 {
   const uint32b size = getGlobalSize(2);
   return size;
@@ -74,7 +74,7 @@ uint32b getGlobalSizeZ()
 /*!
   */
 inline
-uint32b getGlobalId(const uint32b dimension)
+uint32b getGlobalId(const uint32b dimension) noexcept
 {
   const uint32b id = get_global_id(dimension);
   return id;
@@ -83,7 +83,7 @@ uint32b getGlobalId(const uint32b dimension)
 /*!
   */
 inline
-uint32b getGlobalIdX()
+uint32b getGlobalIdX() noexcept
 {
   const uint32b id = getGlobalId(0);
   return id;
@@ -92,7 +92,7 @@ uint32b getGlobalIdX()
 /*!
   */
 inline
-uint32b getGlobalIdY()
+uint32b getGlobalIdY() noexcept
 {
   const uint32b id = getGlobalId(1);
   return id;
@@ -101,7 +101,7 @@ uint32b getGlobalIdY()
 /*!
   */
 inline
-uint32b getGlobalIdZ()
+uint32b getGlobalIdZ() noexcept
 {
   const uint32b id = getGlobalId(2);
   return id;
@@ -486,14 +486,14 @@ template <typename Type>
 struct TypeConverter
 {
   template <typename T>
-  static Type cast(T&& value)
+  static Type cast(T&& value) noexcept
   {
     auto result = static_cast<Type>(value);
     return result;
   }
 
   template <typename T>
-  static Type treatAs(T&& object)
+  static Type treatAs(T&& object) noexcept
   {
     auto result = reinterpret_cast<Type>(object);
     return result;
@@ -508,13 +508,13 @@ struct TypeConverter
   struct TypeConverter< Type > \
   { \
     template <typename T> \
-    static Type cast(T&& value) \
+    static Type cast(T&& value) noexcept \
     { \
       auto result = convert_ ## name (value); \
       return result; \
     } \
     template <typename T> \
-    static Type treatAs(T&& object) \
+    static Type treatAs(T&& object) noexcept \
     { \
       auto result = *reinterpret_cast< const Type* >(&object); \
       return result; \
@@ -570,13 +570,13 @@ struct TypeConverter<AddressSpacePointer<Type, kASpaceType>>
   using ASpacePointer = AddressSpacePointer<Type, kASpaceType>;
 
   template <typename T>
-  static ASpacePointer cast(AddressSpacePointer<T, kASpaceType> value)
+  static ASpacePointer cast(AddressSpacePointer<T, kASpaceType> value) noexcept
   {
     return treatAs(value);
   }
 
   template <typename T>
-  static ASpacePointer treatAs(AddressSpacePointer<T, kASpaceType> object)
+  static ASpacePointer treatAs(AddressSpacePointer<T, kASpaceType> object) noexcept
   {
     auto data = reinterpret_cast<typename ASpacePointer::Pointer>(object.get());
     return ASpacePointer{data};
@@ -590,7 +590,7 @@ struct TypeConverter<AddressSpacePointer<Type, kASpaceType>>
 /*!
   */
 template <typename Type, typename T> inline
-Type cast(T&& value)
+Type cast(T&& value) noexcept
 {
   auto result = inner::TypeConverter<Type>::cast(value);
   return result;
@@ -599,7 +599,7 @@ Type cast(T&& value)
 /*!
   */
 template <typename Type, typename T> inline
-Type treatAs(T&& object)
+Type treatAs(T&& object) noexcept
 {
   auto result = inner::TypeConverter<Type>::treatAs(object);
   return result;

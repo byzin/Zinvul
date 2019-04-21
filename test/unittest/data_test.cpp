@@ -9,8 +9,10 @@
 
 // Standard C++ library
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <iostream>
+#include <limits>
 #include <vector>
 // GoogleTest
 #include "gtest/gtest.h"
@@ -630,396 +632,421 @@ TEST(DataTest, TypeReinterpretingTest)
   }
 }
 
-//TEST(DataTest, VectorOperationsTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    auto buffer1 = makeBuffer<cl::short2>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer1->setSize(1);
-//    auto buffer2 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer2->setSize(1);
-//    auto buffer3 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer3->setSize(1);
-//    auto buffer4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer4->setSize(5);
-//    auto buffer5 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer5->setSize(8);
-//    auto buffer6 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer6->setSize(5);
-//    auto buffer7 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer7->setSize(5);
-//    auto buffer8 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer8->setSize(5);
-//    auto buffer9 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer9->setSize(5);
-//    auto buffer10 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer10->setSize(5);
-//    auto buffer11 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer11->setSize(5);
-//    auto buffer12 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer12->setSize(3);
-//    auto buffer13 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer13->setSize(3);
-//    auto buffer14 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer14->setSize(11);
-//    auto buffer15 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer15->setSize(16);
-//
-//    auto kernel = makeZinvulKernel(device.get(), data, testVectorOperations, 1);
-//    kernel->run(*buffer1, *buffer2, *buffer3, *buffer4, *buffer5, *buffer6, *buffer7, *buffer8, *buffer9, *buffer10, *buffer11, *buffer12, *buffer13, *buffer14, *buffer15, {1}, 0);
-//    device->waitForCompletion();
-//
-//    {
-//      const cl::short2 expected{20, 23};
-//      cl::short2 result;
-//      buffer1->read(&result, 1, 0, 0);
-//      for (std::size_t i = 0; i < expected.size(); ++i) {
-//        ASSERT_EQ(expected[i], result[i])
-//            << "The vector addition operations are wrong.";
-//      }
-//    }
-//    {
-//      const cl::int3 expected{3, 2, 1};
-//      cl::int3 result;
-//      buffer2->read(&result, 1, 0, 0);
-//      for (std::size_t i = 0; i < expected.size(); ++i) {
-//        ASSERT_EQ(expected[i], result[i])
-//            << "The vector subtraction operations are wrong.";
-//      }
-//    }
-//    {
-//      const cl::uint4 expected{540u, 1440u, 2772u, 4608u};
-//      cl::uint4 result;
-//      buffer3->read(&result, 1, 0, 0);
-//      for (std::size_t i = 0; i < expected.size(); ++i) {
-//        ASSERT_EQ(expected[i], result[i])
-//            << "The vector multiplication operations are wrong.";
-//      }
-//    }
-//    {
-//      std::array<cl::float2, 5> result;
-//      buffer4->read(result.data(), result.size(), 0, 0);
-//      {
-//        const cl::float2 expected{5.0f, 3.0f};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          EXPECT_EQ(expected[i], result[0][i])
-//              << "The vector division operations are wrong.";
-//        }
-//      }
-//      {
-//        const cl::float2 expected{2.5f, 3.0f};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          EXPECT_EQ(expected[i], result[1][i])
-//              << "The vector division operations are wrong.";
-//        }
-//      }
-//      {
-//        const cl::float2 expected{2.0f / 5.0f, 2.0f / 6.0f};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          EXPECT_EQ(expected[i], result[2][i])
-//              << "The vector division operations are wrong.";
-//        }
-//      }
-//      {
-//        const cl::float2 expected{0.5f, 0.5f};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          EXPECT_EQ(expected[i], result[3][i])
-//              << "The vector division operations are wrong.";
-//        }
-//      }
-//      {
-//        const cl::float2 expected{1.0f / 3.0f, 1.0f / 3.0f};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          EXPECT_EQ(expected[i], result[4][i])
-//              << "The vector division operations are wrong.";
-//        }
-//      }
-//    }
-//    {
-//      std::array<cl::int2, 8> result;
-//      buffer5->read(result.data(), result.size(), 0, 0);
-//      {
-//        const cl::int2 expected{1, 2};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[0][i])
-//              << "The vector pre-increment is wrong.";
-//          ASSERT_EQ(expected[i], result[1][i])
-//              << "The vector pre-increment is wrong.";
-//          ASSERT_EQ(expected[i], result[2][i])
-//              << "The vector post-increment is wrong.";
-//        }
-//      }
-//      {
-//        const cl::int2 expected{2, 3};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[3][i])
-//              << "The vector pre-increment is wrong.";
-//        }
-//      }
-//      {
-//        const cl::int2 expected{-1, 0};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[4][i])
-//              << "The vector pre-decrement is wrong.";
-//          ASSERT_EQ(expected[i], result[5][i])
-//              << "The vector pre-decrement is wrong.";
-//          ASSERT_EQ(expected[i], result[6][i])
-//              << "The vector post-decrement is wrong.";
-//        }
-//      }
-//      {
-//        const cl::int2 expected{-2, -1};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[7][i])
-//              << "The vector pre-decrement is wrong.";
-//        }
-//      }
-//    }
-//    {
-//      std::array<cl::int2, 5> result;
-//      buffer6->read(result.data(), result.size(), 0, 0);
-//      {
-//        const cl::int2 expected{1, 1};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[0][i]) <<
-//              "The vector reminder operations are wrong.";
-//          ASSERT_EQ(expected[i], result[1][i]) <<
-//              "The vector reminder operations are wrong.";
-//          ASSERT_EQ(expected[i], result[3][i]) <<
-//              "The vector reminder operations are wrong.";
-//          ASSERT_EQ(expected[i], result[4][i]) <<
-//              "The vector reminder operations are wrong.";
-//        }
-//      }
-//      {
-//        const cl::int2 expected{3, 3};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[2][i]) <<
-//              "The vector reminder operations are wrong.";
-//        }
-//      }
-//    }
-//    {
-//      std::array<cl::int2, 5> result;
-//      buffer7->read(result.data(), result.size(), 0, 0);
-//      const cl::int2 expected{3, 3};
-//      for (std::size_t i = 0; i < expected.size(); ++i) {
-//        ASSERT_EQ(expected[i], result[0][i]) <<
-//            "The vector bitwize AND operations are wrong.";
-//        ASSERT_EQ(expected[i], result[1][i]) <<
-//            "The vector bitwize AND operations are wrong.";
-//        ASSERT_EQ(expected[i], result[2][i]) <<
-//            "The vector bitwize AND operations are wrong.";
-//        ASSERT_EQ(expected[i], result[3][i]) <<
-//            "The vector bitwize AND operations are wrong.";
-//        ASSERT_EQ(expected[i], result[4][i]) <<
-//            "The vector bitwize AND operations are wrong.";
-//      }
-//    }
-//    {
-//      std::array<cl::int2, 5> result;
-//      buffer8->read(result.data(), result.size(), 0, 0);
-//      const cl::int2 expected{~0, ~0};
-//      for (std::size_t i = 0; i < expected.size(); ++i) {
-//        ASSERT_EQ(expected[i], result[0][i]) <<
-//            "The vector bitwize OR operations are wrong.";
-//        ASSERT_EQ(expected[i], result[1][i]) <<
-//            "The vector bitwize OR operations are wrong.";
-//        ASSERT_EQ(expected[i], result[2][i]) <<
-//            "The vector bitwize OR operations are wrong.";
-//        ASSERT_EQ(expected[i], result[3][i]) <<
-//            "The vector bitwize OR operations are wrong.";
-//        ASSERT_EQ(expected[i], result[4][i]) <<
-//            "The vector bitwize OR operations are wrong.";
-//      }
-//    }
-//    {
-//      std::array<cl::int2, 5> result;
-//      buffer9->read(result.data(), result.size(), 0, 0);
-//      const cl::int2 expected{~0 - 3, ~0 - 3};
-//      for (std::size_t i = 0; i < expected.size(); ++i) {
-//        ASSERT_EQ(expected[i], result[0][i]) <<
-//            "The vector bitwize XOR operations are wrong.";
-//        ASSERT_EQ(expected[i], result[1][i]) <<
-//            "The vector bitwize XOR operations are wrong.";
-//        ASSERT_EQ(expected[i], result[2][i]) <<
-//            "The vector bitwize XOR operations are wrong.";
-//        ASSERT_EQ(expected[i], result[3][i]) <<
-//            "The vector bitwize XOR operations are wrong.";
-//        ASSERT_EQ(expected[i], result[4][i]) <<
-//            "The vector bitwize XOR operations are wrong.";
-//      }
-//    }
-//    {
-//      std::array<cl::int2, 5> result;
-//      buffer10->read(result.data(), result.size(), 0, 0);
-//      const cl::int2 expected{4, 4};
-//      for (std::size_t i = 0; i < expected.size(); ++i) {
-//        ASSERT_EQ(expected[i], result[0][i]) <<
-//            "The vector left shift operations are wrong.";
-//        ASSERT_EQ(expected[i], result[1][i]) <<
-//            "The vector left shift operations are wrong.";
-////        ASSERT_EQ(expected[i], result[2][i]) <<
-////            "The vector left shift operations are wrong.";
-//        ASSERT_EQ(expected[i], result[3][i]) <<
-//            "The vector left shift operations are wrong.";
-//        ASSERT_EQ(expected[i], result[4][i]) <<
-//            "The vector left shift operations are wrong.";
-//      }
-//    }
-//    {
-//      std::array<cl::int2, 5> result;
-//      buffer11->read(result.data(), result.size(), 0, 0);
-//      {
-//        const cl::int2 expected{4, 4};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[0][i]) <<
-//              "The vector right shift operations are wrong.";
-//          ASSERT_EQ(expected[i], result[1][i]) <<
-//              "The vector right shift operations are wrong.";
-//          ASSERT_EQ(expected[i], result[3][i]) <<
-//              "The vector right shift operations are wrong.";
-//          ASSERT_EQ(expected[i], result[4][i]) <<
-//              "The vector right shift operations are wrong.";
-//        }
-//      }
-////      {
-////        const cl::int2 expected{0, 0};
-////        ASSERT_EQ(expected, result[2]) <<
-////            "The vector right shift operations are wrong.";
-////      }
-//    }
-//    {
-//      std::array<cl::int3, 3> result;
-//      buffer12->read(result.data(), result.size(), 0, 0);
-//      {
-//        const cl::int3 expected{kVecFalse, kVecFalse, kVecTrue};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[0][i]) <<
-//              "The vector right boolean AND are wrong.";
-//          ASSERT_EQ(expected[i], result[1][i]) <<
-//              "The vector right boolean AND are wrong.";
-//          ASSERT_EQ(expected[i], result[2][i]) <<
-//              "The vector right boolean AND are wrong.";
-//        }
-//      }
-//    }
-//    {
-//      std::array<cl::int3, 3> result;
-//      buffer13->read(result.data(), result.size(), 0, 0);
-//      {
-//        const cl::int3 expected{kVecTrue, kVecFalse, kVecTrue};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[0][i]) <<
-//              "The vector right boolean OR are wrong.";
-//        }
-//      }
-//      {
-//        const cl::int3 expected{kVecTrue, kVecTrue, kVecTrue};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[1][i]) <<
-//              "The vector right boolean OR are wrong.";
-//          ASSERT_EQ(expected[i], result[2][i]) <<
-//              "The vector right boolean OR are wrong.";
-//        }
-//      }
-//    }
-//    {
-//      std::array<cl::int3, 11> result;
-//      buffer14->read(result.data(), result.size(), 0, 0);
-//      {
-//        const cl::int3 expected{kVecTrue, kVecFalse, kVecTrue};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[2][i])
-//              << "The vector equal operation is wrong.";
-//          ASSERT_NE(expected[i], result[3][i])
-//              << "The vector equal operation is wrong.";
-//        }
-//      }
-//      {
-//        const cl::int3 expected{kVecTrue, kVecTrue, kVecTrue};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[4][i])
-//              << "The vector equal operation is wrong.";
-//          ASSERT_NE(expected[i], result[5][i])
-//              << "The vector equal operation is wrong.";
-//          ASSERT_EQ(expected[i], result[6][i])
-//              << "The vector equal operation is wrong.";
-//          ASSERT_NE(expected[i], result[7][i])
-//              << "The vector equal operation is wrong.";
-//        }
-//      }
-//      {
-//        const cl::int3 expected{kVecFalse, kVecTrue, kVecFalse};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[8][i])
-//              << "The vector equal operation is wrong.";
-//          ASSERT_NE(expected[i], result[9][i])
-//              << "The vector equal operation is wrong.";
-//          ASSERT_EQ(expected[i], result[10][i])
-//              << "The vector equal operation is wrong.";
-//        }
-//      }
-//    }
-//    {
-//      std::array<cl::int3, 16> result;
-//      buffer15->read(result.data(), result.size(), 0, 0);
-//      {
-//        const cl::int3 expected{kVecTrue, kVecTrue, kVecFalse};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[4][i])
-//              << "The vector relation operations is wrong.";
-//          ASSERT_EQ(expected[i], result[8][i])
-//              << "The vector relation operations is wrong.";
-//          ASSERT_EQ(expected[i], result[14][i])
-//              << "The vector relation operations is wrong.";
-//        }
-//      }
-//      {
-//        const cl::int3 expected{kVecTrue, kVecFalse, kVecFalse};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[5][i])
-//              << "The vector relation operations is wrong.";
-//          ASSERT_EQ(expected[i], result[9][i])
-//              << "The vector relation operations is wrong.";
-//          ASSERT_EQ(expected[i], result[15][i])
-//              << "The vector relation operations is wrong.";
-//        }
-//      }
-//      {
-//        const cl::int3 expected{kVecFalse, kVecTrue, kVecTrue};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[6][i])
-//              << "The vector relation operations is wrong.";
-//          ASSERT_EQ(expected[i], result[10][i])
-//              << "The vector relation operations is wrong.";
-//          ASSERT_EQ(expected[i], result[12][i])
-//              << "The vector relation operations is wrong.";
-//        }
-//      }
-//      {
-//        const cl::int3 expected{kVecFalse, kVecFalse, kVecTrue};
-//        for (std::size_t i = 0; i < expected.size(); ++i) {
-//          ASSERT_EQ(expected[i], result[7][i])
-//              << "The vector relation operations is wrong.";
-//          ASSERT_EQ(expected[i], result[11][i])
-//              << "The vector relation operations is wrong.";
-//          ASSERT_EQ(expected[i], result[13][i])
-//              << "The vector relation operations is wrong.";
-//        }
-//      }
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
+TEST(DataTest, VectorOperationsTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto buffer1 = makeBuffer<cl::short2>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer1->setSize(1);
+    auto buffer2 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer2->setSize(1);
+    auto buffer3 = makeBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer3->setSize(1);
+    auto buffer4 = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer4->setSize(5);
+    auto buffer5 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer5->setSize(8);
+    auto buffer6 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer6->setSize(5);
+    auto buffer7 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer7->setSize(5);
+    auto buffer8 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer8->setSize(5);
+    auto buffer9 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer9->setSize(5);
+    auto buffer10 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer10->setSize(5);
+    auto buffer11 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer11->setSize(5);
+    auto buffer12 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer12->setSize(3);
+    auto buffer13 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer13->setSize(3);
+    auto buffer14 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer14->setSize(11);
+    auto buffer15 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer15->setSize(16);
+    auto buffer16 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer16->setSize(2);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testVectorOperations, 1);
+    kernel->run(*buffer1, *buffer2, *buffer3, *buffer4, *buffer5, *buffer6, *buffer7, *buffer8, *buffer9, *buffer10, *buffer11, *buffer12, *buffer13, *buffer14, *buffer15, *buffer16, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      const cl::short2 expected{20, 23};
+      cl::short2 result;
+      buffer1->read(&result, 1, 0, 0);
+      for (std::size_t i = 0; i < expected.size(); ++i) {
+        ASSERT_EQ(expected[i], result[i])
+            << "The vector addition operations are wrong.";
+      }
+    }
+    {
+      const cl::int3 expected{3, 2, 1};
+      cl::int3 result;
+      buffer2->read(&result, 1, 0, 0);
+      for (std::size_t i = 0; i < expected.size(); ++i) {
+        ASSERT_EQ(expected[i], result[i])
+            << "The vector subtraction operations are wrong.";
+      }
+    }
+    {
+      const cl::uint4 expected{540u, 1440u, 2772u, 4608u};
+      cl::uint4 result;
+      buffer3->read(&result, 1, 0, 0);
+      for (std::size_t i = 0; i < expected.size(); ++i) {
+        ASSERT_EQ(expected[i], result[i])
+            << "The vector multiplication operations are wrong.";
+      }
+    }
+    {
+      std::array<cl::float2, 5> result;
+      buffer4->read(result.data(), result.size(), 0, 0);
+      {
+        const cl::float2 expected{5.0f, 3.0f};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          EXPECT_EQ(expected[i], result[0][i])
+              << "The vector division operations are wrong.";
+        }
+      }
+      {
+        const cl::float2 expected{2.5f, 3.0f};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          EXPECT_EQ(expected[i], result[1][i])
+              << "The vector division operations are wrong.";
+        }
+      }
+      {
+        const cl::float2 expected{2.0f / 5.0f, 2.0f / 6.0f};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          EXPECT_EQ(expected[i], result[2][i])
+              << "The vector division operations are wrong.";
+        }
+      }
+      {
+        const cl::float2 expected{0.5f, 0.5f};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          EXPECT_EQ(expected[i], result[3][i])
+              << "The vector division operations are wrong.";
+        }
+      }
+      {
+        const cl::float2 expected{1.0f / 3.0f, 1.0f / 3.0f};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          EXPECT_EQ(expected[i], result[4][i])
+              << "The vector division operations are wrong.";
+        }
+      }
+    }
+    {
+      std::array<cl::int2, 8> result;
+      buffer5->read(result.data(), result.size(), 0, 0);
+      {
+        const cl::int2 expected{1, 2};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[0][i])
+              << "The vector pre-increment is wrong.";
+          ASSERT_EQ(expected[i], result[1][i])
+              << "The vector pre-increment is wrong.";
+          ASSERT_EQ(expected[i], result[2][i])
+              << "The vector post-increment is wrong.";
+        }
+      }
+      {
+        const cl::int2 expected{2, 3};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[3][i])
+              << "The vector pre-increment is wrong.";
+        }
+      }
+      {
+        const cl::int2 expected{-1, 0};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[4][i])
+              << "The vector pre-decrement is wrong.";
+          ASSERT_EQ(expected[i], result[5][i])
+              << "The vector pre-decrement is wrong.";
+          ASSERT_EQ(expected[i], result[6][i])
+              << "The vector post-decrement is wrong.";
+        }
+      }
+      {
+        const cl::int2 expected{-2, -1};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[7][i])
+              << "The vector pre-decrement is wrong.";
+        }
+      }
+    }
+    {
+      std::array<cl::int2, 5> result;
+      buffer6->read(result.data(), result.size(), 0, 0);
+      {
+        const cl::int2 expected{1, 1};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[0][i]) <<
+              "The vector reminder operations are wrong.";
+          ASSERT_EQ(expected[i], result[1][i]) <<
+              "The vector reminder operations are wrong.";
+          ASSERT_EQ(expected[i], result[3][i]) <<
+              "The vector reminder operations are wrong.";
+          ASSERT_EQ(expected[i], result[4][i]) <<
+              "The vector reminder operations are wrong.";
+        }
+      }
+      {
+        const cl::int2 expected{3, 3};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[2][i]) <<
+              "The vector reminder operations are wrong.";
+        }
+      }
+    }
+    {
+      std::array<cl::int2, 5> result;
+      buffer7->read(result.data(), result.size(), 0, 0);
+      const cl::int2 expected{3, 3};
+      for (std::size_t i = 0; i < expected.size(); ++i) {
+        ASSERT_EQ(expected[i], result[0][i]) <<
+            "The vector bitwize AND operations are wrong.";
+        ASSERT_EQ(expected[i], result[1][i]) <<
+            "The vector bitwize AND operations are wrong.";
+        ASSERT_EQ(expected[i], result[2][i]) <<
+            "The vector bitwize AND operations are wrong.";
+        ASSERT_EQ(expected[i], result[3][i]) <<
+            "The vector bitwize AND operations are wrong.";
+        ASSERT_EQ(expected[i], result[4][i]) <<
+            "The vector bitwize AND operations are wrong.";
+      }
+    }
+    {
+      std::array<cl::int2, 5> result;
+      buffer8->read(result.data(), result.size(), 0, 0);
+      const cl::int2 expected{7, 7};
+      for (std::size_t i = 0; i < expected.size(); ++i) {
+        ASSERT_EQ(expected[i], result[0][i]) <<
+            "The vector bitwize OR operations are wrong.";
+        ASSERT_EQ(expected[i], result[1][i]) <<
+            "The vector bitwize OR operations are wrong.";
+        ASSERT_EQ(expected[i], result[2][i]) <<
+            "The vector bitwize OR operations are wrong.";
+        ASSERT_EQ(expected[i], result[3][i]) <<
+            "The vector bitwize OR operations are wrong.";
+        ASSERT_EQ(expected[i], result[4][i]) <<
+            "The vector bitwize OR operations are wrong.";
+      }
+    }
+    {
+      std::array<cl::int2, 5> result;
+      buffer9->read(result.data(), result.size(), 0, 0);
+      const cl::int2 expected{~0 - 3, ~0 - 3};
+      for (std::size_t i = 0; i < expected.size(); ++i) {
+        ASSERT_EQ(expected[i], result[0][i]) <<
+            "The vector bitwize XOR operations are wrong.";
+        ASSERT_EQ(expected[i], result[1][i]) <<
+            "The vector bitwize XOR operations are wrong.";
+        ASSERT_EQ(expected[i], result[2][i]) <<
+            "The vector bitwize XOR operations are wrong.";
+        ASSERT_EQ(expected[i], result[3][i]) <<
+            "The vector bitwize XOR operations are wrong.";
+        ASSERT_EQ(expected[i], result[4][i]) <<
+            "The vector bitwize XOR operations are wrong.";
+      }
+    }
+    {
+      std::array<cl::int2, 5> result;
+      buffer10->read(result.data(), result.size(), 0, 0);
+      const cl::int2 expected{4, 4};
+      for (std::size_t i = 0; i < expected.size(); ++i) {
+        ASSERT_EQ(expected[i], result[0][i]) <<
+            "The vector left shift operations are wrong.";
+        ASSERT_EQ(expected[i], result[1][i]) <<
+            "The vector left shift operations are wrong.";
+        ASSERT_EQ(expected[i], result[2][i]) <<
+            "The vector left shift operations are wrong.";
+        ASSERT_EQ(expected[i], result[3][i]) <<
+            "The vector left shift operations are wrong.";
+      }
+    }
+    {
+      std::array<cl::int2, 5> result;
+      buffer11->read(result.data(), result.size(), 0, 0);
+      {
+        const cl::int2 expected{4, 4};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[0][i]) <<
+              "The vector right shift operations are wrong.";
+          ASSERT_EQ(expected[i], result[1][i]) <<
+              "The vector right shift operations are wrong.";
+          ASSERT_EQ(expected[i], result[2][i]) <<
+              "The vector right shift operations are wrong.";
+          ASSERT_EQ(expected[i], result[3][i]) <<
+              "The vector right shift operations are wrong.";
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 3> result;
+      buffer12->read(result.data(), result.size(), 0, 0);
+      {
+        const cl::int3 expected{kVecFalse, kVecFalse, kVecTrue};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[0][i]) <<
+              "The vector right boolean AND are wrong.";
+          ASSERT_EQ(expected[i], result[1][i]) <<
+              "The vector right boolean AND are wrong.";
+          ASSERT_EQ(expected[i], result[2][i]) <<
+              "The vector right boolean AND are wrong.";
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 3> result;
+      buffer13->read(result.data(), result.size(), 0, 0);
+      {
+        const cl::int3 expected{kVecTrue, kVecFalse, kVecTrue};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[0][i]) <<
+              "The vector right boolean OR are wrong.";
+        }
+      }
+      {
+        const cl::int3 expected{kVecTrue, kVecTrue, kVecTrue};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[1][i]) <<
+              "The vector right boolean OR are wrong.";
+          ASSERT_EQ(expected[i], result[2][i]) <<
+              "The vector right boolean OR are wrong.";
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 11> result;
+      buffer14->read(result.data(), result.size(), 0, 0);
+      {
+        const cl::int3 expected{kVecTrue, kVecFalse, kVecTrue};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_TRUE(result[0][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_FALSE(result[1][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_EQ(expected[i], result[2][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_NE(expected[i], result[3][i])
+              << "The vector equal operation is wrong.";
+        }
+      }
+      {
+        const cl::int3 expected{kVecTrue, kVecTrue, kVecTrue};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[4][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_NE(expected[i], result[5][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_EQ(expected[i], result[6][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_NE(expected[i], result[7][i])
+              << "The vector equal operation is wrong.";
+        }
+      }
+      {
+        const cl::int3 expected{kVecFalse, kVecTrue, kVecFalse};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[8][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_NE(expected[i], result[9][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_EQ(expected[i], result[10][i])
+              << "The vector equal operation is wrong.";
+        }
+      }
+    }
+    {
+      std::array<cl::int3, 16> result;
+      buffer15->read(result.data(), result.size(), 0, 0);
+      {
+        for (std::size_t i = 0; i < 3; ++i) {
+          ASSERT_TRUE(result[0][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_FALSE(result[1][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_TRUE(result[2][i])
+              << "The vector equal operation is wrong.";
+          ASSERT_FALSE(result[3][i])
+              << "The vector equal operation is wrong.";
+        }
+      }
+      {
+        const cl::int3 expected{kVecTrue, kVecTrue, kVecFalse};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[4][i])
+              << "The vector relation operations is wrong.";
+          ASSERT_EQ(expected[i], result[8][i])
+              << "The vector relation operations is wrong.";
+          ASSERT_EQ(expected[i], result[14][i])
+              << "The vector relation operations is wrong.";
+        }
+      }
+      {
+        const cl::int3 expected{kVecTrue, kVecFalse, kVecFalse};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[5][i])
+              << "The vector relation operations is wrong.";
+          ASSERT_EQ(expected[i], result[9][i])
+              << "The vector relation operations is wrong.";
+          ASSERT_EQ(expected[i], result[15][i])
+              << "The vector relation operations is wrong.";
+        }
+      }
+      {
+        const cl::int3 expected{kVecFalse, kVecTrue, kVecTrue};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[6][i])
+              << "The vector relation operations is wrong.";
+          ASSERT_EQ(expected[i], result[10][i])
+              << "The vector relation operations is wrong.";
+          ASSERT_EQ(expected[i], result[12][i])
+              << "The vector relation operations is wrong.";
+        }
+      }
+      {
+        const cl::int3 expected{kVecFalse, kVecFalse, kVecTrue};
+        for (std::size_t i = 0; i < expected.size(); ++i) {
+          ASSERT_EQ(expected[i], result[7][i])
+              << "The vector relation operations is wrong.";
+          ASSERT_EQ(expected[i], result[11][i])
+              << "The vector relation operations is wrong.";
+          ASSERT_EQ(expected[i], result[13][i])
+              << "The vector relation operations is wrong.";
+        }
+      }
+    }
+    {
+      std::array<cl::float4, 2> result;
+      buffer16->read(result.data(), result.size(), 0, 0);
+      for (std::size_t i = 0; i < 4; ++i) {
+        const float expected = zisc::cast<float>(i + 1);
+        ASSERT_FLOAT_EQ(expected, result[0][i])
+              << "The vector conditional operations is wrong.";
+      }
+      for (std::size_t i = 0; i < 4; ++i) {
+        const float expected = zisc::cast<float>(i + 5);
+        ASSERT_FLOAT_EQ(expected, result[1][i])
+              << "The vector conditional operations is wrong.";
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 //TEST(DataTest, HalfLoadStoreTest)
 //{
 //  using namespace zinvul;
@@ -1420,79 +1447,78 @@ TEST(DataTest, Uint16bBufferTest)
 //    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
 //  }
 //}
-//
-//TEST(DataTest, RelationalOperationsTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t num_scalars = 32;
-//    auto buffer1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer1->setSize(num_scalars);
-//    auto buffer2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer2->setSize(1);
-//    auto buffer3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer3->setSize(1);
-//    auto buffer4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer4->setSize(1);
-//
-//    auto kernel = makeZinvulKernel(device.get(), data, testRelationalOperations, 1);
-//    kernel->run(*buffer1, *buffer2, *buffer3, *buffer4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    {
-//      std::array<int32b, num_scalars> results;
-//      buffer1->read(results.data(), num_scalars, 0, 0);
-//      std::size_t scalar_index = 0;
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-////      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      scalar_index++;
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
+
+TEST(DataTest, RelationalOperationsTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t num_scalars = 32;
+    auto buffer1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer1->setSize(num_scalars);
+    auto buffer2 = makeBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer2->setSize(1);
+    auto buffer3 = makeBuffer<cl::int3>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer3->setSize(1);
+    auto buffer4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer4->setSize(1);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testRelationalOperations, 1);
+    kernel->run(*buffer1, *buffer2, *buffer3, *buffer4, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::array<int32b, num_scalars> results;
+      buffer1->read(results.data(), num_scalars, 0, 0);
+      std::size_t scalar_index = 0;
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_TRUE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+      EXPECT_FALSE(results[scalar_index++]) << "Relational operation is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
 
 TEST(DataTest, CastUint8bToFloat)
 {
@@ -1676,3 +1702,208 @@ TEST(DataTest, CastUint32bToFloat)
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
+
+TEST(DataTest, NumericLimitsTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto buffer1 = makeBuffer<int8b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer1->setSize(3);
+    auto buffer2 = makeBuffer<uint8b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer2->setSize(3);
+    auto buffer3 = makeBuffer<int16b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer3->setSize(3);
+    auto buffer4 = makeBuffer<uint16b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer4->setSize(3);
+    auto buffer5 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer5->setSize(3);
+    auto buffer6 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer6->setSize(3);
+    auto buffer7 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer7->setSize(6);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testNumericLimits, 1);
+    kernel->run(*buffer1, *buffer2, *buffer3, *buffer4, *buffer5, *buffer6, *buffer7, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<int8b> results;
+      results.resize(3);
+      buffer1->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(std::numeric_limits<int8b>::min(), results[i++])
+        << "The NumericLimits<int8b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int8b>::lowest(), results[i++])
+        << "The NumericLimits<int8b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int8b>::max(), results[i++])
+        << "The NumericLimits<int8b> is wrong.";
+    }
+
+    {
+      std::vector<uint8b> results;
+      results.resize(3);
+      buffer2->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(std::numeric_limits<uint8b>::min(), results[i++])
+        << "The NumericLimits<uint8b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint8b>::lowest(), results[i++])
+        << "The NumericLimits<uint8b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint8b>::max(), results[i++])
+        << "The NumericLimits<uint8b> is wrong.";
+    }
+
+    {
+      std::vector<int16b> results;
+      results.resize(3);
+      buffer3->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(std::numeric_limits<int16b>::min(), results[i++])
+        << "The NumericLimits<int16b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int16b>::lowest(), results[i++])
+        << "The NumericLimits<int16b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int16b>::max(), results[i++])
+        << "The NumericLimits<int16b> is wrong.";
+    }
+
+    {
+      std::vector<uint16b> results;
+      results.resize(3);
+      buffer4->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(std::numeric_limits<uint16b>::min(), results[i++])
+        << "The NumericLimits<uint16b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint16b>::lowest(), results[i++])
+        << "The NumericLimits<uint16b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint16b>::max(), results[i++])
+        << "The NumericLimits<uint16b> is wrong.";
+    }
+
+    {
+      std::vector<int32b> results;
+      results.resize(3);
+      buffer5->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(std::numeric_limits<int32b>::min(), results[i++])
+        << "The NumericLimits<int32b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int32b>::lowest(), results[i++])
+        << "The NumericLimits<int32b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int32b>::max(), results[i++])
+        << "The NumericLimits<int32b> is wrong.";
+    }
+
+    {
+      std::vector<uint32b> results;
+      results.resize(3);
+      buffer6->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(std::numeric_limits<uint32b>::min(), results[i++])
+        << "The NumericLimits<uint32b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint32b>::lowest(), results[i++])
+        << "The NumericLimits<uint32b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint32b>::max(), results[i++])
+        << "The NumericLimits<uint32b> is wrong.";
+    }
+
+    {
+      std::vector<float> results;
+      results.resize(6);
+      buffer7->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_FLOAT_EQ(std::numeric_limits<float>::min(), results[i++])
+        << "The NumericLimits<float> is wrong.";
+      ASSERT_FLOAT_EQ(std::numeric_limits<float>::lowest(), results[i++])
+        << "The NumericLimits<float> is wrong.";
+      ASSERT_FLOAT_EQ(std::numeric_limits<float>::max(), results[i++])
+        << "The NumericLimits<float> is wrong.";
+      ASSERT_FLOAT_EQ(std::numeric_limits<float>::epsilon(), results[i++])
+        << "The NumericLimits<float> is wrong.";
+      ASSERT_FLOAT_EQ(std::numeric_limits<float>::infinity(), results[i++])
+        << "The NumericLimits<float> is wrong.";
+      ASSERT_TRUE(std::isnan(results[i++]))
+        << "The NumericLimits<float> is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+
+}
+
+#if !defined(Z_MAC)
+
+TEST(DataTest, NumericLimits64Test)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto buffer1 = makeBuffer<int64b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer1->setSize(3);
+    auto buffer2 = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer2->setSize(3);
+    auto buffer3 = makeBuffer<double>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer3->setSize(6);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testNumericLimits64, 1);
+    kernel->run(*buffer1, *buffer2, *buffer3, {1}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<int64b> results;
+      results.resize(3);
+      buffer1->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(std::numeric_limits<int64b>::min(), results[i++])
+        << "The NumericLimits<int64b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int64b>::lowest(), results[i++])
+        << "The NumericLimits<int64b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int64b>::max(), results[i++])
+        << "The NumericLimits<int64b> is wrong.";
+    }
+
+    {
+      std::vector<uint64b> results;
+      results.resize(3);
+      buffer2->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(std::numeric_limits<uint64b>::min(), results[i++])
+        << "The NumericLimits<uint64b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint64b>::lowest(), results[i++])
+        << "The NumericLimits<uint64b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint64b>::max(), results[i++])
+        << "The NumericLimits<uint64b> is wrong.";
+    }
+
+    {
+      std::vector<double> results;
+      results.resize(6);
+      buffer3->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_DOUBLE_EQ(std::numeric_limits<double>::min(), results[i++])
+        << "The NumericLimits<double> is wrong.";
+      ASSERT_DOUBLE_EQ(std::numeric_limits<double>::lowest(), results[i++])
+        << "The NumericLimits<double> is wrong.";
+      ASSERT_DOUBLE_EQ(std::numeric_limits<double>::max(), results[i++])
+        << "The NumericLimits<double> is wrong.";
+      ASSERT_DOUBLE_EQ(std::numeric_limits<double>::epsilon(), results[i++])
+        << "The NumericLimits<double> is wrong.";
+      ASSERT_DOUBLE_EQ(std::numeric_limits<double>::infinity(), results[i++])
+        << "The NumericLimits<double> is wrong.";
+      ASSERT_TRUE(std::isnan(results[i++]))
+        << "The NumericLimits<double> is wrong.";
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+#endif // !Z_MAC
