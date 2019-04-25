@@ -11,32 +11,36 @@
 #define ZINVUL_RNG_TEST_RNG_CL
 
 // Zinvul
-#include "zinvul/cl/rng.cl"
+#include "zinvul/cl/correlated_multi_jittered_engine.cl"
+#include "zinvul/cl/floating_point.cl"
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
-///*!
-//  */
-//__kernel void testCmj(__global float* result_1d, __global float2* result_2d, const uint32b seed, const uint32b root_n, const uint32b num_of_samples)
-//{
-//  const uint32b index = zGetGlobalIdX();
-//  if (index == 0) {
-//    const uint32b n = root_n * root_n;
-//    // 1D random
-//    for (size_t sample = 0; sample < num_of_samples; ++sample) {
-//      const uint32b s = sample / n;
-//      const uint32b p = seed + sample % n;
-//      result_1d[sample] = zCmjDraw1D(s, p, root_n);
+using namespace zinvul;
+
+/*!
+  */
+__kernel void testCmj64(GlobalPtr<float> result_1d, GlobalPtr<float2> result_2d, const uint32b seed, const uint32b num_of_samples)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < num_of_samples) {
+    constexpr uint32b root_n = 8;
+    constexpr uint32b n = root_n * root_n;
+    // 1D random
+    {
+      const uint32b s = index / n;
+      const uint32b p = seed + index % n;
+      result_1d[index] = CmjN64::generate1D<float>(s, p);
+    }
+    // 2D random
+//    {
+//      const uint32b s = index / n;
+//      const uint32b p = seed + index % n;
+//      result_2d[sample] = CmjN64::generate2D(s, p);
 //    }
-//    // 2D random
-//    for (size_t sample = 0; sample < num_of_samples; ++sample) {
-//      const uint32b s = sample / n;
-//      const uint32b p = seed + sample % n;
-//      result_2d[sample] = zCmjDraw2D(s, p, root_n);
-//    }
-//  }
-//}
-//
+  }
+}
+
 ///*!
 //  */
 //__kernel void testCmjImage(__global float* image_buffer, const uint32b sample, const uint32b root_n, const uint32b resolution)

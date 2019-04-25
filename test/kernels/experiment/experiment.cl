@@ -14,7 +14,6 @@
 #include "zinvul/cl/atomic.cl"
 #include "zinvul/cl/math.cl"
 #include "zinvul/cl/matrix.cl"
-#include "zinvul/cl/rng.cl"
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 

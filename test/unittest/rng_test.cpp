@@ -24,69 +24,66 @@
 // Test
 #include "test.hpp"
 
-//TEST(RngTest, Cmj64Test)
-//{
-//  using namespace zinvul;
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr uint32b seed = 123456789u;
-//    constexpr uint32b root_n = 8;
-//    constexpr uint32b num_of_samples = 100;
-//    auto result_1d = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
-//    result_1d->setSize(num_of_samples);
-//    auto result_2d = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
-//    result_2d->setSize(num_of_samples);
-//    auto seed_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
-//    seed_buffer->setSize(1);
-//    seed_buffer->write(&seed, seed_buffer->size(), 0, 0);
-//    auto root_n_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
-//    root_n_buffer->setSize(1);
-//    root_n_buffer->write(&root_n, root_n_buffer->size(), 0, 0);
-//    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
-//    iteration_buffer->setSize(1);
-//    iteration_buffer->write(&num_of_samples, iteration_buffer->size(), 0, 0);
-//
-//    auto kernel = makeZinvulKernel(device.get(), rng, testCmj, 1);
-//    kernel->run(*result_1d, *result_2d, *seed_buffer, *root_n_buffer, *iteration_buffer, {1}, 0);
-//    device->waitForCompletion();
-//
-//    constexpr uint32b n = root_n * root_n;
-//    using CmjEngine = zisc::CorrelatedMultiJitteredEngine<root_n>;
-//    {
-//      std::vector<float> results;
-//      results.resize(num_of_samples);
-//      result_1d->read(results.data(), num_of_samples, 0, 0);
-//      for (uint32b sample = 0; sample < num_of_samples; ++sample) {
-//        const uint32b s = sample / n;
-//        const uint32b p = seed + sample % n;
-//        const auto expected = CmjEngine::template generate1D<float>(s, p);
-//        EXPECT_FLOAT_EQ(expected, results[sample])
-//            << "zCmjGenerate1D(" << s << "," << p << ") is wrong.";
-//      }
-//    }
-//    {
-//      std::vector<cl::float2> results;
-//      results.resize(num_of_samples);
-//      result_2d->read(results.data(), num_of_samples, 0, 0);
-//      for (uint32b sample = 0; sample < num_of_samples; ++sample) {
-//        const uint32b s = sample / n;
-//        const uint32b p = seed + sample % n;
-//        const auto expected = CmjEngine::template generate2D<float>(s, p);
-//        for (std::size_t i = 0; i < 2; ++i) {
-//          EXPECT_FLOAT_EQ(expected[i], results[sample][i])
-//              << "zCmjGenerate2D(" << s << "," << p << ") is wrong.";
-//        }
-//      }
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
+TEST(RngTest, Cmj64Test)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b root_n = 8;
+    const uint32b seed = 123456789u;
+    const uint32b num_of_samples = 8192;
+    auto result_1d = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
+    result_1d->setSize(num_of_samples);
+    auto result_2d = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
+    result_2d->setSize(num_of_samples);
+    auto seed_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    seed_buffer->setSize(1);
+    seed_buffer->write(&seed, seed_buffer->size(), 0, 0);
+    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    iteration_buffer->setSize(1);
+    iteration_buffer->write(&num_of_samples, iteration_buffer->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), rng, testCmj64, 1);
+    kernel->run(*result_1d, *result_2d, *seed_buffer, *iteration_buffer, {1}, 0);
+    device->waitForCompletion();
+
+    constexpr uint32b n = root_n * root_n;
+    using CmjEngine = zisc::CorrelatedMultiJitteredEngine<root_n>;
+    {
+      std::vector<float> results;
+      results.resize(num_of_samples);
+      result_1d->read(results.data(), num_of_samples, 0, 0);
+      for (uint32b sample = 0; sample < num_of_samples; ++sample) {
+        const uint32b s = sample / n;
+        const uint32b p = seed + sample % n;
+        const auto expected = CmjEngine::template generate1D<float>(s, p);
+        EXPECT_FLOAT_EQ(expected, results[sample])
+            << "zCmjGenerate1D(" << s << "," << p << ") is wrong.";
+      }
+    }
+    {
+      std::vector<cl::float2> results;
+      results.resize(num_of_samples);
+      result_2d->read(results.data(), num_of_samples, 0, 0);
+      for (uint32b sample = 0; sample < num_of_samples; ++sample) {
+        const uint32b s = sample / n;
+        const uint32b p = seed + sample % n;
+        const auto expected = CmjEngine::template generate2D<float>(s, p);
+        for (std::size_t i = 0; i < 2; ++i) {
+          EXPECT_FLOAT_EQ(expected[i], results[sample][i])
+              << "zCmjGenerate2D(" << s << "," << p << ") is wrong.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 ////TEST(RngTest, Cmj81Test)
 ////{
 ////  using namespace zinvul;
