@@ -19,6 +19,10 @@ using namespace zinvul;
 
 // Prototypes
 __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst);
+//__kernel void testGlobalInstance(GlobalPtr<uint32b> results,
+//    GlobalPtr<test::OptionTest> options);
+//__kernel void testLocalInstance(GlobalPtr<uint32b> results,
+//    ConstGlobalPtr<test::OptionTest> options);
 __kernel void copyBufferTest(ConstGlobalPtr<uint32b> src, GlobalPtr<uint32b> dst);
 __kernel void multiplyBufferTest(GlobalPtr<int32b> table, const uint32b resolution);
 __kernel void testInt8bBuffer(GlobalPtr<int8b> buffer);
@@ -70,77 +74,29 @@ __kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
 #endif // !Z_MAC
 __kernel void testArray(ConstGlobalPtr<uint32b> src,
     GlobalPtr<uint32b> dst);
+__kernel void testFnv1AHash32(GlobalPtr<uint32b> hash32_buffer);
+#if !defined(Z_MAC)
+__kernel void testFnv1AHash64(GlobalPtr<uint64b> hash64_buffer);
+#endif // !Z_MAC
 
 
 namespace test {
 
 struct PointerTest
 {
-  int32b v0_ = 5;
-  int32b v1_ = 10;
-  int32b v2_ = 15;
-  int32b v3_ = 20;
+  void init()
+  {
+    v0_ = 5;
+    v1_ = 10;
+    v2_ = 15;
+    v3_ = 20;
+  }
+
+  int32b v0_;
+  int32b v1_;
+  int32b v2_;
+  int32b v3_;
 };
-
-//class OptionTest
-//{
-// public:
-//  void init()
-//  {
-//    data_x_ = 0;
-//    data_y_ = 0;
-//    data_z_ = 0;
-//    data_w_ = 0;
-//  }
-//
-//  uint32b getValue() const
-//  {
-//    const uint32b v = data_y_ >> 16u;
-//    return v;
-//  }
-//
-//  void setValue(const uint32b v)
-//  {
-//    data_y_ = v << 16u;
-//  }
-//
-//  uint32b data_x_;
-//  uint32b data_y_;
-//  uint32b data_z_;
-//  uint32b data_w_;
-//};
-
-//inline
-//uint32b getOptionValue(ConstGlobalPtr<OptionTest> options)
-//{
-//  const uint32b v = options->data_y_ >> 16u;
-//  return v;
-//}
-//
-//inline
-//uint32b getOptionValue(ConstLocalPtr<OptionTest> options)
-//{
-//  const uint32b v = options->data_y_ >> 16u;
-//  return v;
-//}
-//
-//inline
-//void copy(ConstLocalPtr<OptionTest> src, PrivatePtr<OptionTest> dst)
-//{
-//  dst->data_x_ = src->data_x_;
-//  dst->data_y_ = src->data_y_;
-//  dst->data_z_ = src->data_z_;
-//  dst->data_w_ = src->data_w_;
-//}
-//
-//inline
-//void copy(ConstGlobalPtr<OptionTest> src, LocalPtr<OptionTest> dst)
-//{
-//  dst->data_x_ = src->data_x_;
-//  dst->data_y_ = src->data_y_;
-//  dst->data_z_ = src->data_z_;
-//  dst->data_w_ = src->data_w_;
-//}
 
 }
 
@@ -152,6 +108,8 @@ __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst)
   Local<test::PointerTest> storage[storage_size];
   const uint32b index = getGlobalIdX();
   if (index == 0) {
+    for (size_t i = 0; i < storage_size; ++i)
+      (storage + i)->init();
     size_t i = 0;
     {
       for (i = 0; i < 5; ++i)
@@ -178,6 +136,7 @@ __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst)
       dst[i++] = *s;
     }
     {
+      (storage + 3)->init();
       ConstLocalPtr<test::PointerTest> s{&storage[3]};
       dst[i++] = s->v2_;
       dst[i++] = s->v0_;
@@ -212,56 +171,93 @@ __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst)
   }
 }
 
-///*!
-//  */
-//__kernel void testGlobalInstance1(GlobalPtr<uint32b> results,
-//    ConstGlobalPtr<test::OptionTest> options)
-//{
-//  const uint32b index = getGlobalIdX();
-//  if (index == 0) {
-//    results[0] = test::getOptionValue(options);
-//  }
-//}
-//
-///*!
-//  */
-//__kernel void testGlobalInstance2(GlobalPtr<uint32b> results,
-//    const test::OptionTest options)
-//{
-//  const uint32b index = getGlobalIdX();
-//  if (index == 0) {
-//    results[0] = options.getValue();
-//  }
-//}
-//
-///*!
-//  */
-//__kernel void testLocalInstance1(GlobalPtr<uint32b> results,
-//    ConstGlobalPtr<test::OptionTest> o)
-//{
-//  Local<test::OptionTest> options[2];
-//  const uint32b index = getGlobalIdX();
-//  if (index == 0) {
-//    test::copy(o, options);
-//    ConstLocalPtr<test::OptionTest> option = &options[0];
-//    results[0] = test::getOptionValue(option);
-//  }
-//}
-//
-///*!
-//  */
-//__kernel void testLocalInstance2(GlobalPtr<uint32b> results,
-//    ConstGlobalPtr<test::OptionTest> o)
-//{
-//  Local<test::OptionTest> options[2];
-//  const uint32b index = getGlobalIdX();
-//  if (index == 0) {
-//    options->data_y_ = o->data_y_;
-//    test::OptionTest opt;
-//    test::copy(options, &opt);
-//    results[0] = opt.getValue();
-//  }
-//}
+namespace test {
+
+class OptionTest
+{
+ public:
+  void init()
+  {
+    data_x_ = 0;
+    data_y_ = 0;
+    data_z_ = 0;
+    data_w_ = 0;
+  }
+
+  uint32b getValue1() const
+  {
+    const uint32b v = data_y_ >> 16u;
+    return v;
+  }
+
+  uint32b getValue2() const
+  {
+    const uint32b v = data_z_ >> 8u;
+    return v;
+  }
+
+  uint32b getValue3() const
+  {
+    const uint32b v = data_w_ >> 24u;
+    return v;
+  }
+
+  void setValue1(const uint32b v)
+  {
+    data_y_ = v << 16u;
+  }
+
+  void setValue2(const uint32b v)
+  {
+    data_z_ = v << 8u;
+  }
+
+  void setValue3(const uint32b v)
+  {
+    data_w_ = v << 24u;
+  }
+
+  uint32b data_x_;
+  uint32b data_y_;
+  uint32b data_z_;
+  uint32b data_w_;
+};
+
+}
+
+/*!
+  */
+__kernel void testGlobalInstance(GlobalPtr<uint32b> results,
+    GlobalPtr<test::OptionTest> options)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    results[0] = options->getValue1();
+    options->setValue2(10);
+    results[1] = options[0].getValue3();
+  }
+}
+
+/*!
+  */
+__kernel void testLocalInstance(GlobalPtr<uint32b> results,
+    ConstGlobalPtr<test::OptionTest> o)
+{
+  constexpr size_t size = 2;
+  Local<test::OptionTest> options[size];
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    options->init();
+    // options[1].init(); //! \todo clspv crashes
+
+    options[0] = o[0];
+    // options[1] = o[0]; //! \todo clspv crashes
+    options[1].setValue2(10);
+    results[0] = options->getValue1();
+    results[1] = (options + 1)->getValue2();
+    results[2] = options[0].getValue3();
+  }
+}
 
 /*!
   */
@@ -825,62 +821,98 @@ __kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
 
 /*!
   */
-__kernel void testFnv1AHash(GlobalPtr<uint32b> hash32_buffer,
-    GlobalPtr<uint64b> hash64_buffer)
+__kernel void testFnv1AHash32(GlobalPtr<uint32b> hash32_buffer)
 {
   const uint32b index = getGlobalIdX();
   if (index == 0) {
     size_t i = 0;
     {
       const char seed[] = "";
-      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
       hash32_buffer[i++] = Fnv1aHash32::hash(seed);
       hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "a";
-      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
       hash32_buffer[i++] = Fnv1aHash32::hash(seed);
       hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "b";
-      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
       hash32_buffer[i++] = Fnv1aHash32::hash(seed);
       hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "foobar";
-      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
       hash32_buffer[i++] = Fnv1aHash32::hash(seed);
       hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
-    i = 0;
     {
-      const char seed[] = "";
-      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
-      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+      const uint8b seed = 'a';
+      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
     }
     {
-      const char seed[] = "a";
-      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
-      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+      const uint8b seed = 'b';
+      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
     }
     {
-      const char seed[] = "b";
-      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
-      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
-    }
-    {
-      const char seed[] = "foobar";
-      const size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
-      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+      const uint32b seed = 123'456'789u;
+      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
     }
   }
 }
+
+#if !defined(Z_MAC)
+
+/*!
+  */
+__kernel void testFnv1AHash64(GlobalPtr<uint64b> hash64_buffer)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    size_t i = 0;
+    {
+      const char seed[] = "";
+      constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    {
+      const char seed[] = "a";
+      constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    {
+      const char seed[] = "b";
+      constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    {
+      const char seed[] = "foobar";
+      constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+    }
+    {
+      const uint8b seed = 'a';
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+    }
+    {
+      const uint8b seed = 'b';
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+    }
+    {
+      const uint64b seed = 123'456'789u;
+      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+    }
+  }
+}
+
+#endif // !Z_MAC
 
 #endif /* ZINVUL_DATA_TEST_DATA_CL */

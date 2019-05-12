@@ -97,157 +97,89 @@ TEST(DataTest, PointerTest)
   }
 }
 
-//TEST(DataTest, GlobalInstance1Test)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    using GlobalOption = cl::test::OptionTest;
-//    GlobalOption option;
-//    option.init();
-//    option.setValue(15u);
-//
-//    auto buffer0 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer0->setSize(1);
-//
-//    auto buffer1 = makeBuffer<GlobalOption>(device.get(), BufferUsage::kDeviceTDst);
-//    buffer1->setSize(1);
-//    buffer1->write(&option, 1, 0, 0);
-//
-//    auto kernel = makeZinvulKernel(device.get(), data, testGlobalInstance1, 1);
-//    kernel->run(*buffer0, *buffer1, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "Global option test failed.";
-//    {
-//      std::array<uint32b, 1> results;
-//      buffer0->read(results.data(), results.size(), 0, 0);
-//
-//      ASSERT_EQ(option.getValue(), results[0]) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(DataTest, GlobalInstance2Test)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    using GlobalOption = cl::test::OptionTest;
-//    GlobalOption option;
-//    option.init();
-//    option.setValue(15u);
-//
-//    auto buffer0 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer0->setSize(1);
-//
-//    auto buffer1 = makeBuffer<GlobalOption>(device.get(), BufferUsage::kDeviceTDst);
-//    buffer1->setSize(1);
-//    buffer1->write(&option, 1, 0, 0);
-//
-//    auto kernel = makeZinvulKernel(device.get(), data, testGlobalInstance2, 1);
-//    kernel->run(*buffer0, *buffer1, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "Global option test failed.";
-//    {
-//      std::array<uint32b, 1> results;
-//      buffer0->read(results.data(), results.size(), 0, 0);
-//
-//      ASSERT_EQ(option.getValue(), results[0]) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(DataTest, LocalInstance1Test)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    using GlobalOption = cl::test::OptionTest;
-//    GlobalOption option;
-//    option.init();
-//    option.setValue(15u);
-//
-//    auto buffer0 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer0->setSize(1);
-//
-//    auto buffer1 = makeBuffer<GlobalOption>(device.get(), BufferUsage::kDeviceTDst);
-//    buffer1->setSize(1);
-//    buffer1->write(&option, 1, 0, 0);
-//
-//    auto kernel = makeZinvulKernel(device.get(), data, testLocalInstance1, 1);
-//    kernel->run(*buffer0, *buffer1, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "Global option test failed.";
-//    {
-//      std::array<uint32b, 1> results;
-//      buffer0->read(results.data(), results.size(), 0, 0);
-//
-//      ASSERT_EQ(option.getValue(), results[0]) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(DataTest, LocalInstance2Test)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    using GlobalOption = cl::test::OptionTest;
-//    GlobalOption option;
-//    option.init();
-//    option.setValue(15u);
-//
-//    auto buffer0 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
-//    buffer0->setSize(1);
-//
-//    auto buffer1 = makeBuffer<GlobalOption>(device.get(), BufferUsage::kDeviceTDst);
-//    buffer1->setSize(1);
-//    buffer1->write(&option, 1, 0, 0);
-//
-//    auto kernel = makeZinvulKernel(device.get(), data, testLocalInstance2, 1);
-//    kernel->run(*buffer0, *buffer1, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "Global option test failed.";
-//    {
-//      std::array<uint32b, 1> results;
-//      buffer0->read(results.data(), results.size(), 0, 0);
-//
-//      ASSERT_EQ(option.getValue(), results[0]) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
+TEST(DataTest, GlobalInstanceTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    using GlobalOption = cl::test::OptionTest;
+    GlobalOption option;
+    option.init();
+    option.setValue1(5u);
+    option.setValue3(15u);
+
+    auto buffer0 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer0->setSize(2);
+
+    auto buffer1 = makeBuffer<GlobalOption>(device.get(), BufferUsage::kDeviceTSrcDst);
+    buffer1->setSize(1);
+    buffer1->write(&option, 1, 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testGlobalInstance, 1);
+    kernel->run(*buffer0, *buffer1, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "Global option test failed.";
+    {
+      std::array<uint32b, 2> results;
+      buffer0->read(results.data(), results.size(), 0, 0);
+      GlobalOption result_option;
+      buffer1->read(&result_option, 1, 0, 0);
+
+      ASSERT_EQ(5u, results[0]) << error_message;
+      ASSERT_EQ(10u, result_option.getValue2()) << error_message;
+      ASSERT_EQ(15u, results[1]) << error_message;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(DataTest, LocalInstanceTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    using GlobalOption = cl::test::OptionTest;
+    GlobalOption option;
+    option.init();
+    option.setValue1(5u);
+    option.setValue3(15u);
+
+    auto buffer0 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer0->setSize(3);
+
+    auto buffer1 = makeBuffer<GlobalOption>(device.get(), BufferUsage::kDeviceTDst);
+    buffer1->setSize(1);
+    buffer1->write(&option, 1, 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testLocalInstance, 1);
+    kernel->run(*buffer0, *buffer1, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "Global option test failed.";
+    {
+      std::array<uint32b, 3> results;
+      buffer0->read(results.data(), results.size(), 0, 0);
+
+      ASSERT_EQ(5u, results[0]) << error_message;
+      ASSERT_EQ(10u, results[1]) << error_message;
+      ASSERT_EQ(15u, results[2]) << error_message;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
 
 TEST(DataTest, CopyBufferTest)
 {
@@ -1908,7 +1840,7 @@ TEST(DataTest, NumericLimits64Test)
 
 #endif // !Z_MAC
 
-TEST(DataTest, Fnv1AHashTest)
+TEST(DataTest, Fnv1AHash32Test)
 {
   using namespace zinvul;
 
@@ -1919,17 +1851,15 @@ TEST(DataTest, Fnv1AHashTest)
     std::cout << getTestDeviceInfo(*device);
 
     auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
-    buffer1->setSize(8);
-    auto buffer2 = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
-    buffer2->setSize(8);
+    buffer1->setSize(11);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testFnv1AHash, 1);
-    kernel->run(*buffer1, *buffer2, {1}, 0);
+    auto kernel = makeZinvulKernel(device.get(), data, testFnv1AHash32, 1);
+    kernel->run(*buffer1, {1}, 0);
     device->waitForCompletion();
 
     {
       std::vector<uint32b> results;
-      results.resize(8);
+      results.resize(11);
       buffer1->read(results.data(), results.size(), 0, 0);
       std::size_t i = 0;
       ASSERT_EQ(0x811c9dc5, results[i++])
@@ -1948,12 +1878,40 @@ TEST(DataTest, Fnv1AHashTest)
         << "The Fnv1aHash32 is wrong.";
       ASSERT_EQ(0xbf9cf968, results[i++])
         << "The Fnv1aHash32 is wrong.";
+      ASSERT_EQ(0xe40c292c, results[i++])
+        << "The Fnv1aHash32 is wrong.";
+      ASSERT_EQ(0xe70c2de5, results[i++])
+        << "The Fnv1aHash32 is wrong.";
+      std::cout << "  hash32(123'456'789) = " << results[i++] << std::endl;
     }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+#if !defined(Z_MAC)
+
+TEST(DataTest, Fnv1AHash64Test)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto buffer1 = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer1->setSize(11);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testFnv1AHash64, 1);
+    kernel->run(*buffer1, {1}, 0);
+    device->waitForCompletion();
 
     {
       std::vector<uint64b> results;
-      results.resize(8);
-      buffer2->read(results.data(), results.size(), 0, 0);
+      results.resize(11);
+      buffer1->read(results.data(), results.size(), 0, 0);
       std::size_t i = 0;
       ASSERT_EQ(0xcbf29ce484222325, results[i++])
         << "The Fnv1aHash64 is wrong.";
@@ -1971,9 +1929,15 @@ TEST(DataTest, Fnv1AHashTest)
         << "The Fnv1aHash64 is wrong.";
       ASSERT_EQ(0x85944171f73967e8, results[i++])
         << "The Fnv1aHash64 is wrong.";
+      ASSERT_EQ(0xaf63dc4c8601ec8c, results[i++])
+        << "The Fnv1aHash64 is wrong.";
+      ASSERT_EQ(0xaf63df4c8601f1a5, results[i++])
+        << "The Fnv1aHash64 is wrong.";
+      std::cout << "  hash64(123'456'789) = " << results[i++] << std::endl;
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
 
+#endif // !Z_MAC

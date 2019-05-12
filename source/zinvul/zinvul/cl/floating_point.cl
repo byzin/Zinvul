@@ -50,6 +50,14 @@ class FloatingPoint
       ConditionalType<kFormat == FloatingPointFormat::kDouble, ulong2, void>>>;
 
 
+  //! Expand an input value to the bittype size
+  template <typename UInt>
+  static BitType expandToBit(const UInt x) noexcept;
+
+  //! Expand an input value to the bittype size
+  template <typename UInt2>
+  static Bit2Type expandToBit2(const UInt2 x) noexcept;
+
   //! Return the exponent bias
   static constexpr size_t exponentBias() noexcept;
 
@@ -63,7 +71,7 @@ class FloatingPoint
   static FloatType mapTo01(const BitType x) noexcept;
 
   //! Map an unsigned integer into a [0, 1) float
-//  static Float2Type mapTo01(const Bit2Type x) noexcept;
+  static Float2Type mapTo01(const Bit2Type x) noexcept;
 
   //! Return the sign bit mask
   static constexpr BitType signBitMask() noexcept;
@@ -86,5 +94,7 @@ using FloatingPointFromBytes =
     ConditionalType<kBytes == sizeof(double), DoubleFloat, void>>>;
 
 } // namespace zinvul
+
+#include "floating_point-inl.cl"
 
 #endif // ZINVUL_FLOATING_POINT_CL

@@ -32,11 +32,11 @@ Float CorrelatedMultiJitteredEngine<kRootN>::generate1D(
 
   const uint32b sx = permute<n>(s, p * 0x68bc21ebu);
   const uint32b h = hash(s, p * 0x967a889bu);
-  auto x = FPoint::mapTo01(h);
-//
-//  // Random jitter
-//  constexpr auto inv_n = static_cast<Float>(1.0) / static_cast<Float>(n);
-//  x = inv_n * (static_cast<Float>(sx) + x);
+  Private<Float> x = FPoint::mapTo01(FPoint::expandToBit(h));
+
+  // Random jitter
+  constexpr auto inv_n = static_cast<Float>(1.0) / static_cast<Float>(n);
+  x = inv_n * (cast<Float>(sx) + x);
 
   return x;
 }
@@ -48,27 +48,26 @@ Float2 CorrelatedMultiJitteredEngine<kRootN>::generate2D(
     uint32b s,
     const uint32b p) noexcept
 {
-  return float2{0.0f, 0.0f};
-//  using Float = decltype(Float2{}.x);
-//  using FPoint = FloatingPointFromBytes<sizeof(Float)>;
-//
-//  constexpr uint32b n = getPeriod();
-//
-//  s = permute<n>(s, p * 0x51633e2du);
-//
-//  const uint2 s2{s / kRootN, s % kRootN};
-//  const uint2 sx = permute<kRootN>(s2, uint2{p * 0x68bc21ebu, p * 0x02e5be93u});
-//  auto x = FPoint::mapTo01(hash(uint2{s, s},
-//                                uint2{p * 0x967a889bu, p * 0x368cc8b7u}));
-//
-//  // Random jitter
-//  constexpr auto inv_n = static_cast<Float>(1.0) / static_cast<Float>(n);
-//  constexpr auto inv_root_n = static_cast<Float>(1.0) / static_cast<Float>(kRootN);
-//  x.x = inv_root_n *
-//        (static_cast<Float>(sx.x) + inv_root_n * (static_cast<Float>(sx.y) + x));
-//  x.y = inv_n * (static_cast<Float>(s) + x.y);
-//
-//  return x;
+  using FPoint = FloatingPointFromBytes<sizeof(Float2) / 2>;
+  using Float = typename FPoint::FloatType;
+
+  constexpr uint32b root_n = getRootPeriod();
+  constexpr uint32b n = root_n * root_n;
+
+  s = permute<n>(s, p * 0x51633e2du);
+
+  const uint2 s2{s % root_n, s / root_n};
+  const uint2 sx = permute<root_n>(s2, uint2{p * 0x68bc21ebu, p * 0x02e5be93u});
+  const uint2 h2 = hash(uint2{s, s}, uint2{p * 0x967a889bu, p * 0x368cc8b7u});
+  Private<Float2> x = FPoint::mapTo01(FPoint::expandToBit2(h2));
+
+  // Random jitter
+  constexpr auto inv_n = static_cast<Float>(1.0) / static_cast<Float>(n);
+  constexpr auto inv_root_n = static_cast<Float>(1.0) / static_cast<Float>(root_n);
+  x.x = inv_root_n * (cast<Float>(sx.x) + inv_root_n * (cast<Float>(sx.y) + x.x));
+  x.y = inv_n * (cast<Float>(s) + x.y);
+
+  return x;
 }
 
 /*!
@@ -76,8 +75,18 @@ Float2 CorrelatedMultiJitteredEngine<kRootN>::generate2D(
 template <uint32b kRootN> inline
 constexpr size_t CorrelatedMultiJitteredEngine<kRootN>::getPeriod() noexcept
 {
-  const size_t period = kRootN * kRootN;
+  const size_t root_period = getRootPeriod();
+  const size_t period = root_period * root_period;
   return period;
+}
+
+/*!
+  */
+template <uint32b kRootN> inline
+constexpr size_t CorrelatedMultiJitteredEngine<kRootN>::getRootPeriod() noexcept
+{
+  const size_t root_period = kRootN;
+  return root_period;
 }
 
 /*!
@@ -111,39 +120,15 @@ UInteger CorrelatedMultiJitteredEngine<kRootN>::hash(UInteger i,
 
 /*!
   */
-template <uint32b kRootN> template <typename UInteger> inline
-constexpr UInteger CorrelatedMultiJitteredEngine<kRootN>::makeWMask(
-    UInteger w) noexcept
-{
-  w |= w >> 1u;
-  w |= w >> 2u;
-  w |= w >> 4u;
-  w |= w >> 8u;
-  w |= w >> 16u;
-  return w;
-}
-
-/*!
-  */
 template <uint32b kRootN> template <uint32b l, typename UInteger> inline
 UInteger CorrelatedMultiJitteredEngine<kRootN>::permute(
     UInteger i,
     const UInteger p) noexcept
 {
-  constexpr bool is_power_of_2 = (1u < l) && (0u < (l & (l - 1u)));
-  constexpr uint32b w = makeWMask(l - 1u);
-  if (is_power_of_2) {
-    // fast case
-    i = permuteImpl<w>(i, p);
-    i = (i + p) & w;
-  }
-  else {
-    // slow case
-    do {
-      i = permuteImpl<w>(i, p);
-    } while (l <= i);
-    i = (i + p) % l;
-  }
+  constexpr uint32b w = l - 1u;
+  // fast case
+  i = permuteImpl<w>(i, p);
+  i = (i + p) & w;
   return i;
 }
 

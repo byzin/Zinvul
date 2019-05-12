@@ -353,44 +353,48 @@ Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
 
 /*!
   */
-template <typename Type, std::size_t kN> inline
-Vector<Type, kN>& operator<<=(Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+template <typename Type1, typename Type2, std::size_t kN> inline
+Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
+                               const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
+  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
+  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   lhs = lhs << rhs;
   return lhs;
 }
 
 /*!
   */
-template <typename Type, std::size_t kN> inline
-Vector<Type, kN>& operator<<=(Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept
+template <typename Type1, typename Type2, std::size_t kN> inline
+Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
+                               const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
+  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
+  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   lhs = lhs << rhs;
   return lhs;
 }
 
 /*!
   */
-template <typename Type, std::size_t kN> inline
-Vector<Type, kN>& operator>>=(Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+template <typename Type1, typename Type2, std::size_t kN> inline
+Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
+                               const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
+  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
+  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   lhs = lhs >> rhs;
   return lhs;
 }
 
 /*!
   */
-template <typename Type, std::size_t kN> inline
-Vector<Type, kN>& operator>>=(Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept
+template <typename Type1, typename Type2, std::size_t kN> inline
+Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
+                               const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
+  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
+  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   lhs = lhs >> rhs;
   return lhs;
 }
@@ -740,12 +744,13 @@ Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
 
 /*!
   */
-template <typename Type, std::size_t kN> inline
-Vector<Type, kN> operator<<(const Vector<Type, kN>& lhs,
-                            const Vector<Type, kN>& rhs) noexcept
+template <typename Type1, typename Type2, std::size_t kN> inline
+Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
+                             const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
+  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
+  Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
     result[index] = lhs[index] << rhs[index];
   return result;
@@ -753,12 +758,13 @@ Vector<Type, kN> operator<<(const Vector<Type, kN>& lhs,
 
 /*!
   */
-template <typename Type, std::size_t kN> inline
-Vector<Type, kN> operator<<(const Type& lhs,
-                            const Vector<Type, kN>& rhs) noexcept
+template <typename Type1, typename Type2, std::size_t kN> inline
+Vector<Type1, kN> operator<<(const Type1& lhs,
+                             const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
+  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
+  Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
     result[index] = lhs << rhs[index];
   return result;
@@ -766,12 +772,13 @@ Vector<Type, kN> operator<<(const Type& lhs,
 
 /*!
   */
-template <typename Type, std::size_t kN> inline
-Vector<Type, kN> operator<<(const Vector<Type, kN>& lhs,
-                            const Type& rhs) noexcept
+template <typename Type1, typename Type2, std::size_t kN> inline
+Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
+                             const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
+  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
+  Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
     result[index] = lhs[index] << rhs;
   return result;
@@ -779,12 +786,13 @@ Vector<Type, kN> operator<<(const Vector<Type, kN>& lhs,
 
 /*!
   */
-template <typename Type, std::size_t kN> inline
-Vector<Type, kN> operator>>(const Vector<Type, kN>& lhs,
-                            const Vector<Type, kN>& rhs) noexcept
+template <typename Type1, typename Type2, std::size_t kN> inline
+Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
+                             const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
+  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
+  Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
     result[index] = lhs[index] >> rhs[index];
   return result;
@@ -792,12 +800,13 @@ Vector<Type, kN> operator>>(const Vector<Type, kN>& lhs,
 
 /*!
   */
-template <typename Type, std::size_t kN> inline
-Vector<Type, kN> operator>>(const Type& lhs,
-                            const Vector<Type, kN>& rhs) noexcept
+template <typename Type1, typename Type2, std::size_t kN> inline
+Vector<Type1, kN> operator>>(const Type1& lhs,
+                             const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
+  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
+  Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
     result[index] = lhs >> rhs[index];
   return result;
@@ -805,12 +814,13 @@ Vector<Type, kN> operator>>(const Type& lhs,
 
 /*!
   */
-template <typename Type, std::size_t kN> inline
-Vector<Type, kN> operator>>(const Vector<Type, kN>& lhs,
-                            const Type& rhs) noexcept
+template <typename Type1, typename Type2, std::size_t kN> inline
+Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
+                             const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
+  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
+  Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
     result[index] = lhs[index] >> rhs;
   return result;

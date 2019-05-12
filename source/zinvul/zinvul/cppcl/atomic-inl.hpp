@@ -26,7 +26,7 @@ namespace zinvul {
 
 namespace cl {
 
-static thread_local zisc::SpinLockMutex* __mutex = nullptr; //!< Referred by all cl atomic functions
+extern thread_local zisc::SpinLockMutex* __mutex; //!< Referred by all cl atomic functions
 
 /*!
   */

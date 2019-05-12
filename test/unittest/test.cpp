@@ -14,8 +14,6 @@
 #include <limits>
 #include <string>
 #include <vector>
-// GoogleTest
-#include "gtest/gtest.h"
 // Zisc
 #include "zisc/math.hpp"
 #include "zisc/unique_memory_pointer.hpp"
@@ -26,14 +24,6 @@
 #ifdef ZINVUL_ENABLE_VULKAN_BACKEND
 #include "zinvul/vulkan/vulkan_device.hpp"
 #endif // ZINVUL_ENABLE_VULKAN_BACKEND
-
-/*!
-  */
-int main(int argc, char** argv)
-{
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
 
 std::vector<zinvul::UniqueDevice> makeTestDeviceList(zinvul::DeviceOptions& options)
 {

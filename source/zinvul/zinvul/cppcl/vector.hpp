@@ -200,24 +200,24 @@ Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
                              const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
-Vector<Type, kN>& operator<<=(Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept;
+template <typename Type1, typename Type2, std::size_t kN>
+Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
+                               const Vector<Type2, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
-Vector<Type, kN>& operator<<=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+template <typename Type1, typename Type2, std::size_t kN>
+Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
+                               const Type2& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
-Vector<Type, kN>& operator>>=(Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept;
+template <typename Type1, typename Type2, std::size_t kN>
+Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
+                               const Vector<Type2, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
-Vector<Type, kN>& operator>>=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+template <typename Type1, typename Type2, std::size_t kN>
+Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
+                               const Type2& rhs) noexcept;
 
 //! Pre-increment a vector
 template <typename Type, std::size_t kN>
@@ -364,34 +364,34 @@ Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept;
 
 //! Compute a left shift
-template <typename Type, std::size_t kN>
-Vector<Type, kN> operator<<(const Vector<Type, kN>& lhs,
-                            const Vector<Type, kN>& rhs) noexcept;
+template <typename Type1, typename Type2, std::size_t kN>
+Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
+                             const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a left shift
-template <typename Type, std::size_t kN>
-Vector<Type, kN> operator<<(const Type& lhs,
-                            const Vector<Type, kN>& rhs) noexcept;
+template <typename Type1, typename Type2, std::size_t kN>
+Vector<Type1, kN> operator<<(const Type1& lhs,
+                             const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a left shift
-template <typename Type, std::size_t kN>
-Vector<Type, kN> operator<<(const Vector<Type, kN>& lhs,
-                            const Type& rhs) noexcept;
+template <typename Type1, typename Type2, std::size_t kN>
+Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
+                             const Type2& rhs) noexcept;
 
 //! Compute a right shift
-template <typename Type, std::size_t kN>
-Vector<Type, kN> operator>>(const Vector<Type, kN>& lhs,
-                            const Vector<Type, kN>& rhs) noexcept;
+template <typename Type1, typename Type2, std::size_t kN>
+Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
+                             const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a right shift
-template <typename Type, std::size_t kN>
-Vector<Type, kN> operator>>(const Type& lhs,
-                            const Vector<Type, kN>& rhs) noexcept;
+template <typename Type1, typename Type2, std::size_t kN>
+Vector<Type1, kN> operator>>(const Type1& lhs,
+                             const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a right shift
-template <typename Type, std::size_t kN>
-Vector<Type, kN> operator>>(const Vector<Type, kN>& lhs,
-                            const Type& rhs) noexcept;
+template <typename Type1, typename Type2, std::size_t kN>
+Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
+                             const Type2& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <typename Type, std::size_t kN>

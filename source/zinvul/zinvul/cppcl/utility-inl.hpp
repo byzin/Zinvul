@@ -28,8 +28,8 @@ namespace zinvul {
 
 namespace cl {
 
-static thread_local std::array<uint32b, 3> __work_group_id{{0, 0, 0}}; //!< Referred by cl get_group_id()
-static thread_local std::array<uint32b, 3> __work_group_size{{0, 0, 0}}; //!< Referred by cl get_group_size()
+extern thread_local std::array<uint32b, 3> __work_group_id; //!< Referred by cl get_group_id()
+extern thread_local std::array<uint32b, 3> __work_group_size; //!< Referred by cl get_group_size()
 
 /*!
   */

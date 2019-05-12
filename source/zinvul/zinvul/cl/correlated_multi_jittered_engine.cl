@@ -28,22 +28,25 @@ class CorrelatedMultiJitteredEngine
 
   //! Generate a [0, 1) float random numbers
   template <typename Float2>
-  static Float2 generate2D(const uint32b s, const uint32b p) noexcept;
+  static Float2 generate2D(uint32b s, const uint32b p) noexcept;
 
   //! Return the period
   static constexpr size_t getPeriod() noexcept;
+
+  //! Return the root of the period
+  static constexpr size_t getRootPeriod() noexcept;
 
   //! Check if a specified sample (0 base count) is the end of period
   static constexpr bool isEndOfPeriod(const uint32b sample) noexcept;
 
  private:
+  static_assert(1u < kRootN, "The kRootN must be greater than 1.");
+  static_assert((kRootN & (kRootN - 1)) == 0, "The kRootN must be power of 2.");
+
+
   //! Hash the i value
   template <typename UInteger>
   static UInteger hash(UInteger i, const UInteger p) noexcept;
-
-  //! Make a w mask
-  template <typename UInteger>
-  static constexpr UInteger makeWMask(UInteger w) noexcept;
 
   //! Permutation
   template <uint32b l, typename UInteger>
