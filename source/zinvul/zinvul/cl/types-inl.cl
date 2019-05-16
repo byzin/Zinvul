@@ -55,6 +55,13 @@ using PrivatePtr =
 template <typename Type>
 using ConstPrivatePtr =
     typename AddressSpacePointer<const Type, AddressSpaceType::kPrivate>::ConstPointer;
+// Generic
+template <typename Type>
+using Generic = Type;
+template <typename Type>
+using GenericPtr = PrivatePtr<Type>;
+template <typename Type>
+using ConstGenericPtr = ConstPrivatePtr<Type>;
 #else // Vulkan
 // Integer types
 typedef char int8b;
@@ -93,6 +100,13 @@ template <typename Type>
 using PrivatePtr = Private<Type>*;
 template <typename Type>
 using ConstPrivatePtr = const Private<Type>*;
+// Generic
+template <typename Type>
+using Generic = __generic Type;
+template <typename Type>
+using GenericPtr = Generic<Type>*;
+template <typename Type>
+using ConstGenericPtr = const Generic<Type>*;
 #endif
 
 } // namespace inner
@@ -159,6 +173,10 @@ static_assert(sizeof(inner::PrivatePtr<int>) == sizeof(void*),
               "The size of PrivatePtr is wrong.");
 static_assert(sizeof(inner::ConstPrivatePtr<int>) == sizeof(const void*),
               "The size of PrivatePtr is wrong.");
+static_assert(sizeof(inner::GenericPtr<int>) == sizeof(void*),
+              "The size of GenericPtr is wrong.");
+static_assert(sizeof(inner::ConstGenericPtr<int>) == sizeof(const void*),
+              "The size of ConstGenericPtr is wrong.");
 
 } // namespace zinvul
 

@@ -10,6 +10,7 @@
 #ifndef ZINVUL_DATA_TEST_DATA_CL
 #define ZINVUL_DATA_TEST_DATA_CL
 
+#include "zinvul/cl/array.cl"
 #include "zinvul/cl/fnv_1a_hash_engine.cl"
 #include "zinvul/cl/limits.cl"
 #include "zinvul/cl/types.cl"
@@ -788,36 +789,36 @@ __kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
 
 /*!
   */
-//__kernel void testArray(ConstGlobalPtr<uint32b> src,
-//    GlobalPtr<uint32b> dst)
-//{
-//  constexpr size_t n = 5;
-//  const uint32b index = getGlobalIdX();
-//  if (index == 0) {
-//    size_t idx = 0;
-//    // Construct
-//    Array<uint32b, n> array;
-//    for (size_t i = 0; i < array.size(); ++i)
-//      array.set(i, i + 1);
-//    for (const auto value : array)
-//      dst[idx++] = value;
-//    array.fill(2);
-//    for (const auto value : array)
-//      dst[idx++] = value;
-//    // Access
-//    for (size_t i = 0; i < array.size(); ++i) {
-//      array[i] = src[i];
-//      dst[idx++] = array[i];
-//    }
-//    // Iterator
-//    uint32b sum = 0;
-//    for (auto ite = array.begin(); ite != array.end(); ++ite)
-//      sum += *ite;
-//    // min max
-//    dst[idx++] = array.getMinIndex();
-//    dst[idx++] = array.getMaxIndex();
-//  }
-//}
+__kernel void testArray(ConstGlobalPtr<uint32b> src,
+    GlobalPtr<uint32b> dst)
+{
+  constexpr size_t n = 5;
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    size_t idx = 0;
+    // Construct
+    Private<Array<uint32b, n>> array;
+    for (size_t i = 0; i < array.size(); ++i)
+      array.set(i, i + 1);
+    for (const auto value : array)
+      dst[idx++] = value;
+    array.fill(2);
+    for (const auto value : array)
+      dst[idx++] = value;
+    // Access
+    for (size_t i = 0; i < array.size(); ++i) {
+      array[i] = src[i];
+      dst[idx++] = array[i];
+    }
+    // Iterator
+    uint32b sum = 0;
+    for (auto ite = array.begin(); ite != array.end(); ++ite)
+      sum += *ite;
+    // min max
+    dst[idx++] = array.getMinIndex();
+    dst[idx++] = array.getMaxIndex();
+  }
+}
 
 /*!
   */

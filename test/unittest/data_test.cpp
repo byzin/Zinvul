@@ -1840,6 +1840,54 @@ TEST(DataTest, NumericLimits64Test)
 
 #endif // !Z_MAC
 
+TEST(DataTest, ArrayTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer1->setSize(5);
+    {
+      std::array<uint32b, 5> src{{6, 7, 8, 9, 10}};
+      buffer1->write(src.data(), src.size(), 0, 0);
+    }
+    auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer2->setSize(17);
+
+    auto kernel = makeZinvulKernel(device.get(), data, testArray, 1);
+    kernel->run(*buffer1, *buffer2, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The class 'Array' is wrong.";
+    {
+      std::vector<uint32b> results;
+      results.resize(buffer2->size());
+      buffer2->read(results.data(), results.size(), 0, 0);
+      std::size_t index = 0;
+      for (std::size_t i = 0; i < 5; ++i) {
+        const uint32b expected = i + 1;
+        ASSERT_EQ(expected, results[index++]) << error_message;
+      }
+      for (std::size_t i = 0; i < 5; ++i) {
+        const uint32b expected = 2;
+        ASSERT_EQ(expected, results[index++]) << error_message;
+      }
+      for (std::size_t i = 0; i < 5; ++i) {
+        const uint32b expected = i + 6;
+        ASSERT_EQ(expected, results[index++]) << error_message;
+      }
+      ASSERT_EQ(0, results[index++]) << error_message;
+      ASSERT_EQ(4, results[index++]) << error_message;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
 TEST(DataTest, Fnv1AHash32Test)
 {
   using namespace zinvul;

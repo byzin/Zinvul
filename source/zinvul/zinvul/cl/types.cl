@@ -52,6 +52,13 @@ template <typename Type>
 using PrivatePtr = inner::PrivatePtr<Type>;
 template <typename Type>
 using ConstPrivatePtr = inner::ConstPrivatePtr<Type>;
+// Generic
+template <typename Type>
+using Generic = inner::Generic<Type>;
+template <typename Type>
+using GenericPtr = inner::GenericPtr<Type>;
+template <typename Type>
+using ConstGenericPtr = inner::ConstGenericPtr<Type>;
 
 } // namespace zinvul
 

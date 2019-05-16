@@ -12,6 +12,7 @@
 
 #include "hash_engine.cl"
 // Zinvul
+#include "array.cl"
 #include "limits.cl"
 #include "types.cl"
 #include "utility.cl"
@@ -52,13 +53,14 @@ ResultType HashEngine<HashClass, ResultType>::hash(
 {
   // Make a seed array
   constexpr size_t n = sizeof(UInteger);
-  uint8b seed_array[n];
+//  uint8b seed_array[n];
+  Private<Array<uint8b, n>> seed_array;
   for (size_t i = 0; i < n; ++i) {
     constexpr auto mask = static_cast<UInteger>(NumericLimits<uint8b>::max());
     seed_array[i] = cast<uint8b>(mask & (seed >> (8u * i)));
   }
   // Hash the seed
-  return hash(&seed_array[0], n);
+  return hash(seed_array.data(), n);
 }
 
 } // namespace zinvul
