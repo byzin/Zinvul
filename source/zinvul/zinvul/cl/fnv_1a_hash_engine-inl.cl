@@ -61,7 +61,7 @@ template <typename ResultType> template <typename Int8> inline
 ResultType Fnv1aHashEngine<ResultType>::hashValue(const Int8* inputs,
                                                   const size_t n) noexcept
 {
-  Private<ResultType> x = inner::Fnv1aHashEngineImpl<ResultType>::offset();
+  auto x = inner::Fnv1aHashEngineImpl<ResultType>::offset();
   for (size_t i = 0; i < n; ++i) {
     x = (x ^ cast<ResultType>(inputs[i])) *
         inner::Fnv1aHashEngineImpl<ResultType>::prime();

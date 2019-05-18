@@ -18,12 +18,16 @@
 
 using namespace zinvul;
 
+namespace test {
+class OptionTest;
+} // namespace test
+
 // Prototypes
 __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst);
-//__kernel void testGlobalInstance(GlobalPtr<uint32b> results,
-//    GlobalPtr<test::OptionTest> options);
-//__kernel void testLocalInstance(GlobalPtr<uint32b> results,
-//    ConstGlobalPtr<test::OptionTest> options);
+__kernel void testGlobalInstance(GlobalPtr<uint32b> results,
+    GlobalPtr<test::OptionTest> options);
+__kernel void testLocalInstance(GlobalPtr<uint32b> results,
+    ConstGlobalPtr<test::OptionTest> options);
 __kernel void copyBufferTest(ConstGlobalPtr<uint32b> src, GlobalPtr<uint32b> dst);
 __kernel void multiplyBufferTest(GlobalPtr<int32b> table, const uint32b resolution);
 __kernel void testInt8bBuffer(GlobalPtr<int8b> buffer);

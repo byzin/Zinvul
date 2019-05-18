@@ -1870,7 +1870,7 @@ TEST(DataTest, ArrayTest)
       buffer2->read(results.data(), results.size(), 0, 0);
       std::size_t index = 0;
       for (std::size_t i = 0; i < 5; ++i) {
-        const uint32b expected = i + 1;
+        const uint32b expected = zisc::cast<uint32b>(i + 1);
         ASSERT_EQ(expected, results[index++]) << error_message;
       }
       for (std::size_t i = 0; i < 5; ++i) {
@@ -1878,7 +1878,7 @@ TEST(DataTest, ArrayTest)
         ASSERT_EQ(expected, results[index++]) << error_message;
       }
       for (std::size_t i = 0; i < 5; ++i) {
-        const uint32b expected = i + 6;
+        const uint32b expected = zisc::cast<uint32b>(i + 6);
         ASSERT_EQ(expected, results[index++]) << error_message;
       }
       ASSERT_EQ(0, results[index++]) << error_message;

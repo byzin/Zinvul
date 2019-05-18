@@ -32,7 +32,7 @@ Float CorrelatedMultiJitteredEngine<kRootN>::generate1D(
 
   const uint32b sx = permute<n>(s, p * 0x68bc21ebu);
   const uint32b h = hash(s, p * 0x967a889bu);
-  Private<Float> x = FPoint::mapTo01(FPoint::expandToBit(h));
+  auto x = FPoint::mapTo01(FPoint::expandToBit(h));
 
   // Random jitter
   constexpr auto inv_n = static_cast<Float>(1.0) / static_cast<Float>(n);
@@ -59,7 +59,7 @@ Float2 CorrelatedMultiJitteredEngine<kRootN>::generate2D(
   const uint2 s2{s % root_n, s / root_n};
   const uint2 sx = permute<root_n>(s2, uint2{p * 0x68bc21ebu, p * 0x02e5be93u});
   const uint2 h2 = hash(uint2{s, s}, uint2{p * 0x967a889bu, p * 0x368cc8b7u});
-  Private<Float2> x = FPoint::mapTo01(FPoint::expandToBit2(h2));
+  auto x = FPoint::mapTo01(FPoint::expandToBit2(h2));
 
   // Random jitter
   constexpr auto inv_n = static_cast<Float>(1.0) / static_cast<Float>(n);

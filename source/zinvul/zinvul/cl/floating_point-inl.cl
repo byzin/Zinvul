@@ -98,7 +98,7 @@ constexpr size_t FloatingPoint<kFormat>::exponentBitSize() noexcept
 template <FloatingPointFormat kFormat> inline
 auto FloatingPoint<kFormat>::mapTo01(const BitType x) noexcept -> FloatType
 {
-  constexpr Private<FloatType> k =
+  constexpr auto k =
       static_cast<FloatType>(1.0) /
       static_cast<FloatType>(static_cast<BitType>(1) << (significandBitSize() + 1));
   return k * cast<FloatType>(x >> exponentBitSize());
@@ -109,7 +109,7 @@ auto FloatingPoint<kFormat>::mapTo01(const BitType x) noexcept -> FloatType
 template <FloatingPointFormat kFormat> inline
 auto FloatingPoint<kFormat>::mapTo01(const Bit2Type x) noexcept -> Float2Type
 {
-  constexpr Private<FloatType> k =
+  constexpr auto k =
       static_cast<FloatType>(1.0) /
       static_cast<FloatType>(static_cast<BitType>(1) << (significandBitSize() + 1));
   return k * cast<Float2Type>(x >> exponentBitSize());
