@@ -39,6 +39,7 @@ struct DeviceOptions
   uint32b app_version_patch_ = 0;
   // CPU options
   uint32b cpu_num_of_threads_ = 0; //!< 0: Optimal number of threads
+  uint32b task_bucket_size_ = 64; //!< Bucket size of tasks per thread
   // Vulkan options
   uint32b vulkan_device_number_ = 0;
 };
@@ -55,16 +56,8 @@ class Device : private zisc::NonCopyable<Device>
   virtual ~Device() noexcept;
 
 
-  //! Return the workgroup size for the work dimension
-  template <std::size_t kDimension>
-  std::array<uint32b, 3> calcWorkGroupSize(
-      const std::array<uint32b, kDimension>& works) const noexcept;
-
   //! Return the device type
   virtual DeviceType deviceType() const noexcept = 0;
-
-  //! Initialize workgroup size
-  void initWorkgroupSize(const uint32b subgroup_size) noexcept;
 
   //! Returna a memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;
@@ -82,14 +75,10 @@ class Device : private zisc::NonCopyable<Device>
   void setMemoryUsage(const std::size_t memory_usage) noexcept;
 
   //! Return the subgroup size
-  uint32b subgroupSize() const noexcept;
+  virtual uint32b subgroupSize() const noexcept = 0;
 
   //! Wait this thread until all commands in the queue are completed
   virtual void waitForCompletion() const noexcept = 0;
-
-  //! Return the workgroup size for the work dimension
-  template <std::size_t kDimension>
-  const std::array<uint32b, 3>& workgroupSize() const noexcept;
 
   //! Returna a work resource
   zisc::pmr::memory_resource* workResource() noexcept;
@@ -102,7 +91,6 @@ class Device : private zisc::NonCopyable<Device>
   zisc::pmr::memory_resource* work_resource_;
   std::size_t memory_usage_ = 0;
   std::size_t max_memory_usage_ = 0;
-  std::array<std::array<uint32b, 3>, 3> workgroup_size_list_;
 };
 
 // Type aliases

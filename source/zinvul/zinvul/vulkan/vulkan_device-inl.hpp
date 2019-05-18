@@ -103,6 +103,22 @@ void VulkanDevice::allocate(const std::size_t size,
 
 /*!
   */
+template <std::size_t kDimension> inline
+std::array<uint32b, 3> VulkanDevice::calcWorkGroupSize(
+    const std::array<uint32b, kDimension>& works) const noexcept
+{
+  std::array<uint32b, 3> work_group_size{{1, 1, 1}};
+  const auto& local_work_size = localWorkSize<kDimension>();
+  for (std::size_t i = 0; i < kDimension; ++i) {
+    work_group_size[i] = ((works[i] % local_work_size[i]) == 0)
+        ? works[i] / local_work_size[i]
+        : works[i] / local_work_size[i] + 1;
+  }
+  return work_group_size;
+}
+
+/*!
+  */
 inline
 vk::CommandPool& VulkanDevice::commandPool() noexcept
 {
@@ -339,6 +355,35 @@ bool VulkanDevice::hasShaderModule(const std::size_t index) const noexcept
 
 /*!
   */
+inline
+void VulkanDevice::initLocalWorkSize(const uint32b subgroup_size) noexcept
+{
+  for (uint32b dim = 1; dim <= local_work_size_list_.size(); ++dim) {
+    std::array<uint32b, 3> local_work_size{{1, 1, 1}};
+    const auto product = [](const std::array<uint32b, 3>& s)
+    {
+      return std::accumulate(s.begin(), s.end(), 1u, std::multiplies<uint32b>());
+    };
+    for (uint32b i = 0; product(local_work_size) < subgroup_size; i = (i + 1) % dim)
+      local_work_size[i] *= 2;
+    ZISC_ASSERT(product(local_work_size) == subgroup_size,
+                "The subgroup size should be power of 2: ", subgroup_size);
+    local_work_size_list_[dim - 1] = local_work_size;
+  }
+}
+
+/*!
+  */
+template <std::size_t kDimension> inline
+const std::array<uint32b, 3>& VulkanDevice::localWorkSize() const noexcept
+{
+  static_assert((0 < kDimension) && (kDimension <= 3),
+                "The dimension is out of range.");
+  return local_work_size_list_[kDimension - 1];
+}
+
+/*!
+  */
 template <typename Type> inline
 UniqueBuffer<Type> VulkanDevice::makeBuffer(const BufferUsage usage_flag) noexcept
 {
@@ -402,6 +447,14 @@ void VulkanDevice::setShaderModule(const zisc::pmr::vector<uint32b>& spirv_code,
   auto [result, shader_module] = device_.createShaderModule(create_info);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Shader module creation failed.");
   shader_module_list_[index] = shader_module;
+}
+
+/*!
+  */
+inline
+uint32b VulkanDevice::subgroupSize() const noexcept
+{
+  return local_work_size_list_[0][0];
 }
 
 /*!
@@ -788,7 +841,7 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
     subgroup_size = zisc::isInClosedBounds(subgroup_size, 1u, 128u)
         ? subgroup_size
         : getVendorSubgroupSize(info.properties_.vendorID);
-    initWorkgroupSize(subgroup_size);
+    initLocalWorkSize(subgroup_size);
   }
 
   initDevice();

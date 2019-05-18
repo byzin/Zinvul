@@ -72,6 +72,11 @@ class VulkanDevice : public Device
   template <typename Type>
   void allocate(const std::size_t size, VulkanBuffer<Type>* buffer) noexcept;
 
+  //! Return the workgroup size for the work dimension
+  template <std::size_t kDimension>
+  std::array<uint32b, 3> calcWorkGroupSize(
+      const std::array<uint32b, kDimension>& works) const noexcept;
+
   //! Return the command pool
   vk::CommandPool& commandPool() noexcept;
 
@@ -116,6 +121,13 @@ class VulkanDevice : public Device
   //! Check if the device has the shader module
   bool hasShaderModule(const std::size_t index) const noexcept;
 
+  //! Initialize local-work size
+  void initLocalWorkSize(const uint32b subgroup_size) noexcept;
+
+  //! Return the local-work size for the work dimension
+  template <std::size_t kDimension>
+  const std::array<uint32b, 3>& localWorkSize() const noexcept;
+
   //! Make a buffer
   template <typename Type>
   UniqueBuffer<Type> makeBuffer(const BufferUsage usage_flag) noexcept;
@@ -136,6 +148,9 @@ class VulkanDevice : public Device
   //! Set a shader module
   void setShaderModule(const zisc::pmr::vector<uint32b>& spirv_code,
                        const std::size_t index) noexcept;
+
+  //! Return the subgroup size
+  uint32b subgroupSize() const noexcept override;
 
   //! Submit a command
   void submit(const uint32b queue_index,
@@ -218,6 +233,7 @@ class VulkanDevice : public Device
   VmaAllocator allocator_ = VK_NULL_HANDLE;
   uint32b queue_family_index_ = std::numeric_limits<uint32b>::max();
   uint32b memory_type_index_ = std::numeric_limits<uint32b>::max();
+  std::array<std::array<uint32b, 3>, 3> local_work_size_list_;
 };
 
 } // namespace zinvul

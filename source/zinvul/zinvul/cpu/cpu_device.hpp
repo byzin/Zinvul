@@ -66,6 +66,9 @@ class CpuDevice : public Device
   //! Return the number of threads
   std::size_t numOfThreads() const noexcept;
 
+  //! Return the subgroup size
+  uint32b subgroupSize() const noexcept override;
+
   //! Submit a command
   template <std::size_t kDimension>
   void submit(const std::array<uint32b, kDimension>& works,
@@ -75,8 +78,18 @@ class CpuDevice : public Device
   void waitForCompletion() const noexcept override;
 
  private:
+  //! Expand the given work-group size array to 3d work-group size array
+  template <std::size_t kDimension>
+  std::array<uint32b, 3> expandTo3dWorkGroupSize(
+      const std::array<uint32b, kDimension>& works) const noexcept;
+
+  //! Return the task bucket size
+  uint32b taskBucketSize() const noexcept;
+
+
   zisc::ThreadManager thread_manager_;
   zisc::SpinLockMutex mutex_;
+  uint32b task_bucket_size_;
 };
 
 } // namespace zinvul

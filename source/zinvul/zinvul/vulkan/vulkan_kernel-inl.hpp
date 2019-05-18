@@ -180,7 +180,7 @@ void VulkanKernel<KGroupType, kDimension, ArgumentTypes...>::initComputePipeline
     const char* kernel_name) noexcept
 {
   // Set work group size
-  const auto& workgroup_size = device_->workgroupSize<kDimension>();
+  const auto& local_work_size = device_->localWorkSize<kDimension>();
   const vk::SpecializationMapEntry entries[] = {
     {0, 0 * sizeof(uint32b), sizeof(uint32b)},
     {1, 1 * sizeof(uint32b), sizeof(uint32b)},
@@ -188,7 +188,7 @@ void VulkanKernel<KGroupType, kDimension, ArgumentTypes...>::initComputePipeline
   const vk::SpecializationInfo info{3,  
                                     entries,
                                     3 * sizeof(uint32b),
-                                    workgroup_size.data()};
+                                    local_work_size.data()};
   // Shader stage create info
   const auto& shader_module = device_->getShaderModule(module_index);
   const vk::PipelineShaderStageCreateInfo shader_stage_create_info{

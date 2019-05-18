@@ -20,6 +20,7 @@
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/function_reference.hpp"
+#include "zisc/math.hpp"
 #include "zisc/memory_resource.hpp"
 #include "zisc/thread_manager.hpp"
 #include "zisc/unique_memory_pointer.hpp"
@@ -39,10 +40,9 @@ namespace zinvul {
 inline
 CpuDevice::CpuDevice(DeviceOptions& options) noexcept :
     Device(options),
-    thread_manager_{options.cpu_num_of_threads_, memoryResource()}
+    thread_manager_{options.cpu_num_of_threads_, memoryResource()},
+    task_bucket_size_{zisc::max(options.task_bucket_size_, 1u)}
 {
-  initWorkgroupSize(1);
-  ZISC_ASSERT(0 < subgroupSize(), "The subgroup size is zero.");
 }
 
 /*!
@@ -111,6 +111,14 @@ std::size_t CpuDevice::numOfThreads() const noexcept
 
 /*!
   */
+inline
+uint32b CpuDevice::subgroupSize() const noexcept
+{
+  return 1;
+}
+
+/*!
+  */
 template <std::size_t kDimension> inline
 void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
                        const Command& command) noexcept
@@ -118,13 +126,21 @@ void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
   std::atomic<uint32b> id{0};
   auto task = [this, &command, &works, &id](const uint, const uint)
   {
-    const uint32b n = std::accumulate(works.begin(), works.end(),
-                                      1u, std::multiplies<uint32b>());
+    const auto group_size = expandTo3dWorkGroupSize(works);
+    const uint32b num_of_works = group_size[0] * group_size[1] * group_size[2];
+    const uint32b n = ((num_of_works % taskBucketSize()) == 0)
+        ? num_of_works / taskBucketSize()
+        : num_of_works / taskBucketSize() + 1;
     cl::__setMutex(&mutex_);
-    cl::__setWorkGroupSize(calcWorkGroupSize(works));
-    for (uint32b group_id = id++; group_id < n; group_id = id++) {
-      cl::__setWorkGroupId(group_id);
-      command();
+    cl::__setWorkGroupSize(group_size);
+    for (uint32b bucket_id = id++; bucket_id < n; bucket_id = id++) {
+      for (uint32b i = 0; i < taskBucketSize(); ++i) {
+        const uint32b group_id = bucket_id * taskBucketSize() + i;
+        if (group_id < num_of_works) {
+          cl::__setWorkGroupId(group_id);
+          command();
+        }
+      }
     }
   };
 
@@ -139,6 +155,26 @@ void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
 inline
 void CpuDevice::waitForCompletion() const noexcept
 {
+}
+
+/*!
+  */
+template <std::size_t kDimension> inline
+std::array<uint32b, 3> CpuDevice::expandTo3dWorkGroupSize(
+    const std::array<uint32b, kDimension>& works) const noexcept
+{
+  std::array<uint32b, 3> work_group_size{{1, 1, 1}};
+  for (std::size_t i = 0; i < kDimension; ++i)
+    work_group_size[i] = works[i];
+  return work_group_size;
+}
+
+/*!
+  */
+inline
+uint32b CpuDevice::taskBucketSize() const noexcept
+{
+  return task_bucket_size_;
 }
 
 } // namespace zinvul
