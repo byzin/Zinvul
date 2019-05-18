@@ -60,134 +60,54 @@ uint32b getGlobalIdY() noexcept;
 //! Return the global work-item ID of z dimension
 uint32b getGlobalIdZ() noexcept;
 
-///*!
-//  */
-//uint32b zGetLocalSize(const uint32b dimension)
-//{
-//  const uint32b size = get_local_size(dimension);
-//  return size;
-//}
-//
-///*!
-//  */
-//uint32b zGetLocalSizeX()
-//{
-//  const uint32b size = zGetLocalSize(0);
-//  return size;
-//}
-//
-///*!
-//  */
-//uint32b zGetLocalSizeY()
-//{
-//  const uint32b size = zGetLocalSize(1);
-//  return size;
-//}
-//
-///*!
-//  */
-//uint32b zGetLocalSizeZ()
-//{
-//  const uint32b size = zGetLocalSize(2);
-//  return size;
-//}
-//
-///*!
-//  */
-//uint32b zGetLocalId(const uint32b dimension)
-//{
-//  const uint32b id = get_local_id(dimension);
-//  return id;
-//}
-//
-///*!
-//  */
-//uint32b zGetLocalIdX()
-//{
-//  const uint32b id = zGetLocalId(0);
-//  return id;
-//}
-//
-///*!
-//  */
-//uint32b zGetLocalIdY()
-//{
-//  const uint32b id = zGetLocalId(1);
-//  return id;
-//}
-//
-///*!
-//  */
-//uint32b zGetLocalIdZ()
-//{
-//  const uint32b id = zGetLocalId(2);
-//  return id;
-//}
-//
-///*!
-//  */
-//uint32b zGetNumGroups(const uint32b dimension)
-//{
-//  const uint32b size = get_num_groups(dimension);
-//  return size;
-//}
-//
-///*!
-//  */
-//uint32b zGetNumGroupsX()
-//{
-//  const uint32b size = zGetNumGroups(0);
-//  return size;
-//}
-//
-///*!
-//  */
-//uint32b zGetNumGroupsY()
-//{
-//  const uint32b size = zGetNumGroups(1);
-//  return size;
-//}
-//
-///*!
-//  */
-//uint32b zGetNumGroupsZ()
-//{
-//  const uint32b size = zGetNumGroups(2);
-//  return size;
-//}
-//
-///*!
-//  */
-//uint32b zGetGroupId(const uint32b dimension)
-//{
-//  const uint32b id = get_group_id(dimension);
-//  return id;
-//}
-//
-///*!
-//  */
-//uint32b zGetGroupIdX()
-//{
-//  const uint32b id = zGetGroupId(0);
-//  return id;
-//}
-//
-///*!
-//  */
-//uint32b zGetGroupIdY()
-//{
-//  const uint32b id = zGetGroupId(1);
-//  return id;
-//}
-//
-///*!
-//  */
-//uint32b zGetGroupIdZ()
-//{
-//  const uint32b id = zGetGroupId(2);
-//  return id;
-//}
-//
+//! Return the number of local work-items
+uint32b getLocalSize(const uint32b dimension) noexcept;
+
+//! Return the number of local work-items of x dimension
+uint32b getLocalSizeX() noexcept;
+
+//! Return the number of local work-items of y dimension
+uint32b getLocalSizeY() noexcept;
+
+//! Return the number of local work-items of z dimension
+uint32b getLocalSizeZ() noexcept;
+
+//! Return the local work-item ID
+uint32b getLocalId(const uint32b dimension) noexcept;
+
+//! Return the local work-item ID of x dimension
+uint32b getLocalIdX() noexcept;
+
+//! Return the local work-item ID of y dimension
+uint32b getLocalIdY() noexcept;
+
+//! Return the local work-item ID of z dimension
+uint32b getLocalIdZ() noexcept;
+
+//! Return the number of work-groups
+uint32b getNumGroups(const uint32b dimension) noexcept;
+
+//! Return the number of work-groups of x dimension
+uint32b getNumGroupsX() noexcept;
+
+//! Return the number of work-groups of y dimension
+uint32b getNumGroupsY() noexcept;
+
+//! Return the number of work-groups of z dimension
+uint32b getNumGroupsZ() noexcept;
+
+//! Return the work-group ID
+uint32b getGroupId(const uint32b dimension) noexcept;
+
+//! Return the work-group ID of x dimension
+uint32b getGroupIdX() noexcept;
+
+//! Return the work-group ID of y dimension
+uint32b getGroupIdY() noexcept;
+
+//! Return the work-group ID of z dimension
+uint32b getGroupIdZ() noexcept;
+
 ///*!
 //  */
 //char2 zMakeChar2(const int8b x, const int8b y)

@@ -23,6 +23,7 @@
 #include "zinvul/cppcl/address_space_pointer.hpp"
 #include "zinvul/cppcl/atomic.hpp"
 #include "zinvul/cppcl/math.hpp"
+#include "zinvul/cppcl/memory_fence.hpp"
 #include "zinvul/cppcl/relational.hpp"
 #include "zinvul/cppcl/types.hpp"
 #include "zinvul/cppcl/utility.hpp"

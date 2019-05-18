@@ -137,6 +137,15 @@ class Atomic
   //! Perform atomic addition
   static int32b add(GlobalPtr<int32b> p, const int32b value) noexcept;
 
+  //! Perform atomic addition
+  static uint32b add(GlobalPtr<uint32b> p, const uint32b value) noexcept;
+
+  //! Perform atomic post-increment
+  static int32b increment(GlobalPtr<int32b> p) noexcept;
+
+  //! Perform atomic post-increment
+  static uint32b increment(GlobalPtr<uint32b> p) noexcept;
+
  private:
 };
 

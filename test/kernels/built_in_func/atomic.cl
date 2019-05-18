@@ -11,11 +11,49 @@
 #define ZINVUL_BUILT_IN_FUNC_TEST_ATOMIC_CL
 
 // Zinvul
+#include "zinvul/cl/array.cl"
 #include "zinvul/cl/atomic.cl"
+#include "zinvul/cl/memory_fence.cl"
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
 using namespace zinvul;
+
+// Forward declaration
+__kernel void testLocalMemoryFence(GlobalPtr<uint32b> table,
+    GlobalPtr<uint32b> results,
+    const uint32b resolution);
+__kernel void testAtomicAddGlobalPositive(GlobalPtr<int32b> result,
+    GlobalPtr<int32b> table,
+    const uint32b resolution);
+
+/*!
+  */
+__kernel void testLocalMemoryFence(GlobalPtr<uint32b> table,
+    GlobalPtr<uint32b> results,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+
+  constexpr size_t cache_size = 128;
+  Local<Array<uint32b, cache_size>> cache;
+
+  // Initialize the local cache
+  const uint32b local_index = getLocalIdX();
+  {
+    cache[local_index] = local_index + 1;
+    MemoryFence::performLocalBarrier();
+  }
+
+  if (index < resolution) {
+    table[index] = cache[local_index];
+
+    uint32b sum = 0;
+    for (size_t i = 0; i < getLocalSizeX(); ++i)
+      sum += cache[i];
+    results[index] = sum;
+  }
+}
 
 ///*!
 //  */
