@@ -11,7 +11,7 @@
 #define ZINVUL_ATOMIC_CL
 
 #include "types.cl"
-#include "utility.cl"
+//#include "utility.cl"
 
 ////! Perform atomic addition
 //#define zAtomicAdd(p, value) atomic_add(p, value)
@@ -126,5 +126,22 @@
 //  }
 //
 //#endif
+
+namespace zinvul {
+
+/*!
+  */
+class Atomic
+{
+ public:
+  //! Perform atomic addition
+  static int32b add(GlobalPtr<int32b> p, const int32b value) noexcept;
+
+ private:
+};
+
+} // namespace zinvul
+
+#include "atomic-inl.cl"
 
 #endif /* ZINVUL_ATOMIC_CL */

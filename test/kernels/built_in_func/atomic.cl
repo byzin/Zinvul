@@ -15,6 +15,8 @@
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
+using namespace zinvul;
+
 ///*!
 //  */
 //kernel void initAtomicTest(global int32b* add_table, global int32b* add_result,
@@ -149,18 +151,21 @@
 //    }
 //  }
 //}
-//
-///*!
-//  */
-//kernel void testAtomicAddPositive(global int32b* result, global int32b* table, const uint32b resolution)
-//{
-//  const uint32b index = zGetGlobalIdX();
-//  if (index < resolution) {
-//    const int32b i = atomic_add(result, 1);
-//    table[i] = 1;
-//  }
-//}
-//
+
+/*!
+  */
+__kernel void testAtomicAddGlobalPositive(GlobalPtr<int32b> result,
+    GlobalPtr<int32b> table,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    const int32b old = Atomic::add(result, 1);
+    const size_t i = cast<size_t>(old);
+    table[i] = 1;
+  }
+}
+
 ///*!
 //  */
 //kernel void testAtomicAddNegative(global int32b* result, global int32b* table, const uint32b resolution)

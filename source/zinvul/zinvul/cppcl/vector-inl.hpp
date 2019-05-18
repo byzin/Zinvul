@@ -164,7 +164,9 @@ Vector<Type, 4>::Vector(const Type v0, const Type v1, const Type v2, const Type 
 template <typename Type> inline
 Type& Vector<Type, 4>::operator[](const std::size_t index) noexcept
 {
-  return (index == 0) ? x : (index == 1) ? y : (index == 2) ? z : w;
+  return ((index & 2u) == 0)
+      ? (index == 0) ? x : y
+      : (index == 2) ? z : w;
 }
 
 /*!
@@ -172,7 +174,9 @@ Type& Vector<Type, 4>::operator[](const std::size_t index) noexcept
 template <typename Type> inline
 const Type& Vector<Type, 4>::operator[](const std::size_t index) const noexcept
 {
-  return (index == 0) ? x : (index == 1) ? y : (index == 2) ? z : w;
+  return ((index & 2u) == 0)
+      ? (index == 0) ? x : y
+      : (index == 2) ? z : w;
 }
 
 /*!

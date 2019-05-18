@@ -28,9 +28,6 @@ namespace zinvul {
 
 namespace cl {
 
-extern thread_local std::array<uint32b, 3> __work_group_id; //!< Referred by cl get_group_id()
-extern thread_local std::array<uint32b, 3> __work_group_size; //!< Referred by cl get_group_size()
-
 /*!
   */
 template <typename Type> inline
@@ -39,27 +36,52 @@ void printf(const char* format, const Type& value) noexcept
   std::printf(format, value);
 }
 
-/*!
-  */
-inline
-void __setWorkGroupId(const uint32b id) noexcept
-{
-  __work_group_id[0] = id % __work_group_size[0];
-  __work_group_id[1] = (id / __work_group_size[0]) % __work_group_size[1];
-  __work_group_id[2] = id / (__work_group_size[0] * __work_group_size[1]);
-  ZISC_ASSERT(__work_group_id[2] < __work_group_size[2],
-              "The workgroup ID is invalid: ID=", id);
-}
+namespace clinner {
 
 /*!
   */
-inline
-void __setWorkGroupSize(const std::array<uint32b, 3>& size) noexcept
+class WorkGroup
 {
-  __work_group_size = size;
-}
+ public:
+  //! Return the work-group id
+  static uint32b getWorkGroupId(const uint32b dimension) noexcept
+  {
+    const size_t id = zisc::isInBounds(dimension, 0u, get_work_dim())
+        ? work_group_id_[dimension]
+        : 0u;
+    return id;
+  }
 
-// OpenCL functions
+  //! Return the work-group size
+  static size_t getWorkGroupSize(const uint32b dimension) noexcept
+  {
+    const size_t size = zisc::isInBounds(dimension, 0u, get_work_dim())
+        ? work_group_size_[dimension]
+        : 1u;
+    return size;
+  }
+  //! Set a work-group id
+  static void setWorkGroupId(const uint32b id) noexcept
+  {
+    work_group_id_[0] = id % work_group_size_[0];
+    work_group_id_[1] = (id / work_group_size_[0]) % work_group_size_[1];
+    work_group_id_[2] = id / (work_group_size_[0] * work_group_size_[1]);
+    ZISC_ASSERT(work_group_id_[2] < work_group_size__[2],
+                "The workgroup ID is invalid: ID=", id);
+  }
+
+  //! Set a work-group size
+  static void setWorkGroupSize(const std::array<uint32b, 3>& size) noexcept
+  {
+    work_group_size_ = size;
+  }
+
+ private:
+  static thread_local std::array<uint32b, 3> work_group_id_;
+  static thread_local std::array<uint32b, 3> work_group_size_;
+};
+
+} // namespace clinner
 
 /*!
   */
@@ -91,10 +113,7 @@ size_t get_global_size(const uint32b dimension) noexcept
 inline
 size_t get_group_id(const uint32b dimension) noexcept
 {
-  const size_t id = zisc::isInBounds(dimension, 0u, get_work_dim())
-      ? __work_group_id[dimension]
-      : 0;
-  return id;
+  return clinner::WorkGroup::getWorkGroupId(dimension);
 }
 
 /*!
@@ -118,10 +137,7 @@ constexpr size_t get_local_size(const uint32b /* dimension */) noexcept
 inline
 size_t get_num_groups(const uint32b dimension) noexcept
 {
-  const cl::size_t size = zisc::isInBounds(dimension, 0u, get_work_dim())
-      ? __work_group_size[dimension]
-      : 1;
-  return size;
+  return clinner::WorkGroup::getWorkGroupSize(dimension);
 }
 
 /*!
