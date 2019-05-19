@@ -10,7 +10,22 @@
 #ifndef ZINVUL_TYPE_TRAITS_CL
 #define ZINVUL_TYPE_TRAITS_CL
 
+// Zinvul
+#include "types.cl"
+
 namespace zinvul {
+
+/*!
+  \brief Check if two types are same
+  */
+template <typename Type1, typename Type2>
+struct SameType
+{
+  static constexpr int32b value_ = 0;
+};
+
+template <typename Type1, typename Type2>
+constexpr int32b kIsSameType = SameType<Type1, Type2>::value_;
 
 /*!
   \brief Choose one type or another based on compile-time boolean

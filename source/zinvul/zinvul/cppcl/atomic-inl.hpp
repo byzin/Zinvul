@@ -186,8 +186,8 @@ class Atomic
   }
 
   template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer iand(AddressSpacePointer<Integer, kAddressSpaceType> p,
-                      const Integer value) noexcept
+  static Integer bitAnd(AddressSpacePointer<Integer, kAddressSpaceType> p,
+                        const Integer value) noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
                   std::is_same_v<Integer, uint32b>,
@@ -205,8 +205,8 @@ class Atomic
   }
 
   template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer ior(AddressSpacePointer<Integer, kAddressSpaceType> p,
-                     const Integer value) noexcept
+  static Integer bitOr(AddressSpacePointer<Integer, kAddressSpaceType> p,
+                       const Integer value) noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
                   std::is_same_v<Integer, uint32b>,
@@ -224,8 +224,8 @@ class Atomic
   }
 
   template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer ixor(AddressSpacePointer<Integer, kAddressSpaceType> p,
-                      const Integer value) noexcept
+  static Integer bitXor(AddressSpacePointer<Integer, kAddressSpaceType> p,
+                        const Integer value) noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
                   std::is_same_v<Integer, uint32b>,
@@ -338,7 +338,7 @@ template <typename Integer, AddressSpaceType kAddressSpaceType> inline
 Integer atomic_and(AddressSpacePointer<Integer, kAddressSpaceType> p,
                    const Integer value) noexcept
 {
-  return clinner::Atomic::iand(p, value);
+  return clinner::Atomic::bitAnd(p, value);
 }
 
 /*!
@@ -347,7 +347,7 @@ template <typename Integer, AddressSpaceType kAddressSpaceType> inline
 Integer atomic_or(AddressSpacePointer<Integer, kAddressSpaceType> p,
                   const Integer value) noexcept
 {
-  return clinner::Atomic::ior(p, value);
+  return clinner::Atomic::bitOr(p, value);
 }
 
 /*!
@@ -356,7 +356,7 @@ template <typename Integer, AddressSpaceType kAddressSpaceType> inline
 Integer atomic_xor(AddressSpacePointer<Integer, kAddressSpaceType> p,
                    const Integer value) noexcept
 {
-  return clinner::Atomic::ixor(p, value);
+  return clinner::Atomic::bitXor(p, value);
 }
 
 } // namespace cl

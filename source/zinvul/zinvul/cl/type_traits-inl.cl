@@ -11,8 +11,16 @@
 #define ZINVUL_TYPE_TRAITS_INL_CL
 
 #include "type_traits.cl"
+// Zinvul
+#include "types.cl"
 
 namespace zinvul {
+
+template <typename Type>
+struct SameType<Type, Type>
+{
+  static constexpr int32b value_ = 1;
+};
 
 template <typename T, typename F>
 struct Conditional<true, T, F>

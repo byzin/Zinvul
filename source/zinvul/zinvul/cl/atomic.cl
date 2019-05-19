@@ -135,18 +135,96 @@ class Atomic
 {
  public:
   //! Perform atomic addition
-  static int32b add(GlobalPtr<int32b> p, const int32b value) noexcept;
+  template <typename Integer>
+  static Integer add(LocalPtr<Integer> p, const Integer value) noexcept;
 
   //! Perform atomic addition
-  static uint32b add(GlobalPtr<uint32b> p, const uint32b value) noexcept;
+  template <typename Integer>
+  static Integer add(GlobalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic subtraction
+  template <typename Integer>
+  static Integer sub(LocalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic subtraction
+  template <typename Integer>
+  static Integer sub(GlobalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic swapping
+  template <typename Type>
+  static Type swap(LocalPtr<Type> p, const Type value) noexcept;
+
+  //! Perform atomic swapping
+  template <typename Type>
+  static Type swap(GlobalPtr<Type> p, const Type value) noexcept;
 
   //! Perform atomic post-increment
-  static int32b increment(GlobalPtr<int32b> p) noexcept;
+  template <typename Integer>
+  static Integer increment(LocalPtr<Integer> p) noexcept;
 
   //! Perform atomic post-increment
-  static uint32b increment(GlobalPtr<uint32b> p) noexcept;
+  template <typename Integer>
+  static Integer increment(GlobalPtr<Integer> p) noexcept;
 
- private:
+  //! Perform atomic post-decrement
+  template <typename Integer>
+  static Integer decrement(LocalPtr<Integer> p) noexcept;
+
+  //! Perform atomic post-decrement
+  template <typename Integer>
+  static Integer decrement(GlobalPtr<Integer> p) noexcept;
+
+  //! Perform atomic comparison and swapping
+  template <typename Integer>
+  static Integer compareAndSwap(LocalPtr<Integer> p,
+                                const Integer comp,
+                                const Integer value) noexcept;
+
+  //! Perform atomic comparison and swapping
+  template <typename Integer>
+  static Integer compareAndSwap(GlobalPtr<Integer> p,
+                                const Integer comp,
+                                const Integer value) noexcept;
+
+  //! Perform atomic min
+  template <typename Integer>
+  static Integer min(LocalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic min
+  template <typename Integer>
+  static Integer min(GlobalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic max
+  template <typename Integer>
+  static Integer max(LocalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic max
+  template <typename Integer>
+  static Integer max(GlobalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic bit and
+  template <typename Integer>
+  static Integer bitAnd(LocalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic bit and
+  template <typename Integer>
+  static Integer bitAnd(GlobalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic bit or
+  template <typename Integer>
+  static Integer bitOr(LocalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic bit or
+  template <typename Integer>
+  static Integer bitOr(GlobalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic bit xor
+  template <typename Integer>
+  static Integer bitXor(LocalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform atomic bit xor
+  template <typename Integer>
+  static Integer bitXor(GlobalPtr<Integer> p, const Integer value) noexcept;
 };
 
 } // namespace zinvul
