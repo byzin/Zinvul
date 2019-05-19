@@ -732,7 +732,7 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
       float_buffer[i++] = vmax;
       constexpr auto vepsilon = NumericLimits<float>::epsilon();
       float_buffer[i++] = vepsilon;
-      constexpr auto vinfinity = NumericLimits<float>::infinity();
+      auto vinfinity = NumericLimits<float>::infinity();
       float_buffer[i++] = vinfinity;
       auto vnan = NumericLimits<float>::quietNan();
       float_buffer[i++] = vnan;
@@ -781,7 +781,7 @@ __kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
       double_buffer[i++] = vmax;
       constexpr auto vepsilon = NumericLimits<double>::epsilon();
       double_buffer[i++] = vepsilon;
-      constexpr auto vinfinity = NumericLimits<double>::infinity();
+      auto vinfinity = NumericLimits<double>::infinity();
       double_buffer[i++] = vinfinity;
       auto vnan = NumericLimits<double>::quietNan();
       double_buffer[i++] = vnan;

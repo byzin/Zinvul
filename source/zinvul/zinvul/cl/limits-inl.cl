@@ -46,7 +46,7 @@ class NumericLimits<int8b>
     return 2;
   }
 
-  static constexpr int8b infinity() noexcept
+  static int8b infinity() noexcept
   {
     return max();
   }
@@ -86,7 +86,7 @@ class NumericLimits<uint8b>
     return 2;
   }
 
-  static constexpr uint8b infinity() noexcept
+  static uint8b infinity() noexcept
   {
     return max();
   }
@@ -126,7 +126,7 @@ class NumericLimits<int16b>
     return 2;
   }
 
-  static constexpr int16b infinity() noexcept
+  static int16b infinity() noexcept
   {
     return max();
   }
@@ -166,7 +166,7 @@ class NumericLimits<uint16b>
     return 2;
   }
 
-  static constexpr uint16b infinity() noexcept
+  static uint16b infinity() noexcept
   {
     return max();
   }
@@ -206,7 +206,7 @@ class NumericLimits<int32b>
     return 2;
   }
 
-  static constexpr int32b infinity() noexcept
+  static int32b infinity() noexcept
   {
     return max();
   }
@@ -246,7 +246,7 @@ class NumericLimits<uint32b>
     return 2;
   }
 
-  static constexpr uint32b infinity() noexcept
+  static uint32b infinity() noexcept
   {
     return max();
   }
@@ -288,7 +288,7 @@ class NumericLimits<int64b>
     return 2;
   }
 
-  static constexpr int64b infinity() noexcept
+  static int64b infinity() noexcept
   {
     return max();
   }
@@ -329,7 +329,7 @@ class NumericLimits<uint64b>
     return 2;
   }
 
-  static constexpr uint64b infinity() noexcept
+  static uint64b infinity() noexcept
   {
     return max();
   }
@@ -369,7 +369,7 @@ class NumericLimits<float>
     return FLT_EPSILON;
   }
 
-  static constexpr float infinity() noexcept
+  static float infinity() noexcept
   {
     return INFINITY;
   }
@@ -409,9 +409,9 @@ class NumericLimits<double>
     return DBL_EPSILON;
   }
 
-  static constexpr double infinity() noexcept
+  static double infinity() noexcept
   {
-    constexpr double v = HUGE_VAL;
+    const double v = HUGE_VAL;
     return v;
   }
 

@@ -45,7 +45,7 @@ class NumericLimits
   static constexpr Type epsilon() noexcept;
 
   //! Return the positive infinity value of the Type
-  static constexpr Type infinity() noexcept;
+  static Type infinity() noexcept;
 
   //! Return the positive infinity value of the Type
   static Type quietNan() noexcept;
