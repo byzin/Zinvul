@@ -132,7 +132,7 @@ __kernel void testAtomicMaxGlobalNegative(GlobalPtr<int32b> result,
 __kernel void testAtomicMaxLocalNegative(GlobalPtr<int32b> result,
     const uint32b resolution);
 __kernel void testAtomicMaxGlobalUint(GlobalPtr<uint32b> result,
-    const uint32b resolution);;
+    const uint32b resolution);
 __kernel void testAtomicMaxLocalUint(GlobalPtr<uint32b> result,
     const uint32b resolution);
 __kernel void testAtomicAndGlobal(GlobalPtr<int32b> result);
@@ -616,14 +616,12 @@ __kernel void testAtomicCmpxchgGlobalPositive(GlobalPtr<int32b> result,
 {
   const uint32b index = getGlobalIdX();
   if (index < resolution) {
-    int32b i = *result;
-    int32b c = 0;
-    do {
-      c = i;
-      const int32b v = c + 1;
-      i = Atomic::compareAndSwap(result, c, v);
-    } while (i != c);
-    table[cast<size_t>(i)] = 1;
+    const auto inc = [](const int32b p)
+    {
+      return p + 1;
+    };
+    const size_t i = cast<size_t>(Atomic::perform(result, inc));
+    table[i] = 1;
   }
 }
 
@@ -641,16 +639,14 @@ __kernel void testAtomicCmpxchgLocalPositive(GlobalPtr<int32b> result,
   MemoryFence::performLocalBarrier();
 
   if (index < resolution) {
+    const auto inc = [](const int32b p)
+    {
+      return p + 1;
+    };
     LocalPtr<int32b> p = &c;
-    int32b idx = *p;
-    int32b cmp = 0;
-    do {
-      cmp = idx;
-      const int32b v = cmp + 1;
-      // \todo Segmentation fault happens with clspv
-      // idx = Atomic::compareAndSwap(p, cmp, v);
-    } while (idx != cmp);
-    const size_t local_id = cast<size_t>(idx);
+    // \todo Segmentation fault happens with clspv
+    // const size_t local_id = cast<size_t>(Atomic::perform(p, inc));
+    const size_t local_id = 0;
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
@@ -666,14 +662,12 @@ __kernel void testAtomicCmpxchgGlobalNegative(GlobalPtr<int32b> result,
 {
   const uint32b index = getGlobalIdX();
   if (index < resolution) {
-    int32b i = *result;
-    int32b c = 0;
-    do {
-      c = i;
-      const int32b v = c - 1;
-      i = Atomic::compareAndSwap(result, c, v);
-    } while (i != c);
-    table[cast<size_t>(-i)] = 1;
+    const auto sub = [](const int32b p, const int32b value)
+    {
+      return p - value;
+    };
+    const size_t i = cast<size_t>(-Atomic::perform(result, sub, 1));
+    table[i] = 1;
   }
 }
 
@@ -691,16 +685,14 @@ __kernel void testAtomicCmpxchgLocalNegative(GlobalPtr<int32b> result,
   MemoryFence::performLocalBarrier();
 
   if (index < resolution) {
+    const auto sub = [](const int32b p, const int32b value)
+    {
+      return p - value;
+    };
     LocalPtr<int32b> p = &c;
-    int32b idx = *p;
-    int32b cmp = 0;
-    do {
-      cmp = idx;
-      const int32b v = cmp - 1;
-      // \todo Segmentation fault happens with clspv
-      // idx = Atomic::compareAndSwap(p, cmp, v);
-    } while (idx != cmp);
-    const size_t local_id = cast<size_t>(-idx);
+    // \todo Segmentation fault happens with clspv
+    // const size_t local_id = cast<size_t>(Atomic::perform(p, sub, 1));
+    const size_t local_id = 0;
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
@@ -716,13 +708,11 @@ __kernel void testAtomicCmpxchgGlobalUint(GlobalPtr<uint32b> result,
 {
   const uint32b index = getGlobalIdX();
   if (index < resolution) {
-    uint32b i = *result;
-    uint32b c = 0;
-    do {
-      c = i;
-      const uint32b v = c + 1;
-      i = Atomic::compareAndSwap(result, c, v);
-    } while (i != c);
+    const auto add = [](const uint32b p, const uint32b value)
+    {
+      return p + value;
+    };
+    const size_t i = Atomic::perform(result, add, 1u);
     table[i] = 1;
   }
 }
@@ -741,16 +731,14 @@ __kernel void testAtomicCmpxchgLocalUint(GlobalPtr<uint32b> result,
   MemoryFence::performLocalBarrier();
 
   if (index < resolution) {
+    const auto add = [](const uint32b p, const uint32b value)
+    {
+      return p + value;
+    };
     LocalPtr<uint32b> p = &c;
-    uint32b idx = *p;
-    uint32b cmp = 0;
-    do {
-      cmp = idx;
-      const uint32b v = cmp + 1;
-      // \todo Segmentation fault happens with clspv
-      // idx = Atomic::compareAndSwap(p, cmp, v);
-    } while (idx != cmp);
-    const size_t local_id = cast<size_t>(idx);
+    // \todo Segmentation fault happens with clspv
+    // const size_t local_id = Atomic::perform(p, add, 1u);
+    const size_t local_id = 0;
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
@@ -993,6 +981,23 @@ __kernel void testAtomicOrGlobalUint(GlobalPtr<uint32b> result)
   if (index < 32) {
     const uint32b v = 1 << index;
     Atomic::bitOr(result, v);
+  }
+}
+
+__kernel void testAtomicFloatIncGlobal(GlobalPtr<float> result,
+    GlobalPtr<int32b> table,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    const auto add = [](const float p, const float value)
+    {
+      return p + value;
+    };
+    //! \todo clspv failed.
+    // const size_t i = cast<size_t>(Atomic::perform(result, add, 1.0f));
+    const size_t i = 0;
+    table[i] = 1;
   }
 }
 

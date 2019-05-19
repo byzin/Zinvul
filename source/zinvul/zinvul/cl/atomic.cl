@@ -11,121 +11,6 @@
 #define ZINVUL_ATOMIC_CL
 
 #include "types.cl"
-//#include "utility.cl"
-
-////! Perform atomic addition
-//#define zAtomicAdd(p, value) atomic_add(p, value)
-//
-////! Perform atomic addition
-//#define zAtomicAddU(p, value) atomic_add(p, value)
-//
-////! Perform atomic subtraction
-//#define zAtomicSub(p, value) atomic_sub(p, value)
-//
-////! Perform atomic subtraction
-//#define zAtomicSubU(p, value) atomic_sub(p, value)
-//
-////! Atomically replace the value
-//#define zAtomicXchg(p, value) atomic_xchg(p, value)
-//
-////! Atomically replace the value
-//#define zAtomicXchgU(p, value) atomic_xchg(p, value)
-//
-////! Perform atomic post-increment
-//#define zAtomicInc(p) atomic_inc(p)
-//
-////! Perform atomic post-increment
-//#define zAtomicIncU(p) atomic_inc(p)
-//
-////! Perform atomic post-decrement
-//#define zAtomicDec(p) atomic_dec(p)
-//
-////! Perform atomic post-decrement
-//#define zAtomicDecU(p) atomic_dec(p)
-//
-////! Atomically compare the values and exchange if equal
-//#define zAtomicCmpxchg(p, cmp, value) atomic_cmpxchg(p, cmp, value)
-//
-////! Atomically compare the values and exchange if equal
-//#define zAtomicCmpxchgU(p, cmp, value) atomic_cmpxchg(p, cmp, value)
-//
-////! Atomically compute min(old, value)
-//#define zAtomicMin(p, value) atomic_min(p, value)
-//
-////! Atomically compute min(old, value)
-//#define zAtomicMinU(p, value) atomic_min(p, value)
-//
-////! Atomically compute max(old, value)
-//#define zAtomicMax(p, value) atomic_max(p, value)
-//
-////! Atomically compute max(old, value)
-//#define zAtomicMaxU(p, value) atomic_max(p, value)
-//
-////! Atomically compute (old & value)
-//#define zAtomicAnd(p, value) atomic_and(p, value)
-//
-////! Atomically compute (old & value)
-//#define zAtomicAndU(p, value) atomic_and(p, value)
-//
-////! Atomically compute (old | value)
-//#define zAtomicOr(p, value) atomic_or(p, value)
-//
-////! Atomically compute (old | value)
-//#define zAtomicOrU(p, value) atomic_or(p, value)
-//
-////! Atomically compute (old ^ value)
-//#define zAtomicXor(p, value) atomic_xor(p, value)
-//
-////! Atomically compute (old ^ value)
-//#define zAtomicXorU(p, value) atomic_xor(p, value)
-//
-//#if defined(Z_MAC) && defined(ZINVUL_VULKAN)
-//
-////! Atomically do an expression
-//#define zAtomicExpression(p, expression, old) \
-//  { \
-//    old = p[0]; \
-//    const int32b c = old; \
-//    const int32b v = expression(c); \
-//    old = zAtomicCmpxchg(p, c, v); \
-//  }
-//
-////! Atomically do an expression
-//#define zAtomicExpressionU(p, expression, old) \
-//  { \
-//    old = p[0]; \
-//    const uint32b c = old; \
-//    const uint32b v = expression(c); \
-//    old = zAtomicCmpxchgU(p, c, v); \
-//  }
-//
-//#else
-//
-////! Atomically do an expression
-//#define zAtomicExpression(p, expression, old) \
-//  { \
-//    old = p[0]; \
-//    int32b c = 0u; \
-//    do { \
-//      c = old; \
-//      const int32b v = expression(c); \
-//      old = zAtomicCmpxchg(p, c, v); \
-//    } while (old != c); \
-//  }
-//
-////! Atomically do an expression
-//#define zAtomicExpressionU(p, expression, old) \
-//  { \
-//    old = p[0]; \
-//    uint32b c = 0u; \
-//    do { \
-//      c = old; \
-//      const uint32b v = expression(c); \
-//      old = zAtomicCmpxchgU(p, c, v); \
-//    } while (old != c); \
-//  }
-//
-//#endif
 
 namespace zinvul {
 
@@ -225,6 +110,71 @@ class Atomic
   //! Perform atomic bit xor
   template <typename Integer>
   static Integer bitXor(GlobalPtr<Integer> p, const Integer value) noexcept;
+
+  //! Perform an expression atomically
+  template <typename Type, typename Function, typename ...Types>
+  static Type perform(LocalPtr<Type> p,
+                      Function expression,
+                      Types&&... arguments) noexcept;
+
+  //! Perform an expression atomically
+  template <typename Type, typename Function, typename ...Types>
+  static Type perform(GlobalPtr<Type> p,
+                      Function expression,
+                      Types&&... arguments) noexcept;
+
+ private:
+  //! Perform atomic addition
+  template <typename BufferPtr, typename Integer>
+  static Integer addImpl(BufferPtr p, const Integer value) noexcept;
+
+  //! Perform atomic subtraction
+  template <typename BufferPtr, typename Integer>
+  static Integer subImpl(BufferPtr p, const Integer value) noexcept;
+
+  //! Perform atomic swapping
+  template <typename BufferPtr, typename Type>
+  static Type swapImpl(BufferPtr p, const Type value) noexcept;
+
+  //! Perform atomic post-increment
+  template <typename BufferPtr, typename Integer>
+  static Integer incrementImpl(BufferPtr p) noexcept;
+
+  //! Perform atomic post-decrement
+  template <typename BufferPtr, typename Integer>
+  static Integer decrementImpl(BufferPtr p) noexcept;
+
+  //! Perform atomic comparison and swapping
+  template <typename BufferPtr, typename Integer>
+  static Integer compareAndSwapImpl(BufferPtr p,
+                                    const Integer comp,
+                                    const Integer value) noexcept;
+
+  //! Perform atomic min
+  template <typename BufferPtr, typename Integer>
+  static Integer minImpl(BufferPtr p, const Integer value) noexcept;
+
+  //! Perform atomic max
+  template <typename BufferPtr, typename Integer>
+  static Integer maxImpl(BufferPtr p, const Integer value) noexcept;
+
+  //! Perform atomic bit and
+  template <typename BufferPtr, typename Integer>
+  static Integer bitAndImpl(BufferPtr p, const Integer value) noexcept;
+
+  //! Perform atomic bit or
+  template <typename BufferPtr, typename Integer>
+  static Integer bitOrImpl(BufferPtr p, const Integer value) noexcept;
+
+  //! Perform atomic bit xor
+  template <typename BufferPtr, typename Integer>
+  static Integer bitXorImpl(BufferPtr p, const Integer value) noexcept;
+
+  //! Perform an expression atomically
+  template <typename BufferPtr, typename Type, typename Function, typename ...Types>
+  static Type performImpl(BufferPtr p,
+                          Function expression,
+                          Types&&... arguments) noexcept;
 };
 
 } // namespace zinvul

@@ -12,6 +12,7 @@
 
 // Zinvul
 #include "types.cl"
+#include "type_traits.cl"
 
 //#if defined(ZINVUL_CPU)
 ////! Write the result of the format to stdout
@@ -682,6 +683,13 @@ Type cast(T&& value) noexcept;
 //! Treat T* as Type*
 template <typename Type, typename T>
 Type treatAs(T&& object) noexcept;
+
+//!
+template <typename Type>
+Type&& forward(RemoveReferenceType<Type>& t) noexcept;
+
+template <typename Type>
+Type&& forward(RemoveReferenceType<Type>&& t) noexcept;
 
 } // namespace zinvul
 

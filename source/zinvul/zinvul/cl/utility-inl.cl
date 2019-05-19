@@ -13,6 +13,7 @@
 #include "utility.cl"
 // Zinvul
 #include "types.cl"
+#include "type_traits.cl"
 
 //#if defined(ZINVUL_CPU)
 ////! Write the result of the format to stdout
@@ -619,6 +620,23 @@ Type treatAs(T&& object) noexcept
 {
   auto result = inner::TypeConverter<Type>::treatAs(object);
   return result;
+}
+
+/*!
+  */
+template <typename Type> inline
+Type&& forward(RemoveReferenceType<Type>& t) noexcept
+{
+  return static_cast<Type&&>(t);
+}
+
+/*!
+  */
+template <typename Type> inline
+Type&& forward(RemoveReferenceType<Type>&& t) noexcept
+{
+  static_assert(!kIsLValueReference<Type>, "The Type is lvalue reference.");
+  return static_cast<Type&&>(t);
 }
 
 } // namespace zinvul

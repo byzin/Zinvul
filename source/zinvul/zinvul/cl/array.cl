@@ -12,6 +12,7 @@
 
 // Zinvul
 #include "types.cl"
+#include "type_traits.cl"
 
 namespace zinvul {
 
@@ -23,13 +24,13 @@ class Array
 {
  public:
   // Type aliases
-  using Type = T;
-  using Reference = Generic<T>&;
-  using ConstReference = const Generic<T>&;
-  using Pointer = GenericPtr<T>;
-  using ConstPointer = ConstGenericPtr<T>;
-  using Iterator = GenericPtr<T>;
-  using ConstIterator = ConstGenericPtr<T>;
+  using Type = RemoveCvrefType<T>;
+  using Reference = Generic<Type>&;
+  using ConstReference = const Generic<Type>&;
+  using Pointer = GenericPtr<Type>;
+  using ConstPointer = ConstGenericPtr<Type>;
+  using Iterator = GenericPtr<Type>;
+  using ConstIterator = ConstGenericPtr<Type>;
 
 
   //! Return an iterator to the first element of the container

@@ -25,7 +25,6 @@ __kernel void experiment(const uint32b resolution)
 {
   const uint32b index = getGlobalIdX();
   if (index < resolution) {
-    ;
   }
 }
 
