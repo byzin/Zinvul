@@ -16,6 +16,8 @@
 #include <atomic>
 #include <cstddef>
 #include <numeric>
+#include <string>
+#include <string_view>
 #include <type_traits>
 // Zisc
 #include "zisc/error.hpp"
@@ -32,6 +34,19 @@
 #include "zinvul/zinvul_config.hpp"
 #include "zinvul/cppcl/atomic.hpp"
 #include "zinvul/cppcl/utility.hpp"
+// cpu_features
+#include "cpu_features_macros.h"
+#if defined(CPU_FEATURES_ARCH_X86)
+#include "cpuinfo_x86.h"
+#elif defined(CPU_FEATURES_ARCH_ARM)
+#include "cpuinfo_arm.h"
+#elif defined(CPU_FEATURES_ARCH_AARCH64)
+#include "cpuinfo_aarch64.h"
+#elif defined(CPU_FEATURES_ARCH_MIPS)
+#include "cpuinfo_mips.h"
+#elif defined(CPU_FEATURES_ARCH_PPC)
+#include "cpuinfo_ppc.h"
+#endif
 
 namespace zinvul {
 
@@ -43,6 +58,7 @@ CpuDevice::CpuDevice(DeviceOptions& options) noexcept :
     thread_manager_{options.cpu_num_of_threads_, memoryResource()},
     task_bucket_size_{zisc::max(options.cpu_task_bucket_size_, 1u)}
 {
+  initialize(options);
 }
 
 /*!
@@ -104,6 +120,15 @@ UniqueKernel<GroupType, kDimension, ArgumentTypes...> CpuDevice::makeKernel(
 /*!
   */
 inline
+std::string_view CpuDevice::name() const noexcept
+{
+  std::string_view device_name{name_};
+  return device_name;
+}
+
+/*!
+  */
+inline
 std::size_t CpuDevice::numOfThreads() const noexcept
 {
   return thread_manager_.numOfThreads();
@@ -153,6 +178,14 @@ void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
 /*!
   */
 inline
+std::string_view CpuDevice::vendorName() const noexcept
+{
+  std::string_view vendor_name{vendor_name_};
+  return vendor_name;
+}
+/*!
+  */
+inline
 void CpuDevice::waitForCompletion() const noexcept
 {
 }
@@ -167,6 +200,52 @@ std::array<uint32b, 3> CpuDevice::expandTo3dWorkGroupSize(
   for (std::size_t i = 0; i < kDimension; ++i)
     work_group_size[i] = works[i];
   return work_group_size;
+}
+
+/*!
+  */
+inline
+void CpuDevice::initialize(DeviceOptions& /* options */) noexcept
+{
+  using namespace cpu_features;
+  // Initialize device info
+#if defined(CPU_FEATURES_ARCH_X86)
+  {
+    char brand_string[49];
+    FillX86BrandString(brand_string);
+    name_ = brand_string;
+  }
+  {
+    const X86Info info = GetX86Info();
+    vendor_name_ = info.vendor;
+  }
+#elif defined(CPU_FEATURES_ARCH_ARM)
+  static_assert(false, "Not implemented yet.");
+  {
+    const ArmInfo info = GetArmInfo();
+  }
+  vendor_name_ = "ARM";
+#elif defined(CPU_FEATURES_ARCH_AARCH64)
+  static_assert(false, "Not implemented yet.");
+  {
+    const Aarch64Info info = GetAarch64Info();
+  }
+#elif defined(CPU_FEATURES_ARCH_MIPS)
+  static_assert(false, "Not implemented yet.");
+  {
+    const MipsInfo info = GetMipsInfo();
+  }
+#elif defined(CPU_FEATURES_ARCH_PPC)
+  static_assert(false, "Not implemented yet.");
+  {
+    const PPCInfo info = GetPPCInfo();
+    const PPCPlatformStrings strings = GetPPCPlatformStrings();
+  }
+#endif
+  if (name_.empty())
+    name_ = "N/A";
+  if (vendor_name_.empty())
+    vendor_name_ = "N/A";
 }
 
 /*!

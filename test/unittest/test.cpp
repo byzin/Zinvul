@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <limits>
 #include <string>
+#include <string_view>
 #include <vector>
 // Zisc
 #include "zisc/math.hpp"
@@ -62,23 +63,24 @@ std::string getTestDeviceInfo(const zinvul::Device& device)
    case zinvul::DeviceType::kCpu: {
     auto d = static_cast<const zinvul::CpuDevice*>(&device);
     info = "## Device: CPU\n"s;
-    info += "  Subgroup: "s + std::to_string(device.subgroupSize()) + "\n"s;
+    info += "  Vendor: "s + device.vendorName().data() + "\n"s;
+    info += "  Name: "s + device.name().data() + "\n"s;
     info += "  Threads: "s + std::to_string(d->numOfThreads()) + "\n"s;
+    info += "  Subgroup: "s + std::to_string(device.subgroupSize()) + "\n"s;
     break;
    }
 #ifdef ZINVUL_ENABLE_VULKAN_BACKEND
    case zinvul::DeviceType::kVulkan: {
     auto d = static_cast<const zinvul::VulkanDevice*>(&device);
-    const auto& device_info = d->physicalDeviceInfo();
-    const auto& properties = device_info.properties_;
     info = "## Device: Vulkan\n"s;
-    info += "  Name: "s + properties.deviceName + "\n"s;
+    info += "  Vendor: "s + device.vendorName().data() + "\n"s;
+    info += "  Name: "s + device.name().data() + "\n"s;
     info += "  Subgroup: "s + std::to_string(device.subgroupSize()) + "\n"s;
     break;
    }
 #endif // ZINVUL_ENABLE_VULKAN_BACKEND
    default: {
-    info = "## Device: Unknown\n"s;
+    info = "## Device: N/A\n"s;
     break;
    }
   }

@@ -19,6 +19,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <string_view>
 #include <vector>
 // Vulkan
 #include <vulkan/vulkan.hpp>
@@ -312,7 +313,7 @@ std::string VulkanDevice::getVendorName(const uint32b id) noexcept
     break;
    }
    default: {
-    vendor_name = "Unknown"s;
+    vendor_name = "N/A"s;
     break;
    }
   }
@@ -425,6 +426,16 @@ void* VulkanDevice::mapMemory(const VulkanBuffer<Type>& buffer) const noexcept
 /*!
   */
 inline
+std::string_view VulkanDevice::name() const noexcept
+{
+  const auto& device_info = physicalDeviceInfo();
+  std::string_view device_name{device_info.properties_.deviceName};
+  return device_name;
+}
+
+/*!
+  */
+inline
 auto VulkanDevice::physicalDeviceInfo() const noexcept -> const PhysicalDeviceInfo&
 {
   return device_info_;
@@ -485,6 +496,15 @@ template <typename Type> inline
 void VulkanDevice::unmapMemory(const VulkanBuffer<Type>& buffer) const noexcept
 {
   vmaUnmapMemory(allocator_, buffer.memory());
+}
+
+/*!
+  */
+inline
+std::string_view VulkanDevice::vendorName() const noexcept
+{
+  std::string_view vendor_name{vendor_name_};
+  return vendor_name;
 }
 
 /*!
@@ -841,6 +861,7 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
     subgroup_size = zisc::isInClosedBounds(subgroup_size, 1u, 128u)
         ? subgroup_size
         : getVendorSubgroupSize(info.properties_.vendorID);
+    vendor_name_ = getVendorName(info.properties_.vendorID);
     initLocalWorkSize(subgroup_size);
   }
 

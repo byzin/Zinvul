@@ -115,6 +115,7 @@ function(buildUnitTest)
                                          ${cxx_linker_flags}
                                          ${zisc_linker_flags}
                                          ${zinvul_linker_flags}
+                                         cpu_features
                                          ${gtest_libraries})
   target_compile_definitions(UnitTest PRIVATE ${cxx_definitions}
                                               ${zisc_definitions}

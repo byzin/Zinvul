@@ -13,6 +13,8 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <string>
+#include <string_view>
 // Zisc
 #include "zisc/function_reference.hpp"
 #include "zisc/memory_resource.hpp"
@@ -63,6 +65,9 @@ class CpuDevice : public Device
       const typename Kernel<GroupType, kDimension, ArgumentTypes...>::Function func)
           noexcept;
 
+  //! Return the device name
+  std::string_view name() const noexcept override;
+
   //! Return the number of threads
   std::size_t numOfThreads() const noexcept;
 
@@ -74,6 +79,9 @@ class CpuDevice : public Device
   void submit(const std::array<uint32b, kDimension>& works,
               const Command& command) noexcept;
 
+  //! Return the vendor name
+  std::string_view vendorName() const noexcept override;
+
   //! Wait this thread until all commands in the queue are completed
   void waitForCompletion() const noexcept override;
 
@@ -83,12 +91,17 @@ class CpuDevice : public Device
   std::array<uint32b, 3> expandTo3dWorkGroupSize(
       const std::array<uint32b, kDimension>& works) const noexcept;
 
+  //! Initialize a cpu device
+  void initialize(DeviceOptions& options) noexcept;
+
   //! Return the task bucket size
   uint32b taskBucketSize() const noexcept;
 
 
   zisc::ThreadManager thread_manager_;
   zisc::SpinLockMutex mutex_;
+  std::string name_;
+  std::string vendor_name_;
   uint32b task_bucket_size_;
 };
 

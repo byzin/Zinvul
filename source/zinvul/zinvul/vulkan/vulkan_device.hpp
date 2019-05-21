@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <limits>
 #include <string>
+#include <string_view>
 #include <vector>
 // Vulkan
 #include <vulkan/vulkan.hpp>
@@ -142,6 +143,9 @@ class VulkanDevice : public Device
   template <typename Type>
   void* mapMemory(const VulkanBuffer<Type>& buffer) const noexcept;
 
+  //! Return the device name
+  std::string_view name() const noexcept override;
+
   //! Return the physical device info
   const PhysicalDeviceInfo& physicalDeviceInfo() const noexcept;
 
@@ -160,6 +164,9 @@ class VulkanDevice : public Device
   //! Unmap a buffer memory
   template <typename Type>
   void unmapMemory(const VulkanBuffer<Type>& buffer) const noexcept;
+
+  //! Return the vendor name
+  std::string_view vendorName() const noexcept override;
 
   //! Wait this thread until all commands in the queue are completed
   void waitForCompletion() const noexcept override;
@@ -229,6 +236,7 @@ class VulkanDevice : public Device
   vk::CommandPool command_pool_;
   vk::CommandBuffer copy_command_;
   VmaAllocator allocator_ = VK_NULL_HANDLE;
+  std::string vendor_name_;
   uint32b queue_family_index_ = std::numeric_limits<uint32b>::max();
   uint32b memory_type_index_ = std::numeric_limits<uint32b>::max();
   std::array<std::array<uint32b, 3>, 3> local_work_size_list_;

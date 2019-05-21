@@ -7,3 +7,6 @@
 [submodule "source/dependencies/VulkanMemoryAllocator"]
 	path = source/dependencies/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+[submodule "source/dependencies/cpu_features"]
+	path = source/dependencies/cpu_features
+	url = https://github.com/google/cpu_features.git

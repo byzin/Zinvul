@@ -28,7 +28,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(zisc_path ${CMAKE_SOURCE_DIR}/source/dependencies/zisc)
+set(zisc_path ${PROJECT_SOURCE_DIR}/source/dependencies/zisc)
 checkSubmodule(${zisc_path})
 
 # Build configuration
@@ -60,6 +60,12 @@ loadZinvul(zinvul_source_files
            zinvul_definitions)
 # Thread
 find_package(Threads REQUIRED)
+# cpu_features
+set(cpu_features_path ${PROJECT_SOURCE_DIR}/source/dependencies/cpu_features)
+set(cpu_features_dst_path ${PROJECT_BINARY_DIR}/cpu_features)
+checkSubmodule(${cpu_features_path})
+file(MAKE_DIRECTORY ${cpu_features_dst_path})
+add_subdirectory(${cpu_features_path} ${cpu_features_dst_path})
 # Vulkan
 if(ZINVUL_ENABLE_VULKAN_BACKEND)
   find_package(Vulkan REQUIRED)

@@ -13,6 +13,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <string_view>
 // Zisc
 #include "zisc/memory_resource.hpp"
 #include "zisc/non_copyable.hpp"
@@ -38,7 +39,7 @@ struct DeviceOptions
   uint32b app_version_minor_ = 0;
   uint32b app_version_patch_ = 0;
   // CPU options
-  uint32b cpu_num_of_threads_ = 0; //!< 0: Optimal number of threads
+  uint32b cpu_num_of_threads_ = 0; //!< 0: Use optimal number of threads
   uint32b cpu_task_bucket_size_ = 64; //!< Bucket size of tasks per thread
   // Vulkan options
   uint32b vulkan_device_number_ = 0;
@@ -72,6 +73,9 @@ class Device : private zisc::NonCopyable<Device>
   //! Return the current memory usage
   std::size_t memoryUsage() const noexcept;
 
+  //! Return the device name
+  virtual std::string_view name() const noexcept = 0;
+
   //! Set the current memory usage
   void setMemoryUsage(const std::size_t memory_usage) noexcept;
 
@@ -86,6 +90,9 @@ class Device : private zisc::NonCopyable<Device>
 
   //! Returna a work resource
   const zisc::pmr::memory_resource* workResource() const noexcept;
+
+  //! Return the vendor name
+  virtual std::string_view vendorName() const noexcept = 0;
 
  private:
   zisc::pmr::memory_resource* mem_resource_;
