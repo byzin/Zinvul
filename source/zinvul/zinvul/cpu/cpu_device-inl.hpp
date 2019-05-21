@@ -41,7 +41,7 @@ inline
 CpuDevice::CpuDevice(DeviceOptions& options) noexcept :
     Device(options),
     thread_manager_{options.cpu_num_of_threads_, memoryResource()},
-    task_bucket_size_{zisc::max(options.task_bucket_size_, 1u)}
+    task_bucket_size_{zisc::max(options.cpu_task_bucket_size_, 1u)}
 {
 }
 

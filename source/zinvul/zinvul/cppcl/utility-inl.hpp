@@ -66,7 +66,7 @@ class WorkGroup
     work_group_id_[0] = id % work_group_size_[0];
     work_group_id_[1] = (id / work_group_size_[0]) % work_group_size_[1];
     work_group_id_[2] = id / (work_group_size_[0] * work_group_size_[1]);
-    ZISC_ASSERT(work_group_id_[2] < work_group_size__[2],
+    ZISC_ASSERT(work_group_id_[2] < work_group_size_[2],
                 "The workgroup ID is invalid: ID=", id);
   }
 

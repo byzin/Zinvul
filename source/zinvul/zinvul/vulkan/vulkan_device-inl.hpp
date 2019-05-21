@@ -255,7 +255,7 @@ auto VulkanDevice::getPhysicalDeviceInfoList() noexcept
     -> std::vector<PhysicalDeviceInfo>
 {
   const auto app_info = makeApplicationInfo("", 0, 0, 0);
-  auto instance = makeInstance(app_info);
+  auto instance = makeInstance(app_info, true);
   std::vector<PhysicalDeviceInfo> device_info_list;
   if (instance) {
     auto [result, physical_device_list] = instance.enumeratePhysicalDevices();
@@ -714,7 +714,7 @@ void VulkanDevice::initDebugMessenger() noexcept
 /*!
   */
 inline
-void VulkanDevice::initDevice() noexcept
+void VulkanDevice::initDevice(const DeviceOptions& options) noexcept
 {
   std::vector<const char*> layers{};
   const std::vector<const char*> extensions{{
@@ -723,7 +723,7 @@ void VulkanDevice::initDevice() noexcept
       VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
       VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME}};
 
-  if (isDebugModeEnabled()) {
+  if (options.vulkan_enable_validation_layers_) {
     layers.emplace_back("VK_LAYER_LUNARG_standard_validation");
   }
 
@@ -828,9 +828,9 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
                                   options.app_version_major_,
                                   options.app_version_minor_,
                                   options.app_version_patch_);
-  instance_ = makeInstance(app_info_);
+  instance_ = makeInstance(app_info_, options.vulkan_enable_validation_layers_);
   ZISC_ASSERT(instance_, "Vulkan instance creation failed.");
-  if (isDebugModeEnabled())
+  if (options.vulkan_enable_validation_layers_)
     initDebugMessenger();
   initPhysicalDevice(options);
   queue_family_index_ = findQueueFamilyForShader();
@@ -844,7 +844,7 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
     initLocalWorkSize(subgroup_size);
   }
 
-  initDevice();
+  initDevice(options);
   initFence();
   initCommandPool();
   initMemoryAllocator();
@@ -867,20 +867,8 @@ void VulkanDevice::initPhysicalDevice(const DeviceOptions& options) noexcept
 /*!
   */
 inline
-constexpr bool VulkanDevice::isDebugModeEnabled() noexcept
-{
-#if defined(ZINVUL_ENABLE_VALIDATION_LAYERS)
-  constexpr bool is_debug_mode = true;
-#else // ZINVUL_ENABLE_VALIDATION_LAYERS
-  constexpr bool is_debug_mode = false;
-#endif // ZINVUL_ENABLE_VALIDATION_LAYERS
-  return is_debug_mode;
-}
-
-/*!
-  */
-inline
-vk::Instance VulkanDevice::makeInstance(const vk::ApplicationInfo& app_info)
+vk::Instance VulkanDevice::makeInstance(const vk::ApplicationInfo& app_info,
+                                        const bool enable_validation_layers)
     noexcept
 {
   std::vector<const char*> layers{};
@@ -888,7 +876,7 @@ vk::Instance VulkanDevice::makeInstance(const vk::ApplicationInfo& app_info)
     VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
   };
 
-  if (isDebugModeEnabled()) {
+  if (enable_validation_layers) {
     layers.emplace_back("VK_LAYER_LUNARG_standard_validation");
     extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
   }

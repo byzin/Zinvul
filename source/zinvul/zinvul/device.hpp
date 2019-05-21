@@ -39,9 +39,10 @@ struct DeviceOptions
   uint32b app_version_patch_ = 0;
   // CPU options
   uint32b cpu_num_of_threads_ = 0; //!< 0: Optimal number of threads
-  uint32b task_bucket_size_ = 64; //!< Bucket size of tasks per thread
+  uint32b cpu_task_bucket_size_ = 64; //!< Bucket size of tasks per thread
   // Vulkan options
   uint32b vulkan_device_number_ = 0;
+  bool vulkan_enable_validation_layers_ = true;
 };
 
 /*!

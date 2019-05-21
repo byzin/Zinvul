@@ -139,6 +139,12 @@ __kernel void testAtomicAndGlobal(GlobalPtr<int32b> result);
 __kernel void testAtomicAndGlobalUint(GlobalPtr<uint32b> result);
 __kernel void testAtomicOrGlobal(GlobalPtr<int32b> result);
 __kernel void testAtomicOrGlobalUint(GlobalPtr<uint32b> result);
+__kernel void testAtomicFloatIncGlobal(GlobalPtr<float> result,
+    GlobalPtr<int32b> table,
+    const uint32b resolution);
+__kernel void testAtomicFloatIncGlobalUint(GlobalPtr<uint32b> result,
+    GlobalPtr<int32b> table,
+    const uint32b resolution);
 
 
 /*!
@@ -992,11 +998,29 @@ __kernel void testAtomicFloatIncGlobal(GlobalPtr<float> result,
   if (index < resolution) {
     const auto add = [](const float p, const float value)
     {
-      return p + value;
+      const float result = p + value;
+      return result;
     };
-    //! \todo clspv failed.
-    // const size_t i = cast<size_t>(Atomic::perform(result, add, 1.0f));
+//    const float old = Atomic::perform(result, add, 1.0f);
+//    const size_t i = cast<size_t>(old);
     const size_t i = 0;
+    table[i] = 1;
+  }
+}
+
+__kernel void testAtomicFloatIncGlobalUint(GlobalPtr<uint32b> result,
+    GlobalPtr<int32b> table,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    const auto add = [](const uint32b p, const float value)
+    {
+      const float result = treatAs<float>(p) + value;
+      return treatAs<uint32b>(result);
+    };
+    const float old = treatAs<float>(Atomic::perform(result, add, 1.0f));
+    const size_t i = cast<size_t>(old);
     table[i] = 1;
   }
 }

@@ -2440,6 +2440,57 @@ TEST(BuiltInFuncTest, AtomicFloatIncGlobalTest)
   }
 }
 
+TEST(BuiltInFuncTest, AtomicFloatIncGlobalUintTest)
+{
+  using namespace zinvul;
+
+  constexpr uint resolution = 10000;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result_buff = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrcDst);
+    result_buff->setSize(1);
+    {
+      const float init = 0.0f;
+      result_buff->write(&init, 1, 0, 0);
+    }
+    auto table_buff = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrcDst);
+    table_buff->setSize(resolution);
+    {
+      std::vector<int32b> init;
+      init.resize(resolution, 0);
+      table_buff->write(init.data(), init.size(), 0, 0);
+    }
+    auto res_buff = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
+
+    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicFloatIncGlobalUint, 1);
+    kernel->run(*(result_buff->treatAs<uint32b>()), *table_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "Atomic float increment failed.";
+    {
+      std::vector<int32b> table;
+      table.resize(resolution);
+      table_buff->read(table.data(), table.size(), 0, 0);
+      for (std::size_t i = 0; i < table.size(); ++i)
+        ASSERT_TRUE(table[i]) << error_message;
+
+      float result;
+      result_buff->read(&result, 1, 0, 0);
+      const float expected = zisc::cast<float>(resolution);
+      EXPECT_FLOAT_EQ(expected, result) << error_message;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 //TEST(BuiltInFuncTest, RelationalFunctionTest)
 //{
 //  using namespace zinvul;

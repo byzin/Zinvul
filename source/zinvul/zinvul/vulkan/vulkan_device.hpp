@@ -189,7 +189,7 @@ class VulkanDevice : public Device
   void initDebugMessenger() noexcept;
 
   //! Initialize a device
-  void initDevice() noexcept;
+  void initDevice(const DeviceOptions& options) noexcept;
 
   //! Initialize a fence
   void initFence() noexcept;
@@ -203,11 +203,9 @@ class VulkanDevice : public Device
   //! Initialize a physical device
   void initPhysicalDevice(const DeviceOptions& options) noexcept;
 
-  //! Check if debug mode is enabled
-  static constexpr bool isDebugModeEnabled() noexcept;
-
   //! Make a vulkan instance
-  static vk::Instance makeInstance(const vk::ApplicationInfo& app_info) noexcept;
+  static vk::Instance makeInstance(const vk::ApplicationInfo& app_info,
+                                   const bool enable_validation_layers) noexcept;
 
   //! Make an application info
   static vk::ApplicationInfo makeApplicationInfo(

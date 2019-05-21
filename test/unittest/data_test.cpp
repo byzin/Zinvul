@@ -1850,7 +1850,7 @@ TEST(DataTest, ArrayTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
+    auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     buffer1->setSize(5);
     {
       std::array<uint32b, 5> src{{6, 7, 8, 9, 10}};
@@ -1888,6 +1888,7 @@ TEST(DataTest, ArrayTest)
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }
+
 TEST(DataTest, Fnv1AHash32Test)
 {
   using namespace zinvul;
