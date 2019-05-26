@@ -12,9 +12,11 @@
 
 // Standard C++ library
 #include <cstddef>
+#include <string_view>
 // Zisc
 #include "zisc/unique_memory_pointer.hpp"
 // Zinvul
+#include "kernel_set.hpp"
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
@@ -38,7 +40,15 @@ UniqueBuffer<Type> makeBuffer(Device* device,
 UniqueDevice makeDevice(DeviceOptions& options) noexcept;
 
 //! Make a kernel
-#define makeZinvulKernel(device, kernel_set, kernel, dimension)
+template <std::size_t kDimension, typename SetType, typename ...ArgumentTypes>
+UniqueKernel<kDimension, ArgumentTypes...>
+makeKernel(Device* device,
+           const KernelSet<SetType> kernel_set,
+           void (*cpu_kernel)(ArgumentTypes...),
+           const std::string_view vulkan_kernel) noexcept;
+
+//! Create arguments of makeKernel
+#define ZINVUL_MAKE_KERNEL_ARGS(kernel_set, kernel)
 
 } // namespace zinvul
 

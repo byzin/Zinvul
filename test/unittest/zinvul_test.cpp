@@ -105,7 +105,7 @@ TEST(Experiment, ZinvulTest)
     resolution_buf->write(&resolution, 1, 0, 0);
 
 
-    auto kernel = zinvul::makeZinvulKernel(device.get(), experiment, experiment, 1);
+    auto kernel = zinvul::makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(experiment, experiment));
     kernel->run(*resolution_buf, {resolution}, 0);
     device->waitForCompletion();
 

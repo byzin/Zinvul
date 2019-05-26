@@ -48,7 +48,7 @@ TEST(RngTest, Cmj64Test)
     iteration_buffer->setSize(1);
     iteration_buffer->write(&num_of_samples, iteration_buffer->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), rng, testCmj64, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(rng, testCmj64));
     kernel->run(*result_1d, *result_2d, *seed_buffer, *iteration_buffer, {num_of_samples}, 0);
     device->waitForCompletion();
 
@@ -110,7 +110,7 @@ TEST(RngTest, Cmj64DTest)
     iteration_buffer->setSize(1);
     iteration_buffer->write(&num_of_samples, iteration_buffer->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), rng, testCmj64D, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(rng, testCmj64D));
     kernel->run(*result_1d, *result_2d, *seed_buffer, *iteration_buffer, {num_of_samples}, 0);
     device->waitForCompletion();
 
@@ -173,7 +173,7 @@ TEST(RngTest, Cmj64ImageTest)
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), rng, testCmj64Image, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(rng, testCmj64Image));
 
     uint32b sample = 0;
     // Red

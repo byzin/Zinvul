@@ -45,7 +45,7 @@ TEST(DataTest, PointerTest)
     auto buffer1 = makeBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer1->setSize(n);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testPointer, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testPointer));;
     kernel->run(*buffer0, *buffer1, {1}, 0);
     device->waitForCompletion();
 
@@ -120,7 +120,7 @@ TEST(DataTest, GlobalInstanceTest)
     buffer1->setSize(1);
     buffer1->write(&option, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testGlobalInstance, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testGlobalInstance));
     kernel->run(*buffer0, *buffer1, {1}, 0);
     device->waitForCompletion();
 
@@ -163,7 +163,7 @@ TEST(DataTest, LocalInstanceTest)
     buffer1->setSize(1);
     buffer1->write(&option, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testLocalInstance, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testLocalInstance));
     kernel->run(*buffer0, *buffer1, {1}, 0);
     device->waitForCompletion();
 
@@ -218,7 +218,7 @@ TEST(DataTest, CopyBufferTest)
     auto buffer3 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer3->setSize(n);
 
-    auto kernel = makeZinvulKernel(device.get(), data, copyBufferTest, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, copyBufferTest));
     kernel->run(*buffer2, *buffer3, {1}, 0);
     device->waitForCompletion();
 
@@ -258,7 +258,7 @@ TEST(DataTest, CopyBufferTest)
     buffer7->setSize(1);
     buffer7->write(&resolution, 1, 0, 0);
 
-    auto kernel2 = makeZinvulKernel(device.get(), data, multiplyBufferTest, 1);
+    auto kernel2 = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, multiplyBufferTest));
     kernel2->run(*buffer6, *buffer7, {resolution}, 0);
     device->waitForCompletion();
 
@@ -324,7 +324,7 @@ TEST(DataTest, TypeCastTest)
     auto fbuffer2 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     fbuffer2->setSize(2);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testTypeCast, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testTypeCast));
     kernel->run(*iinputs, *uinputs, *finputs,
         *ibuffer1, *ibuffer2, *ibuffer3,
         *ubuffer1, *ubuffer2, *ubuffer3,
@@ -487,7 +487,7 @@ TEST(DataTest, TypeReinterpretingTest)
     auto fbuffer2 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     fbuffer2->setSize(2);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testTypeReinterpreting, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testTypeReinterpreting));
     kernel->run(*uinputs1, *finputs1,
         *ubuffer1, *ubuffer2,
         *fbuffer1, *fbuffer2,
@@ -607,7 +607,7 @@ TEST(DataTest, VectorOperationsTest)
     auto buffer16 = makeBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
     buffer16->setSize(2);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testVectorOperations, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testVectorOperations));
     kernel->run(*buffer1, *buffer2, *buffer3, *buffer4, *buffer5, *buffer6, *buffer7, *buffer8, *buffer9, *buffer10, *buffer11, *buffer12, *buffer13, *buffer14, *buffer15, *buffer16, {1}, 0);
     device->waitForCompletion();
 
@@ -1185,7 +1185,7 @@ TEST(DataTest, Int8bBufferTest)
     auto buffer = makeBuffer<int8b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer->setSize(resolution);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testInt8bBuffer, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testInt8bBuffer));
     kernel->run(*buffer, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1221,7 +1221,7 @@ TEST(DataTest, Uint8bBufferTest)
     auto buffer = makeBuffer<uint8b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer->setSize(resolution);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testUint8bBuffer, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testUint8bBuffer));
     kernel->run(*buffer, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1255,7 +1255,7 @@ TEST(DataTest, Int16bBufferTest)
     auto buffer = makeBuffer<int16b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer->setSize(resolution);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testInt16bBuffer, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testInt16bBuffer));
     kernel->run(*buffer, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1291,7 +1291,7 @@ TEST(DataTest, Uint16bBufferTest)
     auto buffer = makeBuffer<uint16b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer->setSize(resolution);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testUint16bBuffer, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testUint16bBuffer));
     kernel->run(*buffer, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1400,7 +1400,7 @@ TEST(DataTest, RelationalOperationsTest)
     auto buffer4 = makeBuffer<cl::int4>(device.get(), BufferUsage::kDeviceTSrc);
     buffer4->setSize(1);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testRelationalOperations, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testRelationalOperations));
     kernel->run(*buffer1, *buffer2, *buffer3, *buffer4, {1}, 0);
     device->waitForCompletion();
 
@@ -1484,7 +1484,7 @@ TEST(DataTest, CastUint8bToFloat)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint8bToFloat, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testCastUint8bToFloat));
     kernel->run(*(buffer1->treatAs<uint8b>()), *(buffer2->treatAs<uint8b>()), *buffer3, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1545,7 +1545,7 @@ TEST(DataTest, CastUint16bToFloat)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint16bToFloat, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testCastUint16bToFloat));
     kernel->run(*(buffer1->treatAs<uint16b>()), *(buffer2->treatAs<uint16b>()), *buffer3, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1606,7 +1606,7 @@ TEST(DataTest, CastUint32bToFloat)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testCastUint32bToFloat, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testCastUint32bToFloat));
     kernel->run(*(buffer1->treatAs<uint32b>()), *(buffer2->treatAs<uint32b>()), *buffer3, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1660,7 +1660,7 @@ TEST(DataTest, NumericLimitsTest)
     auto buffer7 = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     buffer7->setSize(6);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testNumericLimits, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testNumericLimits));
     kernel->run(*buffer1, *buffer2, *buffer3, *buffer4, *buffer5, *buffer6, *buffer7, {1}, 0);
     device->waitForCompletion();
 
@@ -1785,7 +1785,7 @@ TEST(DataTest, NumericLimits64Test)
     auto buffer3 = makeBuffer<double>(device.get(), BufferUsage::kDeviceTSrc);
     buffer3->setSize(6);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testNumericLimits64, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testNumericLimits64));
     kernel->run(*buffer1, *buffer2, *buffer3, {1}, 0);
     device->waitForCompletion();
 
@@ -1859,7 +1859,7 @@ TEST(DataTest, ArrayTest)
     auto buffer2 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer2->setSize(17);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testArray, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testArray));
     kernel->run(*buffer1, *buffer2, {1}, 0);
     device->waitForCompletion();
 
@@ -1902,7 +1902,7 @@ TEST(DataTest, Fnv1AHash32Test)
     auto buffer1 = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer1->setSize(11);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testFnv1AHash32, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testFnv1AHash32));
     kernel->run(*buffer1, {1}, 0);
     device->waitForCompletion();
 
@@ -1953,7 +1953,7 @@ TEST(DataTest, Fnv1AHash64Test)
     auto buffer1 = makeBuffer<uint64b>(device.get(), BufferUsage::kDeviceTSrc);
     buffer1->setSize(11);
 
-    auto kernel = makeZinvulKernel(device.get(), data, testFnv1AHash64, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testFnv1AHash64));
     kernel->run(*buffer1, {1}, 0);
     device->waitForCompletion();
 

@@ -89,61 +89,49 @@ UniqueDevice makeDevice(DeviceOptions& options) noexcept
   return device;
 }
 
-namespace cppinner {
-
-template <typename ...Types> class KernelFunction;
-
-template <typename SetType, typename ...ArgumentTypes>
-class KernelFunction<SetType, void (*)(ArgumentTypes...)>
-{
-  static_assert(std::is_base_of_v<KernelSet<SetType>, SetType>,
-                "The SetType isn't derived from zisc::KernelSet.");
-  using Function = void (*)(ArgumentTypes...);
-
- public:
-  template <std::size_t kDimension>
-  static auto make(Device* device,
-                   Function kernel_func,
-                   const std::string_view kernel_name) noexcept
-  {
-    UniqueKernel<kDimension, ArgumentTypes...> kernel;
-    switch (device->deviceType()) {
-     case DeviceType::kCpu: {
-      auto d = zisc::cast<CpuDevice*>(device);
-      kernel = d->makeKernel<kDimension, ArgumentTypes...>(kernel_func);
-      break;
-     }
-#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
-     case DeviceType::kVulkan: {
-      auto d = zisc::cast<VulkanDevice*>(device);
-      constexpr uint32b module_index = SetType::getId();
-      if (!d->hasShaderModule(module_index)) {
-        const auto spirv_code = SetType::getKernelSpirvCode(d->workResource());
-        d->setShaderModule(spirv_code, module_index);
-      }
-      kernel = d->makeKernel<kDimension, ArgumentTypes...>(module_index,
-                                                           kernel_name);
-      break;
-     }
-#endif // ZINVUL_ENABLE_VULKAN_BACKEND
-     default: {
-      ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
-      break;
-     }
-    }
-    return kernel;
-  }
-};
-
-} // namespace cppinner
-
 /*!
   */
-#undef makeZinvulKernel
-#define makeZinvulKernel(device, kernel_set, kernel, dimension) \
-    cppinner::KernelFunction<zinvul:: kernel_set ::__KernelSet, \
-                             decltype(&zinvul::cl:: kernel_set :: kernel )> \
-        ::make< dimension >(device, &zinvul::cl:: kernel_set :: kernel , #kernel )
+template <std::size_t kDimension, typename SetType, typename ...ArgumentTypes>
+inline
+UniqueKernel<kDimension, ArgumentTypes...> makeKernel(
+    Device* device,
+    const KernelSet<SetType> /* kernel_set */,
+    void (*cpu_kernel)(ArgumentTypes...),
+    const std::string_view vulkan_kernel) noexcept
+{
+  UniqueKernel<kDimension, ArgumentTypes...> kernel;
+  switch (device->deviceType()) {
+   case DeviceType::kCpu: {
+    auto d = zisc::cast<CpuDevice*>(device);
+    kernel = d->makeKernel<kDimension, ArgumentTypes...>(cpu_kernel);
+    break;
+   }
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
+   case DeviceType::kVulkan: {
+    auto d = zisc::cast<VulkanDevice*>(device);
+    constexpr uint32b module_index = SetType::getId();
+    if (!d->hasShaderModule(module_index)) {
+      const auto spirv_code = SetType::getKernelSpirvCode(d->workResource());
+      d->setShaderModule(spirv_code, module_index);
+    }
+    kernel = d->makeKernel<kDimension, ArgumentTypes...>(module_index,
+                                                         vulkan_kernel);
+    break;
+   }
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
+   default: {
+    ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
+    break;
+   }
+  }
+  return kernel;
+}
+
+#undef ZINVUL_MAKE_KERNEL_ARGS
+#define ZINVUL_MAKE_KERNEL_ARGS(kernel_set, kernel) \
+  zinvul:: kernel_set :: __KernelSet{}, \
+  &zinvul::cl:: kernel_set :: kernel , \
+  #kernel
 
 } // namespace zinvul
 

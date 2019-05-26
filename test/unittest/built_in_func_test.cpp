@@ -52,7 +52,8 @@ TEST(BuiltInFuncTest, WorkItem1DTest)
     resolution_buff->setSize(1);
     resolution_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testWorkItem1D, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testWorkItem1D));
+
     kernel->run(*buffer1, *buffer2, *buffer3, *resolution_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -127,7 +128,7 @@ TEST(BuiltInFuncTest, WorkItem2DTest)
     resolution_buff->setSize(1);
     resolution_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testWorkItem2D, 2);
+    auto kernel = makeKernel<2>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testWorkItem2D));
     kernel->run(*buffer1, *buffer2, *buffer3, *resolution_buff, {resolution.x, resolution.y}, 0);
     device->waitForCompletion();
 
@@ -202,7 +203,7 @@ TEST(BuiltInFuncTest, WorkItem3DTest)
     resolution_buff->setSize(1);
     resolution_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testWorkItem3D, 3);
+    auto kernel = makeKernel<3>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testWorkItem3D));
     kernel->run(*buffer1, *buffer2, *buffer3, *resolution_buff, {resolution.x, resolution.y, resolution.z}, 0);
     device->waitForCompletion();
 
@@ -265,7 +266,7 @@ TEST(BuiltInFuncTest, LocalMemoryFenceTest)
     resolution_buff->setSize(1);
     resolution_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testLocalMemoryFence, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testLocalMemoryFence));
     kernel->run(*table_buf, *results_buf, *resolution_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -328,7 +329,7 @@ TEST(BuiltInFuncTest, AtomicAddGlobalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicAddGlobalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicAddGlobalPositive));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -380,7 +381,7 @@ TEST(BuiltInFuncTest, AtomicAddLocalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicAddLocalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicAddLocalPositive));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -431,7 +432,7 @@ TEST(BuiltInFuncTest, AtomicAddGlobalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicAddGlobalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicAddGlobalNegative));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -482,7 +483,7 @@ TEST(BuiltInFuncTest, AtomicAddLocalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicAddLocalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicAddLocalNegative));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -533,7 +534,7 @@ TEST(BuiltInFuncTest, AtomicAddGlobalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicAddGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicAddGlobalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -584,7 +585,7 @@ TEST(BuiltInFuncTest, AtomicAddLocalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicAddLocalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicAddLocalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -635,7 +636,7 @@ TEST(BuiltInFuncTest, AtomicSubGlobalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicSubGlobalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicSubGlobalPositive));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -686,7 +687,7 @@ TEST(BuiltInFuncTest, AtomicSubLocalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicSubLocalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicSubLocalPositive));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -737,7 +738,7 @@ TEST(BuiltInFuncTest, AtomicSubGlobalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicSubGlobalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicSubGlobalNegative));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -788,7 +789,7 @@ TEST(BuiltInFuncTest, AtomicSubLocalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicSubLocalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicSubLocalNegative));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -839,7 +840,7 @@ TEST(BuiltInFuncTest, AtomicSubGlobalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicSubGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicSubGlobalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -889,7 +890,7 @@ TEST(BuiltInFuncTest, AtomicSubLocalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicSubLocalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicSubLocalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -939,7 +940,7 @@ TEST(BuiltInFuncTest, AtomicXchgGlobalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicXchgGlobalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicXchgGlobalPositive));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -996,7 +997,7 @@ TEST(BuiltInFuncTest, AtomicXchgGlobalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicXchgGlobalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicXchgGlobalNegative));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1055,7 +1056,7 @@ TEST(BuiltInFuncTest, AtomicXchgGlobalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicXchgGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicXchgGlobalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1112,7 +1113,7 @@ TEST(BuiltInFuncTest, AtomicIncGlobalTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicIncGlobal, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicIncGlobal));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1163,7 +1164,7 @@ TEST(BuiltInFuncTest, AtomicIncLocalTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicIncLocal, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicIncLocal));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1214,7 +1215,7 @@ TEST(BuiltInFuncTest, AtomicIncGlobalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicIncGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicIncGlobalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1265,7 +1266,7 @@ TEST(BuiltInFuncTest, AtomicIncLocalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicIncLocalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicIncLocalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1316,7 +1317,7 @@ TEST(BuiltInFuncTest, AtomicDecGlobalTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicDecGlobal, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicDecGlobal));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1367,7 +1368,7 @@ TEST(BuiltInFuncTest, AtomicDecLocalTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicDecLocal, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicDecLocal));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1418,7 +1419,7 @@ TEST(BuiltInFuncTest, AtomicDecGlobalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicDecGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicDecGlobalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1468,7 +1469,7 @@ TEST(BuiltInFuncTest, AtomicDecLocalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicDecLocalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicDecLocalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1518,7 +1519,7 @@ TEST(BuiltInFuncTest, AtomicCmpxchgGlobalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicCmpxchgGlobalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicCmpxchgGlobalPositive));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1569,7 +1570,7 @@ TEST(BuiltInFuncTest, AtomicCmpxchgLocalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicCmpxchgLocalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicCmpxchgLocalPositive));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1620,7 +1621,7 @@ TEST(BuiltInFuncTest, AtomicCmpxchgGlobalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicCmpxchgGlobalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicCmpxchgGlobalNegative));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1671,7 +1672,7 @@ TEST(BuiltInFuncTest, AtomicCmpxchgLocalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicCmpxchgLocalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicCmpxchgLocalNegative));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1722,7 +1723,7 @@ TEST(BuiltInFuncTest, AtomicCmpxchgGlobalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicCmpxchgGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicCmpxchgGlobalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1773,7 +1774,7 @@ TEST(BuiltInFuncTest, AtomicCmpxchgLocalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicCmpxchgLocalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicCmpxchgLocalUint));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1817,7 +1818,7 @@ TEST(BuiltInFuncTest, AtomicMinGlobalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMinGlobalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMinGlobalPositive));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1855,7 +1856,7 @@ TEST(BuiltInFuncTest, AtomicMinLocalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMinLocalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMinLocalPositive));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1893,7 +1894,7 @@ TEST(BuiltInFuncTest, AtomicMinGlobalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMinGlobalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMinGlobalNegative));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1931,7 +1932,7 @@ TEST(BuiltInFuncTest, AtomicMinLocalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMinLocalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMinLocalNegative));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -1969,7 +1970,7 @@ TEST(BuiltInFuncTest, AtomicMinGlobalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMinGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMinGlobalUint));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2007,7 +2008,7 @@ TEST(BuiltInFuncTest, AtomicMinLocalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMinLocalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMinLocalUint));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2045,7 +2046,7 @@ TEST(BuiltInFuncTest, AtomicMaxGlobalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMaxGlobalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMaxGlobalPositive));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2083,7 +2084,7 @@ TEST(BuiltInFuncTest, AtomicMaxLocalPositiveTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMaxLocalPositive, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMaxLocalPositive));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2121,7 +2122,7 @@ TEST(BuiltInFuncTest, AtomicMaxGlobalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMaxGlobalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMaxGlobalNegative));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2159,7 +2160,7 @@ TEST(BuiltInFuncTest, AtomicMaxLocalNegativeTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMaxLocalNegative, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMaxLocalNegative));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2197,7 +2198,7 @@ TEST(BuiltInFuncTest, AtomicMaxGlobalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMaxGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMaxGlobalUint));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2235,7 +2236,7 @@ TEST(BuiltInFuncTest, AtomicMaxLocalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicMaxLocalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicMaxLocalUint));
     kernel->run(*result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2270,7 +2271,7 @@ TEST(BuiltInFuncTest, AtomicAndGlobalTest)
       result_buff->write(&init, 1, 0, 0);
     }
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicAndGlobal, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicAndGlobal));
     kernel->run(*result_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2304,7 +2305,7 @@ TEST(BuiltInFuncTest, AtomicAndGlobalUintTest)
       result_buff->write(&init, 1, 0, 0);
     }
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicAndGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicAndGlobalUint));
     kernel->run(*result_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2338,7 +2339,7 @@ TEST(BuiltInFuncTest, AtomicOrGlobalTest)
       result_buff->write(&init, 1, 0, 0);
     }
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicOrGlobal, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicOrGlobal));
     kernel->run(*result_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2373,7 +2374,7 @@ TEST(BuiltInFuncTest, AtomicOrUintTest)
       result_buff->write(&init, 1, 0, 0);
     }
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicOrGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicOrGlobalUint));
     kernel->run(*result_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2418,7 +2419,7 @@ TEST(BuiltInFuncTest, AtomicFloatIncGlobalTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicFloatIncGlobal, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicFloatIncGlobal));
     kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -2469,7 +2470,7 @@ TEST(BuiltInFuncTest, AtomicFloatIncGlobalUintTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
-    auto kernel = makeZinvulKernel(device.get(), built_in_func, testAtomicFloatIncGlobalUint, 1);
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicFloatIncGlobalUint));
     kernel->run(*(result_buff->treatAs<uint32b>()), *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
