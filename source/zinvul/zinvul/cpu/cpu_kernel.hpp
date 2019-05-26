@@ -15,7 +15,6 @@
 #include <cstddef>
 // Zinvul
 #include "zinvul/kernel.hpp"
-#include "zinvul/kernel_group.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
@@ -26,15 +25,14 @@ template <typename> class CpuBuffer;
 
 /*!
   */
-template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
-class CpuKernel : public Kernel<KGroupType, kDimension, ArgumentTypes...>
+template <std::size_t kDimension, typename ...ArgumentTypes>
+class CpuKernel : public Kernel<kDimension, ArgumentTypes...>
 {
-  using KernelBase = Kernel<KGroupType, kDimension, ArgumentTypes...>;
+  using KernelBase = Kernel<kDimension, ArgumentTypes...>;
   template <typename Type>
   using BufferRef = typename KernelBase::template BufferRef<Type>;
 
  public:
-  using GroupType = typename KernelBase::GroupType;
   using Function = typename KernelBase::Function;
 
 

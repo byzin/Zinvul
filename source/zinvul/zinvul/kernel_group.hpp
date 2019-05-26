@@ -14,7 +14,6 @@
 #include <cstddef>
 // Zisc
 #include "zisc/memory_resource.hpp"
-#include "zisc/non_copyable.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
 
@@ -22,19 +21,16 @@ namespace zinvul {
 
 /*!
   */
-class KernelGroup : private zisc::NonCopyable<KernelGroup>
+template <typename GroupType>
+class KernelGroup
 {
  public:
-  //!
-  virtual ~KernelGroup() noexcept;
-
+  //! Return the SPIR-V code
+  static zisc::pmr::vector<uint32b> getKernelSpirvCode(
+      zisc::pmr::memory_resource* mem_resource) noexcept;
 
   //! Return the group number
-  virtual uint32b __getKernelGroupNumber() const noexcept = 0;
-
-  //! Return the SPIR-V code
-  virtual zisc::pmr::vector<uint32b> __getKernelSpirvCode(
-      zisc::pmr::memory_resource* mem_resource) const noexcept = 0;
+  static constexpr uint32b getId() noexcept;
 };
 
 } // namespace zinvul

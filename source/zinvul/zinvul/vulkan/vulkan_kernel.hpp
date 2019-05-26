@@ -13,12 +13,12 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <string_view>
 #include <type_traits>
 // Vulkan
 #include <vulkan/vulkan.hpp>
 // Zinvul
 #include "zinvul/buffer.hpp"
-#include "zinvul/kernel_group.hpp"
 #include "zinvul/zinvul.hpp"
 #include "zinvul/zinvul_config.hpp"
 
@@ -30,10 +30,10 @@ template <typename> class VulkanBuffer;
 
 /*!
   */
-template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
-class VulkanKernel : public Kernel<KGroupType, kDimension, ArgumentTypes...>
+template <std::size_t kDimension, typename ...ArgumentTypes>
+class VulkanKernel : public Kernel<kDimension, ArgumentTypes...>
 {
-  using KernelBase = Kernel<KGroupType, kDimension, ArgumentTypes...>;
+  using KernelBase = Kernel<kDimension, ArgumentTypes...>;
   template <typename Type>
   using BufferRef = typename KernelBase::template BufferRef<Type>;
 
@@ -41,7 +41,7 @@ class VulkanKernel : public Kernel<KGroupType, kDimension, ArgumentTypes...>
   //! Construct a kernel
   VulkanKernel(VulkanDevice* device,
                const uint32b module_index,
-               const char* kernel_name) noexcept;
+               const std::string_view kernel_name) noexcept;
 
   //! Destroy a kernel
   ~VulkanKernel() noexcept override;
@@ -82,7 +82,7 @@ class VulkanKernel : public Kernel<KGroupType, kDimension, ArgumentTypes...>
 
   //! Initialize a compute pipeline
   void initComputePipeline(const uint32b module_index,
-                           const char* kernel_name) noexcept;
+                           const std::string_view kernel_name) noexcept;
 
   //! Initialize a descriptor pool
   void initDescriptorPool() noexcept;
@@ -94,7 +94,8 @@ class VulkanKernel : public Kernel<KGroupType, kDimension, ArgumentTypes...>
   void initDescriptorSetLayout() noexcept;
 
   //! Initialize a kernel
-  void initialize(const uint32b module_index, const char* kernel_name) noexcept;
+  void initialize(const uint32b module_index,
+                  const std::string_view kernel_name) noexcept;
 
   //! Initialize a pipeline layout
   void initPipelineLayout() noexcept;

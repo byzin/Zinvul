@@ -13,11 +13,14 @@
 #include "zinvul.hpp"
 // Standard C++ library
 #include <cstddef>
+#include <string_view>
+#include <type_traits>
 // Zisc
 #include "zisc/memory_resource.hpp"
 #include "zisc/unique_memory_pointer.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
+#include "kernel_group.hpp"
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
@@ -86,37 +89,40 @@ UniqueDevice makeDevice(DeviceOptions& options) noexcept
   return device;
 }
 
-namespace inner {
+namespace cppinner {
 
-template <typename, typename ...ArgumentTypes> struct KernelFunction;
+template <typename ...Types> class KernelFunction;
 
 template <typename GroupType, typename ...ArgumentTypes>
-struct KernelFunction<GroupType, void (*)(ArgumentTypes...)>
+class KernelFunction<GroupType, void (*)(ArgumentTypes...)>
 {
+  static_assert(std::is_base_of_v<KernelGroup<GroupType>, GroupType>,
+                "The GroupType isn't derived from zisc::KernelGroup.");
   using Function = void (*)(ArgumentTypes...);
 
+ public:
   template <std::size_t kDimension>
   static auto make(Device* device,
-                   const Function kernel_func,
-                   const char* kernel_name) noexcept
+                   Function kernel_func,
+                   const std::string_view kernel_name) noexcept
   {
-    UniqueKernel<GroupType, kDimension, ArgumentTypes...> kernel;
+    UniqueKernel<kDimension, ArgumentTypes...> kernel;
     switch (device->deviceType()) {
      case DeviceType::kCpu: {
       auto d = zisc::cast<CpuDevice*>(device);
-      kernel = d->makeKernel<GroupType, kDimension, ArgumentTypes...>(kernel_func);
+      kernel = d->makeKernel<kDimension, ArgumentTypes...>(kernel_func);
       break;
      }
 #ifdef ZINVUL_ENABLE_VULKAN_BACKEND
      case DeviceType::kVulkan: {
       auto d = zisc::cast<VulkanDevice*>(device);
-      const uint32b module_index = GroupType{}.__getKernelGroupNumber();
+      constexpr uint32b module_index = GroupType::getId();
       if (!d->hasShaderModule(module_index)) {
-        const auto spirv_code = GroupType{}.__getKernelSpirvCode(d->workResource());
+        const auto spirv_code = GroupType::getKernelSpirvCode(d->workResource());
         d->setShaderModule(spirv_code, module_index);
       }
-      kernel = d->makeKernel<GroupType, kDimension, ArgumentTypes...>(module_index,
-                                                                      kernel_name);
+      kernel = d->makeKernel<kDimension, ArgumentTypes...>(module_index,
+                                                           kernel_name);
       break;
      }
 #endif // ZINVUL_ENABLE_VULKAN_BACKEND
@@ -129,13 +135,14 @@ struct KernelFunction<GroupType, void (*)(ArgumentTypes...)>
   }
 };
 
-} // namespace inner
+} // namespace cppinner
 
 /*!
   */
 #undef makeZinvulKernel
 #define makeZinvulKernel(device, kernel_group, kernel, dimension) \
-    inner::KernelFunction<zinvul:: kernel_group ::KernelGroup, decltype(&zinvul::cl:: kernel )>\
+    cppinner::KernelFunction<zinvul:: kernel_group ::__KernelGroup, \
+                             decltype(&zinvul::cl:: kernel )> \
         ::make< dimension >(device, &zinvul::cl:: kernel , #kernel )
 
 } // namespace zinvul

@@ -36,13 +36,24 @@
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #endif // Z_CLANG
 
-@define_cppcl_qualifiers_code@
-
 namespace zinvul {
 
 namespace cl {
 
+#if defined(__kernel)
+  static_assert(false, "The macro '__kernel' is already defined.");
+#endif // __kernel
+#define __kernel
+
+#if defined(kernel)
+  static_assert(false, "The macro 'kernel' is already defined.");
+#endif // kernel
+#define kernel
+
 @kernel_include_lines@
+
+#undef __kernel
+#undef kernel
 
 } // namespace cl
 
@@ -50,18 +61,12 @@ namespace @kernel_group_name@ {
 
 /*!
   */
-class KernelGroup : public zinvul::KernelGroup
+class __KernelGroup : public zinvul::KernelGroup<__KernelGroup>
 {
  public:
-  //! Return the group number
-  uint32b __getKernelGroupNumber() const noexcept override
-  {
-    return @group_number@;
-  }
-
   //! Return the SPIR-V code
-  zisc::pmr::vector<uint32b> __getKernelSpirvCode(
-      zisc::pmr::memory_resource* mem_resource) const noexcept override
+  static zisc::pmr::vector<uint32b> getKernelSpirvCode(
+      zisc::pmr::memory_resource* mem_resource) noexcept
   {
     zisc::pmr::vector<uint32b> spirv_code{mem_resource};
 #ifndef ZINVUL_BAKE_KERNELS
@@ -94,13 +99,17 @@ class KernelGroup : public zinvul::KernelGroup
 #endif // ZINVUL_BAKE_KERNELS
     return spirv_code;
   }
+
+  //! Return the group number
+  static constexpr uint32b getId() noexcept
+  {
+    return @group_number@;
+  }
 };
 
 } // namespace @kernel_group_name@
 
 } // namespace zinvul
-
-@undefine_cppcl_qualifiers_code@
 
 #ifdef Z_CLANG
 #pragma clang diagnostic pop

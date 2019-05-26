@@ -647,7 +647,8 @@ __kernel void testAtomicCmpxchgLocalPositive(GlobalPtr<int32b> result,
   if (index < resolution) {
     const auto inc = [](const int32b p)
     {
-      return p + 1;
+      const int32b r = p + 1;
+      return r;
     };
     LocalPtr<int32b> p = &c;
     // \todo Segmentation fault happens with clspv
@@ -670,7 +671,8 @@ __kernel void testAtomicCmpxchgGlobalNegative(GlobalPtr<int32b> result,
   if (index < resolution) {
     const auto sub = [](const int32b p, const int32b value)
     {
-      return p - value;
+      const int32b r = p - value;
+      return r;
     };
     const size_t i = cast<size_t>(-Atomic::perform(result, sub, 1));
     table[i] = 1;
@@ -693,7 +695,8 @@ __kernel void testAtomicCmpxchgLocalNegative(GlobalPtr<int32b> result,
   if (index < resolution) {
     const auto sub = [](const int32b p, const int32b value)
     {
-      return p - value;
+      const int32b r = p - value;
+      return r;
     };
     LocalPtr<int32b> p = &c;
     // \todo Segmentation fault happens with clspv
@@ -716,7 +719,8 @@ __kernel void testAtomicCmpxchgGlobalUint(GlobalPtr<uint32b> result,
   if (index < resolution) {
     const auto add = [](const uint32b p, const uint32b value)
     {
-      return p + value;
+      const uint32b r = p + value;
+      return r;
     };
     const size_t i = Atomic::perform(result, add, 1u);
     table[i] = 1;
@@ -739,7 +743,8 @@ __kernel void testAtomicCmpxchgLocalUint(GlobalPtr<uint32b> result,
   if (index < resolution) {
     const auto add = [](const uint32b p, const uint32b value)
     {
-      return p + value;
+      const uint32b r = p + value;
+      return r;
     };
     LocalPtr<uint32b> p = &c;
     // \todo Segmentation fault happens with clspv
@@ -998,8 +1003,8 @@ __kernel void testAtomicFloatIncGlobal(GlobalPtr<float> result,
   if (index < resolution) {
     const auto add = [](const float p, const float value)
     {
-      const float result = p + value;
-      return result;
+      const float r = p + value;
+      return r;
     };
 //    const float old = Atomic::perform(result, add, 1.0f);
 //    const size_t i = cast<size_t>(old);
@@ -1016,8 +1021,8 @@ __kernel void testAtomicFloatIncGlobalUint(GlobalPtr<uint32b> result,
   if (index < resolution) {
     const auto add = [](const uint32b p, const float value)
     {
-      const float result = treatAs<float>(p) + value;
-      return treatAs<uint32b>(result);
+      const float r = treatAs<float>(p) + value;
+      return treatAs<uint32b>(r);
     };
     const float old = treatAs<float>(Atomic::perform(result, add, 1.0f));
     const size_t i = cast<size_t>(old);

@@ -23,18 +23,16 @@ namespace zinvul {
 
 /*!
   */
-template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
-inline
-Kernel<KGroupType, kDimension, ArgumentTypes...>::~Kernel() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes> inline
+Kernel<kDimension, ArgumentTypes...>::~Kernel() noexcept
 {
 }
 
 /*!
   */
-template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
-inline
-constexpr std::size_t Kernel<KGroupType, kDimension, ArgumentTypes...>::
-    numOfArguments() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes> inline
+constexpr std::size_t Kernel<kDimension, ArgumentTypes...>::numOfArguments()
+    noexcept
 {
   constexpr std::size_t size = sizeof...(ArgumentTypes);
   return size;
@@ -42,10 +40,9 @@ constexpr std::size_t Kernel<KGroupType, kDimension, ArgumentTypes...>::
 
 /*!
   */
-template <typename KGroupType, std::size_t kDimension, typename ...ArgumentTypes>
-inline
-constexpr std::size_t Kernel<KGroupType, kDimension, ArgumentTypes...>::
-    workgroupDimension() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes> inline
+constexpr std::size_t Kernel<kDimension, ArgumentTypes...>::workgroupDimension()
+    noexcept
 {
   return kDimension;
 }

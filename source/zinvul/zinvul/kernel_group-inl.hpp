@@ -13,10 +13,9 @@
 #include "kernel_group.hpp"
 // Standard C++ library
 #include <cstddef>
-#include <type_traits>
+#include <vector>
 // Zisc
-#include "zisc/error.hpp"
-#include "zisc/utility.hpp"
+#include "zisc/memory_resource.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
 
@@ -24,9 +23,19 @@ namespace zinvul {
 
 /*!
   */
-inline
-KernelGroup::~KernelGroup() noexcept
+template <typename GroupType> inline
+zisc::pmr::vector<uint32b> KernelGroup<GroupType>::getKernelSpirvCode(
+    zisc::pmr::memory_resource* mem_resource) noexcept
 {
+  return GroupType::getKernelSpirvCode(mem_resource);
+}
+
+/*!
+  */
+template <typename GroupType> inline
+constexpr uint32b KernelGroup<GroupType>::getId() noexcept
+{
+  return GroupType::getId();
 }
 
 } // namespace zinvul

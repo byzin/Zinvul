@@ -30,7 +30,6 @@
 // Zinvul
 #include "cpu_buffer.hpp"
 #include "cpu_kernel.hpp"
-#include "zinvul/kernel_group.hpp"
 #include "zinvul/zinvul_config.hpp"
 #include "zinvul/cppcl/atomic.hpp"
 #include "zinvul/cppcl/utility.hpp"
@@ -103,16 +102,14 @@ UniqueBuffer<Type> CpuDevice::makeBuffer(const BufferUsage usage_flag) noexcept
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
+template <std::size_t kDimension, typename ...ArgumentTypes>
 inline
-UniqueKernel<GroupType, kDimension, ArgumentTypes...> CpuDevice::makeKernel(
-    const typename Kernel<GroupType, kDimension, ArgumentTypes...>::Function func)
-        noexcept
+UniqueKernel<kDimension, ArgumentTypes...> CpuDevice::makeKernel(
+    const typename Kernel<kDimension, ArgumentTypes...>::Function func) noexcept
 {
-  using UniqueCpuKernel = zisc::UniqueMemoryPointer<CpuKernel<GroupType,
-                                                              kDimension,
+  using UniqueCpuKernel = zisc::UniqueMemoryPointer<CpuKernel<kDimension,
                                                               ArgumentTypes...>>;
-  UniqueKernel<GroupType, kDimension, ArgumentTypes...> kernel =
+  UniqueKernel<kDimension, ArgumentTypes...> kernel =
       UniqueCpuKernel::make(memoryResource(), this, func);
   return kernel;
 }

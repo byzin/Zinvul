@@ -134,10 +134,10 @@ class VulkanDevice : public Device
   UniqueBuffer<Type> makeBuffer(const BufferUsage usage_flag) noexcept;
 
   //! Make a kernel
-  template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
-  UniqueKernel<GroupType, kDimension, ArgumentTypes...> makeKernel(
+  template <std::size_t kDimension, typename ...ArgumentTypes>
+  UniqueKernel<kDimension, ArgumentTypes...> makeKernel(
       const uint32b module_index,
-      const char* kernel_name) noexcept;
+      const std::string_view kernel_name) noexcept;
 
   //! Map a buffer memory to a host
   template <typename Type>
@@ -238,7 +238,6 @@ class VulkanDevice : public Device
   VmaAllocator allocator_ = VK_NULL_HANDLE;
   std::string vendor_name_;
   uint32b queue_family_index_ = std::numeric_limits<uint32b>::max();
-  uint32b memory_type_index_ = std::numeric_limits<uint32b>::max();
   std::array<std::array<uint32b, 3>, 3> local_work_size_list_;
 };
 

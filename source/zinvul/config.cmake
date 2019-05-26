@@ -199,16 +199,16 @@ function(loadZinvul zinvul_source_files zinvul_include_dirs zinvul_compile_flags
   getZinvulOption(compile_flags linker_flags definitions)
 
   # Make configuration header file
-  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include)
-  set(zinvul_config_path ${PROJECT_BINARY_DIR}/include/zinvul)
+  set(zinvul_config_dir ${PROJECT_BINARY_DIR}/include/zinvul)
+  file(MAKE_DIRECTORY ${zinvul_config_dir})
   configure_file(${__zinvul_root__}/zinvul/zinvul_config.hpp.in
-                 ${zinvul_config_path}/zinvul_config.hpp
+                 ${zinvul_config_dir}/zinvul_config.hpp
                  @ONLY)
 
   # Set source code
   file(GLOB_RECURSE source_files ${__zinvul_root__}/zinvul/*.hpp
                               ${__zinvul_root__}/zinvul/*.cl)
-  list(APPEND source_files ${zinvul_config_path}/zinvul_config.hpp)
+  list(APPEND source_files ${zinvul_config_dir}/zinvul_config.hpp)
   source_group(Zinvul FILES ${source_files})
 
   # Vulkan
@@ -234,29 +234,12 @@ function(loadZinvul zinvul_source_files zinvul_include_dirs zinvul_compile_flags
 endfunction(loadZinvul)
 
 
-macro(getCppClQualifiersCodeImpl qualifier definition)
-  string(APPEND define_qualifiers_code "#ifdef ${qualifier}\n")
-  string(APPEND define_qualifiers_code "static_assert(false, \"The macro '${qualifier}' is already defined.\");\n")
-  string(APPEND define_qualifiers_code "#endif // ${qualifier}\n")
-  string(APPEND define_qualifiers_code "#define ${qualifier} ${definition}\n")
-  string(APPEND undefine_qualifiers_code "#undef ${qualifier}\n")
-endmacro(getCppClQualifiersCodeImpl)
-
-
-function(getCppClQualifiersCode define_cppcl_qualifiers_code undefine_cppcl_qualifiers_code)
-
-  set(define_qualifiers "")
-  set(undefine_qualifiers "")
-  getCppClQualifiersCodeImpl(__kernel "")
-  getCppClQualifiersCodeImpl(kernel "")
-
-  # Output
-  set(${define_cppcl_qualifiers_code} ${define_qualifiers_code} PARENT_SCOPE)
-  set(${undefine_cppcl_qualifiers_code} ${undefine_qualifiers_code} PARENT_SCOPE)
-endfunction(getCppClQualifiersCode)
-
-
 function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definitions)
+  set(cpp_kernel_group_dir ${PROJECT_BINARY_DIR}/include/zinvul/kernel_group)
+  file(MAKE_DIRECTORY ${cpp_kernel_group_dir})
+  set(spv_kernel_group_dir ${PROJECT_BINARY_DIR}/zinvul/kernel_group)
+  file(MAKE_DIRECTORY ${spv_kernel_group_dir})
+
   # Parse arguments
   set(options "")
   set(one_value_args "")
@@ -276,13 +259,12 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
   endforeach(cl_file)
 
   set(kernel_source_files ${ZINVUL_SOURCE_FILES})
-  set(spv_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.spv)
-  set(baked_spv_file_path ${PROJECT_BINARY_DIR}/zinvul/baked_${kernel_group_name}_spirv.hpp)
+  set(spv_file_path ${spv_kernel_group_dir}/${kernel_group_name}.spv)
+  set(baked_spv_file_path ${spv_kernel_group_dir}/baked_${kernel_group_name}_spirv.hpp)
 
   # C++ backend
-  getCppClQualifiersCode(define_cppcl_qualifiers_code undefine_cppcl_qualifiers_code)
   set(definitions "" ${ZINVUL_DEFINITIONS})
-  set(kernel_hpp_file_path ${PROJECT_BINARY_DIR}/include/zinvul/${kernel_group_name}.hpp)
+  set(kernel_hpp_file_path ${cpp_kernel_group_dir}/${kernel_group_name}.hpp)
   configure_file(${__zinvul_root__}/template/kernel_group.hpp.in
                  ${kernel_hpp_file_path}
                  @ONLY)
@@ -293,7 +275,7 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     if(clspv-NOTFOUND)
       message(FATAL_ERROR "'clspv' not found in path.") 
     endif()
-    set(cl_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.cl)
+    set(cl_file_path ${spv_kernel_group_dir}/${kernel_group_name}.cl)
     configure_file(${__zinvul_root__}/template/kernel_group.cl.in
                    ${cl_file_path}
                    @ONLY)
@@ -338,12 +320,12 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
                                -I=${__zinvul_root__}
                                -o=${spv_file_path} ${cl_file_path})
     # Descriptor map
-    set(descriptor_map_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.csv)
+    set(descriptor_map_path ${spv_kernel_group_dir}/${kernel_group_name}.csv)
     list(APPEND clspv_commands -descriptormap=${descriptor_map_path})
     # SPIRV-dis
     find_program(spirv_dis "spirv-dis")
     if(spirv_dis)
-      set(dis_file_path ${PROJECT_BINARY_DIR}/zinvul/${kernel_group_name}.txt)
+      set(dis_file_path ${spv_kernel_group_dir}/${kernel_group_name}.txt)
       set(spirv_dis_command COMMAND ${spirv_dis} ${spv_file_path} -o ${dis_file_path})
     else()
       message(WARNING "The `spirv-dis` command not found.")

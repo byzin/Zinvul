@@ -396,17 +396,15 @@ UniqueBuffer<Type> VulkanDevice::makeBuffer(const BufferUsage usage_flag) noexce
 
 /*!
   */
-template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
-inline
-UniqueKernel<GroupType, kDimension, ArgumentTypes...> VulkanDevice::makeKernel(
+template <std::size_t kDimension, typename ...ArgumentTypes> inline
+UniqueKernel<kDimension, ArgumentTypes...> VulkanDevice::makeKernel(
     const uint32b module_index,
-    const char* kernel_name) noexcept
+    const std::string_view kernel_name) noexcept
 {
   using UniqueVulkanKernel = zisc::UniqueMemoryPointer<VulkanKernel<
-      GroupType,
       kDimension,
       ArgumentTypes...>>;
-  UniqueKernel<GroupType, kDimension, ArgumentTypes...> kernel =
+  UniqueKernel<kDimension, ArgumentTypes...> kernel =
       UniqueVulkanKernel::make(memoryResource(), this, module_index, kernel_name);
   return kernel;
 }
@@ -805,29 +803,6 @@ void VulkanDevice::initMemoryAllocator() noexcept
 
   auto result = vmaCreateAllocator(&allocator_create_info, &allocator_);
   ZISC_ASSERT(result == VK_SUCCESS, "Memory allocator creation failed.");
-
-  VkBufferCreateInfo buffer_info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-                                 nullptr,
-                                 0,
-                                 sizeof(void*),
-                                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
-                                 VK_SHARING_MODE_EXCLUSIVE,
-                                 1,
-                                 &queue_family_index_};
-
-  VmaAllocationCreateInfo alloc_info{0,
-                                     VMA_MEMORY_USAGE_GPU_ONLY,
-                                     0,
-                                     0,
-                                     0,
-                                     VK_NULL_HANDLE,
-                                     nullptr};
-
-  result = vmaFindMemoryTypeIndexForBufferInfo(allocator_,
-                                               &buffer_info,
-                                               &alloc_info, 
-                                               &memory_type_index_);
-  ZISC_ASSERT(result == VK_SUCCESS, "Finding buffer info failed.");
 
   // Initialize a copy command for memory buffer
   const vk::CommandBufferAllocateInfo command_alloc_info{

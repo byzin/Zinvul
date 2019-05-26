@@ -20,7 +20,7 @@
 #include "zisc/floating_point.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
-#include "zinvul/data.hpp"
+#include "zinvul/kernel_group/data.hpp"
 // Test
 #include "test.hpp"
 

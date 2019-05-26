@@ -60,9 +60,9 @@ class CpuDevice : public Device
   UniqueBuffer<Type> makeBuffer(const BufferUsage usage_flag) noexcept;
 
   //! Make a kernel
-  template <typename GroupType, std::size_t kDimension, typename ...ArgumentTypes>
-  UniqueKernel<GroupType, kDimension, ArgumentTypes...> makeKernel(
-      const typename Kernel<GroupType, kDimension, ArgumentTypes...>::Function func)
+  template <std::size_t kDimension, typename ...ArgumentTypes>
+  UniqueKernel<kDimension, ArgumentTypes...> makeKernel(
+      const typename Kernel<kDimension, ArgumentTypes...>::Function func)
           noexcept;
 
   //! Return the device name
