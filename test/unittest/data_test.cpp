@@ -107,7 +107,7 @@ TEST(DataTest, GlobalInstanceTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    using GlobalOption = cl::test::OptionTest;
+    using GlobalOption = cl::data::test::OptionTest;
     GlobalOption option;
     option.init();
     option.setValue1(5u);
@@ -150,7 +150,7 @@ TEST(DataTest, LocalInstanceTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    using GlobalOption = cl::test::OptionTest;
+    using GlobalOption = cl::data::test::OptionTest;
     GlobalOption option;
     option.init();
     option.setValue1(5u);

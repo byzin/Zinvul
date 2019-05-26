@@ -40,6 +40,8 @@ namespace zinvul {
 
 namespace cl {
 
+namespace @kernel_group_name@ {
+
 #if defined(__kernel)
   static_assert(false, "The macro '__kernel' is already defined.");
 #endif // __kernel
@@ -54,6 +56,8 @@ namespace cl {
 
 #undef __kernel
 #undef kernel
+
+} // namespace @kernel_group_name@
 
 } // namespace cl
 

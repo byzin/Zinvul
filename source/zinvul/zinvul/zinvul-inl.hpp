@@ -142,8 +142,8 @@ class KernelFunction<GroupType, void (*)(ArgumentTypes...)>
 #undef makeZinvulKernel
 #define makeZinvulKernel(device, kernel_group, kernel, dimension) \
     cppinner::KernelFunction<zinvul:: kernel_group ::__KernelGroup, \
-                             decltype(&zinvul::cl:: kernel )> \
-        ::make< dimension >(device, &zinvul::cl:: kernel , #kernel )
+                             decltype(&zinvul::cl:: kernel_group :: kernel )> \
+        ::make< dimension >(device, &zinvul::cl:: kernel_group :: kernel , #kernel )
 
 } // namespace zinvul
 
