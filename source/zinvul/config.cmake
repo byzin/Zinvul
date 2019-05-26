@@ -304,17 +304,21 @@ function(makeKernelSet kernel_set_name zinvul_source_files zinvul_definitions)
     elseif(Z_MAC)
       list(APPEND clspv_options -D=Z_MAC)
     endif()
-    list(APPEND clspv_options -O=3
-                              -c++
+    list(APPEND clspv_options -c++
+                              -f16bit_storage
+                              -inline-entry-points
+                              -int8
+                              # Optimization
+                              -O=3
                               -cl-no-signed-zeros
                               -cost-kind=throughput
                               -cl-denorms-are-zero
                               -cl-finite-math-only
+                              -enable-gvn-memdep
+                              -enable-load-pre
+                              -enable-loop-simplifycfg-term-folding
                               -expensive-combines
-                              -f16bit_storage
-                              -inline-entry-points
                               -instcombine-code-sinking
-                              -int8
                               )
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
                                -I=${__zinvul_root__}
