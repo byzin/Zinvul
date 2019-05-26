@@ -57,27 +57,27 @@ function(buildUnitTest)
   # Data
   set(data_dir ${__test_root__}/kernels/data)
   file(GLOB_RECURSE data_cl_files ${data_dir}/*.cl)
-  makeKernelGroup(data data_source_files data_definitions
+  makeKernelSet(data data_source_files data_definitions
     SOURCE_FILES ${data_cl_files} INCLUDE_DIRS ${data_dir} DEFINITIONS ${data_definitions})
   # Built-in functions
   set(built_in_func_dir ${__test_root__}/kernels/built_in_func)
   file(GLOB_RECURSE built_in_func_cl_files ${built_in_func_dir}/*.cl)
-  makeKernelGroup(built_in_func built_in_func_source_files built_in_func_definitions
+  makeKernelSet(built_in_func built_in_func_source_files built_in_func_definitions
       SOURCE_FILES ${built_in_func_cl_files} INCLUDE_DIRS ${built_in_func_dir})
   # Math
   set(math_dir ${__test_root__}/kernels/math)
   file(GLOB_RECURSE math_cl_files ${math_dir}/*.cl)
-  makeKernelGroup(math math_source_files math_definitions
+  makeKernelSet(math math_source_files math_definitions
       SOURCE_FILES ${math_cl_files} INCLUDE_DIRS ${math_dir})
   # Random
   set(rng_dir ${__test_root__}/kernels/rng)
   file(GLOB_RECURSE rng_cl_files ${rng_dir}/*.cl)
-  makeKernelGroup(rng rng_source_files rng_definitions
+  makeKernelSet(rng rng_source_files rng_definitions
       SOURCE_FILES ${rng_cl_files} INCLUDE_DIRS ${rng_dir})
   # Experiment
   set(experiment_dir ${__test_root__}/kernels/experiment)
   file(GLOB_RECURSE experiment_cl_files ${experiment_dir}/*.cl)
-  makeKernelGroup(experiment experiment_source_files experiment_definitions
+  makeKernelSet(experiment experiment_source_files experiment_definitions
       SOURCE_FILES ${experiment_cl_files} INCLUDE_DIRS ${experiment_dir})
 
   # Build unit tests

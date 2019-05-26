@@ -21,7 +21,7 @@
 // Zinvul
 #include "zinvul/zinvul.hpp"
 #include "zinvul/zinvul_config.hpp"
-#include "zinvul/kernel_group/rng.hpp"
+#include "zinvul/kernel_set/rng.hpp"
 // Test
 #include "test.hpp"
 

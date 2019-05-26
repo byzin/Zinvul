@@ -38,7 +38,7 @@ UniqueBuffer<Type> makeBuffer(Device* device,
 UniqueDevice makeDevice(DeviceOptions& options) noexcept;
 
 //! Make a kernel
-#define makeZinvulKernel(device, kernel_group, kernel, dimension)
+#define makeZinvulKernel(device, kernel_set, kernel, dimension)
 
 } // namespace zinvul
 

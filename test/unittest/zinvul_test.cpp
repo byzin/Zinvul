@@ -21,7 +21,7 @@
 #include "zisc/utility.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
-#include "zinvul/kernel_group/experiment.hpp"
+#include "zinvul/kernel_set/experiment.hpp"
 #include "test.hpp"
 
 #ifdef ZINVUL_ENABLE_VULKAN_BACKEND

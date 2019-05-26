@@ -17,7 +17,7 @@
 #include "gtest/gtest.h"
 // Zinvul
 #include "zinvul/zinvul.hpp"
-#include "zinvul/kernel_group/built_in_func.hpp"
+#include "zinvul/kernel_set/built_in_func.hpp"
 // Test
 #include "test.hpp"
 

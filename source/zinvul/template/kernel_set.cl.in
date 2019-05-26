@@ -1,5 +1,5 @@
 /*!
-  \file @kernel_group_name@.cl
+  \file @kernel_set_name@.cl
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -7,11 +7,11 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_@kernel_group_name@_CL
-#define ZINVUL_@kernel_group_name@_CL
+#ifndef ZINVUL_@kernel_set_name@_CL
+#define ZINVUL_@kernel_set_name@_CL
 
 #pragma clang diagnostic ignored "-Wc++98-compat"
 
 @kernel_include_lines@
 
-#endif /* ZINVUL_@kernel_group_name@_CL */
+#endif /* ZINVUL_@kernel_set_name@_CL */

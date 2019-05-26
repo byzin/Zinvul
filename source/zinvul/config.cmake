@@ -7,7 +7,7 @@
 # 
 
 set(__zinvul_root__ ${CMAKE_CURRENT_LIST_DIR})
-set(__zinvul_num_of_groups__ -1 CACHE INTERNAL "")
+set(__zinvul_num_of_sets__ -1 CACHE INTERNAL "")
 
 function(initZinvulOption)
   set(option_description "Bake vulkan kernels into a binary.")
@@ -234,11 +234,11 @@ function(loadZinvul zinvul_source_files zinvul_include_dirs zinvul_compile_flags
 endfunction(loadZinvul)
 
 
-function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definitions)
-  set(cpp_kernel_group_dir ${PROJECT_BINARY_DIR}/include/zinvul/kernel_group)
-  file(MAKE_DIRECTORY ${cpp_kernel_group_dir})
-  set(spv_kernel_group_dir ${PROJECT_BINARY_DIR}/zinvul/kernel_group)
-  file(MAKE_DIRECTORY ${spv_kernel_group_dir})
+function(makeKernelSet kernel_set_name zinvul_source_files zinvul_definitions)
+  set(cpp_kernel_set_dir ${PROJECT_BINARY_DIR}/include/zinvul/kernel_set)
+  file(MAKE_DIRECTORY ${cpp_kernel_set_dir})
+  set(spv_kernel_set_dir ${PROJECT_BINARY_DIR}/zinvul/kernel_set)
+  file(MAKE_DIRECTORY ${spv_kernel_set_dir})
 
   # Parse arguments
   set(options "")
@@ -246,12 +246,12 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
   set(multi_value_args SOURCE_FILES INCLUDE_DIRS DEFINITIONS)
   cmake_parse_arguments(PARSE_ARGV 3 ZINVUL "${options}" "${one_value_args}" "${multi_value_args}")
   if(NOT ZINVUL_SOURCE_FILES)
-    message(FATAL_ERROR "The kernel group '${kernel_group_name}' has no source.")
+    message(FATAL_ERROR "The kernel set '${kernel_set_name}' has no source.")
   endif()
 
   # Set parameters
-  # Get the group number
-  math(EXPR group_number "${__zinvul_num_of_groups__} + 1")
+  # Get the set number
+  math(EXPR set_number "${__zinvul_num_of_sets__} + 1")
 
   set(kernel_include_lines "")
   foreach(cl_file IN LISTS ZINVUL_SOURCE_FILES)
@@ -259,13 +259,13 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
   endforeach(cl_file)
 
   set(kernel_source_files ${ZINVUL_SOURCE_FILES})
-  set(spv_file_path ${spv_kernel_group_dir}/${kernel_group_name}.spv)
-  set(baked_spv_file_path ${spv_kernel_group_dir}/baked_${kernel_group_name}_spirv.hpp)
+  set(spv_file_path ${spv_kernel_set_dir}/${kernel_set_name}.spv)
+  set(baked_spv_file_path ${spv_kernel_set_dir}/baked_${kernel_set_name}_spirv.hpp)
 
   # C++ backend
   set(definitions "" ${ZINVUL_DEFINITIONS})
-  set(kernel_hpp_file_path ${cpp_kernel_group_dir}/${kernel_group_name}.hpp)
-  configure_file(${__zinvul_root__}/template/kernel_group.hpp.in
+  set(kernel_hpp_file_path ${cpp_kernel_set_dir}/${kernel_set_name}.hpp)
+  configure_file(${__zinvul_root__}/template/kernel_set.hpp.in
                  ${kernel_hpp_file_path}
                  @ONLY)
   list(APPEND kernel_source_files ${kernel_hpp_file_path})
@@ -275,8 +275,8 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
     if(clspv-NOTFOUND)
       message(FATAL_ERROR "'clspv' not found in path.") 
     endif()
-    set(cl_file_path ${spv_kernel_group_dir}/${kernel_group_name}.cl)
-    configure_file(${__zinvul_root__}/template/kernel_group.cl.in
+    set(cl_file_path ${spv_kernel_set_dir}/${kernel_set_name}.cl)
+    configure_file(${__zinvul_root__}/template/kernel_set.cl.in
                    ${cl_file_path}
                    @ONLY)
     list(APPEND kernel_source_files ${cl_file_path})
@@ -320,12 +320,12 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
                                -I=${__zinvul_root__}
                                -o=${spv_file_path} ${cl_file_path})
     # Descriptor map
-    set(descriptor_map_path ${spv_kernel_group_dir}/${kernel_group_name}.csv)
+    set(descriptor_map_path ${spv_kernel_set_dir}/${kernel_set_name}.csv)
     list(APPEND clspv_commands -descriptormap=${descriptor_map_path})
     # SPIRV-dis
     find_program(spirv_dis "spirv-dis")
     if(spirv_dis)
-      set(dis_file_path ${spv_kernel_group_dir}/${kernel_group_name}.txt)
+      set(dis_file_path ${spv_kernel_set_dir}/${kernel_set_name}.txt)
       set(spirv_dis_command COMMAND ${spirv_dis} ${spv_file_path} -o ${dis_file_path})
     else()
       message(WARNING "The `spirv-dis` command not found.")
@@ -335,7 +335,7 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
       list(APPEND clspv_commands COMMAND
           ${Python3_EXECUTABLE}
           ${__zinvul_root__}/python/bake_spirv_command.py
-          ${kernel_group_name}
+          ${kernel_set_name}
           ${spv_file_path}
           ${baked_spv_file_path})
 #      list(APPEND kernel_source_files ${baked_spv_file_path})
@@ -345,15 +345,15 @@ function(makeKernelGroup kernel_group_name zinvul_source_files zinvul_definition
       ${spirv_dis_command}
       DEPENDS ${ZINVUL_SOURCE_FILES}
       COMMENT "Building CL object ${cl_file_path}")
-    add_custom_target(${kernel_group_name} DEPENDS ${spv_file_path})
+    add_custom_target(${kernel_set_name} DEPENDS ${spv_file_path})
   else()
-    add_custom_target(${kernel_group_name})
+    add_custom_target(${kernel_set_name})
   endif()
 
-  source_group(${kernel_group_name} FILES ${kernel_source_files})
+  source_group(${kernel_set_name} FILES ${kernel_source_files})
 
   # Output variables
   set(${zinvul_source_files} ${kernel_source_files} PARENT_SCOPE)
   set(${zinvul_definitions} ${definitions} PARENT_SCOPE)
-  set(__zinvul_num_of_groups__ ${group_number} CACHE INTERNAL "")
-endfunction(makeKernelGroup)
+  set(__zinvul_num_of_sets__ ${set_number} CACHE INTERNAL "")
+endfunction(makeKernelSet)

@@ -27,7 +27,7 @@
 #include "zisc/utility.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
-#include "zinvul/kernel_group/math.hpp"
+#include "zinvul/kernel_set/math.hpp"
 // Test
 #include "test.hpp"
 

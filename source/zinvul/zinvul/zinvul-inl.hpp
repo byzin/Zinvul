@@ -20,7 +20,7 @@
 #include "zisc/unique_memory_pointer.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
-#include "kernel_group.hpp"
+#include "kernel_set.hpp"
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
@@ -93,11 +93,11 @@ namespace cppinner {
 
 template <typename ...Types> class KernelFunction;
 
-template <typename GroupType, typename ...ArgumentTypes>
-class KernelFunction<GroupType, void (*)(ArgumentTypes...)>
+template <typename SetType, typename ...ArgumentTypes>
+class KernelFunction<SetType, void (*)(ArgumentTypes...)>
 {
-  static_assert(std::is_base_of_v<KernelGroup<GroupType>, GroupType>,
-                "The GroupType isn't derived from zisc::KernelGroup.");
+  static_assert(std::is_base_of_v<KernelSet<SetType>, SetType>,
+                "The SetType isn't derived from zisc::KernelSet.");
   using Function = void (*)(ArgumentTypes...);
 
  public:
@@ -116,9 +116,9 @@ class KernelFunction<GroupType, void (*)(ArgumentTypes...)>
 #ifdef ZINVUL_ENABLE_VULKAN_BACKEND
      case DeviceType::kVulkan: {
       auto d = zisc::cast<VulkanDevice*>(device);
-      constexpr uint32b module_index = GroupType::getId();
+      constexpr uint32b module_index = SetType::getId();
       if (!d->hasShaderModule(module_index)) {
-        const auto spirv_code = GroupType::getKernelSpirvCode(d->workResource());
+        const auto spirv_code = SetType::getKernelSpirvCode(d->workResource());
         d->setShaderModule(spirv_code, module_index);
       }
       kernel = d->makeKernel<kDimension, ArgumentTypes...>(module_index,
@@ -140,10 +140,10 @@ class KernelFunction<GroupType, void (*)(ArgumentTypes...)>
 /*!
   */
 #undef makeZinvulKernel
-#define makeZinvulKernel(device, kernel_group, kernel, dimension) \
-    cppinner::KernelFunction<zinvul:: kernel_group ::__KernelGroup, \
-                             decltype(&zinvul::cl:: kernel_group :: kernel )> \
-        ::make< dimension >(device, &zinvul::cl:: kernel_group :: kernel , #kernel )
+#define makeZinvulKernel(device, kernel_set, kernel, dimension) \
+    cppinner::KernelFunction<zinvul:: kernel_set ::__KernelSet, \
+                             decltype(&zinvul::cl:: kernel_set :: kernel )> \
+        ::make< dimension >(device, &zinvul::cl:: kernel_set :: kernel , #kernel )
 
 } // namespace zinvul
 

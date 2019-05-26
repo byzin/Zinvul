@@ -1,5 +1,5 @@
 /*!
-  \file @kernel_group_name@.hpp
+  \file @kernel_set_name@.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_@kernel_group_name@_HPP
-#define ZINVUL_@kernel_group_name@_HPP
+#ifndef ZINVUL_@kernel_set_name@_HPP
+#define ZINVUL_@kernel_set_name@_HPP
 
 // Standard C++ library
 #include <fstream>
@@ -18,7 +18,7 @@
 #include "zisc/memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
-#include "zinvul/kernel_group.hpp"
+#include "zinvul/kernel_set.hpp"
 #include "zinvul/zinvul_config.hpp"
 #include "zinvul/cppcl/address_space_pointer.hpp"
 #include "zinvul/cppcl/atomic.hpp"
@@ -40,7 +40,7 @@ namespace zinvul {
 
 namespace cl {
 
-namespace @kernel_group_name@ {
+namespace @kernel_set_name@ {
 
 #if defined(__kernel)
   static_assert(false, "The macro '__kernel' is already defined.");
@@ -57,15 +57,15 @@ namespace @kernel_group_name@ {
 #undef __kernel
 #undef kernel
 
-} // namespace @kernel_group_name@
+} // namespace @kernel_set_name@
 
 } // namespace cl
 
-namespace @kernel_group_name@ {
+namespace @kernel_set_name@ {
 
 /*!
   */
-class __KernelGroup : public zinvul::KernelGroup<__KernelGroup>
+class __KernelSet : public zinvul::KernelSet<__KernelSet>
 {
  public:
   //! Return the SPIR-V code
@@ -104,14 +104,14 @@ class __KernelGroup : public zinvul::KernelGroup<__KernelGroup>
     return spirv_code;
   }
 
-  //! Return the group number
+  //! Return the set number
   static constexpr uint32b getId() noexcept
   {
-    return @group_number@;
+    return @set_number@;
   }
 };
 
-} // namespace @kernel_group_name@
+} // namespace @kernel_set_name@
 
 } // namespace zinvul
 
@@ -120,4 +120,4 @@ class __KernelGroup : public zinvul::KernelGroup<__KernelGroup>
 #pragma clang diagnostic pop
 #endif // Z_CLANG
 
-#endif // ZINVUL_@kernel_group_name@_HPP
+#endif // ZINVUL_@kernel_set_name@_HPP
