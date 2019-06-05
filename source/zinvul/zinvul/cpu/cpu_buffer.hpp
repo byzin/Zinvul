@@ -26,14 +26,14 @@ class CpuDevice;
 
 /*!
   */
-template <typename T>
-class CpuBuffer : public Buffer<T>
+template <BufferType kBufferType, typename T>
+class CpuBuffer : public Buffer<kBufferType, T>
 {
  public:
   //! The type of the buffer. "const", "volatile" and "reference" are removed
-  using Type = typename Buffer<T>::Type;
-  using Pointer = typename Buffer<T>::Pointer;
-  using ConstPointer = typename Buffer<T>::ConstPointer;
+  using Type = typename Buffer<kBufferType, T>::Type;
+  using Pointer = typename Buffer<kBufferType, T>::Pointer;
+  using ConstPointer = typename Buffer<kBufferType, T>::ConstPointer;
 
 
   //! Create an empty buffer
@@ -53,7 +53,7 @@ class CpuBuffer : public Buffer<T>
   const zisc::pmr::vector<Type>& buffer() const noexcept;
 
   //! Copy this buffer to a dst buffer
-  void copyTo(Buffer<Type>* dst,
+  void copyTo(Buffer<kBufferType, T>* dst,
               const std::size_t count,
               const std::size_t src_offset,
               const std::size_t dst_offset,
@@ -93,6 +93,12 @@ class CpuBuffer : public Buffer<T>
   CpuDevice* device_;
   zisc::pmr::vector<Type> buffer_;
 };
+
+// Type aliases
+template <typename Type>
+using CpuUniformBuffer = CpuBuffer<BufferType::kUniform, Type>;
+template <typename Type>
+using CpuStorageBuffer = CpuBuffer<BufferType::kStorage, Type>;
 
 } // namespace zinvul
 

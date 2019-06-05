@@ -13,6 +13,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <type_traits>
 // Zinvul
 #include "zinvul/kernel.hpp"
 #include "zinvul/zinvul_config.hpp"
@@ -21,21 +22,13 @@ namespace zinvul {
 
 // Forward declaration
 class CpuDevice;
-template <typename> class CpuBuffer;
 
 /*!
   */
-template <std::size_t kDimension, typename ...ArgumentTypes>
-class CpuKernel : public Kernel<kDimension, ArgumentTypes...>
+template <std::size_t kDimension, typename Function, typename ...BufferArgs>
+class CpuKernel : public Kernel<kDimension, BufferArgs...>
 {
-  using KernelBase = Kernel<kDimension, ArgumentTypes...>;
-  template <typename Type>
-  using BufferRef = typename KernelBase::template BufferRef<Type>;
-
  public:
-  using Function = typename KernelBase::Function;
-
-
    //! Construct a kernel
   CpuKernel(CpuDevice* device, const Function kernel) noexcept;
 
@@ -56,26 +49,14 @@ class CpuKernel : public Kernel<kDimension, ArgumentTypes...>
   bool hasKernel() const noexcept;
 
   //! Execute a kernel
-  void run(BufferRef<ArgumentTypes>... args,
+  void run(std::add_lvalue_reference_t<BufferArgs>... args,
            const std::array<uint32b, kDimension> works,
-           const uint32b /* queue_index*/) noexcept override
-  {
-    const auto command =[this, &args...]()
-    {
-      (*kernel())(refer<ArgumentTypes>(args)...);
-    };
-    device_->submit(works, CpuDevice::Command{command});
-  }
+           const uint32b queue_index) noexcept override;
 
   //! Set a kernel function
   void setKernel(const Function kernel) noexcept;
 
  private:
-  //! Refer to a buffer
-  template <typename Type>
-  Type refer(BufferRef<Type> buffer) const noexcept;
-
-
   CpuDevice* device_ = nullptr;
   Function kernel_ = nullptr;
 };

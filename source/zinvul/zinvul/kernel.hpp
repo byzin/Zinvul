@@ -20,47 +20,18 @@
 #include "zisc/utility.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
-#include "zinvul/cppcl/address_space_pointer.hpp"
 
 namespace zinvul {
 
-// Forward declaration
-template <typename> class Buffer;
-
 /*!
   */
-template <std::size_t kDimension, typename ...ArgumentTypes>
-class Kernel : private zisc::NonCopyable<Kernel<kDimension, ArgumentTypes...>>
+template <std::size_t kDimension, typename ...BufferArgs>
+class Kernel : private zisc::NonCopyable<Kernel<kDimension, BufferArgs...>>
 {
   static_assert(zisc::isInBounds(kDimension, 1u, 4u),
                 "The kDimension should be 1, 2 or 3.");
 
-  template <typename T, cl::AddressSpaceType kASpaceType = cl::AddressSpaceType::kPrivate>
-  struct ArgType
-  {
-    using Type = std::remove_pointer_t<std::remove_cv_t<T>>;
-    static constexpr cl::AddressSpaceType kAddressSpaceType = kASpaceType;
-    static constexpr bool kIsPointer = std::is_pointer_v<T>;
-  };
-
-  template <typename T, cl::AddressSpaceType kASpaceType>
-  struct ArgType<cl::AddressSpacePointer<T, kASpaceType>>
-  {
-    using Type = std::remove_cv_t<T>;
-    static constexpr cl::AddressSpaceType kAddressSpaceType = kASpaceType;
-    static constexpr bool kIsPointer = true;
-  };
-
- protected:
-  template <typename Type>
-  using ClArgType = ArgType<Type>;
-  template <typename Type>
-  using BufferRef = std::add_lvalue_reference_t<Buffer<typename ClArgType<Type>::Type>>;
-
  public:
-  using Function = void (*)(ArgumentTypes...);
-
-
   //!
   virtual ~Kernel() noexcept;
 
@@ -69,7 +40,7 @@ class Kernel : private zisc::NonCopyable<Kernel<kDimension, ArgumentTypes...>>
   virtual DeviceType deviceType() const noexcept = 0;
 
   //! Execute a kernel
-  virtual void run(BufferRef<ArgumentTypes>... args,
+  virtual void run(std::add_lvalue_reference_t<BufferArgs>... args,
                    const std::array<uint32b, kDimension> works,
                    const uint32b queue_index) noexcept = 0;
 
@@ -81,8 +52,8 @@ class Kernel : private zisc::NonCopyable<Kernel<kDimension, ArgumentTypes...>>
 };
 
 // Type aliases
-template <std::size_t kDimension, typename ...ArgumentTypes>
-using UniqueKernel = zisc::UniqueMemoryPointer<Kernel<kDimension, ArgumentTypes...>>;
+template <std::size_t kDimension, typename ...BufferArgs>
+using UniqueKernel = zisc::UniqueMemoryPointer<Kernel<kDimension, BufferArgs...>>;
 
 } // namespace zinvul
 

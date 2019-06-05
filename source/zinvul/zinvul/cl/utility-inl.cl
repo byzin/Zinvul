@@ -581,19 +581,19 @@ ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double4);
 
 #if defined(ZINVUL_CPU)
 
-template <typename Type, AddressSpaceType kASpaceType>
-struct TypeConverter<AddressSpacePointer<Type, kASpaceType>>
+template <AddressSpaceType kASpaceType, typename Type>
+struct TypeConverter<AddressSpacePointer<kASpaceType, Type>>
 {
-  using ASpacePointer = AddressSpacePointer<Type, kASpaceType>;
+  using ASpacePointer = AddressSpacePointer<kASpaceType, Type>;
 
   template <typename T>
-  static ASpacePointer cast(AddressSpacePointer<T, kASpaceType> value) noexcept
+  static ASpacePointer cast(AddressSpacePointer<kASpaceType, T> value) noexcept
   {
     return treatAs(value);
   }
 
   template <typename T>
-  static ASpacePointer treatAs(AddressSpacePointer<T, kASpaceType> object) noexcept
+  static ASpacePointer treatAs(AddressSpacePointer<kASpaceType, T> object) noexcept
   {
     auto data = reinterpret_cast<typename ASpacePointer::Pointer>(object.get());
     return ASpacePointer{data};

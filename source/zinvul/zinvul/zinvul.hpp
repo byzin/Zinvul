@@ -16,6 +16,7 @@
 // Zisc
 #include "zisc/unique_memory_pointer.hpp"
 // Zinvul
+#include "kernel_arg_parser.hpp"
 #include "kernel_set.hpp"
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
@@ -32,16 +33,33 @@
 namespace zinvul {
 
 //! Make a buffer
+template <BufferType kBufferType, typename Type>
+UniqueBuffer<kBufferType, Type> makeBuffer(
+    Device* device,
+    const BufferUsage usage_flag) noexcept;
+
+//! Make a uniform buffer
 template <typename Type>
-UniqueBuffer<Type> makeBuffer(Device* device,
-                              const BufferUsage usage_flag) noexcept;
+UniqueBuffer<BufferType::kUniform, Type> makeUniformBuffer(
+    Device* device,
+    const BufferUsage usage_flag) noexcept;
+
+//! Make a storage buffer
+template <typename Type>
+UniqueBuffer<BufferType::kStorage, Type> makeStorageBuffer(
+    Device* device,
+    const BufferUsage usage_flag) noexcept;
 
 //! Make a device
 UniqueDevice makeDevice(DeviceOptions& options) noexcept;
 
+template <std::size_t kDimension, typename ...ArgumentTypes>
+using UniqueKernelWithoutLocal = zisc::UniqueMemoryPointer<
+    typename KernelArgParser<kDimension, ArgumentTypes...>::KernelWithoutLocal>;
+
 //! Make a kernel
 template <std::size_t kDimension, typename SetType, typename ...ArgumentTypes>
-UniqueKernel<kDimension, ArgumentTypes...>
+UniqueKernelWithoutLocal<kDimension, ArgumentTypes...>
 makeKernel(Device* device,
            const KernelSet<SetType> kernel_set,
            void (*cpu_kernel)(ArgumentTypes...),

@@ -14,8 +14,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
-// Zisc
-#include "zisc/error.hpp"
+#include <type_traits>
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
 
@@ -23,25 +22,25 @@ namespace zinvul {
 
 /*!
   */
-template <std::size_t kDimension, typename ...ArgumentTypes> inline
-Kernel<kDimension, ArgumentTypes...>::~Kernel() noexcept
+template <std::size_t kDimension, typename ...BufferArgs> inline
+Kernel<kDimension, BufferArgs...>::~Kernel() noexcept
 {
 }
 
 /*!
   */
-template <std::size_t kDimension, typename ...ArgumentTypes> inline
-constexpr std::size_t Kernel<kDimension, ArgumentTypes...>::numOfArguments()
+template <std::size_t kDimension, typename ...BufferArgs> inline
+constexpr std::size_t Kernel<kDimension, BufferArgs...>::numOfArguments()
     noexcept
 {
-  constexpr std::size_t size = sizeof...(ArgumentTypes);
+  constexpr std::size_t size = sizeof...(BufferArgs);
   return size;
 }
 
 /*!
   */
-template <std::size_t kDimension, typename ...ArgumentTypes> inline
-constexpr std::size_t Kernel<kDimension, ArgumentTypes...>::workgroupDimension()
+template <std::size_t kDimension, typename ...BufferArgs> inline
+constexpr std::size_t Kernel<kDimension, BufferArgs...>::workgroupDimension()
     noexcept
 {
   return kDimension;

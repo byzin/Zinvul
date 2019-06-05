@@ -30,7 +30,7 @@
 namespace zinvul {
 
 // Forward declaration
-template <typename> class CpuBuffer;
+template <BufferType, typename> class CpuBuffer;
 
 /*!
   */
@@ -45,25 +45,26 @@ class CpuDevice : public Device
 
 
   //! Allocate a memory of a buffer
-  template <typename Type>
-  void allocate(const std::size_t size, CpuBuffer<Type>* buffer) noexcept;
+  template <BufferType kBufferType, typename Type>
+  void allocate(const std::size_t size,
+                CpuBuffer<kBufferType, Type>* buffer) noexcept;
 
   //! Deallocate a memory of a buffer
-  template <typename Type>
-  void deallocate(CpuBuffer<Type>* buffer) noexcept;
+  template <BufferType kBufferType, typename Type>
+  void deallocate(CpuBuffer<kBufferType, Type>* buffer) noexcept;
 
   //! Return cpu type
   DeviceType deviceType() const noexcept override;
 
   //! Make a buffer
-  template <typename Type>
-  UniqueBuffer<Type> makeBuffer(const BufferUsage usage_flag) noexcept;
+  template <BufferType kBufferType, typename Type>
+  UniqueBuffer<kBufferType, Type> makeBuffer(
+      const BufferUsage usage_flag) noexcept;
 
   //! Make a kernel
-  template <std::size_t kDimension, typename ...ArgumentTypes>
-  UniqueKernel<kDimension, ArgumentTypes...> makeKernel(
-      const typename Kernel<kDimension, ArgumentTypes...>::Function func)
-          noexcept;
+  template <std::size_t kDimension, typename Function, typename ...BufferArgs>
+  UniqueKernel<kDimension, BufferArgs...> makeKernel(
+      Function func) noexcept;
 
   //! Return the device name
   std::string_view name() const noexcept override;

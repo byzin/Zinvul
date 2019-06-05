@@ -25,6 +25,7 @@ function(getTestWarningOption test_warning_flags)
                                 -Wno-global-constructors
                                 -Wno-old-style-cast
                                 -Wno-padded
+                                -Wno-undefined-reinterpret-cast
                                 -Wno-weak-vtables
                                 -Wno-zero-as-null-pointer-constant
                                 )

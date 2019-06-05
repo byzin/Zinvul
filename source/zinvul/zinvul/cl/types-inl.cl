@@ -31,30 +31,30 @@ typedef ::zinvul::uint64b uint64b;
 template <typename Type>
 using Global = Type;
 template <typename Type>
-using GlobalPtr = AddressSpacePointer<Type, AddressSpaceType::kGlobal>;
+using GlobalPtr = AddressSpacePointer<AddressSpaceType::kGlobal, Type>;
 template <typename Type>
-using ConstGlobalPtr = AddressSpacePointer<const Type, AddressSpaceType::kGlobal>;
+using ConstGlobalPtr = AddressSpacePointer<AddressSpaceType::kGlobal, const Type>;
 // Local
 template <typename Type>
 using Local = Type;
 template <typename Type>
-using LocalPtr = AddressSpacePointer<Type, AddressSpaceType::kLocal>;
+using LocalPtr = AddressSpacePointer<AddressSpaceType::kLocal, Type>;
 template <typename Type>
-using ConstLocalPtr = AddressSpacePointer<const Type, AddressSpaceType::kLocal>;
+using ConstLocalPtr = AddressSpacePointer<AddressSpaceType::kLocal, const Type>;
 // Constant
 template <typename Type>
 using Constant = const Type;
 template <typename Type>
-using ConstantPtr = AddressSpacePointer<const Type, AddressSpaceType::kConstant>;
+using ConstantPtr = AddressSpacePointer<AddressSpaceType::kConstant, const Type>;
 // Private
 template <typename Type>
 using Private = Type;
 template <typename Type>
 using PrivatePtr = 
-    typename AddressSpacePointer<Type, AddressSpaceType::kPrivate>::Pointer;
+    typename AddressSpacePointer<AddressSpaceType::kPrivate, Type>::Pointer;
 template <typename Type>
 using ConstPrivatePtr =
-    typename AddressSpacePointer<const Type, AddressSpaceType::kPrivate>::ConstPointer;
+    typename AddressSpacePointer<AddressSpaceType::kPrivate, const Type>::ConstPointer;
 // Generic
 template <typename Type>
 using Generic = Type;

@@ -25,10 +25,10 @@ namespace zinvul {
 
 /*!
   */
-template <typename T> inline
-CpuBuffer<T>::CpuBuffer(CpuDevice* device,
-                        const BufferUsage usage_flag) noexcept :
-    Buffer<T>(usage_flag),
+template <BufferType kBufferType, typename T> inline
+CpuBuffer<kBufferType, T>::CpuBuffer(CpuDevice* device,
+                                     const BufferUsage usage_flag) noexcept :
+    Buffer<kBufferType, T>(usage_flag),
     device_{device},
     buffer_{device->memoryResource()}
 {
@@ -36,10 +36,10 @@ CpuBuffer<T>::CpuBuffer(CpuDevice* device,
 
 /*!
   */
-template <typename T> inline
-CpuBuffer<T>::CpuBuffer(CpuDevice* device,
-                        const BufferUsage usage_flag,
-                        const std::size_t size) noexcept :
+template <BufferType kBufferType, typename T> inline
+CpuBuffer<kBufferType, T>::CpuBuffer(CpuDevice* device,
+                                     const BufferUsage usage_flag,
+                                     const std::size_t size) noexcept :
     CpuBuffer(device, usage_flag)
 {
   setSize(size);
@@ -47,60 +47,61 @@ CpuBuffer<T>::CpuBuffer(CpuDevice* device,
 
 /*!
   */
-template <typename T> inline
-auto CpuBuffer<T>::buffer() noexcept -> zisc::pmr::vector<Type>&
+template <BufferType kBufferType, typename T> inline
+auto CpuBuffer<kBufferType, T>::buffer() noexcept -> zisc::pmr::vector<Type>&
 {
   return buffer_;
 }
 
 /*!
   */
-template <typename T> inline
-auto CpuBuffer<T>::buffer() const noexcept -> const zisc::pmr::vector<Type>&
+template <BufferType kBufferType, typename T> inline
+auto CpuBuffer<kBufferType, T>::buffer() const noexcept
+    -> const zisc::pmr::vector<Type>&
 {
   return buffer_;
 }
 
 /*!
   */
-template <typename T> inline
-void CpuBuffer<T>::copyTo(Buffer<Type>* dst,
-                          const std::size_t count,
-                          const std::size_t src_offset,
-                          const std::size_t dst_offset,
-                          const uint32b queue_index) const noexcept
+template <BufferType kBufferType, typename T> inline
+void CpuBuffer<kBufferType, T>::copyTo(Buffer<kBufferType, T>* dst,
+                                       const std::size_t count,
+                                       const std::size_t src_offset,
+                                       const std::size_t dst_offset,
+                                       const uint32b queue_index) const noexcept
 {
   dst->write(data() + src_offset, count, dst_offset, queue_index);
 }
 
 /*!
   */
-template <typename T> inline
-auto CpuBuffer<T>::data() noexcept -> Pointer
+template <BufferType kBufferType, typename T> inline
+auto CpuBuffer<kBufferType, T>::data() noexcept -> Pointer
 {
   return buffer_.data();
 }
 
 /*!
   */
-template <typename T> inline
-auto CpuBuffer<T>::data() const noexcept -> ConstPointer
+template <BufferType kBufferType, typename T> inline
+auto CpuBuffer<kBufferType, T>::data() const noexcept -> ConstPointer
 {
   return buffer_.data();
 }
 
 /*!
   */
-template <typename T> inline
-DeviceType CpuBuffer<T>::deviceType() const noexcept
+template <BufferType kBufferType, typename T> inline
+DeviceType CpuBuffer<kBufferType, T>::deviceType() const noexcept
 {
   return DeviceType::kCpu;
 }
 
 /*!
   */
-template <typename T> inline
-std::size_t CpuBuffer<T>::memoryUsage() const noexcept
+template <BufferType kBufferType, typename T> inline
+std::size_t CpuBuffer<kBufferType, T>::memoryUsage() const noexcept
 {
   const std::size_t memory_usage = sizeof(Type) * size();
   return memory_usage;
@@ -108,11 +109,11 @@ std::size_t CpuBuffer<T>::memoryUsage() const noexcept
 
 /*!
   */
-template <typename T> inline
-void CpuBuffer<T>::read(Pointer host_data,
-                        const std::size_t count,
-                        const std::size_t offset,
-                        const uint32b) const noexcept
+template <BufferType kBufferType, typename T> inline
+void CpuBuffer<kBufferType, T>::read(Pointer host_data,
+                                     const std::size_t count,
+                                     const std::size_t offset,
+                                     const uint32b) const noexcept
 {
   ZISC_ASSERT(this->isHostReadable(), "The buffer isn't host readable.");
   const std::size_t s = sizeof(Type) * count;
@@ -121,8 +122,8 @@ void CpuBuffer<T>::read(Pointer host_data,
 
 /*!
   */
-template <typename T> inline
-void CpuBuffer<T>::setSize(const std::size_t size) noexcept
+template <BufferType kBufferType, typename T> inline
+void CpuBuffer<kBufferType, T>::setSize(const std::size_t size) noexcept
 {
   device_->deallocate(this);
   device_->allocate(size, this);
@@ -130,19 +131,19 @@ void CpuBuffer<T>::setSize(const std::size_t size) noexcept
 
 /*!
   */
-template <typename T> inline
-std::size_t CpuBuffer<T>::size() const noexcept
+template <BufferType kBufferType, typename T> inline
+std::size_t CpuBuffer<kBufferType, T>::size() const noexcept
 {
   return buffer_.size();
 }
 
 /*!
   */
-template <typename T> inline
-void CpuBuffer<T>::write(ConstPointer host_data,
-                         const std::size_t count,
-                         const std::size_t offset,
-                         const uint32b) noexcept
+template <BufferType kBufferType, typename T> inline
+void CpuBuffer<kBufferType, T>::write(ConstPointer host_data,
+                                      const std::size_t count,
+                                      const std::size_t offset,
+                                      const uint32b) noexcept
 {
   ZISC_ASSERT(this->isHostWritable(), "The buffer isn't host writable.");
   const std::size_t s = sizeof(Type) * count;

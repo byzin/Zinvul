@@ -18,24 +18,23 @@
 // Vulkan
 #include <vulkan/vulkan.hpp>
 // Zinvul
-#include "zinvul/buffer.hpp"
-#include "zinvul/zinvul.hpp"
+#include "zinvul/kernel.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
 
 // Forward declaration
 class VulkanDevice;
-template <typename> class VulkanBuffer;
+template <BufferType, typename> class VulkanBuffer;
 
 /*!
   */
-template <std::size_t kDimension, typename ...ArgumentTypes>
-class VulkanKernel : public Kernel<kDimension, ArgumentTypes...>
+template <std::size_t kDimension, typename ...BufferArgs>
+class VulkanKernel : public Kernel<kDimension, BufferArgs...>
 {
-  using KernelBase = Kernel<kDimension, ArgumentTypes...>;
-  template <typename Type>
-  using BufferRef = typename KernelBase::template BufferRef<Type>;
+  using KernelBase = Kernel<kDimension, BufferArgs...>;
+
+  static constexpr std::size_t kNumOfBuffers = KernelBase::numOfArguments();
 
  public:
   //! Construct a kernel
@@ -60,19 +59,13 @@ class VulkanKernel : public Kernel<kDimension, ArgumentTypes...>
   DeviceType deviceType() const noexcept override;
 
   //! Execute a kernel
-  void run(BufferRef<ArgumentTypes>... args,
+  void run(std::add_lvalue_reference_t<BufferArgs>... args,
            const std::array<uint32b, kDimension> works,
-           const uint32b queue_index) noexcept override
-  {
-    bindBuffers<BufferRef<ArgumentTypes>...>(args...);
-    dispatch(works);
-    device_->submit(queue_index, command_buffer_);
-  }
+           const uint32b queue_index) noexcept override;
 
  private:
   //! Bind buffers
-  template <typename ...Buffers>
-  void bindBuffers(std::add_lvalue_reference_t<Buffers>... args) noexcept;
+  void bindBuffers(std::add_lvalue_reference_t<BufferArgs>... args) noexcept;
 
   //! Dispatch
   void dispatch(const std::array<uint32b, kDimension> works) noexcept;
@@ -100,9 +93,9 @@ class VulkanKernel : public Kernel<kDimension, ArgumentTypes...>
   //! Initialize a pipeline layout
   void initPipelineLayout() noexcept;
 
-  //! Get the buffer body
+  //! Get the VkBuffer of the given buffer
   template <typename Type>
-  vk::Buffer& refer(BufferRef<Type> buffer) const noexcept;
+  vk::Buffer& getVkBuffer(Type&& buffer) const noexcept;
 
   //! Make a buffer write descriptor set
   void setBufferInfo(vk::Buffer* buffer_list,

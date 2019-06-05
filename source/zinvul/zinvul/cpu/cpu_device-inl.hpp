@@ -19,6 +19,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/function_reference.hpp"
@@ -62,8 +63,9 @@ CpuDevice::CpuDevice(DeviceOptions& options) noexcept :
 
 /*!
   */
-template <typename Type> inline
-void CpuDevice::allocate(const std::size_t size, CpuBuffer<Type>* buffer) noexcept
+template <BufferType kBufferType, typename Type> inline
+void CpuDevice::allocate(const std::size_t size,
+                         CpuBuffer<kBufferType, Type>* buffer) noexcept
 {
   auto& b = buffer->buffer();
   b.resize(size);
@@ -74,8 +76,8 @@ void CpuDevice::allocate(const std::size_t size, CpuBuffer<Type>* buffer) noexce
 
 /*!
   */
-template <typename Type> inline
-void CpuDevice::deallocate(CpuBuffer<Type>* buffer) noexcept
+template <BufferType kBufferType, typename Type> inline
+void CpuDevice::deallocate(CpuBuffer<kBufferType, Type>* buffer) noexcept
 {
   const std::size_t device_memory_usage = memoryUsage() - buffer->memoryUsage();
   setMemoryUsage(device_memory_usage);
@@ -91,27 +93,26 @@ DeviceType CpuDevice::deviceType() const noexcept
 
 /*!
   */
-template <typename Type> inline
-UniqueBuffer<Type> CpuDevice::makeBuffer(const BufferUsage usage_flag) noexcept
+template <BufferType kBufferType, typename Type> inline
+UniqueBuffer<kBufferType, Type> CpuDevice::makeBuffer(
+    const BufferUsage usage_flag) noexcept
 {
-  using UniqueCpuBuffer = zisc::UniqueMemoryPointer<CpuBuffer<Type>>;
-  UniqueBuffer<Type> buffer =
-      UniqueCpuBuffer::make(memoryResource(), this, usage_flag);
-  return buffer;
+  using DeviceBuffer = CpuBuffer<kBufferType, Type>;
+  using UniqueCpuBuffer = zisc::UniqueMemoryPointer<DeviceBuffer>;
+  auto buffer = UniqueCpuBuffer::make(memoryResource(), this, usage_flag);
+  return std::move(buffer);
 }
 
 /*!
   */
-template <std::size_t kDimension, typename ...ArgumentTypes>
-inline
-UniqueKernel<kDimension, ArgumentTypes...> CpuDevice::makeKernel(
-    const typename Kernel<kDimension, ArgumentTypes...>::Function func) noexcept
+template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
+UniqueKernel<kDimension, BufferArgs...> CpuDevice::makeKernel(
+    Function func) noexcept
 {
-  using UniqueCpuKernel = zisc::UniqueMemoryPointer<CpuKernel<kDimension,
-                                                              ArgumentTypes...>>;
-  UniqueKernel<kDimension, ArgumentTypes...> kernel =
-      UniqueCpuKernel::make(memoryResource(), this, func);
-  return kernel;
+  using DeviceKernel = CpuKernel<kDimension, Function, BufferArgs...>;
+  using UniqueCpuKernel = zisc::UniqueMemoryPointer<DeviceKernel>;
+  auto kernel = UniqueCpuKernel::make(memoryResource(), this, func);
+  return std::move(kernel);
 }
 
 /*!

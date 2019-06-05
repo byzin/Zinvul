@@ -51,6 +51,14 @@ enum class DeviceType : uint32b
 
 /*!
   */
+enum class BufferType : uint32b
+{
+  kUniform = 0,
+  kStorage,
+};
+
+/*!
+  */
 enum class BufferUsage : uint32b
 {
 //  kDeviceOnly = 0b1u << 0,

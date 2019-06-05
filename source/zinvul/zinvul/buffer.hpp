@@ -23,8 +23,8 @@ namespace zinvul {
 
 /*!
   */
-template <typename T>
-class Buffer : private zisc::NonCopyable<Buffer<T>>
+template <BufferType kBufferType, typename T>
+class Buffer : private zisc::NonCopyable<Buffer<kBufferType, T>>
 {
   static_assert(!std::is_pointer_v<T>, "Pointer type is restricted.");
  public:
@@ -41,8 +41,11 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
   virtual ~Buffer() noexcept;
 
 
+  //! Return the buffer type
+  static constexpr BufferType bufferType() noexcept;
+
   //! Copy this buffer to a dst buffer
-  virtual void copyTo(Buffer<Type>* dst,
+  virtual void copyTo(Buffer<kBufferType, T>* dst,
                       const std::size_t count,
                       const std::size_t src_offset,
                       const std::size_t dst_offset,
@@ -92,11 +95,11 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
 
   //! Convert a type of a buffer interface to DstType
   template <typename DstType>
-  Buffer<DstType>* treatAs() noexcept;
+  Buffer<kBufferType, DstType>* treatAs() noexcept;
 
   //! Convert a type of a buffer interface to DstType
   template <typename DstType>
-  const Buffer<DstType>* treatAs() const noexcept;
+  const Buffer<kBufferType, DstType>* treatAs() const noexcept;
 
   //! Return usage flag
   BufferUsage usage() const noexcept;
@@ -117,7 +120,11 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
 
 // Type aliases
 template <typename Type>
-using UniqueBuffer = zisc::UniqueMemoryPointer<Buffer<Type>>;
+using UniformBuffer = Buffer<BufferType::kUniform, Type>;
+template <typename Type>
+using StorageBuffer = Buffer<BufferType::kStorage, Type>;
+template <BufferType kBufferType, typename Type>
+using UniqueBuffer = zisc::UniqueMemoryPointer<Buffer<kBufferType, Type>>;
 
 } // namespace zinvul
 

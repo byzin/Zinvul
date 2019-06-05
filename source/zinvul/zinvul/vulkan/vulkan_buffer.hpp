@@ -26,14 +26,14 @@ class VulkanDevice;
 
 /*!
   */
-template <typename T>
-class VulkanBuffer : public Buffer<T>
+template <BufferType kBufferType, typename T>
+class VulkanBuffer : public Buffer<kBufferType, T>
 {
  public:
   //! The type of the buffer. "const", "volatile" and "reference" are removed
-  using Type = typename Buffer<T>::Type;
-  using Pointer = typename Buffer<T>::Pointer;
-  using ConstPointer = typename Buffer<T>::ConstPointer;
+  using Type = typename Buffer<kBufferType, T>::Type;
+  using Pointer = typename Buffer<kBufferType, T>::Pointer;
+  using ConstPointer = typename Buffer<kBufferType, T>::ConstPointer;
 
 
   //! Create an empty buffer
@@ -62,7 +62,7 @@ class VulkanBuffer : public Buffer<T>
   const vk::Buffer& buffer() const noexcept;
 
   //! Copy this buffer to a dst buffer
-  void copyTo(Buffer<Type>* dst,
+  void copyTo(Buffer<kBufferType, T>* dst,
               const std::size_t count,
               const std::size_t src_offset,
               const std::size_t dst_offset,
@@ -111,6 +111,12 @@ class VulkanBuffer : public Buffer<T>
   VmaAllocationInfo alloc_info_;
   std::size_t size_ = 0;
 };
+
+// Type aliases
+template <typename Type>
+using VulkanUniformBuffer = VulkanBuffer<BufferType::kUniform, Type>;
+template <typename Type>
+using VulkanStorageBuffer = VulkanBuffer<BufferType::kStorage, Type>;
 
 } // namespace zinvul
 

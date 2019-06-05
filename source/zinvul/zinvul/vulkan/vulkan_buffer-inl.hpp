@@ -25,10 +25,10 @@ namespace zinvul {
 
 /*!
   */
-template <typename T> inline
-VulkanBuffer<T>::VulkanBuffer(const VulkanDevice* device,
-                              const BufferUsage usage_flag) noexcept :
-    Buffer<T>(usage_flag),
+template <BufferType kBufferType, typename T> inline
+VulkanBuffer<kBufferType, T>::VulkanBuffer(const VulkanDevice* device,
+                                           const BufferUsage usage_flag) noexcept :
+    Buffer<kBufferType, T>(usage_flag),
     device_{device}
 {
   ZISC_ASSERT(device_ != nullptr, "The device is null.");
@@ -37,10 +37,10 @@ VulkanBuffer<T>::VulkanBuffer(const VulkanDevice* device,
 
 /*!
   */
-template <typename T> inline
-VulkanBuffer<T>::VulkanBuffer(const VulkanDevice* device,
-                              const BufferUsage usage_flag,
-                              const std::size_t size) noexcept :
+template <BufferType kBufferType, typename T> inline
+VulkanBuffer<kBufferType, T>::VulkanBuffer(const VulkanDevice* device,
+                                           const BufferUsage usage_flag,
+                                           const std::size_t size) noexcept :
     VulkanBuffer(device, usage_flag)
 {
   setSize(size);
@@ -48,58 +48,58 @@ VulkanBuffer<T>::VulkanBuffer(const VulkanDevice* device,
 
 /*!
   */
-template <typename T> inline
-VulkanBuffer<T>::~VulkanBuffer() noexcept
+template <BufferType kBufferType, typename T> inline
+VulkanBuffer<kBufferType, T>::~VulkanBuffer() noexcept
 {
   destroy();
 }
 
 /*!
   */
-template <typename T> inline
-VmaAllocationInfo& VulkanBuffer<T>::allocationInfo() noexcept
+template <BufferType kBufferType, typename T> inline
+VmaAllocationInfo& VulkanBuffer<kBufferType, T>::allocationInfo() noexcept
 {
   return alloc_info_;
 }
 
 /*!
   */
-template <typename T> inline
-const VmaAllocationInfo& VulkanBuffer<T>::allocationInfo() const noexcept
+template <BufferType kBufferType, typename T> inline
+const VmaAllocationInfo& VulkanBuffer<kBufferType, T>::allocationInfo() const noexcept
 {
   return alloc_info_;
 }
 
 /*!
   */
-template <typename T> inline
-vk::Buffer& VulkanBuffer<T>::buffer() noexcept
+template <BufferType kBufferType, typename T> inline
+vk::Buffer& VulkanBuffer<kBufferType, T>::buffer() noexcept
 {
   return buffer_;
 }
 
 /*!
   */
-template <typename T> inline
-const vk::Buffer& VulkanBuffer<T>::buffer() const noexcept
+template <BufferType kBufferType, typename T> inline
+const vk::Buffer& VulkanBuffer<kBufferType, T>::buffer() const noexcept
 {
   return buffer_;
 }
 
 /*!
   */
-template <typename T> inline
-void VulkanBuffer<T>::copyTo(Buffer<Type>* dst,
-                             const std::size_t count,
-                             const std::size_t src_offset,
-                             const std::size_t dst_offset,
-                             const uint32b queue_index) const noexcept
+template <BufferType kBufferType, typename T> inline
+void VulkanBuffer<kBufferType, T>::copyTo(Buffer<kBufferType, T>* dst,
+                                          const std::size_t count,
+                                          const std::size_t src_offset,
+                                          const std::size_t dst_offset,
+                                          const uint32b queue_index) const noexcept
 {
   ZISC_ASSERT(this->isSource(), "This buffer isn't source.");
   ZISC_ASSERT(dst->isDestination(), "The buffer 'dst' isn't destination.");
   const std::size_t s = sizeof(Type) * count;
   ZISC_ASSERT(s <= dst->memoryUsage(), "The size of dst buffer memory is less.");
-  auto d = zisc::cast<VulkanBuffer<Type>*>(dst);
+  auto d = zisc::cast<VulkanBuffer<kBufferType, Type>*>(dst);
   const std::size_t src_offset_size = sizeof(Type) * src_offset;
   const std::size_t dst_offset_size = sizeof(Type) * dst_offset;
   const vk::BufferCopy copy_info{src_offset_size, dst_offset_size, s};
@@ -108,8 +108,8 @@ void VulkanBuffer<T>::copyTo(Buffer<Type>* dst,
 
 /*!
   */
-template <typename T> inline
-void VulkanBuffer<T>::destroy() noexcept
+template <BufferType kBufferType, typename T> inline
+void VulkanBuffer<kBufferType, T>::destroy() noexcept
 {
   if (buffer_) {
     auto d = const_cast<VulkanDevice*>(device_);
@@ -119,16 +119,16 @@ void VulkanBuffer<T>::destroy() noexcept
 
 /*!
   */
-template <typename T> inline
-DeviceType VulkanBuffer<T>::deviceType() const noexcept
+template <BufferType kBufferType, typename T> inline
+DeviceType VulkanBuffer<kBufferType, T>::deviceType() const noexcept
 {
   return DeviceType::kVulkan;
 }
 
 /*!
   */
-template <typename T> inline
-std::size_t VulkanBuffer<T>::expectedMemoryUsage() const noexcept
+template <BufferType kBufferType, typename T> inline
+std::size_t VulkanBuffer<kBufferType, T>::expectedMemoryUsage() const noexcept
 {
   const std::size_t memory_usage = sizeof(Type) * size();
   return memory_usage;
@@ -136,24 +136,24 @@ std::size_t VulkanBuffer<T>::expectedMemoryUsage() const noexcept
 
 /*!
   */
-template <typename T> inline
-VmaAllocation& VulkanBuffer<T>::memory() noexcept
+template <BufferType kBufferType, typename T> inline
+VmaAllocation& VulkanBuffer<kBufferType, T>::memory() noexcept
 {
   return memory_;
 }
 
 /*!
   */
-template <typename T> inline
-const VmaAllocation& VulkanBuffer<T>::memory() const noexcept
+template <BufferType kBufferType, typename T> inline
+const VmaAllocation& VulkanBuffer<kBufferType, T>::memory() const noexcept
 {
   return memory_;
 }
 
 /*!
   */
-template <typename T> inline
-std::size_t VulkanBuffer<T>::memoryUsage() const noexcept
+template <BufferType kBufferType, typename T> inline
+std::size_t VulkanBuffer<kBufferType, T>::memoryUsage() const noexcept
 {
   const auto memory_usage = zisc::cast<std::size_t>(alloc_info_.size);
   return memory_usage;
@@ -161,11 +161,11 @@ std::size_t VulkanBuffer<T>::memoryUsage() const noexcept
 
 /*!
   */
-template <typename T> inline
-void VulkanBuffer<T>::read(Pointer data,
-                           const std::size_t count,
-                           const std::size_t offset,
-                           const uint32b queue_index) const noexcept
+template <BufferType kBufferType, typename T> inline
+void VulkanBuffer<kBufferType, T>::read(Pointer data,
+                                        const std::size_t count,
+                                        const std::size_t offset,
+                                        const uint32b queue_index) const noexcept
 {
   ZISC_ASSERT(this->isHostReadable(), "The buffer isn't readable.");
   if (this->isHostBuffer()) {
@@ -175,7 +175,8 @@ void VulkanBuffer<T>::read(Pointer data,
     device_->unmapMemory(*this);
   }
   else {
-    VulkanBuffer<Type> dst{device_, BufferUsage::kHost | BufferUsage::kTDst};
+    VulkanBuffer<kBufferType, Type> dst{device_, BufferUsage::kHost |
+                                                 BufferUsage::kTDst};
     dst.setSize(count);
     copyTo(&dst, count, offset, 0, queue_index);
     dst.read(data, count, 0, queue_index);
@@ -184,8 +185,8 @@ void VulkanBuffer<T>::read(Pointer data,
 
 /*!
   */
-template <typename T> inline
-void VulkanBuffer<T>::setSize(const std::size_t size) noexcept
+template <BufferType kBufferType, typename T> inline
+void VulkanBuffer<kBufferType, T>::setSize(const std::size_t size) noexcept
 {
   destroy();
   size_ = size;
@@ -195,19 +196,19 @@ void VulkanBuffer<T>::setSize(const std::size_t size) noexcept
 
 /*!
   */
-template <typename T> inline
-std::size_t VulkanBuffer<T>::size() const noexcept
+template <BufferType kBufferType, typename T> inline
+std::size_t VulkanBuffer<kBufferType, T>::size() const noexcept
 {
   return size_;
 }
 
 /*!
   */
-template <typename T> inline
-void VulkanBuffer<T>::write(ConstPointer data,
-                            const std::size_t count,
-                            const std::size_t offset,
-                            const uint32b queue_index) noexcept
+template <BufferType kBufferType, typename T> inline
+void VulkanBuffer<kBufferType, T>::write(ConstPointer data,
+                                         const std::size_t count,
+                                         const std::size_t offset,
+                                         const uint32b queue_index) noexcept
 {
   ZISC_ASSERT(this->isHostWritable(), "The buffer isn't writable.");
   if (this->isHostBuffer()) {
@@ -217,7 +218,8 @@ void VulkanBuffer<T>::write(ConstPointer data,
     device_->unmapMemory(*this);
   }
   else {
-    VulkanBuffer<Type> src{device_, BufferUsage::kHost | BufferUsage::kTSrc};
+    VulkanBuffer<kBufferType, Type> src{device_, BufferUsage::kHost |
+                                                 BufferUsage::kTSrc};
     src.setSize(count);
     src.write(data, count, 0, queue_index);
     src.copyTo(this, count, 0, offset, queue_index);

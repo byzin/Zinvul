@@ -34,8 +34,8 @@ namespace clinner {
 class Atomic
 {
  public:
-  template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer add(AddressSpacePointer<Integer, kAddressSpaceType> p,
+  template <AddressSpaceType kAddressSpaceType, typename Integer>
+  static Integer add(AddressSpacePointer<kAddressSpaceType, Integer> p,
                      const Integer value) noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
@@ -53,8 +53,8 @@ class Atomic
     return old;
   }
 
-  template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer sub(AddressSpacePointer<Integer, kAddressSpaceType> p,
+  template <AddressSpaceType kAddressSpaceType, typename Integer>
+  static Integer sub(AddressSpacePointer<kAddressSpaceType, Integer> p,
                      const Integer value) noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
@@ -72,8 +72,8 @@ class Atomic
     return old;
   }
 
-  template <typename Type, AddressSpaceType kAddressSpaceType>
-  static Type swap(AddressSpacePointer<Type, kAddressSpaceType> p,
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static Type swap(AddressSpacePointer<kAddressSpaceType, Type> p,
                    const Type value) noexcept
   {
     static_assert(std::is_same_v<Type, int32b> || std::is_same_v<Type, uint32b> ||
@@ -91,8 +91,8 @@ class Atomic
     return old;
   }
 
-  template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer increment(AddressSpacePointer<Integer, kAddressSpaceType> p)
+  template <AddressSpaceType kAddressSpaceType, typename Integer>
+  static Integer increment(AddressSpacePointer<kAddressSpaceType, Integer> p)
       noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
@@ -109,8 +109,8 @@ class Atomic
     return old;
   }
 
-  template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer decrement(AddressSpacePointer<Integer, kAddressSpaceType> p)
+  template <AddressSpaceType kAddressSpaceType, typename Integer>
+  static Integer decrement(AddressSpacePointer<kAddressSpaceType, Integer> p)
       noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
@@ -127,8 +127,8 @@ class Atomic
     return old;
   }
 
-  template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer compareAndSwap(AddressSpacePointer<Integer, kAddressSpaceType> p,
+  template <AddressSpaceType kAddressSpaceType, typename Integer>
+  static Integer compareAndSwap(AddressSpacePointer<kAddressSpaceType, Integer> p,
                                 const Integer comp,
                                 const Integer value) noexcept
   {
@@ -147,8 +147,8 @@ class Atomic
     return old;
   }
 
-  template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer min(AddressSpacePointer<Integer, kAddressSpaceType> p,
+  template <AddressSpaceType kAddressSpaceType, typename Integer>
+  static Integer min(AddressSpacePointer<kAddressSpaceType, Integer> p,
                      const Integer value) noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
@@ -166,8 +166,8 @@ class Atomic
     return old;
   }
 
-  template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer max(AddressSpacePointer<Integer, kAddressSpaceType> p,
+  template <AddressSpaceType kAddressSpaceType, typename Integer>
+  static Integer max(AddressSpacePointer<kAddressSpaceType, Integer> p,
                      const Integer value) noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
@@ -185,8 +185,8 @@ class Atomic
     return old;
   }
 
-  template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer bitAnd(AddressSpacePointer<Integer, kAddressSpaceType> p,
+  template <AddressSpaceType kAddressSpaceType, typename Integer>
+  static Integer bitAnd(AddressSpacePointer<kAddressSpaceType, Integer> p,
                         const Integer value) noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
@@ -204,8 +204,8 @@ class Atomic
     return old;
   }
 
-  template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer bitOr(AddressSpacePointer<Integer, kAddressSpaceType> p,
+  template <AddressSpaceType kAddressSpaceType, typename Integer>
+  static Integer bitOr(AddressSpacePointer<kAddressSpaceType, Integer> p,
                        const Integer value) noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
@@ -223,8 +223,8 @@ class Atomic
     return old;
   }
 
-  template <typename Integer, AddressSpaceType kAddressSpaceType>
-  static Integer bitXor(AddressSpacePointer<Integer, kAddressSpaceType> p,
+  template <AddressSpaceType kAddressSpaceType, typename Integer>
+  static Integer bitXor(AddressSpacePointer<kAddressSpaceType, Integer> p,
                         const Integer value) noexcept
   {
     static_assert(std::is_same_v<Integer, int32b> ||
@@ -263,8 +263,8 @@ class Atomic
 
 /*!
   */
-template <typename Integer, AddressSpaceType kAddressSpaceType> inline
-Integer atomic_add(AddressSpacePointer<Integer, kAddressSpaceType> p,
+template <AddressSpaceType kAddressSpaceType, typename Integer> inline
+Integer atomic_add(AddressSpacePointer<kAddressSpaceType, Integer> p,
                    const Integer value) noexcept
 {
   return clinner::Atomic::add(p, value);
@@ -272,8 +272,8 @@ Integer atomic_add(AddressSpacePointer<Integer, kAddressSpaceType> p,
 
 /*!
   */
-template <typename Integer, AddressSpaceType kAddressSpaceType> inline
-Integer atomic_sub(AddressSpacePointer<Integer, kAddressSpaceType> p,
+template <AddressSpaceType kAddressSpaceType, typename Integer> inline
+Integer atomic_sub(AddressSpacePointer<kAddressSpaceType, Integer> p,
                    const Integer value) noexcept
 {
   return clinner::Atomic::sub(p, value);
@@ -281,8 +281,8 @@ Integer atomic_sub(AddressSpacePointer<Integer, kAddressSpaceType> p,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-Type atomic_xchg(AddressSpacePointer<Type, kAddressSpaceType> p,
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+Type atomic_xchg(AddressSpacePointer<kAddressSpaceType, Type> p,
                  const Type value) noexcept
 {
   return clinner::Atomic::swap(p, value);
@@ -290,24 +290,24 @@ Type atomic_xchg(AddressSpacePointer<Type, kAddressSpaceType> p,
 
 /*!
   */
-template <typename Integer, AddressSpaceType kAddressSpaceType> inline
-Integer atomic_inc(AddressSpacePointer<Integer, kAddressSpaceType> p) noexcept
+template <AddressSpaceType kAddressSpaceType, typename Integer> inline
+Integer atomic_inc(AddressSpacePointer<kAddressSpaceType, Integer> p) noexcept
 {
   return clinner::Atomic::increment(p);
 }
 
 /*!
   */
-template <typename Integer, AddressSpaceType kAddressSpaceType> inline
-Integer atomic_dec(AddressSpacePointer<Integer, kAddressSpaceType> p) noexcept
+template <AddressSpaceType kAddressSpaceType, typename Integer> inline
+Integer atomic_dec(AddressSpacePointer<kAddressSpaceType, Integer> p) noexcept
 {
   return clinner::Atomic::decrement(p);
 }
 
 /*!
   */
-template <typename Integer, AddressSpaceType kAddressSpaceType> inline
-Integer atomic_cmpxchg(AddressSpacePointer<Integer, kAddressSpaceType> p,
+template <AddressSpaceType kAddressSpaceType, typename Integer> inline
+Integer atomic_cmpxchg(AddressSpacePointer<kAddressSpaceType, Integer> p,
                        const Integer comp,
                        const Integer value) noexcept
 {
@@ -316,8 +316,8 @@ Integer atomic_cmpxchg(AddressSpacePointer<Integer, kAddressSpaceType> p,
 
 /*!
   */
-template <typename Integer, AddressSpaceType kAddressSpaceType> inline
-Integer atomic_min(AddressSpacePointer<Integer, kAddressSpaceType> p,
+template <AddressSpaceType kAddressSpaceType, typename Integer> inline
+Integer atomic_min(AddressSpacePointer<kAddressSpaceType, Integer> p,
                    const Integer value) noexcept
 {
   return clinner::Atomic::min(p, value);
@@ -325,8 +325,8 @@ Integer atomic_min(AddressSpacePointer<Integer, kAddressSpaceType> p,
 
 /*!
   */
-template <typename Integer, AddressSpaceType kAddressSpaceType> inline
-Integer atomic_max(AddressSpacePointer<Integer, kAddressSpaceType> p,
+template <AddressSpaceType kAddressSpaceType, typename Integer> inline
+Integer atomic_max(AddressSpacePointer<kAddressSpaceType, Integer> p,
                    const Integer value) noexcept
 {
   return clinner::Atomic::max(p, value);
@@ -334,8 +334,8 @@ Integer atomic_max(AddressSpacePointer<Integer, kAddressSpaceType> p,
 
 /*!
   */
-template <typename Integer, AddressSpaceType kAddressSpaceType> inline
-Integer atomic_and(AddressSpacePointer<Integer, kAddressSpaceType> p,
+template <AddressSpaceType kAddressSpaceType, typename Integer> inline
+Integer atomic_and(AddressSpacePointer<kAddressSpaceType, Integer> p,
                    const Integer value) noexcept
 {
   return clinner::Atomic::bitAnd(p, value);
@@ -343,8 +343,8 @@ Integer atomic_and(AddressSpacePointer<Integer, kAddressSpaceType> p,
 
 /*!
   */
-template <typename Integer, AddressSpaceType kAddressSpaceType> inline
-Integer atomic_or(AddressSpacePointer<Integer, kAddressSpaceType> p,
+template <AddressSpaceType kAddressSpaceType, typename Integer> inline
+Integer atomic_or(AddressSpacePointer<kAddressSpaceType, Integer> p,
                   const Integer value) noexcept
 {
   return clinner::Atomic::bitOr(p, value);
@@ -352,8 +352,8 @@ Integer atomic_or(AddressSpacePointer<Integer, kAddressSpaceType> p,
 
 /*!
   */
-template <typename Integer, AddressSpaceType kAddressSpaceType> inline
-Integer atomic_xor(AddressSpacePointer<Integer, kAddressSpaceType> p,
+template <AddressSpaceType kAddressSpaceType, typename Integer> inline
+Integer atomic_xor(AddressSpacePointer<kAddressSpaceType, Integer> p,
                    const Integer value) noexcept
 {
   return clinner::Atomic::bitXor(p, value);

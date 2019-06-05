@@ -37,14 +37,14 @@ TEST(RngTest, Cmj64Test)
     constexpr uint32b root_n = 8;
     const uint32b seed = 123'456'789u;
     const uint32b num_of_samples = 8192;
-    auto result_1d = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
+    auto result_1d = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     result_1d->setSize(num_of_samples);
-    auto result_2d = makeBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
+    auto result_2d = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
     result_2d->setSize(num_of_samples);
-    auto seed_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    auto seed_buffer = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     seed_buffer->setSize(1);
     seed_buffer->write(&seed, seed_buffer->size(), 0, 0);
-    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    auto iteration_buffer = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     iteration_buffer->setSize(1);
     iteration_buffer->write(&num_of_samples, iteration_buffer->size(), 0, 0);
 
@@ -99,14 +99,14 @@ TEST(RngTest, Cmj64DTest)
     constexpr uint32b root_n = 8;
     const uint32b seed = 123'456'789u;
     const uint32b num_of_samples = 8192;
-    auto result_1d = makeBuffer<double>(device.get(), BufferUsage::kDeviceTSrc);
+    auto result_1d = makeStorageBuffer<double>(device.get(), BufferUsage::kDeviceTSrc);
     result_1d->setSize(num_of_samples);
-    auto result_2d = makeBuffer<cl::double2>(device.get(), BufferUsage::kDeviceTSrc);
+    auto result_2d = makeStorageBuffer<cl::double2>(device.get(), BufferUsage::kDeviceTSrc);
     result_2d->setSize(num_of_samples);
-    auto seed_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    auto seed_buffer = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     seed_buffer->setSize(1);
     seed_buffer->write(&seed, seed_buffer->size(), 0, 0);
-    auto iteration_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    auto iteration_buffer = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     iteration_buffer->setSize(1);
     iteration_buffer->write(&num_of_samples, iteration_buffer->size(), 0, 0);
 
@@ -161,15 +161,15 @@ TEST(RngTest, Cmj64ImageTest)
     constexpr uint32b resolution_x = 1920;
     constexpr uint32b resolution_y = 1080;
     constexpr uint32b resolution = resolution_x * resolution_y;
-    auto red_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
+    auto red_buffer = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     red_buffer->setSize(resolution);
-    auto green_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
+    auto green_buffer = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     green_buffer->setSize(resolution);
-    auto blue_buffer = makeBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
+    auto blue_buffer = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
     blue_buffer->setSize(resolution);
-    auto sample_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    auto sample_buffer = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     sample_buffer->setSize(1);
-    auto resolution_buffer = makeBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    auto resolution_buffer = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
     resolution_buffer->setSize(1);
     resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
 

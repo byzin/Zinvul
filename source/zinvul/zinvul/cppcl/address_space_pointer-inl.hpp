@@ -26,16 +26,16 @@ namespace cl {
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-AddressSpacePointer<T, kAddressSpaceType>::AddressSpacePointer() noexcept :
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+AddressSpacePointer<kAddressSpaceType, T>::AddressSpacePointer() noexcept :
     data_{nullptr}
 {
 }
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-AddressSpacePointer<T, kAddressSpaceType>::AddressSpacePointer(
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+AddressSpacePointer<kAddressSpaceType, T>::AddressSpacePointer(
     Pointer data) noexcept :
         data_{data}
 {
@@ -43,8 +43,17 @@ AddressSpacePointer<T, kAddressSpaceType>::AddressSpacePointer(
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator=(
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+AddressSpacePointer<kAddressSpaceType, T>::AddressSpacePointer(
+    AddressSpacePointer<kAddressSpaceType, PlainType>& other) noexcept :
+        data_{other.get()}
+{
+}
+
+/*!
+  */
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator=(
     Pointer data) noexcept -> ASpacePointerRef
 {
   data_ = data;
@@ -53,8 +62,18 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator=(
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator*() noexcept
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator=(
+    AddressSpacePointer<kAddressSpaceType, PlainType>& other) noexcept -> ASpacePointerRef
+{
+  data_ = other.get();
+  return *this;
+}
+
+/*!
+  */
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator*() noexcept
     -> Reference
 {
   auto data = get();
@@ -63,8 +82,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator*() noexcept
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator*() const noexcept
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator*() const noexcept
     -> ConstReference
 {
   auto data = get();
@@ -73,8 +92,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator*() const noexcept
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator->() noexcept
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator->() noexcept
     -> Pointer
 {
   auto data = get();
@@ -83,8 +102,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator->() noexcept
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator->() const noexcept
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator->() const noexcept
     -> ConstPointer
 {
   auto data = get();
@@ -93,8 +112,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator->() const noexcept
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator[](
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator[](
     const size_t index) noexcept -> Reference
 {
   auto data = get();
@@ -103,8 +122,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator[](
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator[](
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator[](
     const size_t index) const noexcept -> ConstReference
 {
   auto data = get();
@@ -113,8 +132,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator[](
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator+=(
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator+=(
     const ptrdiff_t n) noexcept -> ASpacePointerRef
 {
   auto data = get() + n;
@@ -124,8 +143,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator+=(
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator+=(
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator+=(
     const size_t n) noexcept -> ASpacePointerRef
 {
   ASpacePointerRef data = (*this += zisc::cast<ptrdiff_t>(n));
@@ -134,8 +153,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator+=(
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator-=(
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator-=(
     const ptrdiff_t n) noexcept -> ASpacePointerRef
 {
   auto data = get() - n;
@@ -145,8 +164,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator-=(
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator-=(
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator-=(
     const size_t n) noexcept -> ASpacePointerRef
 {
   ASpacePointerRef data = (*this -= zisc::cast<ptrdiff_t>(n));
@@ -155,8 +174,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator-=(
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator+() noexcept -> Pointer 
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator+() noexcept -> Pointer 
 {
   auto data = get();
   return data;
@@ -164,8 +183,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator+() noexcept -> Pointer
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator++() noexcept
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator++() noexcept
     -> Pointer 
 {
   auto data = get() + 1;
@@ -175,8 +194,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator++() noexcept
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator--() noexcept
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator--() noexcept
     -> Pointer 
 {
   auto data = get() - 1;
@@ -186,8 +205,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator--() noexcept
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator++(int) noexcept
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator++(int) noexcept
     -> Pointer 
 {
   auto data = get();
@@ -197,8 +216,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator++(int) noexcept
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::operator--(int) noexcept
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::operator--(int) noexcept
     -> Pointer 
 {
   auto data = get();
@@ -208,8 +227,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::operator--(int) noexcept
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::get() noexcept
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::get() noexcept
     -> Pointer 
 {
   return data_;
@@ -217,8 +236,8 @@ auto AddressSpacePointer<T, kAddressSpaceType>::get() noexcept
 
 /*!
   */
-template <typename T, AddressSpaceType kAddressSpaceType> inline
-auto AddressSpacePointer<T, kAddressSpaceType>::get() const noexcept
+template <AddressSpaceType kAddressSpaceType, typename T> inline
+auto AddressSpacePointer<kAddressSpaceType, T>::get() const noexcept
     -> ConstPointer 
 {
   return data_;
@@ -226,21 +245,21 @@ auto AddressSpacePointer<T, kAddressSpaceType>::get() const noexcept
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-auto operator+(AddressSpacePointer<Type, kAddressSpaceType>& p,
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+auto operator+(AddressSpacePointer<kAddressSpaceType, Type>& p,
                const ptrdiff_t n) noexcept
-    -> AddressSpacePointer<Type, kAddressSpaceType>
+    -> AddressSpacePointer<kAddressSpaceType, Type>
 {
   const auto result = p.get() + n;
-  return AddressSpacePointer<Type, kAddressSpaceType>{result};
+  return AddressSpacePointer<kAddressSpaceType, Type>{result};
 }
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-auto operator+(AddressSpacePointer<Type, kAddressSpaceType>& p,
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+auto operator+(AddressSpacePointer<kAddressSpaceType, Type>& p,
                const size_t n) noexcept
-    -> AddressSpacePointer<Type, kAddressSpaceType>
+    -> AddressSpacePointer<kAddressSpaceType, Type>
 {
   auto result = p + zisc::cast<ptrdiff_t>(n);
   return result;
@@ -248,10 +267,10 @@ auto operator+(AddressSpacePointer<Type, kAddressSpaceType>& p,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
 auto operator+(const ptrdiff_t n,
-               AddressSpacePointer<Type, kAddressSpaceType>& p) noexcept
-    -> AddressSpacePointer<Type, kAddressSpaceType>
+               AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
+    -> AddressSpacePointer<kAddressSpaceType, Type>
 {
   const auto result = p + n;
   return result;
@@ -259,10 +278,10 @@ auto operator+(const ptrdiff_t n,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
 auto operator+(const size_t n,
-               AddressSpacePointer<Type, kAddressSpaceType>& p) noexcept
-    -> AddressSpacePointer<Type, kAddressSpaceType>
+               AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
+    -> AddressSpacePointer<kAddressSpaceType, Type>
 {
   auto result = zisc::cast<ptrdiff_t>(n) + p;
   return result;
@@ -270,21 +289,21 @@ auto operator+(const size_t n,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-auto operator-(AddressSpacePointer<Type, kAddressSpaceType>& p,
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+auto operator-(AddressSpacePointer<kAddressSpaceType, Type>& p,
                const ptrdiff_t n) noexcept
-    -> AddressSpacePointer<Type, kAddressSpaceType>
+    -> AddressSpacePointer<kAddressSpaceType, Type>
 {
   const auto result = p.get() - n;
-  return AddressSpacePointer<Type, kAddressSpaceType>{result};
+  return AddressSpacePointer<kAddressSpaceType, Type>{result};
 }
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-auto operator-(AddressSpacePointer<Type, kAddressSpaceType>& p,
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+auto operator-(AddressSpacePointer<kAddressSpaceType, Type>& p,
                const size_t n) noexcept
-    -> AddressSpacePointer<Type, kAddressSpaceType>
+    -> AddressSpacePointer<kAddressSpaceType, Type>
 {
   auto result = p - zisc::cast<ptrdiff_t>(n);
   return result;
@@ -292,9 +311,9 @@ auto operator-(AddressSpacePointer<Type, kAddressSpaceType>& p,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-ptrdiff_t operator-(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
-                    const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+ptrdiff_t operator-(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+                    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
 {
   const ptrdiff_t diff = zisc::cast<ptrdiff_t>(lhs.get() - rhs.get());
   return diff;
@@ -302,9 +321,9 @@ ptrdiff_t operator-(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-bool operator==(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
-                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+bool operator==(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs.get() == rhs.get();
   return result;
@@ -312,8 +331,8 @@ bool operator==(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-bool operator==(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+bool operator==(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
                 const std::nullptr_t rhs) noexcept
 {
   const bool result = lhs.get() == rhs;
@@ -322,9 +341,9 @@ bool operator==(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
 bool operator==(const std::nullptr_t lhs,
-                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs == rhs.get();
   return result;
@@ -332,9 +351,9 @@ bool operator==(const std::nullptr_t lhs,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-bool operator!=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
-                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+bool operator!=(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs.get() != rhs.get();
   return result;
@@ -342,8 +361,8 @@ bool operator!=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-bool operator!=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+bool operator!=(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
                 const std::nullptr_t rhs) noexcept
 {
   const bool result = lhs.get() != rhs;
@@ -352,9 +371,9 @@ bool operator!=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
 bool operator!=(const std::nullptr_t lhs,
-                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs != rhs.get();
   return result;
@@ -362,9 +381,9 @@ bool operator!=(const std::nullptr_t lhs,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-bool operator<(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
-               const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+bool operator<(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+               const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs.get() < rhs.get();
   return result;
@@ -372,9 +391,9 @@ bool operator<(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-bool operator<=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
-                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+bool operator<=(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs.get() <= rhs.get();
   return result;
@@ -382,9 +401,9 @@ bool operator<=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-bool operator>(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
-               const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+bool operator>(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+               const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs.get() > rhs.get();
   return result;
@@ -392,9 +411,9 @@ bool operator>(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
 
 /*!
   */
-template <typename Type, AddressSpaceType kAddressSpaceType> inline
-bool operator>=(const AddressSpacePointer<Type, kAddressSpaceType>& lhs,
-                const AddressSpacePointer<Type, kAddressSpaceType>& rhs) noexcept
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+bool operator>=(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs.get() >= rhs.get();
   return result;

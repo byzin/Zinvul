@@ -43,14 +43,14 @@
 //    using ZMatrix2x2 = zinvul::math::KernelGroup::ZMatrix2x2;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(1);
 //    {
 //      const auto matrix = k.zMakeMat2x2(0.0f, 1.0f,
 //                                        2.0f, 3.0f);
 //      input_buf->write(&matrix, 1, 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(6);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix2x2Init, 1);
@@ -126,7 +126,7 @@
 //    using ZMatrix3x3 = zinvul::math::KernelGroup::ZMatrix3x3;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(1);
 //    {
 //      const auto matrix = k.zMakeMat3x3(0.0f, 1.0f, 2.0f,
@@ -134,7 +134,7 @@
 //                                        6.0f, 7.0f, 8.0f);
 //      input_buf->write(&matrix, 1, 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(6);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix3x3Init, 1);
@@ -210,7 +210,7 @@
 //    using ZMatrix4x4 = zinvul::math::KernelGroup::ZMatrix4x4;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(1);
 //    {
 //      const auto matrix = k.zMakeMat4x4(0.0f, 1.0f, 2.0f, 3.0f,
@@ -219,7 +219,7 @@
 //                                        12.0f, 13.0f, 14.0f, 15.0f);
 //      input_buf->write(&matrix, 1, 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(6);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix4x4Init, 1);
@@ -295,7 +295,7 @@
 //    using ZMatrix2x2 = zinvul::math::KernelGroup::ZMatrix2x2;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(2);
 //    {
 //      const auto matrix = k.zMakeMat2x2(0.0f, 1.0f,
@@ -303,7 +303,7 @@
 //      std::array<ZMatrix2x2, 2> mat_list{{matrix, matrix}};
 //      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(11);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix2x2Addition, 1);
@@ -339,7 +339,7 @@
 //    using ZMatrix3x3 = zinvul::math::KernelGroup::ZMatrix3x3;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(2);
 //    {
 //      const auto matrix = k.zMakeMat3x3(0.0f, 1.0f, 2.0f,
@@ -348,7 +348,7 @@
 //      std::array<ZMatrix3x3, 2> mat_list{{matrix, matrix}};
 //      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(11);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix3x3Addition, 1);
@@ -384,7 +384,7 @@
 //    using ZMatrix4x4 = zinvul::math::KernelGroup::ZMatrix4x4;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(2);
 //    {
 //      const auto matrix = k.zMakeMat4x4(0.0f, 1.0f, 2.0f, 3.0f,
@@ -394,7 +394,7 @@
 //      std::array<ZMatrix4x4, 2> mat_list{{matrix, matrix}};
 //      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(11);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix4x4Addition, 1);
@@ -430,7 +430,7 @@
 //    using ZMatrix2x2 = zinvul::math::KernelGroup::ZMatrix2x2;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(2);
 //    {
 //      const auto matrix = k.zMakeMat2x2(0.0f, 1.0f,
@@ -438,7 +438,7 @@
 //      std::array<ZMatrix2x2, 2> mat_list{{matrix, matrix}};
 //      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(11);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix2x2Subtraction, 1);
@@ -474,7 +474,7 @@
 //    using ZMatrix3x3 = zinvul::math::KernelGroup::ZMatrix3x3;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(2);
 //    {
 //      const auto matrix = k.zMakeMat3x3(0.0f, 1.0f, 2.0f,
@@ -483,7 +483,7 @@
 //      std::array<ZMatrix3x3, 2> mat_list{{matrix, matrix}};
 //      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(11);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix3x3Subtraction, 1);
@@ -519,7 +519,7 @@
 //    using ZMatrix4x4 = zinvul::math::KernelGroup::ZMatrix4x4;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(2);
 //    {
 //      const auto matrix = k.zMakeMat4x4(0.0f, 1.0f, 2.0f, 3.0f,
@@ -529,7 +529,7 @@
 //      std::array<ZMatrix4x4, 2> mat_list{{matrix, matrix}};
 //      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(11);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix4x4Subtraction, 1);
@@ -565,7 +565,7 @@
 //    using ZMatrix2x2 = zinvul::math::KernelGroup::ZMatrix2x2;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(2);
 //    {
 //      const auto matrix = k.zMakeMat2x2(0.0f, 1.0f,
@@ -573,7 +573,7 @@
 //      std::array<ZMatrix2x2, 2> mat_list{{matrix, matrix}};
 //      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(21);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix2x2Multiplication, 1);
@@ -615,14 +615,14 @@
 //    using ZMatrix2x2 = zinvul::math::KernelGroup::ZMatrix2x2;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(1);
 //    {
 //      const auto matrix = k.zMakeMat2x2(0.0f, 1.0f,
 //                                        2.0f, 3.0f);
 //      input_buf->write(&matrix, 1, 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix2x2>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(9);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix2x2ScalarMultiplication, 1);
@@ -664,7 +664,7 @@
 //    using ZMatrix3x3 = zinvul::math::KernelGroup::ZMatrix3x3;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(2);
 //    {
 //      const auto matrix = k.zMakeMat3x3(0.0f, 1.0f, 2.0f,
@@ -673,7 +673,7 @@
 //      std::array<ZMatrix3x3, 2> mat_list{{matrix, matrix}};
 //      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(21);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix3x3Multiplication, 1);
@@ -716,7 +716,7 @@
 //    using ZMatrix3x3 = zinvul::math::KernelGroup::ZMatrix3x3;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(1);
 //    {
 //      const auto matrix = k.zMakeMat3x3(0.0f, 1.0f, 2.0f,
@@ -724,7 +724,7 @@
 //                                        6.0f, 7.0f, 8.0f);
 //      input_buf->write(&matrix, 1, 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix3x3>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(9);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix3x3ScalarMultiplication, 1);
@@ -767,7 +767,7 @@
 //    using ZMatrix4x4 = zinvul::math::KernelGroup::ZMatrix4x4;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(2);
 //    {
 //      const auto matrix = k.zMakeMat4x4(0.0f, 1.0f, 2.0f, 3.0f,
@@ -777,7 +777,7 @@
 //      std::array<ZMatrix4x4, 2> mat_list{{matrix, matrix}};
 //      input_buf->write(mat_list.data(), mat_list.size(), 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(21);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix4x4Multiplication, 1);
@@ -821,7 +821,7 @@
 //    using ZMatrix4x4 = zinvul::math::KernelGroup::ZMatrix4x4;
 //    zinvul::math::KernelGroup k;
 //
-//    auto input_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTDst);
+//    auto input_buf = makeStorageBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTDst);
 //    input_buf->setSize(1);
 //    {
 //      const auto matrix = k.zMakeMat4x4(0.0f, 1.0f, 2.0f, 3.0f,
@@ -830,7 +830,7 @@
 //                                        12.0f, 13.0f, 14.0f, 15.0f);
 //      input_buf->write(&matrix, 1, 0, 0);
 //    }
-//    auto output_buf = makeBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
+//    auto output_buf = makeStorageBuffer<ZMatrix4x4>(device.get(), BufferUsage::kDeviceTSrc);
 //    output_buf->setSize(9);
 //
 //    auto kernel = makeZinvulKernel(device.get(), math, testMatrix4x4ScalarMultiplication, 1);
