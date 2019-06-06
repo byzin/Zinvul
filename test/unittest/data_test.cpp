@@ -97,6 +97,65 @@ TEST(DataTest, PointerTest)
   }
 }
 
+TEST(DataTest, LocalInputTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 100;
+
+    auto buffer0 = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    buffer0->setSize(resolution);
+    {
+      std::array<uint32b, resolution> inputs;
+      for (uint32b i = 0; i < resolution; ++i)
+        inputs[i] = resolution - (i + 1);
+      buffer0->write(inputs.data(), inputs.size(), 0, 0);
+    }
+    auto buffer1 = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    buffer1->setSize(resolution);
+    {
+      std::array<uint32b, resolution> inputs;
+      for (uint32b i = 0; i < resolution; ++i)
+        inputs[i] = i;
+      buffer1->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer2 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
+    buffer2->setSize(resolution);
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    res_buff->setSize(1);
+    {
+      res_buff->write(&resolution, 1, 0, 0);
+    }
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testLocalInput));;
+    kernel->run(*buffer0, *buffer1, *buffer2, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "Local input kernel is wrong.";
+    {
+      std::array<uint32b, resolution> results;
+      buffer2->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < resolution; ++i)
+      {
+        const uint32b expected = resolution - 1;
+        const uint32b result = results[i];
+        ASSERT_EQ(expected, result) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+
 TEST(DataTest, GlobalInstanceTest)
 {
   using namespace zinvul;

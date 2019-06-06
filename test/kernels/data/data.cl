@@ -13,6 +13,7 @@
 #include "zinvul/cl/array.cl"
 #include "zinvul/cl/fnv_1a_hash_engine.cl"
 #include "zinvul/cl/limits.cl"
+#include "zinvul/cl/memory_fence.cl"
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
@@ -24,6 +25,12 @@ class OptionTest;
 
 // Prototypes
 __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst);
+__kernel void testLocalInput(ConstGlobalPtr<uint32b> buffer0,
+    ConstGlobalPtr<uint32b> buffer1,
+    GlobalPtr<uint32b> buffer2,
+    const uint32b resolution,
+    LocalPtr<uint32b> buffer3,
+    LocalPtr<uint32b> buffer4);
 __kernel void testGlobalInstance(GlobalPtr<uint32b> results,
     GlobalPtr<test::OptionTest> options);
 __kernel void testLocalInstance(GlobalPtr<uint32b> results,
@@ -173,6 +180,26 @@ __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst)
       dst[i++] = (begin == nullptr) ? 1 : 0;
       dst[i++] = (t == nullptr) ? 1 : 0;
     }
+  }
+}
+
+/*!
+  */
+__kernel void testLocalInput(ConstGlobalPtr<uint32b> buffer0,
+    ConstGlobalPtr<uint32b> buffer1,
+    GlobalPtr<uint32b> buffer2,
+    const uint32b resolution,
+    LocalPtr<uint32b> buffer3,
+    LocalPtr<uint32b> buffer4)
+{
+  const uint32b index = getGlobalIdX();
+  const uint32b i = getLocalIdX();
+  if (index < resolution) {
+    buffer3[i] = buffer0[index];
+    MemoryFence::performLocalBarrier();
+    buffer4[i] = buffer1[index];
+    MemoryFence::performLocalBarrier();
+    buffer2[index] = buffer3[i] + buffer4[i];
   }
 }
 
