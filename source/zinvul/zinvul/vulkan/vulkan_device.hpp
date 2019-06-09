@@ -136,7 +136,7 @@ class VulkanDevice : public Device
       const BufferUsage usage_flag) noexcept;
 
   //! Make a kernel
-  template <std::size_t kDimension, typename ...ArgumentTypes>
+  template <std::size_t kDimension, typename Function, typename ...ArgumentTypes>
   UniqueKernel<kDimension, ArgumentTypes...> makeKernel(
       const uint32b module_index,
       const std::string_view kernel_name) noexcept;

@@ -48,16 +48,84 @@ class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
 
 /*!
   */
+inline
+constexpr KernelArgParseResult::KernelArgParseResult() noexcept :
+    is_global_{false},
+    is_local_{false},
+    is_pod_{false},
+    is_const_{false},
+    index_{0}
+{
+}
+
+/*!
+  */
+inline
+constexpr KernelArgParseResult::KernelArgParseResult(const bool is_global,
+                                                     const bool is_local,
+                                                     const bool is_pod,
+                                                     const bool is_const) noexcept :
+    is_global_{is_global},
+    is_local_{is_local},
+    is_pod_{is_pod},
+    is_const_{is_const},
+    index_{0}
+{
+}
+
+/*!
+  */
+inline
+constexpr bool KernelArgParseResult::isConst() const noexcept
+{
+  return is_const_;
+}
+
+/*!
+  */
+inline
+constexpr bool KernelArgParseResult::isGlobal() const noexcept
+{
+  return is_global_;
+}
+
+/*!
+  */
+inline
+constexpr bool KernelArgParseResult::isLocal() const noexcept
+{
+  return is_local_;
+}
+
+/*!
+  */
+inline
+constexpr bool KernelArgParseResult::isPod() const noexcept
+{
+  return is_pod_;
+}
+
+/*!
+  */
+inline
+constexpr std::size_t KernelArgParseResult::index() const noexcept
+{
+  return index_;
+}
+
+/*!
+  */
+inline
+constexpr void KernelArgParseResult::setIndex(const std::size_t index) noexcept
+{
+  index_ = index;
+}
+
+/*!
+  */
 template <std::size_t kDimension, typename T, typename ...ArgumentTypes>
 class KernelArgParser<kDimension, T, ArgumentTypes...>
 {
-  static_assert(!std::is_pointer_v<T> &&
-                (!std::is_pointer_v<ArgumentTypes> && ...),
-                "The kernel has any pointer argument.");
-  static_assert(!std::is_reference_v<T> &&
-                (!std::is_reference_v<ArgumentTypes> && ...),
-                "The kernel has any reference argument.");
-
   using Parent = KernelArgParser<kDimension, ArgumentTypes...>;
   using ArgInfo = KernelArgInfo<T>;
 
@@ -74,6 +142,95 @@ class KernelArgParser<kDimension, T, ArgumentTypes...>
   using KernelWithoutLocal = std::conditional_t<ArgInfo::kIsLocal,
       typename Parent::KernelWithoutLocal,
       typename ExtendedKernel<typename Parent::KernelWithoutLocal>::KernelType>;
+
+
+  static constexpr std::size_t kNumOfArgs = Parent::kNumOfArgs + 1;
+  static constexpr std::size_t kNumOfGlobalArgs = ArgInfo::kIsGlobal
+      ? Parent::kNumOfGlobalArgs + 1
+      : Parent::kNumOfGlobalArgs;
+  static constexpr std::size_t kNumOfLocalArgs = ArgInfo::kIsLocal
+      ? Parent::kNumOfLocalArgs + 1
+      : Parent::kNumOfLocalArgs;
+
+
+  //! Return the info of arguments
+  static constexpr std::array<KernelArgParseResult, kNumOfArgs>
+      getArgInfoList() noexcept
+  {
+    std::array<KernelArgParseResult, kNumOfArgs> result_list;
+    if constexpr (0u < Parent::kNumOfArgs) {
+      auto parent_list = Parent::getArgInfoList();
+      for (std::size_t i = 0; i < Parent::kNumOfArgs; ++i) {
+        result_list[i + 1] = parent_list[i];
+        result_list[i + 1].setIndex(i + 1);
+      }
+    }
+
+    result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
+                                          ArgInfo::kIsLocal,
+                                          ArgInfo::kIsPod,
+                                          ArgInfo::kIsConst};
+    result_list[0].setIndex(0);
+
+    return result_list;
+  }
+
+  //! Return the info of global arguments
+  static constexpr std::array<KernelArgParseResult, kNumOfGlobalArgs>
+      getGlobalArgInfoList() noexcept
+  {
+    std::array<KernelArgParseResult, kNumOfGlobalArgs> result_list;
+    if constexpr (0u < Parent::kNumOfGlobalArgs) {
+      const std::size_t offset = ArgInfo::kIsGlobal ? 1u : 0u;
+      auto parent_list = Parent::getGlobalArgInfoList();
+      for (std::size_t i = 0; i < Parent::kNumOfGlobalArgs; ++i) {
+        result_list[i + offset] = parent_list[i];
+        result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
+      }
+    }
+
+    if constexpr (ArgInfo::kIsGlobal) {
+      result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
+                                            ArgInfo::kIsLocal,
+                                            ArgInfo::kIsPod,
+                                            ArgInfo::kIsConst};
+      result_list[0].setIndex(0);
+    }
+
+    return result_list;
+  }
+
+  //! Return the info of local arguments
+  static constexpr std::array<KernelArgParseResult, kNumOfLocalArgs>
+      getLocalArgInfoList() noexcept
+  {
+    std::array<KernelArgParseResult, kNumOfLocalArgs> result_list;
+    if constexpr (0u < Parent::kNumOfLocalArgs) {
+      const std::size_t offset = ArgInfo::kIsLocal ? 1u : 0u;
+      auto parent_list = Parent::getLocalArgInfoList();
+      for (std::size_t i = 0; i < Parent::kNumOfLocalArgs; ++i) {
+        result_list[i + offset] = parent_list[i];
+        result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
+      }
+    }
+
+    if constexpr (ArgInfo::kIsLocal) {
+      result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
+                                            ArgInfo::kIsLocal,
+                                            ArgInfo::kIsPod,
+                                            ArgInfo::kIsConst};
+      result_list[0].setIndex(0);
+    }
+
+    return result_list;
+  }
+
+  //! Check if there are const local arguments in the kernel arguments
+  static constexpr bool hasConstLocal() noexcept
+  {
+    const bool is_const_local = ArgInfo::kIsLocal && ArgInfo::kIsConst;
+    return is_const_local || Parent::hasConstLocal();
+  }
 };
 
 } // namespace zinvul

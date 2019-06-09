@@ -25,14 +25,18 @@ namespace zinvul {
 
 // Forward declaration
 class VulkanDevice;
-template <BufferType, typename> class VulkanBuffer;
+
+template <std::size_t kDimension, typename Function, typename ...BufferArgs>
+class VulkanKernel;
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs>
-class VulkanKernel : public Kernel<kDimension, BufferArgs...>
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+class VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...> :
+    public Kernel<kDimension, BufferArgs...>
 {
   using KernelBase = Kernel<kDimension, BufferArgs...>;
+
 
   static constexpr std::size_t kNumOfBuffers = KernelBase::numOfArguments();
 
@@ -70,6 +74,10 @@ class VulkanKernel : public Kernel<kDimension, BufferArgs...>
   //! Dispatch
   void dispatch(const std::array<uint32b, kDimension> works) noexcept;
 
+  //! Get the VkBuffer of the given buffer
+  template <typename Type>
+  vk::Buffer& getVkBuffer(Type&& buffer) const noexcept;
+
   //! Initialize a command buffer
   void initCommandBuffer() noexcept;
 
@@ -93,14 +101,8 @@ class VulkanKernel : public Kernel<kDimension, BufferArgs...>
   //! Initialize a pipeline layout
   void initPipelineLayout() noexcept;
 
-  //! Get the VkBuffer of the given buffer
-  template <typename Type>
-  vk::Buffer& getVkBuffer(Type&& buffer) const noexcept;
-
-  //! Make a buffer write descriptor set
-  void setBufferInfo(vk::Buffer* buffer_list,
-                     vk::DescriptorBufferInfo* descriptor_info_list,
-                     vk::WriteDescriptorSet* descriptor_set_list) const noexcept;
+  //! Check if the current buffers are same as previous buffers
+  bool isSameArgs(std::add_lvalue_reference_t<BufferArgs>... args) const noexcept;
 
 
   VulkanDevice* device_;
@@ -110,6 +112,7 @@ class VulkanKernel : public Kernel<kDimension, BufferArgs...>
   vk::PipelineLayout pipeline_layout_;
   vk::Pipeline compute_pipeline_;
   vk::CommandBuffer command_buffer_;
+  std::array<vk::Buffer, kNumOfBuffers> buffer_list_;
 };
 
 } // namespace zinvul

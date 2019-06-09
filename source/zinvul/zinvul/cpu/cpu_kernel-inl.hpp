@@ -12,13 +12,13 @@
 
 #include "cpu_kernel.hpp"
 // Standard C++ library
-#include <memory>
 #include <array>
 #include <cstddef>
+#include <memory>
+#include <tuple>
 #include <type_traits>
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/function_reference.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "cpu_buffer.hpp"
@@ -29,103 +29,11 @@
 
 namespace zinvul {
 
-namespace cppinner {
-
-template <typename ...Types>
-class CpuKernelRunnerImpl
-{
- public:
-  template <typename Function, typename ...ArgumentTypes>
-  static void run(Function func, ArgumentTypes&&... args) noexcept
-  {
-    (*func)(std::forward<ArgumentTypes>(args)...);
-  }
-};
-
-template <typename T, typename ...ArgumentTypes>
-class CpuKernelRunnerImpl<T, ArgumentTypes...>
-{
-  using Parent = CpuKernelRunnerImpl<ArgumentTypes...>;
-  using ArgInfo = KernelArgInfo<T>;
-
-  template <typename Type>
-  using BufferRef = std::add_lvalue_reference_t<Buffer<ArgInfo::kBufferType, Type>>;
-  template <typename Type>
-  using CpuBufferPtr = std::add_pointer_t<CpuBuffer<ArgInfo::kBufferType, Type>>;
-
-  template <typename Type>
-  static CpuBufferPtr<Type> getCpuBufferPtr(BufferRef<Type> buffer) noexcept
-  {
-    auto b = zisc::cast<CpuBufferPtr<Type>>(std::addressof(buffer));
-    return b;
-  }
-
-  template <typename Function, typename Type, typename ...Types>
-  static void runWithGlobal(Function func,
-                            Type&& buffer,
-                            Types&&... rest) noexcept
-  {
-    ZISC_ASSERT(buffer.deviceType() == DeviceType::kCpu,
-                "The device type of the buffer isn't cpu.");
-    ZISC_ASSERT(0 < buffer.size(), "The buffer is empty.");
-    using ElementType = typename std::remove_reference_t<Type>::Type;
-    using CpuBufferPtr = std::add_pointer_t<CpuBuffer<ArgInfo::kBufferType, 
-                                                      ElementType>>;
-    auto b = zisc::cast<CpuBufferPtr>(std::addressof(buffer));
-    if constexpr (ArgInfo::kIsPod) {
-      auto& argument = *(b->data());
-      Parent::run(func, std::forward<Types>(rest)..., argument);
-    }
-    else {
-      T argument{b->data()};
-      Parent::run(func, std::forward<Types>(rest)..., argument);
-    }
-  }
-
-  template <typename Function, typename ...Types>
-  static void runWithLocal(Function func, Types&&... rest) noexcept
-  {
-    typename ArgInfo::ElementType local_storage{};
-    T argument{std::addressof(local_storage)};
-    Parent::run(func, std::forward<Types>(rest)..., argument);
-  }
-
- public:
-  template <typename Function, typename ...Types>
-  static void run(Function func, Types&&... args) noexcept
-  {
-    if constexpr (ArgInfo::kIsGlobal)
-      runWithGlobal(func, std::forward<Types>(args)...);
-    else
-      runWithLocal(func, std::forward<Types>(args)...);
-  }
-};
-
-template <typename ...Types>
-class CpuKernelRunner
-{
-  static_assert(0 <= sizeof...(Types), "The 'Function' type isn't kernel type.");
-};
-
-template <typename ...ArgumentTypes>
-class CpuKernelRunner<void (*)(ArgumentTypes...)>
-{
-   using Function = void (*)(ArgumentTypes...);
- public:
-   template <typename ...BufferArgs>
-   static void run(Function func, BufferArgs&&... args) noexcept
-   {
-     CpuKernelRunnerImpl<ArgumentTypes...>::run(func,
-                                                std::forward<BufferArgs>(args)...);
-   }
-};
-
-} // namespace cppinner
-
 /*!
   */
-template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
-CpuKernel<kDimension, Function, BufferArgs...>::CpuKernel(
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::CpuKernel(
     CpuDevice* device,
     const Function kernel_func) noexcept : device_{device}
 {
@@ -134,8 +42,10 @@ CpuKernel<kDimension, Function, BufferArgs...>::CpuKernel(
 
 /*!
   */
-template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
-CpuDevice* CpuKernel<kDimension, Function, BufferArgs...>::device() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::device()
+    noexcept -> CpuDevice*
 {
   ZISC_ASSERT(device_ != nullptr, "The assigned device is null.");
   return device_;
@@ -143,9 +53,10 @@ CpuDevice* CpuKernel<kDimension, Function, BufferArgs...>::device() noexcept
 
 /*!
   */
-template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
-const CpuDevice* CpuKernel<kDimension, Function, BufferArgs...>::device()
-    const noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::device()
+    const noexcept -> const CpuDevice*
 {
   ZISC_ASSERT(device_ != nullptr, "The assigned device is null.");
   return device_;
@@ -153,18 +64,20 @@ const CpuDevice* CpuKernel<kDimension, Function, BufferArgs...>::device()
 
 /*!
   */
-template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
-DeviceType CpuKernel<kDimension, Function, BufferArgs...>::deviceType()
-    const noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::deviceType()
+    const noexcept -> DeviceType
 {
   return DeviceType::kCpu;
 }
 
 /*!
   */
-template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
-auto CpuKernel<kDimension, Function, BufferArgs...>::kernel() const noexcept
-    -> Function
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::kernel()
+    const noexcept -> Function
 {
   ZISC_ASSERT(kernel_ != nullptr, "The kernel function is null.");
   return kernel_;
@@ -172,8 +85,10 @@ auto CpuKernel<kDimension, Function, BufferArgs...>::kernel() const noexcept
 
 /*!
   */
-template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
-bool CpuKernel<kDimension, Function, BufferArgs...>::hasKernel() const noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+bool CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::hasKernel()
+    const noexcept
 {
   const bool result = kernel_ != nullptr;
   return result;
@@ -181,26 +96,76 @@ bool CpuKernel<kDimension, Function, BufferArgs...>::hasKernel() const noexcept
 
 /*!
   */
-template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
-void CpuKernel<kDimension, Function, BufferArgs...>::run(
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::run(
     std::add_lvalue_reference_t<BufferArgs>... args,
     const std::array<uint32b, kDimension> works,
     const uint32b /* queue_index */) noexcept
 {
   const auto command = [this, &args...]()
   {
-    cppinner::CpuKernelRunner<Function>::run(kernel(), args...);
+    using ArgPack = std::tuple<ArgumentTypes...>;
+    runFunc<ArgPack>(args...);
   };
   device()->submit(works, CpuDevice::Command{command});
 }
 
 /*!
   */
-template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
-void CpuKernel<kDimension, Function, BufferArgs...>::setKernel(
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::setKernel(
     const Function kernel_func) noexcept
 {
   kernel_ = kernel_func;
+}
+
+/*!
+  */
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+template <typename ArgPack, typename Type, typename ...Types> inline
+void CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::runFunc(
+    Type&& argument,
+    Types&&... rest) noexcept
+{
+  using ArgPackInfo = ArgumentPackInfo<ArgPack>;
+  if constexpr (ArgPackInfo::kHasArgument) {
+    using ArgInfo = KernelArgInfo<typename ArgPackInfo::Type>;
+    using RestArgPack = typename ArgPackInfo::RestArgPack;
+    if constexpr (ArgInfo::kIsGlobal) {
+      // Process a global argument
+      using ElementType = typename std::remove_reference_t<Type>::Type;
+      using CpuBufferT = CpuBuffer<ArgInfo::kBufferType, ElementType>;
+      using CpuBufferPtr = std::add_pointer_t<CpuBufferT>;
+
+      auto& buffer = argument;
+      ZISC_ASSERT(buffer.deviceType() == DeviceType::kCpu,
+                  "The device type of the buffer isn't cpu.");
+      ZISC_ASSERT(0 < buffer.size(), "The buffer is empty.");
+      auto b = zisc::cast<CpuBufferPtr>(std::addressof(buffer));
+      if constexpr (ArgInfo::kIsPod) {
+        auto& clargument = *(b->data());
+        runFunc<RestArgPack>(std::forward<Types>(rest)..., clargument);
+      }
+      else {
+        typename ArgPackInfo::Type clargument{b->data()};
+        runFunc<RestArgPack>(std::forward<Types>(rest)..., clargument);
+      }
+    }
+    else {
+      // Process a local argument
+      typename ArgInfo::ElementType local_storage{};
+      typename ArgPackInfo::Type clargument{std::addressof(local_storage)};
+      runFunc<RestArgPack>(std::forward<Type>(argument),
+                           std::forward<Types>(rest)...,
+                           clargument);
+    }
+  }
+  else {
+    // All buffers are processed, run a kernel
+    (*kernel())(std::forward<Type>(argument), std::forward<Types>(rest)...);
+  }
 }
 
 } // namespace zinvul

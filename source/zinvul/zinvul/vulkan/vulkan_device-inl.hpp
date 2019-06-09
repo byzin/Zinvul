@@ -398,13 +398,15 @@ UniqueBuffer<kBufferType, Type> VulkanDevice::makeBuffer(
 
 /*!
   */
-template <std::size_t kDimension, typename ...ArgumentTypes> inline
+template <std::size_t kDimension, typename Function, typename ...ArgumentTypes>
+inline
 UniqueKernel<kDimension, ArgumentTypes...> VulkanDevice::makeKernel(
     const uint32b module_index,
     const std::string_view kernel_name) noexcept
 {
   using UniqueVulkanKernel = zisc::UniqueMemoryPointer<VulkanKernel<
       kDimension,
+      Function,
       ArgumentTypes...>>;
   UniqueKernel<kDimension, ArgumentTypes...> kernel =
       UniqueVulkanKernel::make(memoryResource(), this, module_index, kernel_name);

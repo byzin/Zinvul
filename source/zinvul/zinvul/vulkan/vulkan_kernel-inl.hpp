@@ -17,6 +17,7 @@
 #include <memory>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 // Vulkan
 #include <vulkan/vulkan.hpp>
 // Zisc
@@ -25,6 +26,7 @@
 // Zinvul
 #include "vulkan_buffer.hpp"
 #include "vulkan_device.hpp"
+#include "zinvul/kernel_arg_parser.hpp"
 #include "zinvul/zinvul.hpp"
 #include "zinvul/zinvul_config.hpp"
 
@@ -32,8 +34,9 @@ namespace zinvul {
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-VulkanKernel<kDimension, BufferArgs...>::VulkanKernel(
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::VulkanKernel(
     VulkanDevice* device,
     const uint32b module_index,
     const std::string_view kernel_name) noexcept :
@@ -45,16 +48,20 @@ VulkanKernel<kDimension, BufferArgs...>::VulkanKernel(
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-VulkanKernel<kDimension, BufferArgs...>::~VulkanKernel() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::~VulkanKernel()
+    noexcept
 {
   destroy();
 }
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::destroy() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::destroy()
+    noexcept
 {
   const auto& device = device_->device();
   if (compute_pipeline_) {
@@ -77,68 +84,97 @@ void VulkanKernel<kDimension, BufferArgs...>::destroy() noexcept
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-VulkanDevice* VulkanKernel<kDimension, BufferArgs...>::device() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::device()
+    noexcept -> VulkanDevice*
 {
   return device_;
 }
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-const VulkanDevice* VulkanKernel<kDimension, BufferArgs...>::device()
-    const noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::device()
+    const noexcept -> const VulkanDevice*
 {
   return device_;
 }
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-DeviceType VulkanKernel<kDimension, BufferArgs...>::deviceType()
-    const noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::deviceType()
+    const noexcept -> DeviceType
 {
   return DeviceType::kVulkan;
 }
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::run(
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::run(
     std::add_lvalue_reference_t<BufferArgs>... args,
     const std::array<uint32b, kDimension> works,
     const uint32b queue_index) noexcept
 {
-  bindBuffers(args...);
+  if (!isSameArgs(args...))
+    bindBuffers(args...);
   dispatch(works);
   device()->submit(queue_index, command_buffer_);
 }
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::bindBuffers(
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::bindBuffers(
     std::add_lvalue_reference_t<BufferArgs>... args) noexcept
 {
-  constexpr std::size_t n = KernelBase::numOfArguments();
-  std::array<vk::Buffer, n> buffer_list{getVkBuffer(args)...};
-  std::array<vk::DescriptorBufferInfo, n> descriptor_info_list;
-  std::array<vk::WriteDescriptorSet, n> descriptor_set_list;
-  setBufferInfo(buffer_list.data(),
-                descriptor_info_list.data(),
-                descriptor_set_list.data());
+  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+
+  if ((0 == kNumOfBuffers) || isSameArgs(args...))
+    return;
+
+  std::array<vk::Buffer, kNumOfBuffers> buffer_list{getVkBuffer(args)...};
+  std::array<vk::DescriptorBufferInfo, kNumOfBuffers> descriptor_info_list;
+  std::array<vk::WriteDescriptorSet, kNumOfBuffers> descriptor_set_list;
+
+  constexpr auto buffer_info_list = ParseResult::getGlobalArgInfoList();
+  for (std::size_t index = 0; index < kNumOfBuffers; ++index) {
+    auto& descriptor_info = descriptor_info_list[index];
+    descriptor_info.buffer = buffer_list[index];
+    descriptor_info.offset = 0;
+    descriptor_info.range = VK_WHOLE_SIZE;
+
+    auto& buffer_info = buffer_info_list[index];
+    auto& descriptor_set = descriptor_set_list[index];
+    descriptor_set.dstSet = descriptor_set_;
+    descriptor_set.dstBinding = zisc::cast<uint32b>(buffer_info.index());
+    descriptor_set.dstArrayElement = 0;
+    descriptor_set.descriptorCount = 1;
+    descriptor_set.descriptorType = vk::DescriptorType::eStorageBuffer;
+    descriptor_set.pImageInfo = nullptr;
+    descriptor_set.pBufferInfo = &descriptor_info;
+    descriptor_set.pTexelBufferView = nullptr;
+  }
 
   const auto& device = device_->device();
-  device.updateDescriptorSets(zisc::cast<uint32b>(n),
+  device.updateDescriptorSets(zisc::cast<uint32b>(kNumOfBuffers),
                               descriptor_set_list.data(),
                               0,
                               nullptr);
+  buffer_list_ = std::move(buffer_list);
 }
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::dispatch(
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::dispatch(
     std::array<uint32b, kDimension> works) noexcept
 {
   const auto group_size = device_->calcWorkGroupSize(works);
@@ -161,8 +197,29 @@ void VulkanKernel<kDimension, BufferArgs...>::dispatch(
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::initCommandBuffer() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+template <typename Type> inline
+auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::getVkBuffer(
+    Type&& buffer) const noexcept -> vk::Buffer&
+{
+  ZISC_ASSERT(buffer.deviceType() == DeviceType::kVulkan,
+              "The device type of the buffer isn't vulkan.");
+
+  using ElementType = typename std::remove_reference_t<Type>::Type;
+  constexpr BufferType buffer_type = std::remove_reference_t<Type>::bufferType();
+  using VulkanBufferT = VulkanBuffer<buffer_type, ElementType>;
+  using VulkanBufferPtr = std::add_pointer_t<VulkanBufferT>;
+
+  auto b = zisc::cast<VulkanBufferPtr>(std::addressof(buffer));
+  return b->buffer();
+}
+
+/*!
+  */
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initCommandBuffer()
+    noexcept
 {
   const vk::CommandBufferAllocateInfo alloc_info{
       device_->commandPool(),
@@ -176,21 +233,34 @@ void VulkanKernel<kDimension, BufferArgs...>::initCommandBuffer() noexcept
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::initComputePipeline(
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initComputePipeline(
     const uint32b module_index,
     const std::string_view kernel_name) noexcept
 {
-  // Set work group size
-  const auto& local_work_size = device_->localWorkSize<kDimension>();
-  const vk::SpecializationMapEntry entries[] = {
-    {0, 0 * sizeof(uint32b), sizeof(uint32b)},
-    {1, 1 * sizeof(uint32b), sizeof(uint32b)},
-    {2, 2 * sizeof(uint32b), sizeof(uint32b)}};
-  const vk::SpecializationInfo info{3,  
-                                    entries,
-                                    3 * sizeof(uint32b),
-                                    local_work_size.data()};
+  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+
+  // Set constant IDs
+  constexpr std::size_t num_of_entries = 3u + ParseResult::kNumOfLocalArgs;
+  std::array<uint32b, num_of_entries> constant_data;
+  {
+    const auto& local_work_size = device_->localWorkSize<kDimension>();
+    for (std::size_t i = 0; i < local_work_size.size(); ++i)
+      constant_data[i] = local_work_size[i];
+    for (std::size_t i = local_work_size.size(); i < num_of_entries; ++i)
+      constant_data[i] = device_->subgroupSize();
+  }
+  std::array<vk::SpecializationMapEntry, num_of_entries> entries;
+  for (std::size_t i = 0; i < entries.size(); ++i) {
+    entries[i].constantID = zisc::cast<uint32b>(i);
+    entries[i].offset = zisc::cast<uint32b>(i * sizeof(uint32b));
+    entries[i].size = sizeof(uint32b);
+  }
+  const vk::SpecializationInfo info{zisc::cast<uint32b>(num_of_entries),  
+                                    entries.data(),
+                                    num_of_entries * sizeof(uint32b),
+                                    constant_data.data()};
   // Shader stage create info
   const auto& shader_module = device_->getShaderModule(module_index);
   const vk::PipelineShaderStageCreateInfo shader_stage_create_info{
@@ -214,8 +284,10 @@ void VulkanKernel<kDimension, BufferArgs...>::initComputePipeline(
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::initDescriptorPool() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorPool()
+    noexcept
 {
   const vk::DescriptorPoolSize pool_size{
       vk::DescriptorType::eStorageBuffer,
@@ -232,8 +304,10 @@ void VulkanKernel<kDimension, BufferArgs...>::initDescriptorPool() noexcept
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::initDescriptorSet() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorSet()
+    noexcept
 {
   const vk::DescriptorSetAllocateInfo alloc_info{descriptor_pool_,
                                                  1,
@@ -246,8 +320,10 @@ void VulkanKernel<kDimension, BufferArgs...>::initDescriptorSet() noexcept
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::initDescriptorSetLayout()   noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorSetLayout()
+    noexcept
 {
   constexpr std::size_t n = KernelBase::numOfArguments();
   std::array<vk::DescriptorSetLayoutBinding, n> layout_bindings;
@@ -271,10 +347,15 @@ void VulkanKernel<kDimension, BufferArgs...>::initDescriptorSetLayout()   noexce
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::initialize(
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initialize(
     const uint32b module_index, const std::string_view kernel_name) noexcept
 {
+  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+  static_assert(kNumOfBuffers == ParseResult::kNumOfGlobalArgs,
+                "The number of buffers is wrong.");
+
   initDescriptorSetLayout();
   initDescriptorPool();
   initDescriptorSet();
@@ -285,8 +366,10 @@ void VulkanKernel<kDimension, BufferArgs...>::initialize(
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::initPipelineLayout() noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initPipelineLayout()
+    noexcept
 {
   const vk::PipelineLayoutCreateInfo create_info{
       vk::PipelineLayoutCreateFlags{},
@@ -300,47 +383,16 @@ void VulkanKernel<kDimension, BufferArgs...>::initPipelineLayout() noexcept
 
 /*!
   */
-template <std::size_t kDimension, typename ...BufferArgs>
-template <typename Type> inline
-vk::Buffer& VulkanKernel<kDimension, BufferArgs...>::getVkBuffer(Type&& buffer)
-    const noexcept
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+inline
+bool VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::isSameArgs(
+    std::add_lvalue_reference_t<BufferArgs>... args) const noexcept
 {
-  ZISC_ASSERT(buffer.deviceType() == DeviceType::kVulkan,
-              "The device type of the buffer isn't vulkan.");
-
-  using ElementType = typename std::remove_reference_t<Type>::Type;
-  constexpr BufferType buffer_type = std::remove_reference_t<Type>::bufferType();
-  using VulkanBufferPtr = std::add_pointer_t<VulkanBuffer<buffer_type,
-                                                          ElementType>>;
-  auto b = zisc::cast<VulkanBufferPtr>(std::addressof(buffer));
-  return b->buffer();
-}
-
-/*!
-  */
-template <std::size_t kDimension, typename ...BufferArgs> inline
-void VulkanKernel<kDimension, BufferArgs...>::setBufferInfo(
-    vk::Buffer* buffer_list,
-    vk::DescriptorBufferInfo* descriptor_info_list,
-    vk::WriteDescriptorSet* descriptor_set_list) const noexcept
-{
-  constexpr std::size_t n = KernelBase::numOfArguments();
-  for (std::size_t index = 0; index < n; ++index) {
-    auto& descriptor_info = descriptor_info_list[index];
-    descriptor_info.buffer = buffer_list[index];
-    descriptor_info.offset = 0;
-    descriptor_info.range = VK_WHOLE_SIZE;
-
-    auto& descriptor_set = descriptor_set_list[index];
-    descriptor_set.dstSet = descriptor_set_;
-    descriptor_set.dstBinding = zisc::cast<uint32b>(index);
-    descriptor_set.dstArrayElement = 0;
-    descriptor_set.descriptorCount = 1;
-    descriptor_set.descriptorType = vk::DescriptorType::eStorageBuffer;
-    descriptor_set.pImageInfo = nullptr;
-    descriptor_set.pBufferInfo = &descriptor_info;
-    descriptor_set.pTexelBufferView = nullptr;
-  }
+  std::array<vk::Buffer, kNumOfBuffers> buffer_list{{getVkBuffer(args)...}};
+  bool result = true;
+  for (std::size_t i = 0; (i < buffer_list.size()) && result; ++i)
+    result = buffer_list_[i] == buffer_list[i];
+  return result;
 }
 
 } // namespace zinvul

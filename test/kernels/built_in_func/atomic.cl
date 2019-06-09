@@ -18,6 +18,9 @@
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconditional-uninitialized"
+
 using namespace zinvul;
 
 // Forward declaration
@@ -1029,5 +1032,7 @@ __kernel void testAtomicFloatIncGlobalUint(GlobalPtr<uint32b> result,
     table[i] = 1;
   }
 }
+
+#pragma clang diagnostic pop
 
 #endif /* ZINVUL_BUILT_IN_FUNC_TEST_ATOMIC_CL */

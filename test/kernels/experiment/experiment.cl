@@ -19,6 +19,9 @@
 
 using namespace zinvul;
 
+// Forward declaration
+__kernel void experiment(const uint32b resolution);
+
 /*!
   */
 __kernel void experiment(const uint32b resolution)

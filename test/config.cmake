@@ -34,6 +34,7 @@ function(getTestWarningOption test_warning_flags)
                                 -Wno-sign-conversion
                                 -Wno-strict-overflow
                                 -Wno-unused-but-set-variable
+                                -Wno-redundant-move
                                 )
     elseif(Z_MSVC)
       list(APPEND warning_flags /wd4996

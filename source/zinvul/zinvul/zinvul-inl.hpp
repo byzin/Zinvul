@@ -133,8 +133,8 @@ struct KernelMaker<kDimension, Function, Kernel<kDimension, BufferArgs...>>
                   const uint32b module_index,
                   const std::string_view kernel_name) noexcept
   {
-    auto kernel = d->makeKernel<kDimension, BufferArgs...>(module_index,
-                                                           kernel_name);
+    auto kernel = d->makeKernel<kDimension, Function, BufferArgs...>(module_index,
+                                                                     kernel_name);
     return kernel;
   }
 #endif // ZINVUL_ENABLE_VULKAN_BACKEND
@@ -152,6 +152,8 @@ UniqueKernelWithoutLocal<kDimension, ArgumentTypes...> makeKernel(
     void (*cpu_kernel)(ArgumentTypes...),
     const std::string_view vulkan_kernel) noexcept
 {
+  static_assert(!KernelArgParser<kDimension, ArgumentTypes...>::hasConstLocal(),
+                "The kernel has any arguments that is const local qualified.");
   using UniqueKernel = UniqueKernelWithoutLocal<kDimension, ArgumentTypes...>;
   using Function = void (*)(ArgumentTypes...);
   using KernelMaker = cppinner::KernelMaker<kDimension,

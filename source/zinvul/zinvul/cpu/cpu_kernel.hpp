@@ -13,6 +13,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <tuple>
 #include <type_traits>
 // Zinvul
 #include "zinvul/kernel.hpp"
@@ -23,12 +24,19 @@ namespace zinvul {
 // Forward declaration
 class CpuDevice;
 
+template <std::size_t kDimension, typename Function, typename ...BufferArgs>
+class CpuKernel;
+
 /*!
   */
-template <std::size_t kDimension, typename Function, typename ...BufferArgs>
-class CpuKernel : public Kernel<kDimension, BufferArgs...>
+template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+class CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...> :
+    public Kernel<kDimension, BufferArgs...>
 {
  public:
+  using Function = void (*)(ArgumentTypes...);
+
+
    //! Construct a kernel
   CpuKernel(CpuDevice* device, const Function kernel) noexcept;
 
@@ -57,6 +65,25 @@ class CpuKernel : public Kernel<kDimension, BufferArgs...>
   void setKernel(const Function kernel) noexcept;
 
  private:
+  template <typename ...Types>
+  struct ArgumentPackInfo
+  {
+    static constexpr bool kHasArgument = false;
+  };
+
+  template <typename T, typename ...Types>
+  struct ArgumentPackInfo<std::tuple<T, Types...>>
+  {
+    using Type = T;
+    using RestArgPack = std::tuple<Types...>;
+    static constexpr bool kHasArgument = true;
+  };
+
+  //! Execute a kernel
+  template <typename ArgPack, typename Type, typename ...Types>
+  void runFunc(Type&& argument, Types&&... args) noexcept;
+
+
   CpuDevice* device_ = nullptr;
   Function kernel_ = nullptr;
 };
