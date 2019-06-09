@@ -71,9 +71,9 @@ void VulkanDevice::allocate(const std::size_t size,
   vk::BufferCreateInfo buffer_create_info;
   buffer_create_info.size = sizeof(Type) * size;
   buffer_create_info.usage = vk::BufferUsageFlagBits::eStorageBuffer;
-  if (buffer->isSource())
+//  if (buffer->isSource())
     buffer_create_info.usage |= vk::BufferUsageFlagBits::eTransferSrc;
-  if (buffer->isDestination())
+//  if (buffer->isDestination())
     buffer_create_info.usage |= vk::BufferUsageFlagBits::eTransferDst;
   buffer_create_info.queueFamilyIndexCount = 1;
   buffer_create_info.pQueueFamilyIndices = &queue_family_index_;
