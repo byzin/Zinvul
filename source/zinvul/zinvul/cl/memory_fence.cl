@@ -12,22 +12,14 @@
 
 namespace zinvul {
 
-/*!
-  */
-class MemoryFence
-{
- public:
-  //! Any variables stored in local or global memories are flushed
-  static void performBarrier() noexcept;
+//! Any variables stored in local or global memories are flushed
+void performBarrier() noexcept;
 
-  //! Any variables stored in local memory are flushed
-  static void performLocalBarrier() noexcept;
+//! Any variables stored in local memory are flushed
+void performLocalBarrier() noexcept;
 
-  //! Any variables stored in global memory are flushed
-  static void performGlobalBarrier() noexcept;
-
- private:
-};
+//! Any variables stored in global memory are flushed
+void performGlobalBarrier() noexcept;
 
 } // namespace zinvul
 

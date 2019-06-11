@@ -70,19 +70,33 @@ void VulkanDevice::allocate(const std::size_t size,
 
   vk::BufferCreateInfo buffer_create_info;
   buffer_create_info.size = sizeof(Type) * size;
-  buffer_create_info.usage = vk::BufferUsageFlagBits::eStorageBuffer;
-//  if (buffer->isSource())
-    buffer_create_info.usage |= vk::BufferUsageFlagBits::eTransferSrc;
-//  if (buffer->isDestination())
-    buffer_create_info.usage |= vk::BufferUsageFlagBits::eTransferDst;
+  buffer_create_info.usage = vk::BufferUsageFlagBits::eStorageBuffer |
+                             vk::BufferUsageFlagBits::eTransferSrc |
+                             vk::BufferUsageFlagBits::eTransferDst;
   buffer_create_info.queueFamilyIndexCount = 1;
   buffer_create_info.pQueueFamilyIndices = &queue_family_index_;
 
   VmaAllocationCreateInfo alloc_create_info;
+  switch (buffer->usage()) {
+   case BufferUsage::kHostOnly: {
+    alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+    break;
+   }
+   case BufferUsage::kHostToDevice: {
+    alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+    break;
+   }
+   case BufferUsage::kDeviceToHost: {
+    alloc_create_info.usage = VMA_MEMORY_USAGE_GPU_TO_CPU;
+    break;
+   }
+   case BufferUsage::kDeviceOnly:
+   default: {
+    alloc_create_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    break;
+   }
+  }
   alloc_create_info.flags = 0;
-  alloc_create_info.usage = buffer->isHostBuffer()
-      ? VMA_MEMORY_USAGE_CPU_ONLY
-      : VMA_MEMORY_USAGE_GPU_ONLY;
   alloc_create_info.requiredFlags = 0;
   alloc_create_info.preferredFlags = 0;
   alloc_create_info.memoryTypeBits = 0;
@@ -99,8 +113,14 @@ void VulkanDevice::allocate(const std::size_t size,
   ZISC_ASSERT(result == VK_SUCCESS, "Buffer creation failed.");
   (void)result;
 
-  const std::size_t device_memory_usage = memoryUsage() + buffer->memoryUsage();
-  setMemoryUsage(device_memory_usage);
+  if (buffer->isDeviceMemory()) {
+    const std::size_t memory_usage = deviceMemoryUsage() + buffer->memoryUsage();
+    setDeviceMemoryUsage(memory_usage);
+  }
+  else {
+    const std::size_t memory_usage = hostMemoryUsage() + buffer->memoryUsage();
+    setHostMemoryUsage(memory_usage);
+  }
 }
 
 /*!
@@ -137,15 +157,12 @@ const vk::CommandPool& VulkanDevice::commandPool() const noexcept
 
 /*!
   */
-template <BufferType kBufferType, typename Type> inline
-void VulkanDevice::copyBuffer(const VulkanBuffer<kBufferType, Type>& src,
-                              VulkanBuffer<kBufferType, Type>* dst,
+template <BufferType kBuffer1Type, BufferType kBuffer2Type, typename Type> inline
+void VulkanDevice::copyBuffer(const VulkanBuffer<kBuffer1Type, Type>& src,
+                              VulkanBuffer<kBuffer2Type, Type>* dst,
                               const vk::BufferCopy& copy_info,
                               const uint32b queue_index) const noexcept
 {
-  ZISC_ASSERT(src.isSource(), "The buffer 'src' isn't source buffer.");
-  ZISC_ASSERT(dst->isDestination(), "The buffer 'dst' isn't destination buffer.");
-
   // Set copy command
   vk::CommandBufferBeginInfo begin_info{};
   begin_info.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
@@ -172,8 +189,14 @@ void VulkanDevice::deallocate(VulkanBuffer<kBufferType, Type>* buffer) noexcept
   if (b) {
     vmaDestroyBuffer(allocator_, *reinterpret_cast<VkBuffer*>(&b), memory);
 
-    const std::size_t device_memory_usage = memoryUsage() - buffer->memoryUsage();
-    setMemoryUsage(device_memory_usage);
+    if (buffer->isDeviceMemory()) {
+      const std::size_t memory_usage = deviceMemoryUsage() - buffer->memoryUsage();
+      setDeviceMemoryUsage(memory_usage);
+    }
+    else {
+      const std::size_t memory_usage = hostMemoryUsage() - buffer->memoryUsage();
+      setHostMemoryUsage(memory_usage);
+    }
 
     b = nullptr;
     memory = VK_NULL_HANDLE;

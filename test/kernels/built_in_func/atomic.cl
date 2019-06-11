@@ -165,7 +165,7 @@ __kernel void testLocalMemoryFence(GlobalPtr<uint32b> table,
   const uint32b local_index = getLocalIdX();
   {
     cache[local_index] = local_index + 1;
-    MemoryFence::performLocalBarrier();
+    performLocalBarrier();
   }
 
   if (index < resolution) {
@@ -204,7 +204,7 @@ __kernel void testAtomicAddLocalPositive(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
@@ -212,7 +212,7 @@ __kernel void testAtomicAddLocalPositive(GlobalPtr<int32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::add(result, c);
@@ -244,7 +244,7 @@ __kernel void testAtomicAddLocalNegative(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
@@ -252,7 +252,7 @@ __kernel void testAtomicAddLocalNegative(GlobalPtr<int32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::add(result, c);
@@ -284,7 +284,7 @@ __kernel void testAtomicAddLocalUint(GlobalPtr<uint32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<uint32b> p = &c;
@@ -292,7 +292,7 @@ __kernel void testAtomicAddLocalUint(GlobalPtr<uint32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::add(result, c);
@@ -324,7 +324,7 @@ __kernel void testAtomicSubLocalPositive(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
@@ -332,7 +332,7 @@ __kernel void testAtomicSubLocalPositive(GlobalPtr<int32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::sub(result, -c);
@@ -364,7 +364,7 @@ __kernel void testAtomicSubLocalNegative(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
@@ -372,7 +372,7 @@ __kernel void testAtomicSubLocalNegative(GlobalPtr<int32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::sub(result, -c);
@@ -404,7 +404,7 @@ __kernel void testAtomicSubLocalUint(GlobalPtr<uint32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = getLocalSizeX();
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<uint32b> p = &c;
@@ -412,7 +412,7 @@ __kernel void testAtomicSubLocalUint(GlobalPtr<uint32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::sub(result, getLocalSizeX() - c);
@@ -487,7 +487,7 @@ __kernel void testAtomicIncLocal(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
@@ -497,7 +497,7 @@ __kernel void testAtomicIncLocal(GlobalPtr<int32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::add(result, c);
@@ -527,7 +527,7 @@ __kernel void testAtomicIncLocalUint(GlobalPtr<uint32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<uint32b> p = &c;
@@ -537,7 +537,7 @@ __kernel void testAtomicIncLocalUint(GlobalPtr<uint32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::add(result, c);
@@ -565,7 +565,7 @@ __kernel void testAtomicDecLocal(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
@@ -575,7 +575,7 @@ __kernel void testAtomicDecLocal(GlobalPtr<int32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::sub(result, -c);
@@ -603,7 +603,7 @@ __kernel void testAtomicDecLocalUint(GlobalPtr<uint32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = getLocalSizeX();
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<uint32b> p = &c;
@@ -613,7 +613,7 @@ __kernel void testAtomicDecLocalUint(GlobalPtr<uint32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::sub(result, getLocalSizeX() - c);
@@ -645,7 +645,7 @@ __kernel void testAtomicCmpxchgLocalPositive(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     const auto inc = [](const int32b p)
@@ -660,7 +660,7 @@ __kernel void testAtomicCmpxchgLocalPositive(GlobalPtr<int32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::add(result, c);
@@ -693,7 +693,7 @@ __kernel void testAtomicCmpxchgLocalNegative(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     const auto sub = [](const int32b p, const int32b value)
@@ -708,7 +708,7 @@ __kernel void testAtomicCmpxchgLocalNegative(GlobalPtr<int32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::sub(result, c);
@@ -741,7 +741,7 @@ __kernel void testAtomicCmpxchgLocalUint(GlobalPtr<uint32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     const auto add = [](const uint32b p, const uint32b value)
@@ -756,7 +756,7 @@ __kernel void testAtomicCmpxchgLocalUint(GlobalPtr<uint32b> result,
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if (local_index == 0)
     Atomic::add(result, c);
@@ -784,14 +784,14 @@ __kernel void testAtomicMinLocalPositive(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = NumericLimits<int32b>::max();
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
     const int32b i = cast<int32b>(getGroupIdX() * getLocalSizeX() + local_index);
     Atomic::min(p, i);
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if ((local_index == 0) && (c != NumericLimits<int32b>::max()))
     Atomic::min(result, c);
@@ -817,14 +817,14 @@ __kernel void testAtomicMinLocalNegative(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 1;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
     const int32b i = -cast<int32b>(getGroupIdX() * getLocalSizeX() + local_index);
     Atomic::min(p, i);
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if ((local_index == 0) && (c != 1))
     Atomic::min(result, c);
@@ -850,14 +850,14 @@ __kernel void testAtomicMinLocalUint(GlobalPtr<uint32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = NumericLimits<uint32b>::max();
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<uint32b> p = &c;
     const uint32b i = getGroupIdX() * getLocalSizeX() + local_index;
     Atomic::min(p, i);
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if ((local_index == 0) && (c != NumericLimits<uint32b>::max()))
     Atomic::min(result, c);
@@ -883,14 +883,14 @@ __kernel void testAtomicMaxLocalPositive(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = -1;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
     const int32b i = cast<int32b>(getGroupIdX() * getLocalSizeX() + local_index);
     Atomic::max(p, i);
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if ((local_index == 0) && (c != -1))
     Atomic::max(result, c);
@@ -916,14 +916,14 @@ __kernel void testAtomicMaxLocalNegative(GlobalPtr<int32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = NumericLimits<int32b>::min();
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
     const int32b i = -cast<int32b>(getGroupIdX() * getLocalSizeX() + local_index);
     Atomic::max(p, i);
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if ((local_index == 0) && (c != NumericLimits<int32b>::min()))
     Atomic::max(result, c);
@@ -949,14 +949,14 @@ __kernel void testAtomicMaxLocalUint(GlobalPtr<uint32b> result,
   const uint32b local_index = getLocalIdX();
   if (local_index == 0)
     c = 0;
-  MemoryFence::performLocalBarrier();
+  performLocalBarrier();
 
   if (index < resolution) {
     LocalPtr<uint32b> p = &c;
     const uint32b i = getGroupIdX() * getLocalSizeX() + local_index;
     Atomic::max(p, i);
   }
-  MemoryFence::performBarrier();
+  performBarrier();
 
   if ((local_index == 0) && (c != 0))
     Atomic::max(result, c);

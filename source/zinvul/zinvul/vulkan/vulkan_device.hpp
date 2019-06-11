@@ -86,9 +86,9 @@ class VulkanDevice : public Device
   const vk::CommandPool& commandPool() const noexcept;
 
   //! Copy a  buffer 'src' to a buffer 'dst'
-  template <BufferType kBufferType, typename Type>
-  void copyBuffer(const VulkanBuffer<kBufferType, Type>& src,
-                  VulkanBuffer<kBufferType, Type>* dst,
+  template <BufferType kBuffer1Type, BufferType kBuffer2Type, typename Type>
+  void copyBuffer(const VulkanBuffer<kBuffer1Type, Type>& src,
+                  VulkanBuffer<kBuffer2Type, Type>* dst,
                   const vk::BufferCopy& copy_info,
                   const uint32b queue_index) const noexcept;
 

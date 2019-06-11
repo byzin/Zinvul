@@ -62,11 +62,12 @@ class VulkanBuffer : public Buffer<kBufferType, T>
   const vk::Buffer& buffer() const noexcept;
 
   //! Copy this buffer to a dst buffer
-  void copyTo(Buffer<kBufferType, T>* dst,
+  template <BufferType kDstBufferType>
+  void copyTo(VulkanBuffer<kDstBufferType, T>* dst,
               const std::size_t count,
               const std::size_t src_offset,
               const std::size_t dst_offset,
-              const uint32b queue_index) const noexcept override;
+              const uint32b queue_index) const noexcept;
 
   //! Destroy a buffer
   void destroy() noexcept;
@@ -74,8 +75,14 @@ class VulkanBuffer : public Buffer<kBufferType, T>
   //! Return the device type
   DeviceType deviceType() const noexcept override;
 
-  //! Return the expected memory usage
-  std::size_t expectedMemoryUsage() const noexcept;
+  //! Check if a buffer memory is on device
+  bool isDeviceMemory() const noexcept override;
+
+  //! Check if a buffer memory is on host
+  bool isHostMemory() const noexcept override;
+
+  //! Check if a buffer memory is host visible
+  bool isHostVisible() const noexcept override;
 
   //! Return the memory allocation
   VmaAllocation& memory() noexcept;

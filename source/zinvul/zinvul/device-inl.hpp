@@ -43,6 +43,22 @@ Device::~Device() noexcept
 /*!
   */
 inline
+std::size_t Device::deviceMemoryUsage() const noexcept
+{
+  return device_memory_usage_;
+}
+
+/*!
+  */
+inline
+std::size_t Device::hostMemoryUsage() const noexcept
+{
+  return host_memory_usage_;
+}
+
+/*!
+  */
+inline
 zisc::pmr::memory_resource* Device::memoryResource() noexcept
 {
   ZISC_ASSERT(mem_resource_ != nullptr, "The memory resource is null.");
@@ -61,27 +77,37 @@ const zisc::pmr::memory_resource* Device::memoryResource() const noexcept
 /*!
   */
 inline
-std::size_t Device::maxMemoryUsage() const noexcept
+std::size_t Device::peakDeviceMemoryUsage() const noexcept
 {
-  return max_memory_usage_;
+  return peak_device_memory_usage_;
 }
 
 /*!
   */
 inline
-std::size_t Device::memoryUsage() const noexcept
+std::size_t Device::peakHostMemoryUsage() const noexcept
 {
-  return memory_usage_;
+  return peak_host_memory_usage_;
 }
 
 /*!
   */
 inline
-void Device::setMemoryUsage(const std::size_t memory_usage) noexcept
+void Device::setDeviceMemoryUsage(const std::size_t memory_usage) noexcept
 {
-  memory_usage_ = memory_usage;
-  if (maxMemoryUsage() < memory_usage)
-    max_memory_usage_ = memory_usage;
+  device_memory_usage_ = memory_usage;
+  if (peakDeviceMemoryUsage() < memory_usage)
+    peak_device_memory_usage_ = memory_usage;
+}
+
+/*!
+  */
+inline
+void Device::setHostMemoryUsage(const std::size_t memory_usage) noexcept
+{
+  host_memory_usage_ = memory_usage;
+  if (peakHostMemoryUsage() < memory_usage)
+    peak_host_memory_usage_ = memory_usage;
 }
 
 /*!

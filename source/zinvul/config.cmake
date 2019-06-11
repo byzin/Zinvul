@@ -217,7 +217,7 @@ function(loadZinvul zinvul_source_files zinvul_include_dirs zinvul_compile_flags
                           VULKAN_HPP_NO_EXCEPTIONS)
   if(Z_DEBUG_MODE)
     list(APPEND definitions VMA_DEBUG_INITIALIZE_ALLOCATIONS=1
-                            VMA_DEBUG_MARGIN=128
+                            VMA_DEBUG_MARGIN=32
                             VMA_DEBUG_DETECT_CORRUPTION=1)
   endif()
   # OpenCL

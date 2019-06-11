@@ -13,6 +13,7 @@
 #include "zinvul.hpp"
 // Standard C++ library
 #include <cstddef>
+#include <memory>
 #include <string_view>
 #include <type_traits>
 // Zisc
@@ -20,6 +21,7 @@
 #include "zisc/unique_memory_pointer.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
+#include "buffer.hpp"
 #include "kernel.hpp"
 #include "kernel_set.hpp"
 #include "kernel_arg_parser.hpp"
@@ -84,6 +86,44 @@ UniqueBuffer<BufferType::kStorage, Type> makeStorageBuffer(
 {
   auto buffer = makeBuffer<BufferType::kStorage, Type>(device, usage_flag);
   return buffer;
+}
+
+/*!
+  */
+template <BufferType kBufferType1, BufferType kBufferType2, typename Type> inline
+void copy(const Buffer<kBufferType1, Type>& src,
+          Buffer<kBufferType2, Type>* dst,
+          const std::size_t count,
+          const std::size_t src_offset,
+          const std::size_t dst_offset,
+          const uint32b queue_index) noexcept
+{
+  ZISC_ASSERT(src.deviceType() == dst->deviceType(),
+              "The device types of src and dst aren't same.");
+  switch (src.deviceType()) {
+   case DeviceType::kCpu: {
+    using SrcBuffer = CpuBuffer<kBufferType1, Type>;
+    using DstBuffer = CpuBuffer<kBufferType2, Type>;
+    const auto src_buffer = zisc::cast<const SrcBuffer*>(std::addressof(src));
+    auto dst_buffer = zisc::cast<DstBuffer*>(dst);
+    src_buffer->copyTo(dst_buffer, count, src_offset, dst_offset, queue_index);
+    break;
+   }
+#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
+   case DeviceType::kVulkan: {
+    using SrcBuffer = VulkanBuffer<kBufferType1, Type>;
+    using DstBuffer = VulkanBuffer<kBufferType2, Type>;
+    const auto src_buffer = zisc::cast<const SrcBuffer*>(std::addressof(src));
+    auto dst_buffer = zisc::cast<DstBuffer*>(dst);
+    src_buffer->copyTo(dst_buffer, count, src_offset, dst_offset, queue_index);
+    break;
+   }
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
+   default: {
+    ZISC_ASSERT(false, "Error: Unsupported buffer type is specified.");
+    break;
+   }
+  }
 }
 
 /*!

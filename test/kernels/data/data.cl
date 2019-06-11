@@ -13,7 +13,6 @@
 #include "zinvul/cl/array.cl"
 #include "zinvul/cl/fnv_1a_hash_engine.cl"
 #include "zinvul/cl/limits.cl"
-#include "zinvul/cl/memory_fence.cl"
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
@@ -196,9 +195,7 @@ __kernel void testLocalInput(ConstGlobalPtr<uint32b> buffer0,
   const uint32b i = getLocalIdX();
   if (index < resolution) {
     buffer3[i] = buffer0[index];
-    MemoryFence::performLocalBarrier();
     buffer4[i] = buffer1[index];
-    MemoryFence::performLocalBarrier();
     buffer2[index] = buffer3[i] + buffer4[i];
   }
 }

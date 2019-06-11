@@ -70,8 +70,9 @@ void CpuDevice::allocate(const std::size_t size,
   auto& b = buffer->buffer();
   b.resize(size);
 
-  const std::size_t device_memory_usage = memoryUsage() + buffer->memoryUsage();
-  setMemoryUsage(device_memory_usage);
+  const std::size_t memory_usage = deviceMemoryUsage() + buffer->memoryUsage();
+  setDeviceMemoryUsage(memory_usage);
+  setHostMemoryUsage(memory_usage);
 }
 
 /*!
@@ -79,8 +80,9 @@ void CpuDevice::allocate(const std::size_t size,
 template <BufferType kBufferType, typename Type> inline
 void CpuDevice::deallocate(CpuBuffer<kBufferType, Type>* buffer) noexcept
 {
-  const std::size_t device_memory_usage = memoryUsage() - buffer->memoryUsage();
-  setMemoryUsage(device_memory_usage);
+  const std::size_t memory_usage = deviceMemoryUsage() - buffer->memoryUsage();
+  setDeviceMemoryUsage(memory_usage);
+  setHostMemoryUsage(memory_usage);
 }
 
 /*!

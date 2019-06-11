@@ -100,7 +100,7 @@ TEST(Experiment, ZinvulTest)
 
     constexpr uint32b resolution = 1024u;
 
-    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceTDst);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 

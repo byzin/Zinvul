@@ -17,7 +17,7 @@ namespace zinvul {
 /*!
   */
 inline
-void MemoryFence::performBarrier() noexcept
+void performBarrier() noexcept
 {
   barrier(CLK_LOCAL_MEM_FENCE | CLK_GLOBAL_MEM_FENCE);
 }
@@ -25,7 +25,7 @@ void MemoryFence::performBarrier() noexcept
 /*!
   */
 inline
-void MemoryFence::performLocalBarrier() noexcept
+void performLocalBarrier() noexcept
 {
   barrier(CLK_LOCAL_MEM_FENCE);
 }
@@ -33,7 +33,7 @@ void MemoryFence::performLocalBarrier() noexcept
 /*!
   */
 inline
-void MemoryFence::performGlobalBarrier() noexcept
+void performGlobalBarrier() noexcept
 {
   barrier(CLK_GLOBAL_MEM_FENCE);
 }

@@ -64,8 +64,9 @@ auto CpuBuffer<kBufferType, T>::buffer() const noexcept
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-void CpuBuffer<kBufferType, T>::copyTo(Buffer<kBufferType, T>* dst,
+template <BufferType kBufferType, typename T> template <BufferType kDstBufferType>
+inline
+void CpuBuffer<kBufferType, T>::copyTo(CpuBuffer<kDstBufferType, T>* dst,
                                        const std::size_t count,
                                        const std::size_t src_offset,
                                        const std::size_t dst_offset,
@@ -101,6 +102,30 @@ DeviceType CpuBuffer<kBufferType, T>::deviceType() const noexcept
 /*!
   */
 template <BufferType kBufferType, typename T> inline
+bool CpuBuffer<kBufferType, T>::isDeviceMemory() const noexcept
+{
+  return true;
+}
+
+/*!
+  */
+template <BufferType kBufferType, typename T> inline
+bool CpuBuffer<kBufferType, T>::isHostMemory() const noexcept
+{
+  return true;
+}
+
+/*!
+  */
+template <BufferType kBufferType, typename T> inline
+bool CpuBuffer<kBufferType, T>::isHostVisible() const noexcept
+{
+  return true;
+}
+
+/*!
+  */
+template <BufferType kBufferType, typename T> inline
 std::size_t CpuBuffer<kBufferType, T>::memoryUsage() const noexcept
 {
   const std::size_t memory_usage = sizeof(Type) * size();
@@ -115,7 +140,6 @@ void CpuBuffer<kBufferType, T>::read(Pointer host_data,
                                      const std::size_t offset,
                                      const uint32b) const noexcept
 {
-  ZISC_ASSERT(this->isHostReadable(), "The buffer isn't host readable.");
   const std::size_t s = sizeof(Type) * count;
   std::memcpy(host_data, data() + offset, s);
 }
@@ -145,7 +169,6 @@ void CpuBuffer<kBufferType, T>::write(ConstPointer host_data,
                                       const std::size_t offset,
                                       const uint32b) noexcept
 {
-  ZISC_ASSERT(this->isHostWritable(), "The buffer isn't host writable.");
   const std::size_t s = sizeof(Type) * count;
   std::memcpy(data() + offset, host_data, s);
 }

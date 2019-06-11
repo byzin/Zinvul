@@ -71,7 +71,7 @@ std::string getTestDeviceInfo(const zinvul::Device& device)
    }
 #ifdef ZINVUL_ENABLE_VULKAN_BACKEND
    case zinvul::DeviceType::kVulkan: {
-    auto d = static_cast<const zinvul::VulkanDevice*>(&device);
+//    auto d = static_cast<const zinvul::VulkanDevice*>(&device);
     info = "## Device: Vulkan\n"s;
     info += "  Vendor: "s + device.vendorName().data() + "\n"s;
     info += "  Name: "s + device.name().data() + "\n"s;
@@ -98,8 +98,10 @@ std::string getTestDeviceUsedMemory(const zinvul::Device& device)
     std::sprintf(info.data(), "%6.3lf MB", memory);
     return info;
   };
-  const auto info = "  Max memory usage: "s +
-                    to_mb_string(device.maxMemoryUsage()) + "\n";
+  const auto info = "  Peak device memory usage: "s +
+                    to_mb_string(device.peakDeviceMemoryUsage()) + "\n" +
+                    "  Peak   host memory usage: "s +
+                    to_mb_string(device.peakHostMemoryUsage()) + "\n";
   return info;
 }
 

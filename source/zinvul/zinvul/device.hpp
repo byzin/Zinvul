@@ -58,8 +58,14 @@ class Device : private zisc::NonCopyable<Device>
   virtual ~Device() noexcept;
 
 
+  //! Return the current memory usage of a device
+  std::size_t deviceMemoryUsage() const noexcept;
+
   //! Return the device type
   virtual DeviceType deviceType() const noexcept = 0;
+
+  //! Return the current memory usage of the host
+  std::size_t hostMemoryUsage() const noexcept;
 
   //! Returna a memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;
@@ -67,17 +73,20 @@ class Device : private zisc::NonCopyable<Device>
   //! Returna a memory resource
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
-  //! Return the max memory usage
-  std::size_t maxMemoryUsage() const noexcept;
-
-  //! Return the current memory usage
-  std::size_t memoryUsage() const noexcept;
-
   //! Return the device name
   virtual std::string_view name() const noexcept = 0;
 
-  //! Set the current memory usage
-  void setMemoryUsage(const std::size_t memory_usage) noexcept;
+  //! Return the peak memory usage of a device
+  std::size_t peakDeviceMemoryUsage() const noexcept;
+
+  //! Return the peak memory usage of the host
+  std::size_t peakHostMemoryUsage() const noexcept;
+
+  //! Set the current memory usage of a device
+  void setDeviceMemoryUsage(const std::size_t memory_usage) noexcept;
+
+  //! Set the current memory usage of the host
+  void setHostMemoryUsage(const std::size_t memory_usage) noexcept;
 
   //! Return the subgroup size
   virtual uint32b subgroupSize() const noexcept = 0;
@@ -97,8 +106,10 @@ class Device : private zisc::NonCopyable<Device>
  private:
   zisc::pmr::memory_resource* mem_resource_;
   zisc::pmr::memory_resource* work_resource_;
-  std::size_t memory_usage_ = 0;
-  std::size_t max_memory_usage_ = 0;
+  std::size_t device_memory_usage_ = 0;
+  std::size_t host_memory_usage_ = 0;
+  std::size_t peak_device_memory_usage_ = 0;
+  std::size_t peak_host_memory_usage_ = 0;
 };
 
 // Type aliases

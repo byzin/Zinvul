@@ -61,21 +61,10 @@ enum class BufferType : uint32b
   */
 enum class BufferUsage : uint32b
 {
-//  kDeviceOnly = 0b1u << 0,
-//  kHostOnly = 0b1u << 1,
-//  kHostToDevice = 0b1u << 2,
-//  kDeviceToHost = 0b1u << 3,
-
-  kDevice = 0b1u << 0, //!< Memory will be used on device
-  kHost = 0b1u << 1, //!< Memory will be mappable on host
-  kTSrc = 0b1u << 2, //!< A buffer can be used as a source of a transfer
-  kTDst = 0b1u << 3, //!< A buffer can be used as a destination of a transfer
-  kDeviceTSrc = zisc::cast<uint32b>(kDevice) | zisc::cast<uint32b>(kTSrc),
-  kDeviceTDst = zisc::cast<uint32b>(kDevice) | zisc::cast<uint32b>(kTDst),
-  kDeviceTSrcDst = zisc::cast<uint32b>(kDeviceTSrc) | zisc::cast<uint32b>(kTDst),
-  kHostTSrc = zisc::cast<uint32b>(kHost) | zisc::cast<uint32b>(kTSrc),
-  kHostTDst = zisc::cast<uint32b>(kHost) | zisc::cast<uint32b>(kTDst),
-  kHostTSrcDst = zisc::cast<uint32b>(kHostTSrc) | zisc::cast<uint32b>(kTDst),
+  kDeviceOnly = 0b1u << 0,
+  kHostOnly = 0b1u << 1,
+  kHostToDevice = 0b1u << 2,
+  kDeviceToHost = 0b1u << 3,
 };
 
 } // namespace zinvul

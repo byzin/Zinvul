@@ -26,7 +26,6 @@ namespace zinvul {
 template <BufferType kBufferType, typename T>
 class Buffer : private zisc::NonCopyable<Buffer<kBufferType, T>>
 {
-  static_assert(!std::is_pointer_v<T>, "Pointer type is restricted.");
  public:
   //! The type of the buffer. "const", "volatile" and "reference" are removed
   using Type = std::remove_reference_t<std::remove_cv_t<T>>;
@@ -44,39 +43,17 @@ class Buffer : private zisc::NonCopyable<Buffer<kBufferType, T>>
   //! Return the buffer type
   static constexpr BufferType bufferType() noexcept;
 
-  //! Copy this buffer to a dst buffer
-  virtual void copyTo(Buffer<kBufferType, T>* dst,
-                      const std::size_t count,
-                      const std::size_t src_offset,
-                      const std::size_t dst_offset,
-                      const uint32b queue_index) const noexcept = 0;
-
   //! Return the device type
   virtual DeviceType deviceType() const noexcept = 0;
 
-  //! Return the expected memory usage
-  std::size_t expectedMemoryUsage() const noexcept;
-
-  //! Check if a buffer is transfer destination buffer
-  bool isDestination() const noexcept;
-
   //! Check if a buffer memory is on device
-  bool isDeviceBuffer() const noexcept;
+  virtual bool isDeviceMemory() const noexcept = 0;
 
-  //! Check if a buffer memory is mappable on host
-  bool isHostBuffer() const noexcept;
-
-  //! Check if a buffer is readable from host
-  bool isHostReadable() const noexcept;
+  //! Check if a buffer memory is on host
+  virtual bool isHostMemory() const noexcept = 0;
 
   //! Check if a buffer is host visible
-  bool isHostVisible() const noexcept;
-
-  //! Check if a buffer is writable from host
-  bool isHostWritable() const noexcept;
-
-  //! Check if a buffer is transfer source buffer
-  bool isSource() const noexcept;
+  virtual bool isHostVisible() const noexcept = 0;
 
   //! Return the memory usage
   virtual std::size_t memoryUsage() const noexcept = 0;
@@ -101,7 +78,7 @@ class Buffer : private zisc::NonCopyable<Buffer<kBufferType, T>>
   template <typename DstType>
   const Buffer<kBufferType, DstType>* treatAs() const noexcept;
 
-  //! Return usage flag
+  //! Return the buffer usage flag
   BufferUsage usage() const noexcept;
 
   //! Write a data to a buffer
@@ -111,12 +88,24 @@ class Buffer : private zisc::NonCopyable<Buffer<kBufferType, T>>
                      const uint32b queue_index) noexcept = 0;
 
  private:
+  static_assert(!std::is_pointer_v<T>, "Pointer type is restricted.");
+
+
   //! Initialize a buffer
   void initialize() noexcept;
 
 
   BufferUsage usage_flag_;
 };
+
+//! Copy a src buffer to a dst buffer
+template <BufferType kBufferType1, BufferType kBufferType2, typename Type>
+void copy(const Buffer<kBufferType1, Type>& src,
+          Buffer<kBufferType2, Type>* dst,
+          const std::size_t count,
+          const std::size_t src_offset,
+          const std::size_t dst_offset,
+          const uint32b queue_index) noexcept;
 
 // Type aliases
 template <typename Type>

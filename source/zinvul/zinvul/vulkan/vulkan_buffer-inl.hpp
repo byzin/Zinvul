@@ -88,22 +88,20 @@ const vk::Buffer& VulkanBuffer<kBufferType, T>::buffer() const noexcept
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-void VulkanBuffer<kBufferType, T>::copyTo(Buffer<kBufferType, T>* dst,
+template <BufferType kBufferType, typename T> template <BufferType kDstBufferType>
+inline
+void VulkanBuffer<kBufferType, T>::copyTo(VulkanBuffer<kDstBufferType, T>* dst,
                                           const std::size_t count,
                                           const std::size_t src_offset,
                                           const std::size_t dst_offset,
                                           const uint32b queue_index) const noexcept
 {
-  ZISC_ASSERT(this->isSource(), "This buffer isn't source.");
-  ZISC_ASSERT(dst->isDestination(), "The buffer 'dst' isn't destination.");
   const std::size_t s = sizeof(Type) * count;
   ZISC_ASSERT(s <= dst->memoryUsage(), "The size of dst buffer memory is less.");
-  auto d = zisc::cast<VulkanBuffer<kBufferType, Type>*>(dst);
   const std::size_t src_offset_size = sizeof(Type) * src_offset;
   const std::size_t dst_offset_size = sizeof(Type) * dst_offset;
   const vk::BufferCopy copy_info{src_offset_size, dst_offset_size, s};
-  device_->copyBuffer(*this, d, copy_info, queue_index);
+  device_->copyBuffer(*this, dst, copy_info, queue_index);
 }
 
 /*!
@@ -128,10 +126,36 @@ DeviceType VulkanBuffer<kBufferType, T>::deviceType() const noexcept
 /*!
   */
 template <BufferType kBufferType, typename T> inline
-std::size_t VulkanBuffer<kBufferType, T>::expectedMemoryUsage() const noexcept
+bool VulkanBuffer<kBufferType, T>::isDeviceMemory() const noexcept
 {
-  const std::size_t memory_usage = sizeof(Type) * size();
-  return memory_usage;
+  const auto& memory_property = device_->physicalDeviceInfo().memory_properties_;
+  const uint32b index = allocationInfo().memoryType;
+  const auto flag = memory_property.memoryTypes[index].propertyFlags;
+  const bool result = (flag & vk::MemoryPropertyFlagBits::eDeviceLocal) ==
+                      vk::MemoryPropertyFlagBits::eDeviceLocal;
+  return result;
+}
+
+/*!
+  */
+template <BufferType kBufferType, typename T> inline
+bool VulkanBuffer<kBufferType, T>::isHostMemory() const noexcept
+{
+  const bool result = !isDeviceMemory();
+  return result;
+}
+
+/*!
+  */
+template <BufferType kBufferType, typename T> inline
+bool VulkanBuffer<kBufferType, T>::isHostVisible() const noexcept
+{
+  const auto& memory_property = device_->physicalDeviceInfo().memory_properties_;
+  const uint32b index = allocationInfo().memoryType;
+  const auto flag = memory_property.memoryTypes[index].propertyFlags;
+  const bool result = (flag & vk::MemoryPropertyFlagBits::eHostVisible) ==
+                      vk::MemoryPropertyFlagBits::eHostVisible;
+  return result;
 }
 
 /*!
@@ -167,16 +191,14 @@ void VulkanBuffer<kBufferType, T>::read(Pointer data,
                                         const std::size_t offset,
                                         const uint32b queue_index) const noexcept
 {
-  ZISC_ASSERT(this->isHostReadable(), "The buffer isn't readable.");
-  if (this->isHostBuffer()) {
+  if (isHostVisible()) {
     ConstPointer source = zisc::cast<ConstPointer>(device_->mapMemory(*this));
     const std::size_t s = sizeof(Type) * count;
     std::memcpy(data, source + offset, s);
     device_->unmapMemory(*this);
   }
   else {
-    VulkanBuffer<kBufferType, Type> dst{device_, BufferUsage::kHost |
-                                                 BufferUsage::kTDst};
+    VulkanBuffer<kBufferType, Type> dst{device_, BufferUsage::kHostOnly};
     dst.setSize(count);
     copyTo(&dst, count, offset, 0, queue_index);
     dst.read(data, count, 0, queue_index);
@@ -210,16 +232,14 @@ void VulkanBuffer<kBufferType, T>::write(ConstPointer data,
                                          const std::size_t offset,
                                          const uint32b queue_index) noexcept
 {
-  ZISC_ASSERT(this->isHostWritable(), "The buffer isn't writable.");
-  if (this->isHostBuffer()) {
+  if (isHostVisible()) {
     Pointer dest = zisc::cast<Pointer>(device_->mapMemory(*this));
     const std::size_t s = sizeof(Type) * count;
     std::memcpy(dest + offset, data, s);
     device_->unmapMemory(*this);
   }
   else {
-    VulkanBuffer<kBufferType, Type> src{device_, BufferUsage::kHost |
-                                                 BufferUsage::kTSrc};
+    VulkanBuffer<kBufferType, Type> src{device_, BufferUsage::kHostOnly};
     src.setSize(count);
     src.write(data, count, 0, queue_index);
     src.copyTo(this, count, 0, offset, queue_index);

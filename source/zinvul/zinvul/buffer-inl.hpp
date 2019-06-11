@@ -45,62 +45,6 @@ constexpr BufferType Buffer<kBufferType, T>::bufferType() noexcept
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-bool Buffer<kBufferType, T>::isDestination() const noexcept
-{
-  return (usage_flag_ & BufferUsage::kTDst) == BufferUsage::kTDst;
-}
-
-/*!
-  */
-template <BufferType kBufferType, typename T> inline
-bool Buffer<kBufferType, T>::isDeviceBuffer() const noexcept
-{
-  return (usage_flag_ & BufferUsage::kDevice) == BufferUsage::kDevice;
-}
-
-/*!
-  */
-template <BufferType kBufferType, typename T> inline
-bool Buffer<kBufferType, T>::isHostBuffer() const noexcept
-{
-  return (usage_flag_ & BufferUsage::kHost) == BufferUsage::kHost;
-}
-
-/*!
-  */
-template <BufferType kBufferType, typename T> inline
-bool Buffer<kBufferType, T>::isHostReadable() const noexcept
-{
-  return isHostVisible() || isSource();
-}
-
-/*!
-  */
-template <BufferType kBufferType, typename T> inline
-bool Buffer<kBufferType, T>::isHostVisible() const noexcept
-{
-  return isHostBuffer();
-}
-
-/*!
-  */
-template <BufferType kBufferType, typename T> inline
-bool Buffer<kBufferType, T>::isHostWritable() const noexcept
-{
-  return isHostVisible() || isDestination();
-}
-
-/*!
-  */
-template <BufferType kBufferType, typename T> inline
-bool Buffer<kBufferType, T>::isSource() const noexcept
-{
-  return (usage_flag_ & BufferUsage::kTSrc) == BufferUsage::kTSrc;
-}
-
-/*!
-  */
 template <BufferType kBufferType, typename T> template <typename DstType> inline
 Buffer<kBufferType, DstType>* Buffer<kBufferType, T>::treatAs() noexcept
 {
@@ -132,8 +76,6 @@ BufferUsage Buffer<kBufferType, T>::usage() const noexcept
 template <BufferType kBufferType, typename T> inline
 void Buffer<kBufferType, T>::initialize() noexcept
 {
-  ZISC_ASSERT(!(isHostBuffer() && isDeviceBuffer()),
-      "The flags \"kDevice\" and \"kHost\" aren't able to set to a same buffer");
 }
 
 } // namespace zinvul

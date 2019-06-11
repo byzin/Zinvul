@@ -53,11 +53,12 @@ class CpuBuffer : public Buffer<kBufferType, T>
   const zisc::pmr::vector<Type>& buffer() const noexcept;
 
   //! Copy this buffer to a dst buffer
-  void copyTo(Buffer<kBufferType, T>* dst,
+  template <BufferType kDstBufferType>
+  void copyTo(CpuBuffer<kDstBufferType, T>* dst,
               const std::size_t count,
               const std::size_t src_offset,
               const std::size_t dst_offset,
-              const uint32b queue_index) const noexcept override;
+              const uint32b queue_index) const noexcept;
 
   //! Return a data from a cpu buffer
   Pointer data() noexcept;
@@ -67,6 +68,15 @@ class CpuBuffer : public Buffer<kBufferType, T>
 
   //! Return the device type
   DeviceType deviceType() const noexcept override;
+
+  //! Check if a buffer memory is on device
+  bool isDeviceMemory() const noexcept override;
+
+  //! Check if a buffer memory is on host
+  bool isHostMemory() const noexcept override;
+
+  //! Check if a buffer memory is host visible
+  bool isHostVisible() const noexcept override;
 
   //! Return the memory usage
   std::size_t memoryUsage() const noexcept override;
