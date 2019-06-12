@@ -51,7 +51,7 @@ enum class DeviceType : uint32b
 
 /*!
   */
-enum class BufferType : uint32b
+enum class DescriptorType : uint32b
 {
   kUniform = 0,
   kStorage,

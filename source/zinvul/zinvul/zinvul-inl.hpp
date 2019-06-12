@@ -39,22 +39,22 @@ namespace zinvul {
 
 /*!
   */
-template <BufferType kBufferType, typename Type> inline
-UniqueBuffer<kBufferType, Type> makeBuffer(
+template <DescriptorType kDescriptor, typename Type> inline
+UniqueBuffer<kDescriptor, Type> makeBuffer(
     Device* device,
     const BufferUsage usage_flag) noexcept
 {
-  UniqueBuffer<kBufferType, Type> buffer;
+  UniqueBuffer<kDescriptor, Type> buffer;
   switch (device->deviceType()) {
    case DeviceType::kCpu: {
     auto d = zisc::cast<CpuDevice*>(device);
-    buffer = d->makeBuffer<kBufferType, Type>(usage_flag);
+    buffer = d->makeBuffer<kDescriptor, Type>(usage_flag);
     break;
    }
 #ifdef ZINVUL_ENABLE_VULKAN_BACKEND
    case DeviceType::kVulkan: {
     auto d = zisc::cast<VulkanDevice*>(device);
-    buffer = d->makeBuffer<kBufferType, Type>(usage_flag);
+    buffer = d->makeBuffer<kDescriptor, Type>(usage_flag);
     break;
    }
 #endif // ZINVUL_ENABLE_VULKAN_BACKEND
@@ -69,30 +69,31 @@ UniqueBuffer<kBufferType, Type> makeBuffer(
 /*!
   */
 template <typename Type> inline
-UniqueBuffer<BufferType::kUniform, Type> makeUniformBuffer(
+UniqueBuffer<DescriptorType::kUniform, Type> makeUniformBuffer(
     Device* device,
     const BufferUsage usage_flag) noexcept
 {
-  auto buffer = makeBuffer<BufferType::kUniform, Type>(device, usage_flag);
+  auto buffer = makeBuffer<DescriptorType::kUniform, Type>(device, usage_flag);
   return buffer;
 }
 
 /*!
   */
 template <typename Type> inline
-UniqueBuffer<BufferType::kStorage, Type> makeStorageBuffer(
+UniqueBuffer<DescriptorType::kStorage, Type> makeStorageBuffer(
     Device* device,
     const BufferUsage usage_flag) noexcept
 {
-  auto buffer = makeBuffer<BufferType::kStorage, Type>(device, usage_flag);
+  auto buffer = makeBuffer<DescriptorType::kStorage, Type>(device, usage_flag);
   return buffer;
 }
 
 /*!
   */
-template <BufferType kBufferType1, BufferType kBufferType2, typename Type> inline
-void copy(const Buffer<kBufferType1, Type>& src,
-          Buffer<kBufferType2, Type>* dst,
+template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type>
+inline
+void copy(const Buffer<kDescriptor1, Type>& src,
+          Buffer<kDescriptor2, Type>* dst,
           const std::size_t count,
           const std::size_t src_offset,
           const std::size_t dst_offset,
@@ -102,8 +103,8 @@ void copy(const Buffer<kBufferType1, Type>& src,
               "The device types of src and dst aren't same.");
   switch (src.deviceType()) {
    case DeviceType::kCpu: {
-    using SrcBuffer = CpuBuffer<kBufferType1, Type>;
-    using DstBuffer = CpuBuffer<kBufferType2, Type>;
+    using SrcBuffer = CpuBuffer<kDescriptor1, Type>;
+    using DstBuffer = CpuBuffer<kDescriptor2, Type>;
     const auto src_buffer = zisc::cast<const SrcBuffer*>(std::addressof(src));
     auto dst_buffer = zisc::cast<DstBuffer*>(dst);
     src_buffer->copyTo(dst_buffer, count, src_offset, dst_offset, queue_index);
@@ -111,8 +112,8 @@ void copy(const Buffer<kBufferType1, Type>& src,
    }
 #ifdef ZINVUL_ENABLE_VULKAN_BACKEND
    case DeviceType::kVulkan: {
-    using SrcBuffer = VulkanBuffer<kBufferType1, Type>;
-    using DstBuffer = VulkanBuffer<kBufferType2, Type>;
+    using SrcBuffer = VulkanBuffer<kDescriptor1, Type>;
+    using DstBuffer = VulkanBuffer<kDescriptor2, Type>;
     const auto src_buffer = zisc::cast<const SrcBuffer*>(std::addressof(src));
     auto dst_buffer = zisc::cast<DstBuffer*>(dst);
     src_buffer->copyTo(dst_buffer, count, src_offset, dst_offset, queue_index);

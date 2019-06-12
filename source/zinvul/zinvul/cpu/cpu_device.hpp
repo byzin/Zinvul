@@ -30,7 +30,7 @@
 namespace zinvul {
 
 // Forward declaration
-template <BufferType, typename> class CpuBuffer;
+template <DescriptorType, typename> class CpuBuffer;
 
 /*!
   */
@@ -45,20 +45,20 @@ class CpuDevice : public Device
 
 
   //! Allocate a memory of a buffer
-  template <BufferType kBufferType, typename Type>
+  template <DescriptorType kDescriptor, typename Type>
   void allocate(const std::size_t size,
-                CpuBuffer<kBufferType, Type>* buffer) noexcept;
+                CpuBuffer<kDescriptor, Type>* buffer) noexcept;
 
   //! Deallocate a memory of a buffer
-  template <BufferType kBufferType, typename Type>
-  void deallocate(CpuBuffer<kBufferType, Type>* buffer) noexcept;
+  template <DescriptorType kDescriptor, typename Type>
+  void deallocate(CpuBuffer<kDescriptor, Type>* buffer) noexcept;
 
   //! Return cpu type
   DeviceType deviceType() const noexcept override;
 
   //! Make a buffer
-  template <BufferType kBufferType, typename Type>
-  UniqueBuffer<kBufferType, Type> makeBuffer(
+  template <DescriptorType kDescriptor, typename Type>
+  UniqueBuffer<kDescriptor, Type> makeBuffer(
       const BufferUsage usage_flag) noexcept;
 
   //! Make a kernel

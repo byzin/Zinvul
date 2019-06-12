@@ -54,9 +54,9 @@ class KernelArgInfo
   static constexpr bool kIsLocal = ASpaceInfo::kIsLocal;
   static constexpr bool kIsPod = ASpaceInfo::kIsPod;
   static constexpr bool kIsConst = std::is_const_v<Type> || ASpaceInfo::kIsConst;
-  static constexpr BufferType kBufferType = (kIsPod || kIsConst)
-      ? BufferType::kUniform
-      : BufferType::kStorage;
+  static constexpr DescriptorType kDescriptor = (kIsPod || kIsConst)
+      ? DescriptorType::kUniform
+      : DescriptorType::kStorage;
 
  private:
   static_assert(!std::is_pointer_v<Type>, "The Type is pointer.");

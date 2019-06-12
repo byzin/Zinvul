@@ -136,7 +136,7 @@ void CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::runFunc(
     if constexpr (ArgInfo::kIsGlobal) {
       // Process a global argument
       using ElementType = typename std::remove_reference_t<Type>::Type;
-      using CpuBufferT = CpuBuffer<ArgInfo::kBufferType, ElementType>;
+      using CpuBufferT = CpuBuffer<ArgInfo::kDescriptor, ElementType>;
       using CpuBufferPtr = std::add_pointer_t<CpuBufferT>;
 
       auto& buffer = argument;

@@ -25,10 +25,10 @@ namespace zinvul {
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-CpuBuffer<kBufferType, T>::CpuBuffer(CpuDevice* device,
+template <DescriptorType kDescriptor, typename T> inline
+CpuBuffer<kDescriptor, T>::CpuBuffer(CpuDevice* device,
                                      const BufferUsage usage_flag) noexcept :
-    Buffer<kBufferType, T>(usage_flag),
+    Buffer<kDescriptor, T>(usage_flag),
     device_{device},
     buffer_{device->memoryResource()}
 {
@@ -36,8 +36,8 @@ CpuBuffer<kBufferType, T>::CpuBuffer(CpuDevice* device,
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-CpuBuffer<kBufferType, T>::CpuBuffer(CpuDevice* device,
+template <DescriptorType kDescriptor, typename T> inline
+CpuBuffer<kDescriptor, T>::CpuBuffer(CpuDevice* device,
                                      const BufferUsage usage_flag,
                                      const std::size_t size) noexcept :
     CpuBuffer(device, usage_flag)
@@ -47,16 +47,16 @@ CpuBuffer<kBufferType, T>::CpuBuffer(CpuDevice* device,
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-auto CpuBuffer<kBufferType, T>::buffer() noexcept -> zisc::pmr::vector<Type>&
+template <DescriptorType kDescriptor, typename T> inline
+auto CpuBuffer<kDescriptor, T>::buffer() noexcept -> zisc::pmr::vector<Type>&
 {
   return buffer_;
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-auto CpuBuffer<kBufferType, T>::buffer() const noexcept
+template <DescriptorType kDescriptor, typename T> inline
+auto CpuBuffer<kDescriptor, T>::buffer() const noexcept
     -> const zisc::pmr::vector<Type>&
 {
   return buffer_;
@@ -64,9 +64,9 @@ auto CpuBuffer<kBufferType, T>::buffer() const noexcept
 
 /*!
   */
-template <BufferType kBufferType, typename T> template <BufferType kDstBufferType>
+template <DescriptorType kDescriptor, typename T> template <DescriptorType kDstDescriptor>
 inline
-void CpuBuffer<kBufferType, T>::copyTo(CpuBuffer<kDstBufferType, T>* dst,
+void CpuBuffer<kDescriptor, T>::copyTo(CpuBuffer<kDstDescriptor, T>* dst,
                                        const std::size_t count,
                                        const std::size_t src_offset,
                                        const std::size_t dst_offset,
@@ -77,56 +77,56 @@ void CpuBuffer<kBufferType, T>::copyTo(CpuBuffer<kDstBufferType, T>* dst,
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-auto CpuBuffer<kBufferType, T>::data() noexcept -> Pointer
+template <DescriptorType kDescriptor, typename T> inline
+auto CpuBuffer<kDescriptor, T>::data() noexcept -> Pointer
 {
   return buffer_.data();
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-auto CpuBuffer<kBufferType, T>::data() const noexcept -> ConstPointer
+template <DescriptorType kDescriptor, typename T> inline
+auto CpuBuffer<kDescriptor, T>::data() const noexcept -> ConstPointer
 {
   return buffer_.data();
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-DeviceType CpuBuffer<kBufferType, T>::deviceType() const noexcept
+template <DescriptorType kDescriptor, typename T> inline
+DeviceType CpuBuffer<kDescriptor, T>::deviceType() const noexcept
 {
   return DeviceType::kCpu;
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-bool CpuBuffer<kBufferType, T>::isDeviceMemory() const noexcept
+template <DescriptorType kDescriptor, typename T> inline
+bool CpuBuffer<kDescriptor, T>::isDeviceMemory() const noexcept
 {
   return true;
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-bool CpuBuffer<kBufferType, T>::isHostMemory() const noexcept
+template <DescriptorType kDescriptor, typename T> inline
+bool CpuBuffer<kDescriptor, T>::isHostMemory() const noexcept
 {
   return true;
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-bool CpuBuffer<kBufferType, T>::isHostVisible() const noexcept
+template <DescriptorType kDescriptor, typename T> inline
+bool CpuBuffer<kDescriptor, T>::isHostVisible() const noexcept
 {
   return true;
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-std::size_t CpuBuffer<kBufferType, T>::memoryUsage() const noexcept
+template <DescriptorType kDescriptor, typename T> inline
+std::size_t CpuBuffer<kDescriptor, T>::memoryUsage() const noexcept
 {
   const std::size_t memory_usage = sizeof(Type) * size();
   return memory_usage;
@@ -134,8 +134,8 @@ std::size_t CpuBuffer<kBufferType, T>::memoryUsage() const noexcept
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-void CpuBuffer<kBufferType, T>::read(Pointer host_data,
+template <DescriptorType kDescriptor, typename T> inline
+void CpuBuffer<kDescriptor, T>::read(Pointer host_data,
                                      const std::size_t count,
                                      const std::size_t offset,
                                      const uint32b) const noexcept
@@ -146,8 +146,8 @@ void CpuBuffer<kBufferType, T>::read(Pointer host_data,
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-void CpuBuffer<kBufferType, T>::setSize(const std::size_t size) noexcept
+template <DescriptorType kDescriptor, typename T> inline
+void CpuBuffer<kDescriptor, T>::setSize(const std::size_t size) noexcept
 {
   device_->deallocate(this);
   device_->allocate(size, this);
@@ -155,22 +155,39 @@ void CpuBuffer<kBufferType, T>::setSize(const std::size_t size) noexcept
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-std::size_t CpuBuffer<kBufferType, T>::size() const noexcept
+template <DescriptorType kDescriptor, typename T> inline
+std::size_t CpuBuffer<kDescriptor, T>::size() const noexcept
 {
   return buffer_.size();
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-void CpuBuffer<kBufferType, T>::write(ConstPointer host_data,
+template <DescriptorType kDescriptor, typename T> inline
+void CpuBuffer<kDescriptor, T>::write(ConstPointer host_data,
                                       const std::size_t count,
                                       const std::size_t offset,
                                       const uint32b) noexcept
 {
   const std::size_t s = sizeof(Type) * count;
   std::memcpy(data() + offset, host_data, s);
+}
+
+/*!
+  */
+template <DescriptorType kDescriptor, typename T> inline
+auto CpuBuffer<kDescriptor, T>::mappedMemory() const noexcept -> Pointer
+{
+  Pointer d = const_cast<Pointer>(data());
+  ZISC_ASSERT(d != nullptr, "The data is null.");
+  return d;
+}
+
+/*!
+  */
+template <DescriptorType kDescriptor, typename T> inline
+void CpuBuffer<kDescriptor, T>::unmapMemory() const noexcept
+{
 }
 
 } // namespace zinvul

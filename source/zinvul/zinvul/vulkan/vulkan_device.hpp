@@ -32,7 +32,7 @@
 namespace zinvul {
 
 // Forward declaration
-template <BufferType, typename> class VulkanBuffer;
+template <DescriptorType, typename> class VulkanBuffer;
 
 /*!
   */
@@ -70,9 +70,9 @@ class VulkanDevice : public Device
 
 
   //! Allocate a memory of a buffer
-  template <BufferType kBufferType, typename Type>
+  template <DescriptorType kDescriptor, typename Type>
   void allocate(const std::size_t size,
-                VulkanBuffer<kBufferType, Type>* buffer) noexcept;
+                VulkanBuffer<kDescriptor, Type>* buffer) noexcept;
 
   //! Return the workgroup size for the work dimension
   template <std::size_t kDimension>
@@ -86,15 +86,15 @@ class VulkanDevice : public Device
   const vk::CommandPool& commandPool() const noexcept;
 
   //! Copy a  buffer 'src' to a buffer 'dst'
-  template <BufferType kBuffer1Type, BufferType kBuffer2Type, typename Type>
-  void copyBuffer(const VulkanBuffer<kBuffer1Type, Type>& src,
-                  VulkanBuffer<kBuffer2Type, Type>* dst,
+  template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type>
+  void copyBuffer(const VulkanBuffer<kDescriptor1, Type>& src,
+                  VulkanBuffer<kDescriptor2, Type>* dst,
                   const vk::BufferCopy& copy_info,
                   const uint32b queue_index) const noexcept;
 
   //! Deallocate a memory of a buffer
-  template <BufferType kBufferType, typename Type>
-  void deallocate(VulkanBuffer<kBufferType, Type>* buffer) noexcept;
+  template <DescriptorType kDescriptor, typename Type>
+  void deallocate(VulkanBuffer<kDescriptor, Type>* buffer) noexcept;
 
   //! Destroy a vulkan instance
   void destroy() noexcept;
@@ -131,8 +131,8 @@ class VulkanDevice : public Device
   const std::array<uint32b, 3>& localWorkSize() const noexcept;
 
   //! Make a buffer
-  template <BufferType kBufferType, typename Type>
-  UniqueBuffer<kBufferType, Type> makeBuffer(
+  template <DescriptorType kDescriptor, typename Type>
+  UniqueBuffer<kDescriptor, Type> makeBuffer(
       const BufferUsage usage_flag) noexcept;
 
   //! Make a kernel
@@ -141,9 +141,11 @@ class VulkanDevice : public Device
       const uint32b module_index,
       const std::string_view kernel_name) noexcept;
 
-  //! Map a buffer memory to a host
-  template <BufferType kBufferType, typename Type>
-  void* mapMemory(const VulkanBuffer<kBufferType, Type>& buffer) const noexcept;
+  //! Return the memory allocator of the device
+  VmaAllocator& memoryAllocator() noexcept;
+
+  //! Return the memory allocator of the device
+  const VmaAllocator& memoryAllocator() const noexcept;
 
   //! Return the device name
   std::string_view name() const noexcept override;
@@ -162,10 +164,6 @@ class VulkanDevice : public Device
   void submit(const uint32b queue_index,
               const vk::CommandBuffer& command,
               vk::Fence fence = nullptr) const noexcept;
-
-  //! Unmap a buffer memory
-  template <BufferType kBufferType, typename Type>
-  void unmapMemory(const VulkanBuffer<kBufferType, Type>& buffer) const noexcept;
 
   //! Return the vendor name
   std::string_view vendorName() const noexcept override;

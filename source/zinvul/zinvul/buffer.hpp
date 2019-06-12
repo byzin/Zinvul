@@ -17,20 +17,22 @@
 #include "zisc/unique_memory_pointer.hpp"
 #include "zisc/non_copyable.hpp"
 // Zinvul
+#include "zinvul/mapped_memory.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
 
 /*!
   */
-template <BufferType kBufferType, typename T>
-class Buffer : private zisc::NonCopyable<Buffer<kBufferType, T>>
+template <DescriptorType kDescriptor, typename T>
+class Buffer : private zisc::NonCopyable<Buffer<kDescriptor, T>>
 {
  public:
   //! The type of the buffer. "const", "volatile" and "reference" are removed
   using Type = std::remove_reference_t<std::remove_cv_t<T>>;
+  using ConstType = std::add_const_t<Type>;
   using Pointer = std::add_pointer_t<Type>;
-  using ConstPointer = std::add_pointer_t<std::add_const_t<Type>>;
+  using ConstPointer = std::add_pointer_t<ConstType>;
 
 
   //! Initialize a buffer
@@ -41,7 +43,7 @@ class Buffer : private zisc::NonCopyable<Buffer<kBufferType, T>>
 
 
   //! Return the buffer type
-  static constexpr BufferType bufferType() noexcept;
+  static constexpr DescriptorType descriptorType() noexcept;
 
   //! Return the device type
   virtual DeviceType deviceType() const noexcept = 0;
@@ -54,6 +56,12 @@ class Buffer : private zisc::NonCopyable<Buffer<kBufferType, T>>
 
   //! Check if a buffer is host visible
   virtual bool isHostVisible() const noexcept = 0;
+
+  //! Map a buffer memory to a host
+  MappedMemory<kDescriptor, Type> mapMemory() noexcept;
+
+  //! Map a buffer memory to a host
+  MappedMemory<kDescriptor, ConstType> mapMemory() const noexcept;
 
   //! Return the memory usage
   virtual std::size_t memoryUsage() const noexcept = 0;
@@ -72,11 +80,11 @@ class Buffer : private zisc::NonCopyable<Buffer<kBufferType, T>>
 
   //! Convert a type of a buffer interface to DstType
   template <typename DstType>
-  Buffer<kBufferType, DstType>* treatAs() noexcept;
+  Buffer<kDescriptor, DstType>* treatAs() noexcept;
 
   //! Convert a type of a buffer interface to DstType
   template <typename DstType>
-  const Buffer<kBufferType, DstType>* treatAs() const noexcept;
+  const Buffer<kDescriptor, DstType>* treatAs() const noexcept;
 
   //! Return the buffer usage flag
   BufferUsage usage() const noexcept;
@@ -91,29 +99,30 @@ class Buffer : private zisc::NonCopyable<Buffer<kBufferType, T>>
   static_assert(!std::is_pointer_v<T>, "Pointer type is restricted.");
 
 
+  friend MappedMemory<kDescriptor, Type>;
+  friend MappedMemory<kDescriptor, ConstType>;
+
+
   //! Initialize a buffer
   void initialize() noexcept;
+
+  //! Map a buffer memory to a host
+  virtual Pointer mappedMemory() const noexcept = 0;
+
+  //! Unmap a buffer memory
+  virtual void unmapMemory() const noexcept = 0;
 
 
   BufferUsage usage_flag_;
 };
 
-//! Copy a src buffer to a dst buffer
-template <BufferType kBufferType1, BufferType kBufferType2, typename Type>
-void copy(const Buffer<kBufferType1, Type>& src,
-          Buffer<kBufferType2, Type>* dst,
-          const std::size_t count,
-          const std::size_t src_offset,
-          const std::size_t dst_offset,
-          const uint32b queue_index) noexcept;
-
 // Type aliases
 template <typename Type>
-using UniformBuffer = Buffer<BufferType::kUniform, Type>;
+using UniformBuffer = Buffer<DescriptorType::kUniform, Type>;
 template <typename Type>
-using StorageBuffer = Buffer<BufferType::kStorage, Type>;
-template <BufferType kBufferType, typename Type>
-using UniqueBuffer = zisc::UniqueMemoryPointer<Buffer<kBufferType, Type>>;
+using StorageBuffer = Buffer<DescriptorType::kStorage, Type>;
+template <DescriptorType kDescriptor, typename Type>
+using UniqueBuffer = zisc::UniqueMemoryPointer<Buffer<kDescriptor, Type>>;
 
 } // namespace zinvul
 

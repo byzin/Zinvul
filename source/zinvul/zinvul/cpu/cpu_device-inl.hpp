@@ -63,9 +63,9 @@ CpuDevice::CpuDevice(DeviceOptions& options) noexcept :
 
 /*!
   */
-template <BufferType kBufferType, typename Type> inline
+template <DescriptorType kDescriptor, typename Type> inline
 void CpuDevice::allocate(const std::size_t size,
-                         CpuBuffer<kBufferType, Type>* buffer) noexcept
+                         CpuBuffer<kDescriptor, Type>* buffer) noexcept
 {
   auto& b = buffer->buffer();
   b.resize(size);
@@ -77,8 +77,8 @@ void CpuDevice::allocate(const std::size_t size,
 
 /*!
   */
-template <BufferType kBufferType, typename Type> inline
-void CpuDevice::deallocate(CpuBuffer<kBufferType, Type>* buffer) noexcept
+template <DescriptorType kDescriptor, typename Type> inline
+void CpuDevice::deallocate(CpuBuffer<kDescriptor, Type>* buffer) noexcept
 {
   const std::size_t memory_usage = deviceMemoryUsage() - buffer->memoryUsage();
   setDeviceMemoryUsage(memory_usage);
@@ -95,11 +95,11 @@ DeviceType CpuDevice::deviceType() const noexcept
 
 /*!
   */
-template <BufferType kBufferType, typename Type> inline
-UniqueBuffer<kBufferType, Type> CpuDevice::makeBuffer(
+template <DescriptorType kDescriptor, typename Type> inline
+UniqueBuffer<kDescriptor, Type> CpuDevice::makeBuffer(
     const BufferUsage usage_flag) noexcept
 {
-  using DeviceBuffer = CpuBuffer<kBufferType, Type>;
+  using DeviceBuffer = CpuBuffer<kDescriptor, Type>;
   using UniqueCpuBuffer = zisc::UniqueMemoryPointer<DeviceBuffer>;
   auto buffer = UniqueCpuBuffer::make(memoryResource(), this, usage_flag);
   return std::move(buffer);

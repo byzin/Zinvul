@@ -33,22 +33,31 @@
 namespace zinvul {
 
 //! Make a buffer
-template <BufferType kBufferType, typename Type>
-UniqueBuffer<kBufferType, Type> makeBuffer(
+template <DescriptorType kDescriptor, typename Type>
+UniqueBuffer<kDescriptor, Type> makeBuffer(
     Device* device,
     const BufferUsage usage_flag) noexcept;
 
 //! Make a uniform buffer
 template <typename Type>
-UniqueBuffer<BufferType::kUniform, Type> makeUniformBuffer(
+UniqueBuffer<DescriptorType::kUniform, Type> makeUniformBuffer(
     Device* device,
     const BufferUsage usage_flag) noexcept;
 
 //! Make a storage buffer
 template <typename Type>
-UniqueBuffer<BufferType::kStorage, Type> makeStorageBuffer(
+UniqueBuffer<DescriptorType::kStorage, Type> makeStorageBuffer(
     Device* device,
     const BufferUsage usage_flag) noexcept;
+
+//! Copy a src buffer to a dst buffer
+template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type>
+void copy(const Buffer<kDescriptor1, Type>& src,
+          Buffer<kDescriptor2, Type>* dst,
+          const std::size_t count,
+          const std::size_t src_offset,
+          const std::size_t dst_offset,
+          const uint32b queue_index) noexcept;
 
 //! Make a device
 UniqueDevice makeDevice(DeviceOptions& options) noexcept;

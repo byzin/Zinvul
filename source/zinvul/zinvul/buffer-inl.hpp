@@ -15,14 +15,15 @@
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
+#include "mapped_memory.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-Buffer<kBufferType, T>::Buffer(const BufferUsage usage_flag) noexcept :
+template <DescriptorType kDescriptor, typename T> inline
+Buffer<kDescriptor, T>::Buffer(const BufferUsage usage_flag) noexcept :
     usage_flag_{usage_flag}
 {
   initialize();
@@ -30,51 +31,75 @@ Buffer<kBufferType, T>::Buffer(const BufferUsage usage_flag) noexcept :
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-Buffer<kBufferType, T>::~Buffer() noexcept
+template <DescriptorType kDescriptor, typename T> inline
+Buffer<kDescriptor, T>::~Buffer() noexcept
 {
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-constexpr BufferType Buffer<kBufferType, T>::bufferType() noexcept
+template <DescriptorType kDescriptor, typename T> inline
+constexpr DescriptorType Buffer<kDescriptor, T>::descriptorType() noexcept
 {
-  return kBufferType;
+  return kDescriptor;
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> template <typename DstType> inline
-Buffer<kBufferType, DstType>* Buffer<kBufferType, T>::treatAs() noexcept
+template <DescriptorType kDescriptor, typename T> inline
+auto Buffer<kDescriptor, T>::mapMemory() noexcept
+    -> MappedMemory<kDescriptor, Type>
 {
-  using DstBuffer = Buffer<kBufferType, DstType>;
+  using MappedMem = MappedMemory<kDescriptor, Type>;
+  typename MappedMem::ConstBufferP p = isHostVisible() ? this : nullptr;
+  MappedMem memory{p};
+  return memory;
+}
+
+/*!
+  */
+template <DescriptorType kDescriptor, typename T> inline
+auto Buffer<kDescriptor, T>::mapMemory() const noexcept
+    -> MappedMemory<kDescriptor, ConstType>
+{
+  using MappedMem = MappedMemory<kDescriptor, ConstType>;
+  typename MappedMem::ConstBufferP p = isHostVisible() ? this : nullptr;
+  MappedMem memory{p};
+  return memory;
+}
+
+/*!
+  */
+template <DescriptorType kDescriptor, typename T> template <typename DstType> inline
+Buffer<kDescriptor, DstType>* Buffer<kDescriptor, T>::treatAs() noexcept
+{
+  using DstBuffer = Buffer<kDescriptor, DstType>;
   DstBuffer* dst = zisc::treatAs<DstBuffer*>(this);
   return dst;
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> template <typename DstType> inline
-const Buffer<kBufferType, DstType>* Buffer<kBufferType, T>::treatAs() const noexcept
+template <DescriptorType kDescriptor, typename T> template <typename DstType> inline
+const Buffer<kDescriptor, DstType>* Buffer<kDescriptor, T>::treatAs() const noexcept
 {
-  using DstBuffer = Buffer<kBufferType, DstType>;
+  using DstBuffer = Buffer<kDescriptor, DstType>;
   const DstBuffer* dst = zisc::treatAs<const DstBuffer*>(this);
   return dst;
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-BufferUsage Buffer<kBufferType, T>::usage() const noexcept
+template <DescriptorType kDescriptor, typename T> inline
+BufferUsage Buffer<kDescriptor, T>::usage() const noexcept
 {
   return usage_flag_;
 }
 
 /*!
   */
-template <BufferType kBufferType, typename T> inline
-void Buffer<kBufferType, T>::initialize() noexcept
+template <DescriptorType kDescriptor, typename T> inline
+void Buffer<kDescriptor, T>::initialize() noexcept
 {
 }
 

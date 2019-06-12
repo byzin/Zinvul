@@ -59,9 +59,9 @@ VulkanDevice::~VulkanDevice() noexcept
 
 /*!
   */
-template <BufferType kBufferType, typename Type> inline
+template <DescriptorType kDescriptor, typename Type> inline
 void VulkanDevice::allocate(const std::size_t size,
-                            VulkanBuffer<kBufferType, Type>* buffer) noexcept
+                            VulkanBuffer<kDescriptor, Type>* buffer) noexcept
 {
   ZISC_ASSERT(buffer != nullptr, "The buffer is null.");
   auto& b = buffer->buffer();
@@ -157,9 +157,9 @@ const vk::CommandPool& VulkanDevice::commandPool() const noexcept
 
 /*!
   */
-template <BufferType kBuffer1Type, BufferType kBuffer2Type, typename Type> inline
-void VulkanDevice::copyBuffer(const VulkanBuffer<kBuffer1Type, Type>& src,
-                              VulkanBuffer<kBuffer2Type, Type>* dst,
+template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type> inline
+void VulkanDevice::copyBuffer(const VulkanBuffer<kDescriptor1, Type>& src,
+                              VulkanBuffer<kDescriptor2, Type>* dst,
                               const vk::BufferCopy& copy_info,
                               const uint32b queue_index) const noexcept
 {
@@ -179,8 +179,8 @@ void VulkanDevice::copyBuffer(const VulkanBuffer<kBuffer1Type, Type>& src,
 
 /*!
   */
-template <BufferType kBufferType, typename Type> inline
-void VulkanDevice::deallocate(VulkanBuffer<kBufferType, Type>* buffer) noexcept
+template <DescriptorType kDescriptor, typename Type> inline
+void VulkanDevice::deallocate(VulkanBuffer<kDescriptor, Type>* buffer) noexcept
 {
   ZISC_ASSERT(buffer != nullptr, "The buffer is null.");
   auto& b = buffer->buffer();
@@ -409,12 +409,12 @@ const std::array<uint32b, 3>& VulkanDevice::localWorkSize() const noexcept
 
 /*!
   */
-template <BufferType kBufferType, typename Type> inline
-UniqueBuffer<kBufferType, Type> VulkanDevice::makeBuffer(
+template <DescriptorType kDescriptor, typename Type> inline
+UniqueBuffer<kDescriptor, Type> VulkanDevice::makeBuffer(
     const BufferUsage usage_flag) noexcept
 {
   using UniqueVulkanBuffer =
-      zisc::UniqueMemoryPointer<VulkanBuffer<kBufferType, Type>>;
+      zisc::UniqueMemoryPointer<VulkanBuffer<kDescriptor, Type>>;
   auto buffer = UniqueVulkanBuffer::make(memoryResource(), this, usage_flag);
   return std::move(buffer);
 }
@@ -438,15 +438,18 @@ UniqueKernel<kDimension, ArgumentTypes...> VulkanDevice::makeKernel(
 
 /*!
   */
-template <BufferType kBufferType, typename Type> inline
-void* VulkanDevice::mapMemory(
-    const VulkanBuffer<kBufferType, Type>& buffer) const noexcept
+inline
+VmaAllocator& VulkanDevice::memoryAllocator() noexcept
 {
-  void* data = nullptr;
-  const auto result = vmaMapMemory(allocator_, buffer.memory(), &data);
-  ZISC_ASSERT(result == VK_SUCCESS, "Buffer memory map failed.");
-  (void)result;
-  return data;
+  return allocator_;
+}
+
+/*!
+  */
+inline
+const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
+{
+  return allocator_;
 }
 
 /*!
@@ -514,15 +517,6 @@ void VulkanDevice::submit(const uint32b queue_index,
   const auto result = q.submit(1, &info, fence);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Command submission failed.");
   (void)result;
-}
-
-/*!
-  */
-template <BufferType kBufferType, typename Type> inline
-void VulkanDevice::unmapMemory(
-    const VulkanBuffer<kBufferType, Type>& buffer) const noexcept
-{
-  vmaUnmapMemory(allocator_, buffer.memory());
 }
 
 /*!

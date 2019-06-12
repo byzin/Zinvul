@@ -26,14 +26,14 @@ class VulkanDevice;
 
 /*!
   */
-template <BufferType kBufferType, typename T>
-class VulkanBuffer : public Buffer<kBufferType, T>
+template <DescriptorType kDescriptor, typename T>
+class VulkanBuffer : public Buffer<kDescriptor, T>
 {
  public:
   //! The type of the buffer. "const", "volatile" and "reference" are removed
-  using Type = typename Buffer<kBufferType, T>::Type;
-  using Pointer = typename Buffer<kBufferType, T>::Pointer;
-  using ConstPointer = typename Buffer<kBufferType, T>::ConstPointer;
+  using Type = typename Buffer<kDescriptor, T>::Type;
+  using Pointer = typename Buffer<kDescriptor, T>::Pointer;
+  using ConstPointer = typename Buffer<kDescriptor, T>::ConstPointer;
 
 
   //! Create an empty buffer
@@ -62,8 +62,8 @@ class VulkanBuffer : public Buffer<kBufferType, T>
   const vk::Buffer& buffer() const noexcept;
 
   //! Copy this buffer to a dst buffer
-  template <BufferType kDstBufferType>
-  void copyTo(VulkanBuffer<kDstBufferType, T>* dst,
+  template <DescriptorType kDstDescriptor>
+  void copyTo(VulkanBuffer<kDstDescriptor, T>* dst,
               const std::size_t count,
               const std::size_t src_offset,
               const std::size_t dst_offset,
@@ -112,6 +112,13 @@ class VulkanBuffer : public Buffer<kBufferType, T>
              const uint32b queue_index) noexcept override;
 
  private:
+  //! Map a buffer memory to a host
+  Pointer mappedMemory() const noexcept override;
+
+  //! Unmap a buffer memory
+  void unmapMemory() const noexcept override;
+
+
   const VulkanDevice* device_;
   vk::Buffer buffer_;
   VmaAllocation memory_ = VK_NULL_HANDLE;
@@ -121,9 +128,9 @@ class VulkanBuffer : public Buffer<kBufferType, T>
 
 // Type aliases
 template <typename Type>
-using VulkanUniformBuffer = VulkanBuffer<BufferType::kUniform, Type>;
+using VulkanUniformBuffer = VulkanBuffer<DescriptorType::kUniform, Type>;
 template <typename Type>
-using VulkanStorageBuffer = VulkanBuffer<BufferType::kStorage, Type>;
+using VulkanStorageBuffer = VulkanBuffer<DescriptorType::kStorage, Type>;
 
 } // namespace zinvul
 

@@ -134,7 +134,7 @@ class KernelArgParser<kDimension, T, ArgumentTypes...>
   template <typename ...Types>
   struct ExtendedKernel<Kernel<kDimension, Types...>>
   {
-    using BufferArg = Buffer<ArgInfo::kBufferType, typename ArgInfo::ElementType>;
+    using BufferArg = Buffer<ArgInfo::kDescriptor, typename ArgInfo::ElementType>;
     using KernelType = Kernel<kDimension, BufferArg, Types...>;
   };
 

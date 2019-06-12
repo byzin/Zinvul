@@ -206,8 +206,9 @@ auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::getVkB
               "The device type of the buffer isn't vulkan.");
 
   using ElementType = typename std::remove_reference_t<Type>::Type;
-  constexpr BufferType buffer_type = std::remove_reference_t<Type>::bufferType();
-  using VulkanBufferT = VulkanBuffer<buffer_type, ElementType>;
+  constexpr DescriptorType descriptor =
+      std::remove_reference_t<Type>::descriptorType();
+  using VulkanBufferT = VulkanBuffer<descriptor, ElementType>;
   using VulkanBufferPtr = std::add_pointer_t<VulkanBufferT>;
 
   auto b = zisc::cast<VulkanBufferPtr>(std::addressof(buffer));

@@ -26,14 +26,14 @@ class CpuDevice;
 
 /*!
   */
-template <BufferType kBufferType, typename T>
-class CpuBuffer : public Buffer<kBufferType, T>
+template <DescriptorType kDescriptor, typename T>
+class CpuBuffer : public Buffer<kDescriptor, T>
 {
  public:
   //! The type of the buffer. "const", "volatile" and "reference" are removed
-  using Type = typename Buffer<kBufferType, T>::Type;
-  using Pointer = typename Buffer<kBufferType, T>::Pointer;
-  using ConstPointer = typename Buffer<kBufferType, T>::ConstPointer;
+  using Type = typename Buffer<kDescriptor, T>::Type;
+  using Pointer = typename Buffer<kDescriptor, T>::Pointer;
+  using ConstPointer = typename Buffer<kDescriptor, T>::ConstPointer;
 
 
   //! Create an empty buffer
@@ -53,8 +53,8 @@ class CpuBuffer : public Buffer<kBufferType, T>
   const zisc::pmr::vector<Type>& buffer() const noexcept;
 
   //! Copy this buffer to a dst buffer
-  template <BufferType kDstBufferType>
-  void copyTo(CpuBuffer<kDstBufferType, T>* dst,
+  template <DescriptorType kDstDescriptor>
+  void copyTo(CpuBuffer<kDstDescriptor, T>* dst,
               const std::size_t count,
               const std::size_t src_offset,
               const std::size_t dst_offset,
@@ -100,15 +100,22 @@ class CpuBuffer : public Buffer<kBufferType, T>
              const uint32b queue_index) noexcept override;
 
  private:
+  //! Map a buffer memory to a host
+  Pointer mappedMemory() const noexcept override;
+
+  //! Unmap a buffer memory
+  void unmapMemory() const noexcept override;
+
+
   CpuDevice* device_;
   zisc::pmr::vector<Type> buffer_;
 };
 
 // Type aliases
 template <typename Type>
-using CpuUniformBuffer = CpuBuffer<BufferType::kUniform, Type>;
+using CpuUniformBuffer = CpuBuffer<DescriptorType::kUniform, Type>;
 template <typename Type>
-using CpuStorageBuffer = CpuBuffer<BufferType::kStorage, Type>;
+using CpuStorageBuffer = CpuBuffer<DescriptorType::kStorage, Type>;
 
 } // namespace zinvul
 
