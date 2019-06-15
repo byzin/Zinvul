@@ -607,7 +607,7 @@ struct TypeConverter<AddressSpacePointer<kASpaceType, Type>>
 /*!
   */
 template <typename Type, typename T> inline
-Type cast(T&& value) noexcept
+Type cast(T value) noexcept
 {
   auto result = inner::TypeConverter<Type>::cast(value);
   return result;
@@ -616,7 +616,7 @@ Type cast(T&& value) noexcept
 /*!
   */
 template <typename Type, typename T> inline
-Type treatAs(T&& object) noexcept
+Type treatAs(T object) noexcept
 {
   auto result = inner::TypeConverter<Type>::treatAs(object);
   return result;

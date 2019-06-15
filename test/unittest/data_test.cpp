@@ -45,7 +45,7 @@ TEST(DataTest, PointerTest)
     auto buffer1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(n);
 
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testPointer));;
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testPointer));
     kernel->run(*buffer0, *buffer1, {1}, 0);
     device->waitForCompletion();
 
@@ -97,6 +97,78 @@ TEST(DataTest, PointerTest)
   }
 }
 
+TEST(DataTest, MemoryMapTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    using MemoryMapT = cl::data::test::MemoryMapTest;
+
+    constexpr uint32b resolution = 100;
+    const char* error_message = "Memory mapping operation is wrong.";
+
+    auto buffer0 = makeStorageBuffer<MemoryMapT>(device.get(), BufferUsage::kDeviceToHost);
+    buffer0->setSize(resolution);
+    {
+      auto memory = buffer0->mapMemory();
+      ASSERT_TRUE(memory) << error_message;
+      {
+        MemoryMapT data = {0, 0.0f};
+        for (auto ite = memory.begin(); ite < memory.end(); ++ite) {
+          *ite = data;
+          data.u_++;
+        }
+      }
+      for (std::size_t i = 0; i < memory.size(); ++i) {
+        auto data = memory.get(i);
+        data.f_ = zisc::cast<float>(i);
+        memory.set(i, data);
+      }
+      {
+        auto data = memory.data();
+        for (std::size_t i = 0; i < memory.size(); ++i) {
+          const uint32b uexpected = zisc::cast<uint32b>(i);
+          const float fexpected = zisc::cast<float>(i);
+          const auto result = data[i];
+          ASSERT_EQ(uexpected, result.u_) << error_message;
+          ASSERT_FLOAT_EQ(fexpected, result.f_) << error_message;
+        }
+      }
+    }
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    {
+      res_buff->write(&resolution, 1, 0, 0);
+    }
+
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testMemoryMap));
+    kernel->run(*buffer0, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      auto memory = buffer0->mapMemory();
+
+      for (std::size_t i = 0; i < memory.size(); ++i) {
+        const uint32b uexpected = 100u - zisc::cast<uint32b>(i);
+        const float fexpected = 100.0f - zisc::cast<float>(i);
+        const auto result = memory[i];
+        ASSERT_EQ(uexpected, result.u_) << error_message;
+        ASSERT_FLOAT_EQ(fexpected, result.f_) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+
+}
+
 TEST(DataTest, LocalInputTest)
 {
   using namespace zinvul;
@@ -135,7 +207,7 @@ TEST(DataTest, LocalInputTest)
       res_buff->write(&resolution, 1, 0, 0);
     }
 
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testLocalInput));;
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testLocalInput));
     kernel->run(*buffer0, *buffer1, *buffer2, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 

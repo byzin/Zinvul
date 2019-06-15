@@ -132,6 +132,24 @@ auto MappedMemory<kDescriptor, T>::operator=(MappedMemory&& other) noexcept
 /*!
   */
 template <DescriptorType kDescriptor, typename T> inline
+auto MappedMemory<kDescriptor, T>::operator[](const std::size_t index) noexcept
+    -> Reference
+{
+  return get(index);
+}
+
+/*!
+  */
+template <DescriptorType kDescriptor, typename T> inline
+auto MappedMemory<kDescriptor, T>::operator[](const std::size_t index) const noexcept
+    -> ConstReference
+{
+  return get(index);
+}
+
+/*!
+  */
+template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::data() noexcept -> Pointer
 {
   return data_;

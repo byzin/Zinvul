@@ -20,10 +20,13 @@ using namespace zinvul;
 
 namespace test {
 class OptionTest;
+struct MemoryMapTest;
 } // namespace test
 
 // Prototypes
 __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst);
+__kernel void testMemoryMap(GlobalPtr<test::MemoryMapTest> buffer0,
+    const uint32b resolution);
 __kernel void testLocalInput(ConstGlobalPtr<uint32b> buffer0,
     ConstGlobalPtr<uint32b> buffer1,
     GlobalPtr<uint32b> buffer2,
@@ -109,7 +112,13 @@ struct PointerTest
   int32b v3_;
 };
 
-}
+struct MemoryMapTest
+{
+  uint32b u_;
+  float f_;
+};
+
+} // test
 
 /*!
   */
@@ -179,6 +188,18 @@ __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst)
       dst[i++] = (begin == nullptr) ? 1 : 0;
       dst[i++] = (t == nullptr) ? 1 : 0;
     }
+  }
+}
+
+__kernel void testMemoryMap(GlobalPtr<test::MemoryMapTest> buffer0,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    test::MemoryMapTest value = buffer0[index];
+    value.u_ = 100u - value.u_;
+    value.f_ = 100.0f - value.f_;
+    buffer0[index] = value;
   }
 }
 

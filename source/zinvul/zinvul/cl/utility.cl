@@ -678,11 +678,11 @@ uint32b getGroupIdZ() noexcept;
 
 //! Convert type from T to Type
 template <typename Type, typename T>
-Type cast(T&& value) noexcept;
+Type cast(T value) noexcept;
 
 //! Treat T* as Type*
 template <typename Type, typename T>
-Type treatAs(T&& object) noexcept;
+Type treatAs(T object) noexcept;
 
 //!
 template <typename Type>
