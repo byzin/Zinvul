@@ -80,17 +80,10 @@ class VulkanDevice : public Device
       const std::array<uint32b, kDimension>& works) const noexcept;
 
   //! Return the command pool
-  vk::CommandPool& commandPool() noexcept;
+  vk::CommandPool& commandPool(const QueueType queue_type) noexcept;
 
   //! Return the command pool
-  const vk::CommandPool& commandPool() const noexcept;
-
-  //! Copy a  buffer 'src' to a buffer 'dst'
-  template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type>
-  void copyBuffer(const VulkanBuffer<kDescriptor1, Type>& src,
-                  VulkanBuffer<kDescriptor2, Type>* dst,
-                  const vk::BufferCopy& copy_info,
-                  const uint32b queue_index) const noexcept;
+  const vk::CommandPool& commandPool(const QueueType queue_type) const noexcept;
 
   //! Deallocate a memory of a buffer
   template <DescriptorType kDescriptor, typename Type>
@@ -161,18 +154,22 @@ class VulkanDevice : public Device
   uint32b subgroupSize() const noexcept override;
 
   //! Submit a command
-  void submit(const uint32b queue_index,
-              const vk::CommandBuffer& command,
-              vk::Fence fence = nullptr) const noexcept;
+  void submit(const QueueType queue_type,
+              const uint32b queue_index,
+              const vk::CommandBuffer& command) const noexcept;
 
   //! Return the vendor name
   std::string_view vendorName() const noexcept override;
 
-  //! Wait this thread until all commands in the queue are completed
+  //! Wait this thread until all commands in the device are completed
   void waitForCompletion() const noexcept override;
 
-  //! Wait this thread until a fence signals
-  void waitForCompletion(const vk::Fence& fence) const noexcept;
+  //! Wait this thread until all commands in the queues are completed
+  void waitForCompletion(const QueueType queue_type) const noexcept override;
+
+  //! Wait this thread until all commands in the queue are completed
+  void waitForCompletion(const QueueType queue_type,
+                         const uint32b queue_index) const noexcept override;
 
  private:
   //! Output a debug message
@@ -182,12 +179,16 @@ class VulkanDevice : public Device
     const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
     void* /* userData */);
 
-  //! Find the index of the optimal queue familty for shader
-  uint32b findQueueFamilyForShader() const noexcept;
+  //! Find the index of the optimal queue familty
+  uint32b findQueueFamily(const QueueType queue_type) const noexcept;
 
   //! Get physical device info
   static PhysicalDeviceInfo getPhysicalDeviceInfo(const vk::PhysicalDevice& device)
       noexcept;
+
+  //! Return a queue
+  vk::Queue getQueue(const QueueType queue_type,
+                     const uint32b queue_index) const noexcept;
 
   //! Initialize a command pool
   void initCommandPool() noexcept;
@@ -198,9 +199,6 @@ class VulkanDevice : public Device
   //! Initialize a device
   void initDevice(const DeviceOptions& options) noexcept;
 
-  //! Initialize a fence
-  void initFence() noexcept;
-
   //! Initialize a memory allocator
   void initMemoryAllocator() noexcept;
 
@@ -209,6 +207,9 @@ class VulkanDevice : public Device
 
   //! Initialize a physical device
   void initPhysicalDevice(const DeviceOptions& options) noexcept;
+
+  //! Initialize a queue family index list
+  void initQueueFamilyIndexList() noexcept;
 
   //! Make a vulkan instance
   static vk::Instance makeInstance(const vk::ApplicationInfo& app_info,
@@ -221,23 +222,22 @@ class VulkanDevice : public Device
       const uint32b app_version_minor,
       const uint32b app_version_patch) noexcept;
 
-  //! Reset a fence state
-  void resetFence(vk::Fence& fence) const noexcept;
+  //! Return an index of a queue family
+  uint32b queueFamilyIndex(const QueueType queue_type) const noexcept;
 
 
   PhysicalDeviceInfo device_info_;
   zisc::pmr::vector<vk::ShaderModule> shader_module_list_;
+  zisc::pmr::vector<vk::CommandPool> command_pool_list_;
   vk::ApplicationInfo app_info_;
   vk::Instance instance_;
   vk::DebugUtilsMessengerEXT debug_messenger_;
   vk::PhysicalDevice physical_device_;
   vk::Device device_;
-  vk::Fence fence_;
-  vk::CommandPool command_pool_;
-  vk::CommandBuffer copy_command_;
   VmaAllocator allocator_ = VK_NULL_HANDLE;
   std::string vendor_name_;
-  uint32b queue_family_index_ = std::numeric_limits<uint32b>::max();
+  zisc::pmr::vector<uint32b> queue_family_index_list_;
+  std::array<std::size_t, 2> queue_family_index_ref_list_;
   std::array<std::array<uint32b, 3>, 3> local_work_size_list_;
 };
 

@@ -124,7 +124,7 @@ void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::run(
   if (!isSameArgs(args...))
     bindBuffers(args...);
   dispatch(works);
-  device()->submit(queue_index, command_buffer_);
+  device()->submit(QueueType::kCompute, queue_index, command_buffer_);
 }
 
 /*!
@@ -223,7 +223,7 @@ void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initCo
     noexcept
 {
   const vk::CommandBufferAllocateInfo alloc_info{
-      device_->commandPool(),
+      device_->commandPool(QueueType::kCompute),
       vk::CommandBufferLevel::ePrimary,
       1};
   const auto& device = device_->device();

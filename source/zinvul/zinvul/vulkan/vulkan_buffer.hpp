@@ -112,6 +112,9 @@ class VulkanBuffer : public Buffer<kDescriptor, T>
              const uint32b queue_index) noexcept override;
 
  private:
+  //! Initialize a buffer
+  void initialize() noexcept;
+
   //! Map a buffer memory to a host
   Pointer mappedMemory() const noexcept override;
 
@@ -121,6 +124,7 @@ class VulkanBuffer : public Buffer<kDescriptor, T>
 
   const VulkanDevice* device_;
   vk::Buffer buffer_;
+  vk::CommandBuffer copy_command_;
   VmaAllocation memory_ = VK_NULL_HANDLE;
   VmaAllocationInfo alloc_info_;
   std::size_t size_ = 0;

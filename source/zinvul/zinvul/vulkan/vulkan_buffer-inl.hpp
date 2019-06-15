@@ -34,8 +34,7 @@ VulkanBuffer<kDescriptor, T>::VulkanBuffer(const VulkanDevice* device,
     Buffer<kDescriptor, T>(usage_flag),
     device_{device}
 {
-  ZISC_ASSERT(device_ != nullptr, "The device is null.");
-  alloc_info_.size = 0;
+  initialize();
 }
 
 /*!
@@ -104,7 +103,15 @@ void VulkanBuffer<kDescriptor, T>::copyTo(VulkanBuffer<kDstDescriptor, T>* dst,
   const std::size_t src_offset_size = sizeof(Type) * src_offset;
   const std::size_t dst_offset_size = sizeof(Type) * dst_offset;
   const vk::BufferCopy copy_info{src_offset_size, dst_offset_size, s};
-  device_->copyBuffer(*this, dst, copy_info, queue_index);
+
+  vk::CommandBufferBeginInfo begin_info{};
+  begin_info.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+  copy_command_.begin(begin_info);
+
+  copy_command_.copyBuffer(buffer(), dst->buffer(), 1, &copy_info);
+
+  copy_command_.end();
+  device_->submit(QueueType::kTransfer, queue_index, copy_command_);
 }
 
 /*!
@@ -203,6 +210,7 @@ void VulkanBuffer<kDescriptor, T>::read(Pointer data,
     VulkanBuffer<kDescriptor, Type> dst{device_, BufferUsage::kHostOnly};
     dst.setSize(count);
     copyTo(&dst, count, offset, 0, queue_index);
+    device_->waitForCompletion(QueueType::kTransfer, queue_index);
     dst.read(data, count, 0, queue_index);
   }
 }
@@ -244,7 +252,25 @@ void VulkanBuffer<kDescriptor, T>::write(ConstPointer data,
     src.setSize(count);
     src.write(data, count, 0, queue_index);
     src.copyTo(this, count, 0, offset, queue_index);
+    device_->waitForCompletion(QueueType::kTransfer, queue_index);
   }
+}
+
+/*!
+  */
+template <DescriptorType kDescriptor, typename T> inline
+void VulkanBuffer<kDescriptor, T>::initialize() noexcept
+{
+  ZISC_ASSERT(device_ != nullptr, "The device is null.");
+  alloc_info_.size = 0;
+  // Initialize a copy command
+  const vk::CommandBufferAllocateInfo alloc_info{
+      device_->commandPool(QueueType::kTransfer),
+      vk::CommandBufferLevel::ePrimary,
+      1};
+  auto [r, copy_commands] = device_->device().allocateCommandBuffers(alloc_info);
+  ZISC_ASSERT(r == vk::Result::eSuccess, "Command buffer allocation failed.");
+  copy_command_ = copy_commands[0];
 }
 
 /*!

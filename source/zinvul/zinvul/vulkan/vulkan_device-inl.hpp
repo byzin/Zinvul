@@ -12,6 +12,7 @@
 
 #include "vulkan_device.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <cstddef>
 #include <cstring>
 #include <cstdio>
@@ -44,7 +45,11 @@ namespace zinvul {
 inline
 VulkanDevice::VulkanDevice(DeviceOptions& options) noexcept :
     Device(options),
-    shader_module_list_{memoryResource()}
+    shader_module_list_{memoryResource()},
+    command_pool_list_{memoryResource()},
+    queue_family_index_list_{memoryResource()},
+    queue_family_index_ref_list_{{std::numeric_limits<uint32b>::max(),
+                                  std::numeric_limits<uint32b>::max()}}
 {
   initialize(options);
 }
@@ -73,8 +78,9 @@ void VulkanDevice::allocate(const std::size_t size,
   buffer_create_info.usage = vk::BufferUsageFlagBits::eStorageBuffer |
                              vk::BufferUsageFlagBits::eTransferSrc |
                              vk::BufferUsageFlagBits::eTransferDst;
-  buffer_create_info.queueFamilyIndexCount = 1;
-  buffer_create_info.pQueueFamilyIndices = &queue_family_index_;
+  buffer_create_info.queueFamilyIndexCount =
+      zisc::cast<uint32b>(queue_family_index_list_.size());
+  buffer_create_info.pQueueFamilyIndices = queue_family_index_list_.data();
 
   VmaAllocationCreateInfo alloc_create_info;
   switch (buffer->usage()) {
@@ -142,39 +148,23 @@ std::array<uint32b, 3> VulkanDevice::calcWorkGroupSize(
 /*!
   */
 inline
-vk::CommandPool& VulkanDevice::commandPool() noexcept
+auto VulkanDevice::commandPool(const QueueType queue_type) noexcept
+    -> vk::CommandPool&
 {
-  return command_pool_;
+  const std::size_t list_index = zisc::cast<std::size_t>(queue_type);
+  const std::size_t ref_index = queue_family_index_ref_list_[list_index];
+  return command_pool_list_[ref_index];
 }
 
 /*!
   */
 inline
-const vk::CommandPool& VulkanDevice::commandPool() const noexcept
+auto VulkanDevice::commandPool(const QueueType queue_type) const noexcept
+    -> const vk::CommandPool&
 {
-  return command_pool_;
-}
-
-/*!
-  */
-template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type> inline
-void VulkanDevice::copyBuffer(const VulkanBuffer<kDescriptor1, Type>& src,
-                              VulkanBuffer<kDescriptor2, Type>* dst,
-                              const vk::BufferCopy& copy_info,
-                              const uint32b queue_index) const noexcept
-{
-  // Set copy command
-  vk::CommandBufferBeginInfo begin_info{};
-  begin_info.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
-  copy_command_.begin(begin_info);
-
-  copy_command_.copyBuffer(src.buffer(), dst->buffer(), 1, &copy_info);
-
-  copy_command_.end();
-
-  // Submit a copy command
-  submit(queue_index, copy_command_, fence_);
-  waitForCompletion(fence_);
+  const std::size_t list_index = zisc::cast<std::size_t>(queue_type);
+  const std::size_t ref_index = queue_family_index_ref_list_[list_index];
+  return command_pool_list_[ref_index];
 }
 
 /*!
@@ -220,13 +210,12 @@ void VulkanDevice::destroy() noexcept
       vmaDestroyAllocator(allocator_);
       allocator_ = VK_NULL_HANDLE;
     }
-    if (command_pool_) {
-      device_.destroyCommandPool(command_pool_);
-      command_pool_ = nullptr;
-    }
-    if (fence_) {
-      device_.destroyFence(fence_, nullptr);
-      fence_ = nullptr;
+    for (std::size_t i = 0; i < command_pool_list_.size(); ++i) {
+      auto command_pool = command_pool_list_[i];
+      if (command_pool) {
+        device_.destroyCommandPool(command_pool);
+        command_pool_list_[i] = nullptr;
+      }
     }
     device_.destroy();
     device_ = nullptr;
@@ -500,21 +489,13 @@ uint32b VulkanDevice::subgroupSize() const noexcept
 /*!
   */
 inline
-void VulkanDevice::submit(const uint32b queue_index,
-                          const vk::CommandBuffer& command,
-                          vk::Fence fence) const noexcept
+void VulkanDevice::submit(const QueueType queue_type,
+                          const uint32b queue_index,
+                          const vk::CommandBuffer& command) const noexcept
 {
-  if (fence)
-    resetFence(fence);
-
-  // Compute the actual queue index
-  const auto& queue_family_info =
-      physicalDeviceInfo().queue_family_list_[queue_family_index_];
-  const uint32b index = queue_index % queue_family_info.queueCount;
-
+  auto q = getQueue(queue_type, queue_index);
   const vk::SubmitInfo info{0, nullptr, nullptr, 1, &command};
-  auto q = device_.getQueue(queue_family_index_, index);
-  const auto result = q.submit(1, &info, fence);
+  const auto result = q.submit(1, &info, nullptr);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Command submission failed.");
   (void)result;
 }
@@ -533,24 +514,31 @@ std::string_view VulkanDevice::vendorName() const noexcept
 inline
 void VulkanDevice::waitForCompletion() const noexcept
 {
-  const auto& queue_family_info =
-      physicalDeviceInfo().queue_family_list_[queue_family_index_];
-  for (uint32b index = 0; index < queue_family_info.queueCount; ++index) {
-    auto q = device_.getQueue(queue_family_index_, index);
-    const auto result = q.waitIdle();
-    ZISC_ASSERT(result == vk::Result::eSuccess, "Queue waiting failed.");
-    (void)result;
-  }
+  const auto result = device_.waitIdle();
+  ZISC_ASSERT(result == vk::Result::eSuccess, "Device waiting failed.");
+  (void)result;
 }
 
 /*!
   */
 inline
-void VulkanDevice::waitForCompletion(const vk::Fence& fence) const noexcept
+void VulkanDevice::waitForCompletion(const QueueType queue_type) const noexcept
 {
-  constexpr uint64b time_out = std::numeric_limits<uint64b>::max();
-  const auto result = device_.waitForFences(1, &fence, VK_TRUE, time_out);
-  ZISC_ASSERT(result == vk::Result::eSuccess, "Fence waiting failed.");
+  const uint32b family_index = queueFamilyIndex(queue_type);
+  const auto& family_info = physicalDeviceInfo().queue_family_list_[family_index];
+  for (uint32b i = 0; i < family_info.queueCount; ++i)
+    waitForCompletion(queue_type, i);
+}
+
+/*!
+  */
+inline
+void VulkanDevice::waitForCompletion(const QueueType queue_type,
+                                     const uint32b queue_index) const noexcept
+{
+  auto q = getQueue(queue_type, queue_index);
+  const auto result = q.waitIdle();
+  ZISC_ASSERT(result == vk::Result::eSuccess, "Queue waiting failed.");
   (void)result;
 }
 
@@ -642,15 +630,22 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDevice::debugMessengerCallback(
 /*!
   */
 inline
-uint32b VulkanDevice::findQueueFamilyForShader() const noexcept
+uint32b VulkanDevice::findQueueFamily(const QueueType queue_type) const noexcept
 {
   const auto& queue_family_list = device_info_.queue_family_list_;
 
   uint32b index = std::numeric_limits<uint32b>::max();
   bool is_found = false;
 
+  const vk::QueueFlagBits target = (queue_type == QueueType::kCompute)
+      ? vk::QueueFlagBits::eCompute
+      : vk::QueueFlagBits::eTransfer;
+  const vk::QueueFlagBits other = (queue_type == QueueType::kCompute)
+      ? vk::QueueFlagBits::eTransfer
+      : vk::QueueFlagBits::eCompute;
+
   auto has_flag = [](const vk::QueueFamilyProperties& family,
-                     const vk::QueueFlagBits& flag)
+                     const vk::QueueFlagBits flag)
   {
     return (family.queueFlags & flag) == flag;
   };
@@ -658,8 +653,7 @@ uint32b VulkanDevice::findQueueFamilyForShader() const noexcept
   for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
     const auto& family = queue_family_list[i];
     if (!has_flag(family, vk::QueueFlagBits::eGraphics) &&
-        has_flag(family, vk::QueueFlagBits::eCompute) &&
-        has_flag(family, vk::QueueFlagBits::eTransfer)) {
+        !has_flag(family, other) && has_flag(family, target)) {
       index = zisc::cast<uint32b>(i);
       is_found = true;
     }
@@ -667,8 +661,24 @@ uint32b VulkanDevice::findQueueFamilyForShader() const noexcept
 
   for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
     const auto& family = queue_family_list[i];
-    if (has_flag(family, vk::QueueFlagBits::eCompute) ||
-        has_flag(family, vk::QueueFlagBits::eTransfer)) {
+    if (!has_flag(family, other) && has_flag(family, target)) {
+      index = zisc::cast<uint32b>(i);
+      is_found = true;
+    }
+  }
+
+  for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
+    const auto& family = queue_family_list[i];
+    if (!has_flag(family, vk::QueueFlagBits::eGraphics) &&
+        has_flag(family, target)) {
+      index = zisc::cast<uint32b>(i);
+      is_found = true;
+    }
+  }
+
+  for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
+    const auto& family = queue_family_list[i];
+    if (has_flag(family, target)) {
       index = zisc::cast<uint32b>(i);
       is_found = true;
     }
@@ -708,14 +718,30 @@ auto VulkanDevice::getPhysicalDeviceInfo(const vk::PhysicalDevice& device) noexc
 /*!
   */
 inline
+vk::Queue VulkanDevice::getQueue(const QueueType queue_type,
+                                 const uint32b queue_index) const noexcept
+{
+  const uint32b family_index = queueFamilyIndex(queue_type);
+  const auto& family_info = physicalDeviceInfo().queue_family_list_[family_index];
+  const uint32b index = queue_index % family_info.queueCount;
+  auto q = device_.getQueue(family_index, index);
+  return q;
+}
+
+/*!
+  */
+inline
 void VulkanDevice::initCommandPool() noexcept
 {
-  const vk::CommandPoolCreateInfo pool_info{
-      vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-      queue_family_index_};
-  auto [result, command_pool] = device_.createCommandPool(pool_info);
-  ZISC_ASSERT(result == vk::Result::eSuccess, "Command pool creation failed.");
-  command_pool_ = command_pool;
+  command_pool_list_.reserve(queue_family_index_list_.size());
+  for (std::size_t i = 0; i < queue_family_index_list_.size(); ++i) {
+    const vk::CommandPoolCreateInfo pool_info{
+        vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+        queue_family_index_list_[i]};
+    auto [result, command_pool] = device_.createCommandPool(pool_info);
+    ZISC_ASSERT(result == vk::Result::eSuccess, "Command pool creation failed.");
+    command_pool_list_.emplace_back(command_pool);
+  }
 }
 
 /*!
@@ -761,6 +787,7 @@ void VulkanDevice::initDevice(const DeviceOptions& options) noexcept
   const std::vector<const char*> extensions{{
       VK_KHR_8BIT_STORAGE_EXTENSION_NAME,
       VK_KHR_16BIT_STORAGE_EXTENSION_NAME,
+      VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME,
       VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
       VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME}};
 
@@ -774,18 +801,24 @@ void VulkanDevice::initDevice(const DeviceOptions& options) noexcept
   device_features.shaderInt64 = device_info.features_.shaderInt64;
   device_features.shaderInt16 = device_info.features_.shaderInt16;
 
-  const auto& queue_family_info =
-      physicalDeviceInfo().queue_family_list_[queue_family_index_];
-  std::vector<float> priority_list;
-  priority_list.resize(queue_family_info.queueCount, 0.0f);
-  const vk::DeviceQueueCreateInfo queue_create_info{vk::DeviceQueueCreateFlags{},
-                                                    queue_family_index_,
-                                                    queue_family_info.queueCount,
-                                                    priority_list.data()};
+  std::vector<std::vector<float>> priority_list;
+  priority_list.reserve(queue_family_index_list_.size());
+  std::vector<vk::DeviceQueueCreateInfo> queue_create_info_list;
+  queue_create_info_list.reserve(queue_family_index_list_.size());
+  for (auto family_index : queue_family_index_list_) {
+    const auto& family_info = physicalDeviceInfo().queue_family_list_[family_index];
+    priority_list.emplace_back();
+    priority_list.back().resize(family_info.queueCount, 0.0f);
+    queue_create_info_list.emplace_back(vk::DeviceQueueCreateFlags{},
+                                        family_index,
+                                        family_info.queueCount,
+                                        priority_list.back().data());
+  }
+
   const vk::DeviceCreateInfo device_create_info{
       vk::DeviceCreateFlags{},
-      1,
-      &queue_create_info,
+      zisc::cast<uint32b>(queue_create_info_list.size()),
+      queue_create_info_list.data(),
       zisc::cast<uint32b>(layers.size()),
       layers.data(),
       zisc::cast<uint32b>(extensions.size()),
@@ -794,17 +827,6 @@ void VulkanDevice::initDevice(const DeviceOptions& options) noexcept
   auto [result, device] = physical_device_.createDevice(device_create_info);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Vulkan device creation failed.");
   device_ = device;
-}
-
-/*!
-  */
-inline
-void VulkanDevice::initFence() noexcept
-{
-  const vk::FenceCreateInfo info{};
-  auto [result, fence] = device_.createFence(info);
-  ZISC_ASSERT(result == vk::Result::eSuccess, "Fence creation failed.");
-  fence_ = fence;
 }
 
 /*!
@@ -826,15 +848,6 @@ void VulkanDevice::initMemoryAllocator() noexcept
 
   auto result = vmaCreateAllocator(&allocator_create_info, &allocator_);
   ZISC_ASSERT(result == VK_SUCCESS, "Memory allocator creation failed.");
-
-  // Initialize a copy command for memory buffer
-  const vk::CommandBufferAllocateInfo command_alloc_info{
-      commandPool(),
-      vk::CommandBufferLevel::ePrimary,
-      1};
-  auto [r, copy_commands] = device_.allocateCommandBuffers(command_alloc_info);
-  ZISC_ASSERT(r == vk::Result::eSuccess, "Command buffer allocation failed.");
-  copy_command_ = copy_commands[0];
 }
 
 /*!
@@ -851,7 +864,7 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
   if (options.vulkan_enable_validation_layers_)
     initDebugMessenger();
   initPhysicalDevice(options);
-  queue_family_index_ = findQueueFamilyForShader();
+  initQueueFamilyIndexList();
 
   {
     const auto& info = physicalDeviceInfo();
@@ -864,7 +877,6 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
   }
 
   initDevice(options);
-  initFence();
   initCommandPool();
   initMemoryAllocator();
 }
@@ -881,6 +893,30 @@ void VulkanDevice::initPhysicalDevice(const DeviceOptions& options) noexcept
               "The specified device doesn't exist.");
   physical_device_ = physical_device_list[options.vulkan_device_number_];
   device_info_ = getPhysicalDeviceInfo(physical_device_);
+}
+
+/*!
+  */
+inline
+void VulkanDevice::initQueueFamilyIndexList() noexcept
+{
+  std::array<uint32b, 2> index_list{{findQueueFamily(QueueType::kCompute),
+                                     findQueueFamily(QueueType::kTransfer)}};
+  queue_family_index_list_.reserve(index_list.size());
+  for (std::size_t i = 0; i < index_list.size(); ++i) {
+    const auto family_index = index_list[i];
+    auto ite = std::find(queue_family_index_list_.begin(),
+                         queue_family_index_list_.end(),
+                         family_index);
+    if (ite != queue_family_index_list_.end()) {
+      const auto ref_index = std::distance(queue_family_index_list_.begin(), ite);
+      queue_family_index_ref_list_[i] = zisc::cast<std::size_t>(ref_index);
+    }
+    else {
+      queue_family_index_list_.emplace_back(family_index);
+      queue_family_index_ref_list_[i] = i;
+    }
+  }
 }
 
 /*!
@@ -938,11 +974,12 @@ vk::ApplicationInfo VulkanDevice::makeApplicationInfo(
 /*!
   */
 inline
-void VulkanDevice::resetFence(vk::Fence& fence) const noexcept
+uint32b VulkanDevice::queueFamilyIndex(const QueueType queue_type) const noexcept
 {
-  const auto result = device_.resetFences(1, &fence);
-  ZISC_ASSERT(result == vk::Result::eSuccess, "Fence resetting failed.");
-  (void)result;
+  const std::size_t list_index = zisc::cast<std::size_t>(queue_type);
+  const std::size_t ref_index = queue_family_index_ref_list_[list_index];
+  const uint32b family_index = queue_family_index_list_[ref_index];
+  return family_index;
 }
 
 } // namespace zinvul

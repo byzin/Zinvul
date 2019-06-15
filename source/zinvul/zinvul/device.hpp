@@ -91,8 +91,15 @@ class Device : private zisc::NonCopyable<Device>
   //! Return the subgroup size
   virtual uint32b subgroupSize() const noexcept = 0;
 
-  //! Wait this thread until all commands in the queue are completed
+  //! Wait this thread until all commands in the device are completed
   virtual void waitForCompletion() const noexcept = 0;
+
+  //! Wait this thread until all commands in the queues are completed
+  virtual void waitForCompletion(const QueueType queue_type) const noexcept = 0;
+
+  //! Wait this thread until all commands in the queue are completed
+  virtual void waitForCompletion(const QueueType queue_type,
+                                 const uint32b queue_index) const noexcept = 0;
 
   //! Returna a work resource
   zisc::pmr::memory_resource* workResource() noexcept;

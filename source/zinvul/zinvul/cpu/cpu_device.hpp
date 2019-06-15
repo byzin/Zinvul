@@ -83,8 +83,15 @@ class CpuDevice : public Device
   //! Return the vendor name
   std::string_view vendorName() const noexcept override;
 
-  //! Wait this thread until all commands in the queue are completed
+  //! Wait this thread until all commands in the device are completed
   void waitForCompletion() const noexcept override;
+
+  //! Wait this thread until all commands in the queues are completed
+  void waitForCompletion(const QueueType queue_type) const noexcept override;
+
+  //! Wait this thread until all commands in the queue are completed
+  void waitForCompletion(const QueueType queue_type,
+                         const uint32b queue_index) const noexcept override;
 
  private:
   //! Expand the given work-group size array to 3d work-group size array

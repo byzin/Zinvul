@@ -47,6 +47,14 @@ enum class DeviceType : uint32b
   kVulkan
 };
 
+/*!
+  */
+enum class QueueType : uint32b
+{
+  kCompute = 0,
+  kTransfer
+};
+
 // Buffer
 
 /*!

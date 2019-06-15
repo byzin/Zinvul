@@ -345,6 +345,7 @@ TEST(DataTest, CopyBufferTest)
     buffer2->setSize(n);
     zinvul::copy(*buffer0, buffer2.get(), n, 0, 0, 0);
     zinvul::copy(*buffer1, buffer2.get(), 12, 2, 2, 0);
+    device->waitForCompletion(QueueType::kTransfer);
 
     auto buffer3 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer3->setSize(n);
@@ -356,6 +357,7 @@ TEST(DataTest, CopyBufferTest)
     auto buffer4 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceToHost);
     buffer4->setSize(n);
     zinvul::copy(*buffer3, buffer4.get(), n, 0, 0, 0);
+    device->waitForCompletion(QueueType::kTransfer);
 
     {
       std::array<uint32b, 2> result;
@@ -385,6 +387,7 @@ TEST(DataTest, CopyBufferTest)
     auto buffer6 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer6->setSize(resolution);
     zinvul::copy(*buffer5, buffer6.get(), resolution, 0, 0, 0);
+    device->waitForCompletion(QueueType::kTransfer);
     auto buffer7 = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer7->setSize(1);
     buffer7->write(&resolution, 1, 0, 0);
@@ -394,6 +397,7 @@ TEST(DataTest, CopyBufferTest)
     device->waitForCompletion();
 
     zinvul::copy(*buffer6, buffer5.get(), resolution, 0, 0, 0);
+    device->waitForCompletion(QueueType::kTransfer);
     {
       std::array<int32b, resolution> table;
       buffer5->read(table.data(), resolution, 0, 0);

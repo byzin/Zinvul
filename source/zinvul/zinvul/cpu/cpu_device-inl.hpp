@@ -183,10 +183,26 @@ std::string_view CpuDevice::vendorName() const noexcept
   std::string_view vendor_name{vendor_name_};
   return vendor_name;
 }
+
 /*!
   */
 inline
 void CpuDevice::waitForCompletion() const noexcept
+{
+}
+
+/*!
+  */
+inline
+void CpuDevice::waitForCompletion(const QueueType /* queue_type */) const noexcept
+{
+}
+
+/*!
+  */
+inline
+void CpuDevice::waitForCompletion(const QueueType /* queue_type */,
+                                  const uint32b /* queue_index */) const noexcept
 {
 }
 
