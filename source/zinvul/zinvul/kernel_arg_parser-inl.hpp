@@ -34,10 +34,11 @@ class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
  public:
   using ElementType = std::remove_cv_t<Type>;
 
-  static constexpr bool kIsGlobal = (kAddressType == cl::AddressSpaceType::kGlobal);
+  static constexpr bool kIsConstant = (kAddressType == cl::AddressSpaceType::kConstant);
+  static constexpr bool kIsGlobal = (kAddressType == cl::AddressSpaceType::kGlobal) ||
+                                    kIsConstant;
   static constexpr bool kIsLocal = (kAddressType == cl::AddressSpaceType::kLocal);
   static constexpr bool kIsPod = false;
-  static constexpr bool kIsConst = std::is_const_v<Type>;
 
   static_assert(kIsGlobal || kIsLocal, "The address space is wrong.");
 
@@ -53,7 +54,7 @@ constexpr KernelArgParseResult::KernelArgParseResult() noexcept :
     is_global_{false},
     is_local_{false},
     is_pod_{false},
-    is_const_{false},
+    is_constant_{false},
     index_{0}
 {
 }
@@ -64,21 +65,22 @@ inline
 constexpr KernelArgParseResult::KernelArgParseResult(const bool is_global,
                                                      const bool is_local,
                                                      const bool is_pod,
-                                                     const bool is_const) noexcept :
-    is_global_{is_global},
-    is_local_{is_local},
-    is_pod_{is_pod},
-    is_const_{is_const},
-    index_{0}
+                                                     const bool is_constant)
+    noexcept :
+        is_global_{is_global},
+        is_local_{is_local},
+        is_pod_{is_pod},
+        is_constant_{is_constant},
+        index_{0}
 {
 }
 
 /*!
   */
 inline
-constexpr bool KernelArgParseResult::isConst() const noexcept
+constexpr bool KernelArgParseResult::isConstant() const noexcept
 {
-  return is_const_;
+  return is_constant_;
 }
 
 /*!
@@ -151,6 +153,14 @@ class KernelArgParser<kDimension, T, ArgumentTypes...>
   static constexpr std::size_t kNumOfLocalArgs = ArgInfo::kIsLocal
       ? Parent::kNumOfLocalArgs + 1
       : Parent::kNumOfLocalArgs;
+  static constexpr std::size_t kNumOfStorageBuffer =
+      (ArgInfo::kIsGlobal && !(ArgInfo::kIsConstant || ArgInfo::kIsPod))
+          ? Parent::kNumOfStorageBuffer + 1
+          : Parent::kNumOfStorageBuffer;
+  static constexpr std::size_t kNumOfUniformBuffer =
+      (ArgInfo::kIsGlobal && (ArgInfo::kIsConstant || ArgInfo::kIsPod))
+          ? Parent::kNumOfUniformBuffer + 1
+          : Parent::kNumOfUniformBuffer;
 
 
   //! Return the info of arguments
@@ -169,7 +179,7 @@ class KernelArgParser<kDimension, T, ArgumentTypes...>
     result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
                                           ArgInfo::kIsLocal,
                                           ArgInfo::kIsPod,
-                                          ArgInfo::kIsConst};
+                                          ArgInfo::kIsConstant};
     result_list[0].setIndex(0);
 
     return result_list;
@@ -193,7 +203,7 @@ class KernelArgParser<kDimension, T, ArgumentTypes...>
       result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
                                             ArgInfo::kIsLocal,
                                             ArgInfo::kIsPod,
-                                            ArgInfo::kIsConst};
+                                            ArgInfo::kIsConstant};
       result_list[0].setIndex(0);
     }
 
@@ -218,7 +228,7 @@ class KernelArgParser<kDimension, T, ArgumentTypes...>
       result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
                                             ArgInfo::kIsLocal,
                                             ArgInfo::kIsPod,
-                                            ArgInfo::kIsConst};
+                                            ArgInfo::kIsConstant};
       result_list[0].setIndex(0);
     }
 
@@ -228,7 +238,7 @@ class KernelArgParser<kDimension, T, ArgumentTypes...>
   //! Check if there are const local arguments in the kernel arguments
   static constexpr bool hasConstLocal() noexcept
   {
-    const bool is_const_local = ArgInfo::kIsLocal && ArgInfo::kIsConst;
+    const bool is_const_local = std::is_const_v<T> && ArgInfo::kIsLocal;
     return is_const_local || Parent::hasConstLocal();
   }
 };

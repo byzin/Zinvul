@@ -16,6 +16,9 @@ function(initZinvulOption)
   set(option_description "Enable vulkan backend.")
   setBooleanOption(ZINVUL_ENABLE_VULKAN_BACKEND ON ${option_description})
 
+  set(option_description "Enable Uniform buffer.")
+  setBooleanOption(ZINVUL_ENABLE_UNIFORM_BUFFER ON ${option_description})
+
   set(option_description "Use built-in math funcs instead of the Zinvul funcs.")
   setBooleanOption(ZINVUL_MATH_BUILTIN OFF ${option_description})
 
@@ -182,6 +185,9 @@ function(getZinvulOption zinvul_compile_flags zinvul_linker_flags zinvul_definit
   if(ZINVUL_ENABLE_VULKAN_BACKEND)
     list(APPEND definitions ZINVUL_ENABLE_VULKAN_BACKEND)
   endif()
+  if(ZINVUL_ENABLE_UNIFORM_BUFFER)
+    list(APPEND definitions ZINVUL_ENABLE_UNIFORM_BUFFER)
+  endif()
 
   # Output variables
   set(${zinvul_definitions} ${definitions} PARENT_SCOPE)
@@ -304,28 +310,33 @@ function(makeKernelSet kernel_set_name zinvul_source_files zinvul_definitions)
     elseif(Z_MAC)
       list(APPEND clspv_options -D=Z_MAC)
     endif()
-    list(APPEND clspv_options -c++
-                              -f16bit_storage
-                              -inline-entry-points
-                              -int8
+    list(APPEND clspv_options --c++
+                              --f16bit_storage
+                              --inline-entry-points
+                              --int8
                               # Optimization
                               -O=3
-                              -cl-no-signed-zeros
-                              -cost-kind=throughput
-                              -cl-denorms-are-zero
-                              -cl-finite-math-only
-                              -enable-gvn-memdep
-                              -enable-load-pre
-                              -enable-loop-simplifycfg-term-folding
-                              -expensive-combines
-                              -instcombine-code-sinking
+                              --cl-no-signed-zeros
+                              --cost-kind=throughput
+                              --cl-denorms-are-zero
+                              --cl-finite-math-only
+                              --enable-gvn-memdep
+                              --enable-load-pre
+                              --enable-loop-simplifycfg-term-folding
+                              --expensive-combines
+                              --instcombine-code-sinking
                               )
+    if(ZINVUL_ENABLE_UNIFORM_BUFFER)
+      list(APPEND clspv_options --constant-args-ubo
+                                --pod-ubo
+                                )
+    endif()
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
                                -I=${__zinvul_root__}
                                -o=${spv_file_path} ${cl_file_path})
     # Descriptor map
     set(descriptor_map_path ${spv_kernel_set_dir}/${kernel_set_name}.csv)
-    list(APPEND clspv_commands -descriptormap=${descriptor_map_path})
+    list(APPEND clspv_commands --descriptormap=${descriptor_map_path})
     # SPIRV-dis
     find_program(spirv_dis "spirv-dis")
     if(spirv_dis)

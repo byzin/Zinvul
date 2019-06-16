@@ -31,8 +31,8 @@ class AddressSpaceInfo
 
   static constexpr bool kIsGlobal = true;
   static constexpr bool kIsLocal = false;
+  static constexpr bool kIsConstant = false;
   static constexpr bool kIsPod = true;
-  static constexpr bool kIsConst = std::is_const_v<Type>;
 
  private:
   static_assert(!std::is_pointer_v<Type>, "The Type is pointer.");
@@ -52,9 +52,9 @@ class KernelArgInfo
 
   static constexpr bool kIsGlobal = ASpaceInfo::kIsGlobal;
   static constexpr bool kIsLocal = ASpaceInfo::kIsLocal;
+  static constexpr bool kIsConstant = ASpaceInfo::kIsConstant;
   static constexpr bool kIsPod = ASpaceInfo::kIsPod;
-  static constexpr bool kIsConst = std::is_const_v<Type> || ASpaceInfo::kIsConst;
-  static constexpr DescriptorType kDescriptor = (kIsPod || kIsConst)
+  static constexpr DescriptorType kDescriptor = (kIsConstant || kIsPod)
       ? DescriptorType::kUniform
       : DescriptorType::kStorage;
 
@@ -75,17 +75,17 @@ class KernelArgParseResult
   constexpr KernelArgParseResult(const bool is_global,
                                  const bool is_local,
                                  const bool is_pod,
-                                 const bool is_const) noexcept;
+                                 const bool is_constant) noexcept;
 
 
-  //! Check if the argument is const qualified
-  constexpr bool isConst() const noexcept;
-
-  //! Check if the argument is global
+  //! Check if the argument is global qualified
   constexpr bool isGlobal() const noexcept;
 
-  //! Check if the argument is local
+  //! Check if the argument is local qualified
   constexpr bool isLocal() const noexcept;
+
+  //! Check if the argument is constant qualified
+  constexpr bool isConstant() const noexcept;
 
   //! Check if the argument is pod
   constexpr bool isPod() const noexcept;
@@ -100,7 +100,7 @@ class KernelArgParseResult
   bool is_global_;
   bool is_local_;
   bool is_pod_;
-  bool is_const_;
+  bool is_constant_;
   std::size_t index_;
 };
 
@@ -117,6 +117,8 @@ class KernelArgParser
   static constexpr std::size_t kNumOfArgs = 0; //!< The number of arguments
   static constexpr std::size_t kNumOfGlobalArgs = 0; //!< The number of globals
   static constexpr std::size_t kNumOfLocalArgs = 0; //!< The number of locals
+  static constexpr std::size_t kNumOfStorageBuffer = 0; //!< The number of storage
+  static constexpr std::size_t kNumOfUniformBuffer = 0; //!< The number of uniform
 
 
   //! Return the info of arguments

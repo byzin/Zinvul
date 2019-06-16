@@ -75,6 +75,19 @@ enum class BufferUsage : uint32b
   kDeviceToHost = 0b1u << 3,
 };
 
+/*!
+  \brief config values in zinvul
+  */
+class Config
+{
+ public:
+  //! Return whether uniform buffer is enabled
+  static constexpr bool isUniformBufferEnabled() noexcept;
+
+  //! Return whether vulkan backendb is enabled
+  static constexpr bool isVulkanBackendEnabled() noexcept;
+};
+
 } // namespace zinvul
 
 #include "zinvul/zinvul_config-inl.hpp"

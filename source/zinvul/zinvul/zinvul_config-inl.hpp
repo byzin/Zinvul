@@ -27,18 +27,30 @@ static_assert(sizeof(uint16b) == 2, "The size of uint16b is wrong.");
 static_assert(sizeof(uint32b) == 4, "The size of uint32b is wrong.");
 static_assert(sizeof(uint64b) == 8, "The size of uint64b is wrong.");
 
+/*!
+  */
 inline
-BufferUsage operator&(const BufferUsage& lhs, const BufferUsage& rhs) noexcept
+constexpr bool Config::isUniformBufferEnabled() noexcept
 {
-  using Type = std::underlying_type_t<BufferUsage>;
-  return zisc::cast<BufferUsage>(zisc::cast<Type>(lhs) & (zisc::cast<Type>(rhs)));
+#if defined(ZINVUL_ENABLE_UNIFORM_BUFFER)
+  const bool is_enabled = true;
+#else // ZINVUL_ENABLE_UNIFORM_BUFFER
+  const bool is_enabled = false;
+#endif // ZINVUL_ENABLE_UNIFORM_BUFFER
+  return is_enabled;
 }
 
+/*!
+  */
 inline
-BufferUsage operator|(const BufferUsage& lhs, const BufferUsage& rhs) noexcept
+constexpr bool Config::isVulkanBackendEnabled() noexcept
 {
-  using Type = std::underlying_type_t<BufferUsage>;
-  return zisc::cast<BufferUsage>(zisc::cast<Type>(lhs) | (zisc::cast<Type>(rhs)));
+#if defined(ZINVUL_ENABLE_VULKAN_BACKEND)
+  const bool is_enabled = true;
+#else // ZINVUL_ENABLE_VULKAN_BACKEND
+  const bool is_enabled = false;
+#endif // ZINVUL_ENABLE_VULKAN_BACKEND
+  return is_enabled;
 }
 
 } // namespace zinvul

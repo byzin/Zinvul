@@ -100,13 +100,16 @@ TEST(Experiment, ZinvulTest)
 
     constexpr uint32b resolution = 1024u;
 
+    auto buffer0 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer0->setSize(resolution);
+
     auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
 
     auto kernel = zinvul::makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(experiment, experiment));
-    kernel->run(*res_buff, {resolution}, 0);
+    kernel->run(*buffer0, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;

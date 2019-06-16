@@ -37,6 +37,11 @@ __kernel void testGlobalInstance(GlobalPtr<uint32b> results,
     GlobalPtr<test::OptionTest> options);
 __kernel void testLocalInstance(GlobalPtr<uint32b> results,
     ConstGlobalPtr<test::OptionTest> options);
+__kernel void testConstantArg(ConstantPtr<uint4> constant1,
+    ConstantPtr<float4> constant2,
+    GlobalPtr<uint4> out1,
+    GlobalPtr<float4> out2,
+    const uint32b resolution);
 __kernel void copyBufferTest(ConstGlobalPtr<uint32b> src, GlobalPtr<uint32b> dst);
 __kernel void multiplyBufferTest(GlobalPtr<int32b> table, const uint32b resolution);
 __kernel void testInt8bBuffer(GlobalPtr<int8b> buffer);
@@ -306,6 +311,19 @@ __kernel void testLocalInstance(GlobalPtr<uint32b> results,
     results[0] = options->getValue1();
     results[1] = (options + 1)->getValue2();
     results[2] = options[0].getValue3();
+  }
+}
+
+__kernel void testConstantArg(ConstantPtr<uint4> constant1,
+    ConstantPtr<float4> constant2,
+    GlobalPtr<uint4> out1,
+    GlobalPtr<float4> out2,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    out1[index] = constant1[index];
+    out2[index] = constant2[index];
   }
 }
 

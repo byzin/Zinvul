@@ -36,7 +36,7 @@ TEST(DataTest, PointerTest)
 
     constexpr std::size_t n = 30;
 
-    auto buffer0 = makeUniformBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer0 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer0->setSize(5);
     {
       std::array<int32b, 5> inputs{{1, 2, 3, 4, 5}};
@@ -181,7 +181,7 @@ TEST(DataTest, LocalInputTest)
 
     constexpr uint32b resolution = 100;
 
-    auto buffer0 = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer0 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer0->setSize(resolution);
     {
       std::array<uint32b, resolution> inputs;
@@ -189,7 +189,7 @@ TEST(DataTest, LocalInputTest)
         inputs[i] = resolution - (i + 1);
       buffer0->write(inputs.data(), inputs.size(), 0, 0);
     }
-    auto buffer1 = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(resolution);
     {
       std::array<uint32b, resolution> inputs;
@@ -290,7 +290,7 @@ TEST(DataTest, LocalInstanceTest)
     auto buffer0 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer0->setSize(3);
 
-    auto buffer1 = makeUniformBuffer<GlobalOption>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer1 = makeStorageBuffer<GlobalOption>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(1);
     buffer1->write(&option, 1, 0, 0);
 
@@ -312,6 +312,83 @@ TEST(DataTest, LocalInstanceTest)
   }
 }
 
+TEST(DataTest, ConstantArgTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 100;
+
+    auto buffer0 = makeUniformBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceOnly);
+    buffer0->setSize(resolution);
+    {
+      std::array<cl::uint4, resolution> inputs;
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const uint32b u = zisc::cast<uint32b>(i);
+        const cl::uint4 v{u, u + 1u, u + 2u, u + 3u};
+        inputs[i] = v;
+      }
+      buffer0->write(inputs.data(), resolution, 0, 0);
+    }
+
+    auto buffer1 = makeUniformBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(resolution);
+    {
+      std::array<cl::float4, resolution> inputs;
+      for (std::size_t i = 0; i < resolution; ++i) {
+        const float u = zisc::cast<float>(i);
+        const cl::float4 v{u, u + 1.0f, u + 2.0f, u + 3.0f};
+        inputs[i] = v;
+      }
+      buffer1->write(inputs.data(), resolution, 0, 0);
+    }
+
+    auto buffer2 = makeStorageBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceOnly);
+    buffer2->setSize(resolution);
+
+    auto buffer3 = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
+    buffer3->setSize(resolution);
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testConstantArg));
+    kernel->run(*buffer0, *buffer1, *buffer2, *buffer3, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "Constant arg test failed.";
+    {
+      std::array<cl::uint4, resolution> results;
+      buffer2->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const auto result = results[i];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const uint32b expected = zisc::cast<uint32b>(i + j);
+          ASSERT_EQ(expected, result[j]) << error_message;
+        }
+      }
+    }
+    {
+      std::array<cl::float4, resolution> results;
+      buffer3->read(results.data(), results.size(), 0, 0);
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const auto result = results[i];
+        for (std::size_t j = 0; j < 4; ++j) {
+          const float expected = zisc::cast<float>(i + j);
+          ASSERT_FLOAT_EQ(expected, result[j]) << error_message;
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
 TEST(DataTest, CopyBufferTest)
 {
   using namespace zinvul;
@@ -341,7 +418,7 @@ TEST(DataTest, CopyBufferTest)
     buffer1->setSize(n);
     buffer1->write(input.data(), input.size(), 2, 0);
 
-    auto buffer2 = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer2 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer2->setSize(n);
     zinvul::copy(*buffer0, buffer2.get(), n, 0, 0, 0);
     zinvul::copy(*buffer1, buffer2.get(), 12, 2, 2, 0);
@@ -421,19 +498,19 @@ TEST(DataTest, TypeCastTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto iinputs = makeUniformBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    auto iinputs = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
     iinputs->setSize(4);
     {
       std::array<int32b, 4> inputs{{1, 2, 3, 4}};
       iinputs->write(inputs.data(), inputs.size(), 0, 0);
     }
-    auto uinputs = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    auto uinputs = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
     uinputs->setSize(4);
     {
       std::array<uint32b, 4> inputs{{1, 2, 3, 4}};
       uinputs->write(inputs.data(), inputs.size(), 0, 0);
     }
-    auto finputs = makeUniformBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    auto finputs = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
     finputs->setSize(4);
     {
       std::array<float, 4> inputs{{1.0f, 2.0f, 3.0f, 4.0f}};
@@ -594,7 +671,7 @@ TEST(DataTest, TypeReinterpretingTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto uinputs1 = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    auto uinputs1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
     uinputs1->setSize(4);
     {
       std::array<uint32b, 4> inputs;
@@ -605,7 +682,7 @@ TEST(DataTest, TypeReinterpretingTest)
       uinputs1->write(inputs.data(), inputs.size(), 0, 0);
     }
 
-    auto finputs1 = makeUniformBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    auto finputs1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
     finputs1->setSize(4);
     {
       std::array<float, 4> inputs{{1.0f, 2.0f, 3.0f, 4.0f}};
@@ -1602,7 +1679,7 @@ TEST(DataTest, CastUint8bToFloat)
     auto buffer1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(resolution);
 
-    auto buffer2 = makeUniformBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
     buffer2->setSize(resolution);
     {
       std::vector<float> inputs;
@@ -1663,7 +1740,7 @@ TEST(DataTest, CastUint16bToFloat)
     auto buffer1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(resolution);
 
-    auto buffer2 = makeUniformBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
     buffer2->setSize(resolution);
     {
       std::vector<float> inputs;
@@ -1724,7 +1801,7 @@ TEST(DataTest, CastUint32bToFloat)
     auto buffer1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(resolution);
 
-    auto buffer2 = makeUniformBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
     buffer2->setSize(resolution);
     {
       std::vector<float> inputs;
@@ -1985,7 +2062,7 @@ TEST(DataTest, ArrayTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    auto buffer1 = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(5);
     {
       std::array<uint32b, 5> src{{6, 7, 8, 9, 10}};

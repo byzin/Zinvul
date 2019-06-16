@@ -152,11 +152,15 @@ void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::bindBu
 
     auto& buffer_info = buffer_info_list[index];
     auto& descriptor_set = descriptor_set_list[index];
+    const bool is_uniform_buffer = Config::isUniformBufferEnabled() &&
+        (buffer_info.isConstant() || buffer_info.isPod());
     descriptor_set.dstSet = descriptor_set_;
     descriptor_set.dstBinding = zisc::cast<uint32b>(buffer_info.index());
     descriptor_set.dstArrayElement = 0;
     descriptor_set.descriptorCount = 1;
-    descriptor_set.descriptorType = vk::DescriptorType::eStorageBuffer;
+    descriptor_set.descriptorType = is_uniform_buffer
+        ? vk::DescriptorType::eUniformBuffer
+        : vk::DescriptorType::eStorageBuffer;
     descriptor_set.pImageInfo = nullptr;
     descriptor_set.pBufferInfo = &descriptor_info;
     descriptor_set.pTexelBufferView = nullptr;
@@ -290,13 +294,33 @@ inline
 void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorPool()
     noexcept
 {
-  const vk::DescriptorPoolSize pool_size{
-      vk::DescriptorType::eStorageBuffer,
-      zisc::cast<uint32b>(this->numOfArguments())};
+  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+  static_assert(0 < ParseResult::kNumOfStorageBuffer,
+                "The kernel doesn't have any storage buffer argument.");
+
+  constexpr bool has_uniform_buffer = Config::isUniformBufferEnabled() &&
+                                      (0 < ParseResult::kNumOfUniformBuffer);
+  constexpr std::size_t num_of_info = has_uniform_buffer ? 2 : 1;
+  std::array<vk::DescriptorPoolSize, num_of_info> pool_size_list;
+  if constexpr (has_uniform_buffer) {
+    pool_size_list[0].type = vk::DescriptorType::eUniformBuffer;
+    pool_size_list[0].descriptorCount =
+        zisc::cast<uint32b>(ParseResult::kNumOfUniformBuffer);
+    pool_size_list[1].type = vk::DescriptorType::eStorageBuffer;
+    pool_size_list[1].descriptorCount =
+        zisc::cast<uint32b>(ParseResult::kNumOfStorageBuffer);
+    static_assert(kNumOfBuffers ==
+        (ParseResult::kNumOfStorageBuffer + ParseResult::kNumOfUniformBuffer),
+        "The number of arguments is wrong.");
+  }
+  else {
+    pool_size_list[0].type = vk::DescriptorType::eStorageBuffer;
+    pool_size_list[0].descriptorCount = zisc::cast<uint32b>(kNumOfBuffers);
+  }
   const vk::DescriptorPoolCreateInfo create_info{vk::DescriptorPoolCreateFlags{},
                                                  1,
-                                                 1,
-                                                 &pool_size};
+                                                 zisc::cast<uint32b>(num_of_info),
+                                                 pool_size_list.data()};
   const auto& device = device_->device();
   auto [result, descriptor_pool] = device.createDescriptorPool(create_info);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Descriptor pool creation failed.");
@@ -326,12 +350,19 @@ inline
 void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorSetLayout()
     noexcept
 {
-  constexpr std::size_t n = KernelBase::numOfArguments();
-  std::array<vk::DescriptorSetLayoutBinding, n> layout_bindings;
-  for (uint32b i = 0; i < n; ++i) {
-    layout_bindings[i] = vk::DescriptorSetLayoutBinding{
-        i,
-        vk::DescriptorType::eStorageBuffer,
+  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+  constexpr auto buffer_info_list = ParseResult::getGlobalArgInfoList();
+
+  std::array<vk::DescriptorSetLayoutBinding, kNumOfBuffers> layout_bindings;
+  for (std::size_t index = 0; index < kNumOfBuffers; ++index) {
+    auto& buffer_info = buffer_info_list[index];
+    const bool is_uniform_buffer = Config::isUniformBufferEnabled() &&
+        (buffer_info.isConstant() || buffer_info.isPod());
+
+    layout_bindings[index] = vk::DescriptorSetLayoutBinding{
+      zisc::cast<uint32b>(index),
+        is_uniform_buffer ? vk::DescriptorType::eUniformBuffer
+                          : vk::DescriptorType::eStorageBuffer,
         1,
         vk::ShaderStageFlagBits::eCompute};
   }

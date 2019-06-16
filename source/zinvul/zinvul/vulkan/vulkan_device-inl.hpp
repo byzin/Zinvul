@@ -75,9 +75,13 @@ void VulkanDevice::allocate(const std::size_t size,
 
   vk::BufferCreateInfo buffer_create_info;
   buffer_create_info.size = sizeof(Type) * size;
-  buffer_create_info.usage = vk::BufferUsageFlagBits::eStorageBuffer |
-                             vk::BufferUsageFlagBits::eTransferSrc |
+  buffer_create_info.usage = vk::BufferUsageFlagBits::eTransferSrc |
                              vk::BufferUsageFlagBits::eTransferDst;
+  constexpr bool is_uniform_buffer = Config::isUniformBufferEnabled() &&
+                                     (kDescriptor == DescriptorType::kUniform);
+  buffer_create_info.usage = buffer_create_info.usage | (is_uniform_buffer
+      ? vk::BufferUsageFlagBits::eUniformBuffer
+      : vk::BufferUsageFlagBits::eStorageBuffer);
   buffer_create_info.queueFamilyIndexCount =
       zisc::cast<uint32b>(queue_family_index_list_.size());
   buffer_create_info.pQueueFamilyIndices = queue_family_index_list_.data();
