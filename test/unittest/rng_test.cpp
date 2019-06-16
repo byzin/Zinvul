@@ -8,6 +8,7 @@
   */
 
 // Standard C++ library
+#include <chrono>
 #include <cstddef>
 #include <fstream>
 #include <iomanip>
@@ -18,6 +19,7 @@
 #include "gtest/gtest.h"
 // Zisc
 #include "zisc/correlated_multi_jittered_engine.hpp"
+#include "zisc/stopwatch.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
 #include "zinvul/zinvul_config.hpp"
@@ -169,26 +171,26 @@ TEST(RngTest, Cmj64ImageTest)
     blue_buffer->setSize(resolution);
     auto sample_buffer = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
     sample_buffer->setSize(1);
-    auto resolution_buffer = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
-    resolution_buffer->setSize(1);
-    resolution_buffer->write(&resolution, resolution_buffer->size(), 0, 0);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, res_buff->size(), 0, 0);
 
     auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(rng, testCmj64Image));
 
     uint32b sample = 0;
     // Red
     sample_buffer->write(&sample, 1, 0, 0);
-    kernel->run(*red_buffer, *sample_buffer, *resolution_buffer, {resolution}, 0);
+    kernel->run(*red_buffer, *sample_buffer, *res_buff, {resolution}, 0);
     device->waitForCompletion();
     // Green
     sample = 1;
     sample_buffer->write(&sample, 1, 0, 0);
-    kernel->run(*green_buffer, *sample_buffer, *resolution_buffer, {resolution}, 0);
+    kernel->run(*green_buffer, *sample_buffer, *res_buff, {resolution}, 0);
     device->waitForCompletion();
     // Green
     sample = 2;
     sample_buffer->write(&sample, 1, 0, 0);
-    kernel->run(*blue_buffer, *sample_buffer, *resolution_buffer, {resolution}, 0);
+    kernel->run(*blue_buffer, *sample_buffer, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
     {
@@ -221,6 +223,106 @@ TEST(RngTest, Cmj64ImageTest)
           if (256 <= c)
             std::cerr << "256 is happened: " << c << std::endl;
           image << zisc::cast<uint8b>(c);
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(RngTest, Cmj64PerformanceTest)
+{
+  using namespace zinvul;
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution_x = 2560;
+    constexpr uint32b resolution_y = 1440;
+    constexpr uint32b resolution = resolution_x * resolution_y;
+
+    constexpr uint32b iterations = 64;
+    constexpr uint32b block = 64;
+
+    auto color_buffer = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
+    color_buffer->setSize(resolution);
+
+    auto color_comp_buffer = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
+    color_comp_buffer->setSize(resolution);
+    {
+      std::vector<cl::float4> inputs;
+      inputs.resize(resolution, cl::float4{});
+      color_buffer->write(inputs.data(), inputs.size(), 0, 0);
+      color_comp_buffer->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto sample_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    sample_buff->setSize(1);
+    {
+      const uint32b sample_count = 0;
+      sample_buff->write(&sample_count, 1, 0, 0);
+    }
+
+    auto block_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    block_buff->setSize(1);
+    block_buff->write(&block, 1, 0, 0);
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel1 = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(rng, testCmj64Performance));
+    auto kernel2 = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(rng, testCmj64PerformanceNormalization));
+
+    // Test
+    zisc::Stopwatch stopwatch;
+    stopwatch.start();
+
+    std::cout << "  [" << std::flush;
+    for (std::size_t i = 0; i < iterations; ++i) {
+      std::cout << "-" << std::flush;
+      kernel1->run(*color_buffer, *color_comp_buffer, *sample_buff, *block_buff, *res_buff, {resolution}, 0);
+      device->waitForCompletion();
+
+      auto sample = sample_buff->mapMemory();
+      sample[0] += block;
+    }
+    std::cout << "]" << std::endl;
+
+    kernel2->run(*color_buffer, *color_comp_buffer, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      using std::chrono::duration_cast;
+      const auto elapsed_time = stopwatch.elapsedTime();
+      stopwatch.stop();
+      const auto m = duration_cast<std::chrono::milliseconds>(elapsed_time);
+      std::cout << "  Elapsed time: " << m.count() << std::endl;
+    }
+
+    {
+      auto image_name = "cmj64_performance_device" + std::to_string(number) +
+                        ".ppm";
+      std::ofstream image{image_name, std::ios_base::binary};
+      image << "P6" << std::endl;
+      image << "#" << std::endl;
+      image << resolution_x << " " << resolution_y << std::endl;
+      image << 255 << std::endl;
+
+      std::vector<cl::float4> colors;
+      colors.resize(resolution);
+      color_buffer->read(colors.data(), colors.size(), 0, 0);
+
+      for (std::size_t i = 0; i < colors.size(); ++i) {
+        const cl::float4 color = 256.0f * colors[i];
+        for (std::size_t c = 0; c < 3; ++c) {
+          const uint32b v = zisc::cast<uint32b>(color[c]);
+          if (256 <= v)
+            std::cerr << "256 is happened: " << c << std::endl;
+          image << zisc::cast<uint8b>(v);
         }
       }
     }

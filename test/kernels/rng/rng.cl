@@ -23,6 +23,15 @@ __kernel void testCmj64(GlobalPtr<float> result_1d, GlobalPtr<float2> result_2d,
 __kernel void testCmj64D(GlobalPtr<double> result_1d, GlobalPtr<double2> result_2d, const uint32b seed, const uint32b num_of_samples);
 #endif // Z_MAC
 __kernel void testCmj64Image(GlobalPtr<float> color_buffer, const uint32b sample, const uint32b resolution);
+__kernel void testCmj64Performance(GlobalPtr<float4> color_buffer,
+    GlobalPtr<float4> color_comp_buffer,
+    const uint32b sample,
+    const uint32b iterations,
+    const uint32b resolution);
+__kernel void testCmj64PerformanceNormalization(GlobalPtr<float4> color_buffer,
+    ConstGlobalPtr<float4> color_comp_buffer,
+    const uint32b resolution);
+
 
 /*!
   */
@@ -86,6 +95,61 @@ __kernel void testCmj64Image(GlobalPtr<float> color_buffer, const uint32b sample
     const uint32b seed = index;
     const float c = Cmj::generate1D<float>(sample, seed);
     color_buffer[index] = c;
+  }
+}
+
+/*!
+  */
+__kernel void testCmj64Performance(GlobalPtr<float4> color_buffer,
+    GlobalPtr<float4> color_comp_buffer,
+    const uint32b sample,
+    const uint32b iterations,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+
+  using Cmj = CmjN256;
+  constexpr uint32b root_n = Cmj::getRootPeriod();
+  constexpr uint32b n = root_n * root_n;
+  constexpr uint32b seed = 0u;
+
+  if (index < resolution) {
+    float4 sum{0.0f, 0.0f, 0.0f, 0.0f};
+    for (uint32b i = 0; i < iterations; ++i) {
+      const uint32b s = (sample + i) % n;
+      const uint32b p = seed + index + (sample + i) / n;
+      const float r = Cmj::generate1D<float>(s, p);
+      const float2 gb = Cmj::generate2D<float2>(s, p);
+
+      sum = sum + float4{r, gb.x, gb.y, 0.0f};
+      //! \todo Compensation
+    }
+    sum = color_buffer[index] + sum;
+    {
+      const uint32b count = treatAs<uint32b>(sum.w) + iterations;
+      sum.w = treatAs<float>(count);
+    }
+    color_buffer[index] = sum;
+  }
+}
+
+/*!
+  */
+__kernel void testCmj64PerformanceNormalization(GlobalPtr<float4> color_buffer,
+    ConstGlobalPtr<float4> color_comp_buffer,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    float4 color = color_buffer[index] + color_comp_buffer[index];
+
+    const uint32b n = treatAs<uint32b>(color.w);
+    const float inv_n = (0u < n) ? 1.0f / cast<float>(n) : 0.0f;
+
+    color = inv_n * color;
+    color.w = 1.0f;
+
+    color_buffer[index] = color;
   }
 }
 
