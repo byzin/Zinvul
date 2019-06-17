@@ -300,7 +300,7 @@ TEST(RngTest, Cmj64PerformanceTest)
       const auto elapsed_time = stopwatch.elapsedTime();
       stopwatch.stop();
       const auto m = duration_cast<std::chrono::milliseconds>(elapsed_time);
-      std::cout << "  Elapsed time: " << m.count() << std::endl;
+      std::cout << "  Elapsed time: " << m.count() << " ms" << std::endl;
     }
 
     {

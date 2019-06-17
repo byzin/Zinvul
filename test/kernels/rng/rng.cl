@@ -126,8 +126,12 @@ __kernel void testCmj64Performance(GlobalPtr<float4> color_buffer,
     }
     sum = color_buffer[index] + sum;
     {
-      const uint32b count = treatAs<uint32b>(sum.w) + iterations;
-      sum.w = treatAs<float>(count);
+      //! \todo using the w component as uint32b doesn't work
+//      const uint32b count = treatAs<uint32b>(sum.w) + iterations;
+//      sum.w = treatAs<float>(count);
+
+      const float count = sum.w + cast<float>(iterations);
+      sum.w = count;
     }
     color_buffer[index] = sum;
   }
@@ -143,8 +147,11 @@ __kernel void testCmj64PerformanceNormalization(GlobalPtr<float4> color_buffer,
   if (index < resolution) {
     float4 color = color_buffer[index] + color_comp_buffer[index];
 
-    const uint32b n = treatAs<uint32b>(color.w);
-    const float inv_n = (0u < n) ? 1.0f / cast<float>(n) : 0.0f;
+    //! \todo using the w component as uint32b doesn't work
+//    const uint32b n = treatAs<uint32b>(color.w);
+//    const float inv_n = (0u < n) ? 1.0f / cast<float>(n) : 0.0f;
+
+    const float inv_n = (0.0f < color.w) ? 1.0f / color.w : 0.0f;
 
     color = inv_n * color;
     color.w = 1.0f;
