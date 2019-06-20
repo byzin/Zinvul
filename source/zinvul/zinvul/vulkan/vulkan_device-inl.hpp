@@ -819,7 +819,7 @@ void VulkanDevice::initDevice(const DeviceOptions& options) noexcept
                                         priority_list.back().data());
   }
 
-  const vk::DeviceCreateInfo device_create_info{
+  vk::DeviceCreateInfo device_create_info{
       vk::DeviceCreateFlags{},
       zisc::cast<uint32b>(queue_create_info_list.size()),
       queue_create_info_list.data(),
@@ -828,6 +828,20 @@ void VulkanDevice::initDevice(const DeviceOptions& options) noexcept
       zisc::cast<uint32b>(extensions.size()),
       extensions.data(),
       &device_features};
+
+  // features
+  vk::PhysicalDevice16BitStorageFeatures b16bit_storage_feature{1, 1, 1, 1};
+  device_create_info.setPNext(&b16bit_storage_feature);
+
+  vk::PhysicalDevice8BitStorageFeaturesKHR b8bit_storage_feature{1, 1, 1};
+  b16bit_storage_feature.setPNext(&b8bit_storage_feature);
+ 
+  vk::PhysicalDeviceFloat16Int8FeaturesKHR float16_int8_feature{1, 1};
+  b8bit_storage_feature.setPNext(&float16_int8_feature);
+
+  vk::PhysicalDeviceVariablePointersFeatures variable_pointers_feature{1, 1};
+  float16_int8_feature.setPNext(&variable_pointers_feature);
+
   auto [result, device] = physical_device_.createDevice(device_create_info);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Vulkan device creation failed.");
   device_ = device;
