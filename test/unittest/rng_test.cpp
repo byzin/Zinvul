@@ -231,7 +231,7 @@ TEST(RngTest, Cmj64ImageTest)
   }
 }
 
-TEST(RngTest, Cmj64PerformanceTest)
+TEST(RngTest, Cmj256PerformanceTest)
 {
   using namespace zinvul;
   auto options = makeTestOptions();
@@ -274,8 +274,8 @@ TEST(RngTest, Cmj64PerformanceTest)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel1 = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(rng, testCmj64Performance));
-    auto kernel2 = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(rng, testCmj64PerformanceNormalization));
+    auto kernel1 = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(rng, testCmj256Performance));
+    auto kernel2 = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(rng, testCmj256PerformanceNormalization));
 
     // Test
     zisc::Stopwatch stopwatch;
@@ -304,7 +304,7 @@ TEST(RngTest, Cmj64PerformanceTest)
     }
 
     {
-      auto image_name = "cmj64_performance_device" + std::to_string(number) +
+      auto image_name = "cmj256_performance_device" + std::to_string(number) +
                         ".ppm";
       std::ofstream image{image_name, std::ios_base::binary};
       image << "P6" << std::endl;

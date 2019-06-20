@@ -100,7 +100,7 @@ __kernel void testCmj64Image(GlobalPtr<float> color_buffer, const uint32b sample
 
 /*!
   */
-__kernel void testCmj64Performance(GlobalPtr<float4> color_buffer,
+__kernel void testCmj256Performance(GlobalPtr<float4> color_buffer,
     GlobalPtr<float4> color_comp_buffer,
     const uint32b sample,
     const uint32b iterations,
@@ -139,7 +139,7 @@ __kernel void testCmj64Performance(GlobalPtr<float4> color_buffer,
 
 /*!
   */
-__kernel void testCmj64PerformanceNormalization(GlobalPtr<float4> color_buffer,
+__kernel void testCmj256PerformanceNormalization(GlobalPtr<float4> color_buffer,
     ConstGlobalPtr<float4> color_comp_buffer,
     const uint32b resolution)
 {

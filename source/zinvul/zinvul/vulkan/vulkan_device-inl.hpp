@@ -830,7 +830,7 @@ void VulkanDevice::initDevice(const DeviceOptions& options) noexcept
       &device_features};
 
   // features
-  vk::PhysicalDevice16BitStorageFeatures b16bit_storage_feature{1, 1, 1, 1};
+  vk::PhysicalDevice16BitStorageFeatures b16bit_storage_feature{1, 1, 1, 0};
   device_create_info.setPNext(&b16bit_storage_feature);
 
   vk::PhysicalDevice8BitStorageFeaturesKHR b8bit_storage_feature{1, 1, 1};
