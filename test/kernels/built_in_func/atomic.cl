@@ -142,10 +142,7 @@ __kernel void testAtomicAndGlobal(GlobalPtr<int32b> result);
 __kernel void testAtomicAndGlobalUint(GlobalPtr<uint32b> result);
 __kernel void testAtomicOrGlobal(GlobalPtr<int32b> result);
 __kernel void testAtomicOrGlobalUint(GlobalPtr<uint32b> result);
-__kernel void testAtomicFloatIncGlobal(GlobalPtr<float> result,
-    GlobalPtr<int32b> table,
-    const uint32b resolution);
-__kernel void testAtomicFloatIncGlobalUint(GlobalPtr<uint32b> result,
+__kernel void testAtomicFloatIncGlobal(GlobalPtr<uint32b> result,
     GlobalPtr<int32b> table,
     const uint32b resolution);
 
@@ -491,9 +488,7 @@ __kernel void testAtomicIncLocal(GlobalPtr<int32b> result,
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
-    // \todo Segmentation fault happens with clspv
-    // const size_t local_id = cast<size_t>(Atomic::increment(p));
-    const size_t local_id = 0;
+    const size_t local_id = cast<size_t>(Atomic::increment(p));
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
@@ -531,9 +526,7 @@ __kernel void testAtomicIncLocalUint(GlobalPtr<uint32b> result,
 
   if (index < resolution) {
     LocalPtr<uint32b> p = &c;
-    // \todo Segmentation fault happens with clspv
-    // const size_t local_id = cast<size_t>(Atomic::increment(p));
-    const size_t local_id = 0;
+    const size_t local_id = cast<size_t>(Atomic::increment(p));
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
@@ -569,9 +562,7 @@ __kernel void testAtomicDecLocal(GlobalPtr<int32b> result,
 
   if (index < resolution) {
     LocalPtr<int32b> p = &c;
-    // \todo Segmentation fault happens with clspv
-    // const size_t local_id = cast<size_t>(-Atomic::decrement(p));
-    const size_t local_id = 0;
+    const size_t local_id = cast<size_t>(-Atomic::decrement(p));
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
@@ -607,9 +598,7 @@ __kernel void testAtomicDecLocalUint(GlobalPtr<uint32b> result,
 
   if (index < resolution) {
     LocalPtr<uint32b> p = &c;
-    // \todo Segmentation fault happens with clspv
-    // const size_t local_id = getLocalSizeX() - cast<size_t>(Atomic::decrement(p));
-    const size_t local_id = 0;
+    const size_t local_id = getLocalSizeX() - cast<size_t>(Atomic::decrement(p));
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
@@ -654,9 +643,7 @@ __kernel void testAtomicCmpxchgLocalPositive(GlobalPtr<int32b> result,
       return r;
     };
     LocalPtr<int32b> p = &c;
-    // \todo Segmentation fault happens with clspv
-    // const size_t local_id = cast<size_t>(Atomic::perform(p, inc));
-    const size_t local_id = 0;
+    const size_t local_id = cast<size_t>(Atomic::perform(p, inc));
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
@@ -702,9 +689,7 @@ __kernel void testAtomicCmpxchgLocalNegative(GlobalPtr<int32b> result,
       return r;
     };
     LocalPtr<int32b> p = &c;
-    // \todo Segmentation fault happens with clspv
-    // const size_t local_id = cast<size_t>(Atomic::perform(p, sub, 1));
-    const size_t local_id = 0;
+    const size_t local_id = cast<size_t>(-Atomic::perform(p, sub, 1));
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
@@ -750,9 +735,7 @@ __kernel void testAtomicCmpxchgLocalUint(GlobalPtr<uint32b> result,
       return r;
     };
     LocalPtr<uint32b> p = &c;
-    // \todo Segmentation fault happens with clspv
-    // const size_t local_id = Atomic::perform(p, add, 1u);
-    const size_t local_id = 0;
+    const size_t local_id = Atomic::perform(p, add, 1u);
     const size_t i = getGroupIdX() * getLocalSizeX() + local_id;
     table[i] = 1;
   }
@@ -998,25 +981,7 @@ __kernel void testAtomicOrGlobalUint(GlobalPtr<uint32b> result)
   }
 }
 
-__kernel void testAtomicFloatIncGlobal(GlobalPtr<float> result,
-    GlobalPtr<int32b> table,
-    const uint32b resolution)
-{
-  const uint32b index = getGlobalIdX();
-  if (index < resolution) {
-    const auto add = [](const float p, const float value)
-    {
-      const float r = p + value;
-      return r;
-    };
-//    const float old = Atomic::perform(result, add, 1.0f);
-//    const size_t i = cast<size_t>(old);
-    const size_t i = 0;
-    table[i] = 1;
-  }
-}
-
-__kernel void testAtomicFloatIncGlobalUint(GlobalPtr<uint32b> result,
+__kernel void testAtomicFloatIncGlobal(GlobalPtr<uint32b> result,
     GlobalPtr<int32b> table,
     const uint32b resolution)
 {

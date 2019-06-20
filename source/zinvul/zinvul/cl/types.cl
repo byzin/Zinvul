@@ -45,6 +45,8 @@ template <typename Type>
 using Constant = inner::Constant<Type>;
 template <typename Type>
 using ConstantPtr = inner::ConstantPtr<Type>;
+template <typename Type>
+using ConstConstantPtr = inner::ConstConstantPtr<Type>;
 // Private
 template <typename Type>
 using Private = inner::Private<Type>;

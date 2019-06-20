@@ -358,20 +358,19 @@ Integer Atomic::bitXorImpl(BufferPtr p, const Integer value) noexcept
 
 /*!
   */
-template <typename BufferPtr, typename Type, typename Function, typename ...Types>
+template <typename BufferPtr, typename Integer, typename Function, typename ...Types>
 inline
-Type Atomic::performImpl(BufferPtr p,
-                         Function expression,
-                         Types&&... arguments) noexcept
+Integer Atomic::performImpl(BufferPtr p,
+                            Function expression,
+                            Types&&... arguments) noexcept
 {
   // Type check
-  using Type1 = RemoveCvrefType<Type>;
-  using Type2 = RemoveCvrefType<decltype(expression(*p, arguments...))>;
-  static_assert(sizeof(Type1) == 4, "The sizeof(Type) must be 4 byte.");
-  static_assert(kIsSame<Type1, Type2>,
+  using I1 = RemoveCvrefType<Integer>;
+  static_assert(kIsSame<I1, int32b> || kIsSame<I1, uint32b>,
+                "The Integer isn't int or unsigned int.");
+  using I2 = RemoveCvrefType<decltype(expression(*p, arguments...))>;
+  static_assert(kIsSame<I1, I2>,
       "The buffer type and the return type of the expression isn't same.");
-  constexpr bool is_integer = kIsSame<Type1, int32b> || kIsSame<Type1, uint32b>;
-  constexpr bool is_global_ptr = kIsSame<BufferPtr, GlobalPtr<Type>>;
   // Perform an expression atomically
   auto old = *p;
   auto cmp = old;
@@ -380,23 +379,7 @@ Type Atomic::performImpl(BufferPtr p,
 #endif
     cmp = old;
     const auto value = expression(cmp, forward<Types>(arguments)...);
-    if constexpr (is_integer) {
-      old = compareAndSwap(p, cmp, value);
-    }
-    else if constexpr (is_global_ptr) {
-      auto ptr = treatAs<GlobalPtr<uint32b>>(p);
-      const auto c = treatAs<uint32b>(cmp);
-      const auto v = treatAs<uint32b>(value);
-      const auto o = compareAndSwap(ptr, c, v);
-      old = treatAs<Type1>(o);
-    }
-    else {
-      auto ptr = treatAs<LocalPtr<uint32b>>(p);
-      const auto c = treatAs<uint32b>(cmp);
-      const auto v = treatAs<uint32b>(value);
-      const auto o = compareAndSwap(ptr, c, v);
-      old = treatAs<Type1>(o);
-    }
+    old = compareAndSwap(p, cmp, value);
 #if !(defined(Z_MAC) && defined(ZINVUL_VULKAN))
   } while (old != cmp);
 #endif

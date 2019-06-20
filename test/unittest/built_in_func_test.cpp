@@ -1682,11 +1682,11 @@ TEST(BuiltInFuncTest, AtomicCmpxchgLocalNegativeTest)
       table.resize(resolution);
       table_buff->read(table.data(), table.size(), 0, 0);
       for (std::size_t i = 0; i < table.size(); ++i)
-        ASSERT_TRUE(table[i]) << error_message;
+        ASSERT_TRUE(table[i]) << error_message << ": [" << i << "]";
 
       int32b result;
       result_buff->read(&result, 1, 0, 0);
-      const int32b expected = -zisc::cast<int32b>(resolution);
+      const int32b expected = zisc::cast<int32b>(resolution);
       EXPECT_EQ(expected, result) << error_message;
     }
 
@@ -2420,57 +2420,6 @@ TEST(BuiltInFuncTest, AtomicFloatIncGlobalTest)
     res_buff->write(&resolution, res_buff->size(), 0, 0);
 
     auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicFloatIncGlobal));
-    kernel->run(*result_buff, *table_buff, *res_buff, {resolution}, 0);
-    device->waitForCompletion();
-
-    const char* error_message = "Atomic float increment failed.";
-    {
-      std::vector<int32b> table;
-      table.resize(resolution);
-      table_buff->read(table.data(), table.size(), 0, 0);
-      for (std::size_t i = 0; i < table.size(); ++i)
-        ASSERT_TRUE(table[i]) << error_message;
-
-      float result;
-      result_buff->read(&result, 1, 0, 0);
-      const float expected = zisc::cast<float>(resolution);
-      EXPECT_FLOAT_EQ(expected, result) << error_message;
-    }
-
-    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-  }
-}
-
-TEST(BuiltInFuncTest, AtomicFloatIncGlobalUintTest)
-{
-  using namespace zinvul;
-
-  constexpr uint resolution = 10000;
-
-  auto options = makeTestOptions();
-  auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
-    auto& device = device_list[number];
-    std::cout << getTestDeviceInfo(*device);
-
-    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
-    result_buff->setSize(1);
-    {
-      const float init = 0.0f;
-      result_buff->write(&init, 1, 0, 0);
-    }
-    auto table_buff = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
-    table_buff->setSize(resolution);
-    {
-      std::vector<int32b> init;
-      init.resize(resolution, 0);
-      table_buff->write(init.data(), init.size(), 0, 0);
-    }
-    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
-    res_buff->setSize(1);
-    res_buff->write(&resolution, res_buff->size(), 0, 0);
-
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testAtomicFloatIncGlobalUint));
     kernel->run(*(result_buff->treatAs<uint32b>()), *table_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -3327,3 +3276,52 @@ TEST(BuiltInFuncTest, AtomicFloatIncGlobalUintTest)
 //  }
 //}
 
+TEST(BuiltInFuncTest, Int32bVectorDataTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2;
+
+    auto buffer1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(10 * resolution);
+    {
+      std::vector<int32b> inputs;
+      inputs.resize(10 * resolution);
+      for (std::size_t i = 0; i < inputs.size(); ++i)
+        inputs[i] = zisc::cast<int32b>(i);
+      buffer1->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer2 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer2->setSize(10 * resolution);
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testInt32bVectorData));
+    kernel->run(*buffer1, *buffer2, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The load and store funcs of int32b are wrong.";
+    {
+      std::vector<int32b> results;
+      results.resize(10 * resolution);
+      buffer2->read(results.data(), results.size(), 0, 0);
+
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const int32b expected = zisc::cast<int32b>(2 * i);
+        const int32b result = results[i];
+        ASSERT_EQ(expected, result) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}

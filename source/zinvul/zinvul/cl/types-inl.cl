@@ -46,6 +46,8 @@ template <typename Type>
 using Constant = const Type;
 template <typename Type>
 using ConstantPtr = AddressSpacePointer<AddressSpaceType::kConstant, const Type>;
+template <typename Type>
+using ConstConstantPtr = AddressSpacePointer<AddressSpaceType::kConstant, const Type>;
 // Private
 template <typename Type>
 using Private = Type;
@@ -93,6 +95,8 @@ template <typename Type>
 using Constant = __constant Type;
 template <typename Type>
 using ConstantPtr = Constant<Type>*;
+template <typename Type>
+using ConstConstantPtr = const Constant<Type>*;
 // Private
 template <typename Type>
 using Private = __private Type;

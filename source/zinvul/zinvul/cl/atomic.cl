@@ -112,16 +112,16 @@ class Atomic
   static Integer bitXor(GlobalPtr<Integer> p, const Integer value) noexcept;
 
   //! Perform an expression atomically
-  template <typename Type, typename Function, typename ...Types>
-  static Type perform(LocalPtr<Type> p,
-                      Function expression,
-                      Types&&... arguments) noexcept;
+  template <typename Integer, typename Function, typename ...Types>
+  static Integer perform(LocalPtr<Integer> p,
+                         Function expression,
+                         Types&&... arguments) noexcept;
 
   //! Perform an expression atomically
-  template <typename Type, typename Function, typename ...Types>
-  static Type perform(GlobalPtr<Type> p,
-                      Function expression,
-                      Types&&... arguments) noexcept;
+  template <typename Integer, typename Function, typename ...Types>
+  static Integer perform(GlobalPtr<Integer> p,
+                         Function expression,
+                         Types&&... arguments) noexcept;
 
  private:
   //! Perform atomic addition
@@ -171,10 +171,10 @@ class Atomic
   static Integer bitXorImpl(BufferPtr p, const Integer value) noexcept;
 
   //! Perform an expression atomically
-  template <typename BufferPtr, typename Type, typename Function, typename ...Types>
-  static Type performImpl(BufferPtr p,
-                          Function expression,
-                          Types&&... arguments) noexcept;
+  template <typename BufferPtr, typename Integer, typename Function, typename ...Types>
+  static Integer performImpl(BufferPtr p,
+                             Function expression,
+                             Types&&... arguments) noexcept;
 };
 
 } // namespace zinvul

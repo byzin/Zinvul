@@ -15,25 +15,43 @@
 
 namespace zinvul {
 
+// Vector types
+template <typename Type>
+struct VectorType
+{
+  using ElementType = int32b;
+  //! Return the number of elements of the type
+  static constexpr size_t size() noexcept {return 0u;}
+  static_assert(sizeof(Type) == 0, "The 'Type' is unsupported type.");
+};
+
+// Type categories
+
+//! Check if a type is half scalar or vector type
+template <typename T> struct IsHalfType;
+
+template <typename T>
+constexpr int32b kIsHalfType = IsHalfType<T>::kValue;
+
 // Type properties
 
 //! Check if a type is lvalue reference
 template <typename T> struct IsLValueReference;
 
 template <typename T>
-constexpr int32b kIsLValueReference = IsLValueReference<T>::value_;
+constexpr int32b kIsLValueReference = IsLValueReference<T>::kValue;
 
 //! Check if a type is rvalue reference
 template <typename T> struct IsRValueReference;
 
 template <typename T>
-constexpr int32b kIsRValueReference = IsRValueReference<T>::value_;
+constexpr int32b kIsRValueReference = IsRValueReference<T>::kValue;
 
 //! Check if two types are same
 template <typename T1, typename T2> struct IsSame;
 
 template <typename T1, typename T2>
-constexpr int32b kIsSame = IsSame<T1, T2>::value_;
+constexpr int32b kIsSame = IsSame<T1, T2>::kValue;
 
 // Miscellaneous transformations
 
