@@ -138,7 +138,8 @@ DeviceType VulkanBuffer<kDescriptor, T>::deviceType() const noexcept
 template <DescriptorType kDescriptor, typename T> inline
 bool VulkanBuffer<kDescriptor, T>::isDeviceMemory() const noexcept
 {
-  const auto& memory_property = device_->physicalDeviceInfo().memory_properties_;
+  const auto& info = device_->physicalDeviceInfo();
+  const auto& memory_property = info.memoryProperties().properties1_;
   const uint32b index = allocationInfo().memoryType;
   const auto flag = memory_property.memoryTypes[index].propertyFlags;
   const bool result = (flag & vk::MemoryPropertyFlagBits::eDeviceLocal) ==
@@ -160,7 +161,8 @@ bool VulkanBuffer<kDescriptor, T>::isHostMemory() const noexcept
 template <DescriptorType kDescriptor, typename T> inline
 bool VulkanBuffer<kDescriptor, T>::isHostVisible() const noexcept
 {
-  const auto& memory_property = device_->physicalDeviceInfo().memory_properties_;
+  const auto& info = device_->physicalDeviceInfo();
+  const auto& memory_property = info.memoryProperties().properties1_;
   const uint32b index = allocationInfo().memoryType;
   const auto flag = memory_property.memoryTypes[index].propertyFlags;
   const bool result = (flag & vk::MemoryPropertyFlagBits::eHostVisible) ==

@@ -28,9 +28,11 @@
 #include "vk_mem_alloc.h"
 // Zisc
 #include "zisc/error.hpp"
+#include "zisc/memory_resource.hpp"
 #include "zisc/unique_memory_pointer.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
+#include "vulkan_physical_device_info.hpp"
 #include "vulkan_buffer.hpp"
 #include "vulkan_kernel.hpp"
 #include "zinvul/buffer.hpp"
@@ -45,6 +47,7 @@ namespace zinvul {
 inline
 VulkanDevice::VulkanDevice(DeviceOptions& options) noexcept :
     Device(options),
+    device_info_{memoryResource()},
     shader_module_list_{memoryResource()},
     command_pool_list_{memoryResource()},
     queue_family_index_list_{memoryResource()},
@@ -269,18 +272,22 @@ DeviceType VulkanDevice::deviceType() const noexcept
 /*!
   */
 inline
-auto VulkanDevice::getPhysicalDeviceInfoList() noexcept
-    -> std::vector<PhysicalDeviceInfo>
+auto VulkanDevice::getPhysicalDeviceInfoList(
+    zisc::pmr::memory_resource* mem_resource) noexcept
+        -> std::vector<VulkanPhysicalDeviceInfo>
 {
   const auto app_info = makeApplicationInfo("", 0, 0, 0);
   auto instance = makeInstance(app_info, true);
-  std::vector<PhysicalDeviceInfo> device_info_list;
+  std::vector<VulkanPhysicalDeviceInfo> device_info_list;
   if (instance) {
     auto [result, physical_device_list] = instance.enumeratePhysicalDevices();
     if (result == vk::Result::eSuccess) {
       device_info_list.reserve(physical_device_list.size());
-      for (const auto& device : physical_device_list)
-        device_info_list.emplace_back(getPhysicalDeviceInfo(device));
+      for (std::size_t i = 0; i < physical_device_list.size(); ++i) {
+        const auto& device = physical_device_list[i];
+        device_info_list.emplace_back(mem_resource);
+        device_info_list[i].fetch(device);
+      }
     }
   }
   instance.destroy();
@@ -451,14 +458,15 @@ inline
 std::string_view VulkanDevice::name() const noexcept
 {
   const auto& device_info = physicalDeviceInfo();
-  std::string_view device_name{device_info.properties_.deviceName};
+  std::string_view device_name{device_info.properties().properties1_.deviceName};
   return device_name;
 }
 
 /*!
   */
 inline
-auto VulkanDevice::physicalDeviceInfo() const noexcept -> const PhysicalDeviceInfo&
+auto VulkanDevice::physicalDeviceInfo() const noexcept
+    -> const VulkanPhysicalDeviceInfo&
 {
   return device_info_;
 }
@@ -529,7 +537,9 @@ inline
 void VulkanDevice::waitForCompletion(const QueueType queue_type) const noexcept
 {
   const uint32b family_index = queueFamilyIndex(queue_type);
-  const auto& family_info = physicalDeviceInfo().queue_family_list_[family_index];
+  const auto& info = physicalDeviceInfo();
+  const auto& family_info_list = info.queueFamilyPropertiesList();
+  const auto& family_info = family_info_list[family_index].properties1_;
   for (uint32b i = 0; i < family_info.queueCount; ++i)
     waitForCompletion(queue_type, i);
 }
@@ -636,7 +646,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDevice::debugMessengerCallback(
 inline
 uint32b VulkanDevice::findQueueFamily(const QueueType queue_type) const noexcept
 {
-  const auto& queue_family_list = device_info_.queue_family_list_;
+  const auto& queue_family_list = physicalDeviceInfo().queueFamilyPropertiesList();
 
   uint32b index = std::numeric_limits<uint32b>::max();
   bool is_found = false;
@@ -655,7 +665,7 @@ uint32b VulkanDevice::findQueueFamily(const QueueType queue_type) const noexcept
   };
 
   for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
-    const auto& family = queue_family_list[i];
+    const auto& family = queue_family_list[i].properties1_;
     if (!has_flag(family, vk::QueueFlagBits::eGraphics) &&
         !has_flag(family, other) && has_flag(family, target)) {
       index = zisc::cast<uint32b>(i);
@@ -664,7 +674,7 @@ uint32b VulkanDevice::findQueueFamily(const QueueType queue_type) const noexcept
   }
 
   for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
-    const auto& family = queue_family_list[i];
+    const auto& family = queue_family_list[i].properties1_;
     if (!has_flag(family, other) && has_flag(family, target)) {
       index = zisc::cast<uint32b>(i);
       is_found = true;
@@ -672,7 +682,7 @@ uint32b VulkanDevice::findQueueFamily(const QueueType queue_type) const noexcept
   }
 
   for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
-    const auto& family = queue_family_list[i];
+    const auto& family = queue_family_list[i].properties1_;
     if (!has_flag(family, vk::QueueFlagBits::eGraphics) &&
         has_flag(family, target)) {
       index = zisc::cast<uint32b>(i);
@@ -681,7 +691,7 @@ uint32b VulkanDevice::findQueueFamily(const QueueType queue_type) const noexcept
   }
 
   for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
-    const auto& family = queue_family_list[i];
+    const auto& family = queue_family_list[i].properties1_;
     if (has_flag(family, target)) {
       index = zisc::cast<uint32b>(i);
       is_found = true;
@@ -694,39 +704,13 @@ uint32b VulkanDevice::findQueueFamily(const QueueType queue_type) const noexcept
 /*!
   */
 inline
-auto VulkanDevice::getPhysicalDeviceInfo(const vk::PhysicalDevice& device) noexcept
-    -> PhysicalDeviceInfo
-{
-  PhysicalDeviceInfo device_info;
-  // Queue properties
-  device_info.queue_family_list_ = device.getQueueFamilyProperties();
-  // Device properties
-  vk::PhysicalDeviceProperties2 properties2;
-  properties2.pNext = &device_info.subgroup_properties_;
-  device.getProperties2(&properties2);
-  device_info.properties_ = properties2.properties;
-  // Device features
-  device_info.features_ = device.getFeatures();
-  // Extension properties
-  {
-    auto [result, properties] = device.enumerateDeviceExtensionProperties();
-    ZISC_ASSERT(result == vk::Result::eSuccess,
-                "Vulkan device failed to get extension properties.");
-    device_info.extension_properties_ = properties;
-  }
-  // Memory properties
-  device_info.memory_properties_ = device.getMemoryProperties();
-  return device_info;
-}
-
-/*!
-  */
-inline
 vk::Queue VulkanDevice::getQueue(const QueueType queue_type,
                                  const uint32b queue_index) const noexcept
 {
   const uint32b family_index = queueFamilyIndex(queue_type);
-  const auto& family_info = physicalDeviceInfo().queue_family_list_[family_index];
+  const auto& info = physicalDeviceInfo();
+  const auto& family_info_list = info.queueFamilyPropertiesList();
+  const auto& family_info = family_info_list[family_index].properties1_;
   const uint32b index = queue_index % family_info.queueCount;
   auto q = device_.getQueue(family_index, index);
   return q;
@@ -789,28 +773,33 @@ void VulkanDevice::initDevice(const DeviceOptions& options) noexcept
 {
   std::vector<const char*> layers{};
   const std::vector<const char*> extensions{{
+      VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
       VK_KHR_8BIT_STORAGE_EXTENSION_NAME,
       VK_KHR_16BIT_STORAGE_EXTENSION_NAME,
       VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME,
       VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME,
       VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME}};
 
-  if (options.vulkan_enable_validation_layers_) {
-    layers.emplace_back("VK_LAYER_LUNARG_standard_validation");
+  if (options.enable_debug_) {
+    layers.emplace_back("VK_LAYER_KHRONOS_validation");
   }
 
-  const auto& device_info = physicalDeviceInfo();
+  const auto& info = physicalDeviceInfo();
   vk::PhysicalDeviceFeatures device_features;
-  device_features.shaderFloat64 = device_info.features_.shaderFloat64;
-  device_features.shaderInt64 = device_info.features_.shaderInt64;
-  device_features.shaderInt16 = device_info.features_.shaderInt16;
+  {
+    const auto& features = info.features().features1_;
+    device_features.shaderFloat64 = features.shaderFloat64;
+    device_features.shaderInt64 = features.shaderInt64;
+    device_features.shaderInt16 = features.shaderInt16;
+  }
 
   std::vector<std::vector<float>> priority_list;
   priority_list.reserve(queue_family_index_list_.size());
   std::vector<vk::DeviceQueueCreateInfo> queue_create_info_list;
   queue_create_info_list.reserve(queue_family_index_list_.size());
   for (auto family_index : queue_family_index_list_) {
-    const auto& family_info = physicalDeviceInfo().queue_family_list_[family_index];
+    const auto& family_info_list = info.queueFamilyPropertiesList();
+    const auto& family_info = family_info_list[family_index].properties1_;
     priority_list.emplace_back();
     priority_list.back().resize(family_info.queueCount, 0.0f);
     queue_create_info_list.emplace_back(vk::DeviceQueueCreateFlags{},
@@ -829,18 +818,16 @@ void VulkanDevice::initDevice(const DeviceOptions& options) noexcept
       extensions.data(),
       &device_features};
 
-  // features
-  vk::PhysicalDevice16BitStorageFeatures b16bit_storage_feature{1, 1, 1, 0};
-  device_create_info.setPNext(&b16bit_storage_feature);
-
-  vk::PhysicalDevice8BitStorageFeaturesKHR b8bit_storage_feature{1, 1, 1};
-  b16bit_storage_feature.setPNext(&b8bit_storage_feature);
- 
-  vk::PhysicalDeviceFloat16Int8FeaturesKHR float16_int8_feature{1, 1};
-  b8bit_storage_feature.setPNext(&float16_int8_feature);
-
-  vk::PhysicalDeviceVariablePointersFeatures variable_pointers_feature{1, 1};
-  float16_int8_feature.setPNext(&variable_pointers_feature);
+  // features2
+  auto b16bit_storage_feature = info.features().b16bit_storage_;
+  auto b8bit_storage_feature = info.features().b8bit_storage_;
+  auto float16_int8_feature = info.features().float16_int8_;
+  auto variable_pointers_feature = info.features().variable_pointers_;
+  VulkanPhysicalDeviceInfo::link(device_create_info,
+                                 b16bit_storage_feature,
+                                 b8bit_storage_feature,
+                                 float16_int8_feature,
+                                 variable_pointers_feature);
 
   auto [result, device] = physical_device_.createDevice(device_create_info);
   ZISC_ASSERT(result == vk::Result::eSuccess, "Vulkan device creation failed.");
@@ -877,20 +864,20 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
                                   options.app_version_major_,
                                   options.app_version_minor_,
                                   options.app_version_patch_);
-  instance_ = makeInstance(app_info_, options.vulkan_enable_validation_layers_);
+  instance_ = makeInstance(app_info_, options.enable_debug_);
   ZISC_ASSERT(instance_, "Vulkan instance creation failed.");
-  if (options.vulkan_enable_validation_layers_)
+  if (options.enable_debug_)
     initDebugMessenger();
   initPhysicalDevice(options);
   initQueueFamilyIndexList();
 
   {
     const auto& info = physicalDeviceInfo();
-    uint32b subgroup_size = info.subgroup_properties_.subgroupSize;
+    uint32b subgroup_size = info.properties().subgroup_.subgroupSize;
     subgroup_size = zisc::isInClosedBounds(subgroup_size, 1u, 128u)
         ? subgroup_size
-        : getVendorSubgroupSize(info.properties_.vendorID);
-    vendor_name_ = getVendorName(info.properties_.vendorID);
+        : getVendorSubgroupSize(info.properties().properties1_.vendorID);
+    vendor_name_ = getVendorName(info.properties().properties1_.vendorID);
     initLocalWorkSize(subgroup_size);
   }
 
@@ -910,7 +897,7 @@ void VulkanDevice::initPhysicalDevice(const DeviceOptions& options) noexcept
   ZISC_ASSERT(options.vulkan_device_number_ < physical_device_list.size(),
               "The specified device doesn't exist.");
   physical_device_ = physical_device_list[options.vulkan_device_number_];
-  device_info_ = getPhysicalDeviceInfo(physical_device_);
+  device_info_.fetch(physical_device_);
 }
 
 /*!
@@ -950,7 +937,7 @@ vk::Instance VulkanDevice::makeInstance(const vk::ApplicationInfo& app_info,
   };
 
   if (enable_validation_layers) {
-    layers.emplace_back("VK_LAYER_LUNARG_standard_validation");
+    layers.emplace_back("VK_LAYER_KHRONOS_validation");
     extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
   }
 

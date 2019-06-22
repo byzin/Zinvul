@@ -24,6 +24,7 @@
 #include "zisc/memory_resource.hpp"
 #include "zisc/unique_memory_pointer.hpp"
 // Zinvul
+#include "vulkan_physical_device_info.hpp"
 #include "zinvul/buffer.hpp"
 #include "zinvul/device.hpp"
 #include "zinvul/kernel.hpp"
@@ -47,18 +48,6 @@ class VulkanDevice : public Device
     kArm = 0x13b5, // ARM
     kQualcomm = 0x5143, // Qualcomm
     kIntel = 0x8086 // INTEL
-  };
-
-  /*!
-    */
-  struct PhysicalDeviceInfo
-  {
-    std::vector<vk::QueueFamilyProperties> queue_family_list_;
-    std::vector<vk::ExtensionProperties> extension_properties_;
-    vk::PhysicalDeviceProperties properties_;
-    vk::PhysicalDeviceFeatures features_;
-    vk::PhysicalDeviceSubgroupProperties subgroup_properties_;
-    vk::PhysicalDeviceMemoryProperties memory_properties_;
   };
 
 
@@ -102,7 +91,9 @@ class VulkanDevice : public Device
   DeviceType deviceType() const noexcept override;
 
   //! Return the list of device info
-  static std::vector<PhysicalDeviceInfo> getPhysicalDeviceInfoList() noexcept;
+  static std::vector<VulkanPhysicalDeviceInfo> getPhysicalDeviceInfoList(
+      zisc::pmr::memory_resource* mem_resource =
+          zisc::SimpleMemoryResource::sharedResource()) noexcept;
 
   //! Return the shader module by the index
   const vk::ShaderModule& getShaderModule(const std::size_t index) const noexcept;
@@ -144,7 +135,7 @@ class VulkanDevice : public Device
   std::string_view name() const noexcept override;
 
   //! Return the physical device info
-  const PhysicalDeviceInfo& physicalDeviceInfo() const noexcept;
+  const VulkanPhysicalDeviceInfo& physicalDeviceInfo() const noexcept;
 
   //! Set a shader module
   void setShaderModule(const zisc::pmr::vector<uint32b>& spirv_code,
@@ -181,10 +172,6 @@ class VulkanDevice : public Device
 
   //! Find the index of the optimal queue familty
   uint32b findQueueFamily(const QueueType queue_type) const noexcept;
-
-  //! Get physical device info
-  static PhysicalDeviceInfo getPhysicalDeviceInfo(const vk::PhysicalDevice& device)
-      noexcept;
 
   //! Return a queue
   vk::Queue getQueue(const QueueType queue_type,
@@ -226,7 +213,7 @@ class VulkanDevice : public Device
   uint32b queueFamilyIndex(const QueueType queue_type) const noexcept;
 
 
-  PhysicalDeviceInfo device_info_;
+  VulkanPhysicalDeviceInfo device_info_;
   zisc::pmr::vector<vk::ShaderModule> shader_module_list_;
   zisc::pmr::vector<vk::CommandPool> command_pool_list_;
   vk::ApplicationInfo app_info_;

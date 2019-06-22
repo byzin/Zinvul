@@ -23,12 +23,12 @@ __kernel void testCmj64(GlobalPtr<float> result_1d, GlobalPtr<float2> result_2d,
 __kernel void testCmj64D(GlobalPtr<double> result_1d, GlobalPtr<double2> result_2d, const uint32b seed, const uint32b num_of_samples);
 #endif // Z_MAC
 __kernel void testCmj64Image(GlobalPtr<float> color_buffer, const uint32b sample, const uint32b resolution);
-__kernel void testCmj64Performance(GlobalPtr<float4> color_buffer,
+__kernel void testCmj256Performance(GlobalPtr<float4> color_buffer,
     GlobalPtr<float4> color_comp_buffer,
     const uint32b sample,
     const uint32b iterations,
     const uint32b resolution);
-__kernel void testCmj64PerformanceNormalization(GlobalPtr<float4> color_buffer,
+__kernel void testCmj256PerformanceNormalization(GlobalPtr<float4> color_buffer,
     ConstGlobalPtr<float4> color_comp_buffer,
     const uint32b resolution);
 
