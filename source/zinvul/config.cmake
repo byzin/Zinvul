@@ -16,6 +16,9 @@ function(initZinvulOption)
   set(option_description "Enable vulkan backend.")
   setBooleanOption(ZINVUL_ENABLE_VULKAN_BACKEND ON ${option_description})
 
+  set(option_description "Enable SPIR-V analysis.")
+  setBooleanOption(ZINVUL_ENABLE_SPIRV_ANALYSIS ON ${option_description})
+
   set(option_description "Enable Uniform buffer.")
   setBooleanOption(ZINVUL_ENABLE_UNIFORM_BUFFER ON ${option_description})
 
@@ -281,6 +284,7 @@ function(makeKernelSet kernel_set_name zinvul_source_files zinvul_definitions)
     if(clspv-NOTFOUND)
       message(FATAL_ERROR "'clspv' not found in path.") 
     endif()
+    set(clspv_output_files ${spv_file_path})
     set(cl_file_path ${spv_kernel_set_dir}/${kernel_set_name}.cl)
     configure_file(${__zinvul_root__}/template/kernel_set.cl.in
                    ${cl_file_path}
@@ -295,6 +299,7 @@ function(makeKernelSet kernel_set_name zinvul_source_files zinvul_definitions)
     foreach(include_dir IN LISTS ZINVUL_INCLUDE_DIRS)
       list(APPEND clspv_options -I=${include_dir})
     endforeach(include_dir)
+    list(APPEND clspv_options -I=${__zinvul_root__})
     foreach(definition IN LISTS definitions clspv_definitions)
       list(APPEND clspv_options -D=${definition})
     endforeach(definition)
@@ -332,19 +337,12 @@ function(makeKernelSet kernel_set_name zinvul_source_files zinvul_definitions)
                                 )
     endif()
     set(clspv_commands COMMAND ${clspv} ${clspv_options}
-                               -I=${__zinvul_root__}
                                -o=${spv_file_path} ${cl_file_path})
     # Descriptor map
     set(descriptor_map_path ${spv_kernel_set_dir}/${kernel_set_name}.csv)
     list(APPEND clspv_commands --descriptormap=${descriptor_map_path})
-    # SPIRV-dis
-    find_program(spirv_dis "spirv-dis")
-    if(spirv_dis)
-      set(dis_file_path ${spv_kernel_set_dir}/${kernel_set_name}.txt)
-      set(spirv_dis_command COMMAND ${spirv_dis} ${spv_file_path} -o ${dis_file_path})
-    else()
-      message(WARNING "The `spirv-dis` command not found.")
-    endif()
+    list(APPEND clspv_output_files ${descriptor_map_path})
+
     # Bake spir-v kernels
     if(ZINVUL_BAKE_KERNELS)
       list(APPEND clspv_commands COMMAND
@@ -353,14 +351,65 @@ function(makeKernelSet kernel_set_name zinvul_source_files zinvul_definitions)
           ${kernel_set_name}
           ${spv_file_path}
           ${baked_spv_file_path})
+      list(APPEND clspv_output_files ${baked_spv_file_path})
 #      list(APPEND kernel_source_files ${baked_spv_file_path})
     endif()
-    add_custom_command(OUTPUT ${spv_file_path}
+    add_custom_command(OUTPUT ${clspv_output_files}
       ${clspv_commands}
-      ${spirv_dis_command}
       DEPENDS ${ZINVUL_SOURCE_FILES}
       COMMENT "Building CL object ${cl_file_path}")
-    add_custom_target(${kernel_set_name} DEPENDS ${spv_file_path})
+
+    # SPIR-V analysys
+    if(ZINVUL_ENABLE_SPIRV_ANALYSIS)
+      set(spv_analysis_commands "")
+      set(spv_analysis_output_files "")
+      set(spv_analysis_dir ${spv_kernel_set_dir}/spv_analysis/${kernel_set_name})
+      file(MAKE_DIRECTORY ${spv_analysis_dir})
+      # SPIRV-dis
+      find_program(spirv_dis "spirv-dis")
+      if(spirv_dis)
+        set(dis_file_path ${spv_analysis_dir}/${kernel_set_name}.txt)
+        list(APPEND spv_analysis_commands COMMAND
+                                          ${spirv_dis}
+                                          ${spv_file_path}
+                                          -o ${dis_file_path})
+        list(APPEND spv_analysis_output_files ${dis_file_path})
+      else()
+        message(WARNING "The `spirv-dis` command not found.")
+      endif()
+      # Radeon GPU Analyzer
+      find_program(rga "rga")
+      if(rga)
+        #        set(rga_livereg_file_path
+        #            ${spv_analysis_dir}/${kernel_set_name}-rga-livereg.txt)
+        #        list(APPEND spv_analysis_commands COMMAND
+        #                                          ${rga} -s vk-spv-offline
+        #                                          -c gfx900
+        #                                          -c gfx902
+        #                                          -c gfx906
+        #                                          --comp ${spv_file_path}
+        #                                          --livereg ${rga_livereg_file_path})
+        foreach(cl_file IN LISTS ZINVUL_SOURCE_FILES)
+          get_filename_component(rga_spv_file_path "${cl_file}" NAME_WLE)
+          set(rga_spv_file_path ${spv_analysis_dir}/${rga_spv_file_path}.spv)
+          set(rga_clspv_commands COMMAND ${clspv} ${clspv_options} -w
+                                         -o=${rga_spv_file_path} ${cl_file})
+          list(APPEND spv_analysis_commands ${rga_clspv_commands})
+          list(APPEND spv_analysis_output_files ${rga_spv_file_path})
+        endforeach(cl_file)
+      else()
+        message(WARNING "The `rga` command not found.")
+      endif()
+      if(NOT (spv_analysis_output_files STREQUAL ""))
+        add_custom_command(OUTPUT ${spv_analysis_output_files}
+          ${spv_analysis_commands}
+          DEPENDS ${spv_file_path}
+          COMMENT "Prepare analysis of SPIR-V of the set '${kernel_set_name}'")
+        list(APPEND clspv_output_files ${spv_analysis_output_files})
+      endif()
+    endif()
+
+    add_custom_target(${kernel_set_name} DEPENDS ${clspv_output_files})
   else()
     add_custom_target(${kernel_set_name})
   endif()
