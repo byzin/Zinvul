@@ -20,15 +20,22 @@
 using namespace zinvul;
 
 // Forward declaration
-__kernel void experiment(GlobalPtr<uint32b> buffer0, const uint32b resolution);
+__kernel void experiment(GlobalPtr<float4> buffer0, const uint32b resolution);
 
 /*!
+  \brief The code doesn't work
   */
-__kernel void experiment(GlobalPtr<uint32b> buffer0, const uint32b resolution)
+__kernel void experiment(GlobalPtr<float4> buffer0, const uint32b resolution)
 {
   const uint32b index = getGlobalIdX();
   if (index < resolution) {
-    buffer0[index] = index;
+    const float4 t{1.0f, 1.0f, 1.0f, 0.0f};
+    float4 v = buffer0[index] + t;
+    {
+      const uint32b c = treatAs<uint32b>(v.w) + 32u;
+      v.w = treatAs<float>(c);
+    }
+    buffer0[index] = v;
   }
 }
 
