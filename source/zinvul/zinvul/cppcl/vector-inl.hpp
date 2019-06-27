@@ -1086,16 +1086,36 @@ Vector<int32b, kN> operator||(const Vector<Type, kN>& lhs,
 
 namespace clinner {
 
+template <typename Type, std::size_t kN> inline
+Vector<Type, kN> vloadn(const size_t offset, const Type* p) noexcept
+{
+  Vector<Type, kN> data;
+  const Type* address = p + offset * kN;
+  for (std::size_t i = 0; i < kN; ++i)
+    data[i] = address[i];
+  return data;
+}
+
 template <std::size_t kN> inline
 Vector<float, kN> vload_halfn(const size_t offset, const half* p) noexcept
 {
-  Vector<float, kN> value;
+  Vector<float, kN> data;
   const half* address = p + offset * kN;
   for (std::size_t i = 0; i < kN; ++i) {
     const zisc::SingleFloat v{address[i]};
-    value[i] = v.toFloat();
+    data[i] = v.toFloat();
   }
-  return value;
+  return data;
+}
+
+template <typename Type, std::size_t kN> inline
+void vstoren(const Vector<Type, kN>& data,
+             const size_t offset,
+             Type* p) noexcept
+{
+  Type* address = p + offset * kN;
+  for (std::size_t i = 0; i < kN; ++i)
+    address[i] = data[i];
 }
 
 template <std::size_t kN> inline
@@ -1114,12 +1134,36 @@ void vstore_halfn(const Vector<float, kN>& data,
 
 /*!
   */
+template <typename Type> inline
+Vector<Type, 2> vload2(const size_t offset, const Type* p) noexcept
+{
+  return clinner::vloadn<Type, 2>(offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
+Vector<Type, 3> vload3(const size_t offset, const Type* p) noexcept
+{
+  return clinner::vloadn<Type, 3>(offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
+Vector<Type, 4> vload4(const size_t offset, const Type* p) noexcept
+{
+  return clinner::vloadn<Type, 4>(offset, p);
+}
+
+/*!
+  */
 inline
 float vload_half(const size_t offset, const half* p) noexcept
 {
   const half* address = p + offset;
-  const zisc::SingleFloat value{*address};
-  return value.toFloat();
+  const zisc::SingleFloat data{*address};
+  return data.toFloat();
 }
 
 /*!
@@ -1148,12 +1192,36 @@ float4 vload_half4(const size_t offset, const half* p) noexcept
 
 /*!
   */
+template <typename Type> inline
+void vstore2(const Vector<Type, 2>& data, const size_t offset, Type* p) noexcept
+{
+  clinner::vstoren<Type, 2>(data, offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
+void vstore3(const Vector<Type, 3>& data, const size_t offset, Type* p) noexcept
+{
+  clinner::vstoren<Type, 3>(data, offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
+void vstore4(const Vector<Type, 4>& data, const size_t offset, Type* p) noexcept
+{
+  clinner::vstoren<Type, 4>(data, offset, p);
+}
+
+/*!
+  */
 inline
 void vstore_half(const float data, const size_t offset, half* p) noexcept
 {
   half* address = p + offset;
-  const auto value = zisc::SingleFloat::fromFloat(data);
-  *address = value;
+  const auto fdata = zisc::SingleFloat::fromFloat(data);
+  *address = fdata;
 }
 
 /*!

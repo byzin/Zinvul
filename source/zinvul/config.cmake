@@ -377,36 +377,35 @@ function(makeKernelSet kernel_set_name zinvul_source_files zinvul_definitions)
       else()
         message(WARNING "The `spirv-dis` command not found.")
       endif()
+      # SPIR-V per .cl file
+      foreach(cl_file IN LISTS ZINVUL_SOURCE_FILES)
+        get_filename_component(rga_spv_file_path "${cl_file}" NAME_WLE)
+        set(rga_spv_file_path ${spv_analysis_dir}/${rga_spv_file_path}.spv)
+        set(rga_clspv_commands COMMAND ${clspv} ${clspv_options} -w
+                                       -o=${rga_spv_file_path} ${cl_file})
+        list(APPEND spv_analysis_commands ${rga_clspv_commands})
+        list(APPEND spv_analysis_output_files ${rga_spv_file_path})
+      endforeach(cl_file)
       # Radeon GPU Analyzer
-      find_program(rga "rga")
-      if(rga)
-        #        set(rga_livereg_file_path
-        #            ${spv_analysis_dir}/${kernel_set_name}-rga-livereg.txt)
-        #        list(APPEND spv_analysis_commands COMMAND
-        #                                          ${rga} -s vk-spv-offline
-        #                                          -c gfx900
-        #                                          -c gfx902
-        #                                          -c gfx906
-        #                                          --comp ${spv_file_path}
-        #                                          --livereg ${rga_livereg_file_path})
-        foreach(cl_file IN LISTS ZINVUL_SOURCE_FILES)
-          get_filename_component(rga_spv_file_path "${cl_file}" NAME_WLE)
-          set(rga_spv_file_path ${spv_analysis_dir}/${rga_spv_file_path}.spv)
-          set(rga_clspv_commands COMMAND ${clspv} ${clspv_options} -w
-                                         -o=${rga_spv_file_path} ${cl_file})
-          list(APPEND spv_analysis_commands ${rga_clspv_commands})
-          list(APPEND spv_analysis_output_files ${rga_spv_file_path})
-        endforeach(cl_file)
-      else()
-        message(WARNING "The `rga` command not found.")
-      endif()
-      if(NOT (spv_analysis_output_files STREQUAL ""))
-        add_custom_command(OUTPUT ${spv_analysis_output_files}
-          ${spv_analysis_commands}
-          DEPENDS ${spv_file_path}
-          COMMENT "Prepare analysis of SPIR-V of the set '${kernel_set_name}'")
-        list(APPEND clspv_output_files ${spv_analysis_output_files})
-      endif()
+      #      find_program(rga "rga")
+      #      if(rga)
+      #        set(rga_livereg_file_path
+      #            ${spv_analysis_dir}/${kernel_set_name}-rga-livereg.txt)
+      #        list(APPEND spv_analysis_commands COMMAND
+      #                                          ${rga} -s vk-spv-offline
+      #                                          -c gfx900
+      #                                          -c gfx902
+      #                                          -c gfx906
+      #                                          --comp ${spv_file_path}
+      #                                          --livereg ${rga_livereg_file_path})
+      #      else()
+      #        message(WARNING "The `rga` command not found.")
+      #      endif()
+      add_custom_command(OUTPUT ${spv_analysis_output_files}
+        ${spv_analysis_commands}
+        DEPENDS ${spv_file_path}
+        COMMENT "Prepare analysis of SPIR-V of the set '${kernel_set_name}'")
+      list(APPEND clspv_output_files ${spv_analysis_output_files})
     endif()
 
     add_custom_target(${kernel_set_name} DEPENDS ${clspv_output_files})

@@ -15,6 +15,8 @@
 #include <vector>
 // GoogleTest
 #include "gtest/gtest.h"
+// Zisc
+#include "zisc/floating_point.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
 #include "zinvul/kernel_set/built_in_func.hpp"
@@ -3276,6 +3278,108 @@ TEST(BuiltInFuncTest, AtomicFloatIncGlobalTest)
 //  }
 //}
 
+TEST(BuiltInFuncTest, Int8bVectorDataTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 10;
+    constexpr uint32b resolution = 2;
+
+    auto buffer1 = makeStorageBuffer<int8b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(n * resolution);
+    {
+      std::vector<int8b> inputs;
+      inputs.resize(n * resolution);
+      for (std::size_t i = 0; i < inputs.size(); ++i)
+        inputs[i] = zisc::cast<int8b>(i);
+      buffer1->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer2 = makeStorageBuffer<int8b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer2->setSize(n * resolution);
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testInt8bVectorData));
+    kernel->run(*buffer1, *buffer2, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The load and store funcs of int8b are wrong.";
+    {
+      std::vector<int8b> results;
+      results.resize(n * resolution);
+      buffer2->read(results.data(), results.size(), 0, 0);
+
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const int8b expected = zisc::cast<int8b>(2 * i);
+        const int8b result = results[i];
+        ASSERT_EQ(expected, result) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, Int16bVectorDataTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 10;
+    constexpr uint32b resolution = 2;
+
+    auto buffer1 = makeStorageBuffer<int16b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(n * resolution);
+    {
+      std::vector<int16b> inputs;
+      inputs.resize(n * resolution);
+      for (std::size_t i = 0; i < inputs.size(); ++i)
+        inputs[i] = zisc::cast<int16b>(i);
+      buffer1->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer2 = makeStorageBuffer<int16b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer2->setSize(n * resolution);
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testInt16bVectorData));
+    kernel->run(*buffer1, *buffer2, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The load and store funcs of int16b are wrong.";
+    {
+      std::vector<int16b> results;
+      results.resize(n * resolution);
+      buffer2->read(results.data(), results.size(), 0, 0);
+
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const int16b expected = zisc::cast<int16b>(2 * i);
+        const int16b result = results[i];
+        ASSERT_EQ(expected, result) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 TEST(BuiltInFuncTest, Int32bVectorDataTest)
 {
   using namespace zinvul;
@@ -3286,20 +3390,21 @@ TEST(BuiltInFuncTest, Int32bVectorDataTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
+    constexpr std::size_t n = 10;
     constexpr uint32b resolution = 2;
 
     auto buffer1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
-    buffer1->setSize(10 * resolution);
+    buffer1->setSize(n * resolution);
     {
       std::vector<int32b> inputs;
-      inputs.resize(10 * resolution);
+      inputs.resize(n * resolution);
       for (std::size_t i = 0; i < inputs.size(); ++i)
         inputs[i] = zisc::cast<int32b>(i);
       buffer1->write(inputs.data(), inputs.size(), 0, 0);
     }
 
     auto buffer2 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
-    buffer2->setSize(10 * resolution);
+    buffer2->setSize(n * resolution);
 
     auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
     res_buff->setSize(1);
@@ -3312,13 +3417,169 @@ TEST(BuiltInFuncTest, Int32bVectorDataTest)
     const char* error_message = "The load and store funcs of int32b are wrong.";
     {
       std::vector<int32b> results;
-      results.resize(10 * resolution);
+      results.resize(n * resolution);
       buffer2->read(results.data(), results.size(), 0, 0);
 
       for (std::size_t i = 0; i < results.size(); ++i) {
         const int32b expected = zisc::cast<int32b>(2 * i);
         const int32b result = results[i];
         ASSERT_EQ(expected, result) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, UInt32bVectorDataTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 10;
+    constexpr uint32b resolution = 2;
+
+    auto buffer1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(n * resolution);
+    {
+      std::vector<uint32b> inputs;
+      inputs.resize(n * resolution);
+      for (std::size_t i = 0; i < inputs.size(); ++i)
+        inputs[i] = zisc::cast<uint32b>(i);
+      buffer1->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer2 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer2->setSize(n * resolution);
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testUInt32bVectorData));
+    kernel->run(*buffer1, *buffer2, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The load and store funcs of uint32b are wrong.";
+    {
+      std::vector<uint32b> results;
+      results.resize(n * resolution);
+      buffer2->read(results.data(), results.size(), 0, 0);
+
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const uint32b expected = zisc::cast<uint32b>(2 * i);
+        const uint32b result = results[i];
+        ASSERT_EQ(expected, result) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, FloatVectorDataTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 10;
+    constexpr uint32b resolution = 2;
+
+    auto buffer1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(n * resolution);
+    {
+      std::vector<float> inputs;
+      inputs.resize(n * resolution);
+      for (std::size_t i = 0; i < inputs.size(); ++i)
+        inputs[i] = zisc::cast<float>(i);
+      buffer1->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    buffer2->setSize(n * resolution);
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testFloatVectorData));
+    kernel->run(*buffer1, *buffer2, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The load and store funcs of float are wrong.";
+    {
+      std::vector<float> results;
+      results.resize(n * resolution);
+      buffer2->read(results.data(), results.size(), 0, 0);
+
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const float expected = zisc::cast<float>(2 * i);
+        const float result = results[i];
+        ASSERT_FLOAT_EQ(expected, result) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, HalfVectorDataTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 10;
+    constexpr uint32b resolution = 2;
+
+    auto buffer1 = makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(n * resolution);
+    {
+      std::vector<cl::half> inputs;
+      inputs.resize(n * resolution);
+      for (std::size_t i = 0; i < inputs.size(); ++i) {
+        const float t = zisc::cast<float>(i);
+        inputs[i] = zisc::SingleFloat::fromFloat(t);
+      }
+      buffer1->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer2 = makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
+    buffer2->setSize(n * resolution);
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testHalfVectorData));
+    kernel->run(*buffer1, *buffer2, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The load and store funcs of half are wrong.";
+    {
+      std::vector<cl::half> results;
+      results.resize(n * resolution);
+      buffer2->read(results.data(), results.size(), 0, 0);
+
+      for (std::size_t i = 0; i < results.size(); ++i) {
+        const float expected = zisc::cast<float>(3 * i);
+        const zisc::SingleFloat t = results[i];
+        const float result = t.toFloat();
+        ASSERT_FLOAT_EQ(expected, result) << error_message;
       }
     }
 
