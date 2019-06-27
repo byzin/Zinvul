@@ -237,7 +237,7 @@ TEST(Experiment, ZinvulTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr uint32b resolution = 1024u;
+    constexpr uint32b resolution = 1u;
 
     auto buffer0 = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
     buffer0->setSize(resolution);
@@ -255,22 +255,8 @@ TEST(Experiment, ZinvulTest)
     auto kernel = zinvul::makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(experiment, experiment));
     kernel->run(*buffer0, *res_buff, {resolution}, 0);
     device->waitForCompletion();
-    kernel->run(*buffer0, *res_buff, {resolution}, 0);
-    device->waitForCompletion();
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-
-//    const char* error_message = "The '' func is failed.";
-    {
-      std::vector<cl::float4> results;
-      results.resize(resolution);
-      buffer0->read(results.data(), resolution, 0, 0);
-      for (std::size_t i = 0; i < resolution; ++i) {
-        const uint32b expected = 64u;
-        const uint32b result = *zisc::treatAs<const uint32b*>(&results[i][3]);
-        ASSERT_EQ(expected, result);
-      }
-    }
 
     std::cout << std::endl;
   }

@@ -29,13 +29,10 @@ __kernel void experiment(GlobalPtr<float4> buffer0, const uint32b resolution)
 {
   const uint32b index = getGlobalIdX();
   if (index < resolution) {
-    const float4 t{1.0f, 1.0f, 1.0f, 0.0f};
-    float4 v = buffer0[index] + t;
-    {
-      const uint32b c = treatAs<uint32b>(v.w) + 32u;
-      v.w = treatAs<float>(c);
-    }
-    buffer0[index] = v;
+    const float4 value{1.0f, 2.0f, 3.0f, 4.0f};
+    zinvul::print("## PrintMessage\n");
+    zinvul::print("## PrintValue: %g, %g, %g\n", value.x, value.y, value.z);
+    zinvul::assertIfFalse(value.w == 4.0f, "## Assertion\n");
   }
 }
 
