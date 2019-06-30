@@ -12,9 +12,12 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc++98-compat"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++98-c++11-compat-pedantic"
 
 @kernel_include_lines@
 
+#pragma clang diagnostic pop
 #pragma clang diagnostic pop
 
 #endif /* ZINVUL_@kernel_set_name@_CL */

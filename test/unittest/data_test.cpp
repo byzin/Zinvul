@@ -21,6 +21,7 @@
 // Zinvul
 #include "zinvul/zinvul.hpp"
 #include "zinvul/kernel_set/data.hpp"
+#include "zinvul/zinvul_config.hpp"
 // Test
 #include "test.hpp"
 
@@ -810,9 +811,9 @@ TEST(DataTest, VectorOperationsTest)
     buffer11->setSize(5);
     auto buffer12 = makeStorageBuffer<cl::int3>(device.get(), BufferUsage::kDeviceOnly);
     buffer12->setSize(3);
-    auto buffer13 = makeStorageBuffer<cl::int3>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer13 = makeStorageBuffer<cl::char3>(device.get(), BufferUsage::kDeviceOnly);
     buffer13->setSize(3);
-    auto buffer14 = makeStorageBuffer<cl::int3>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer14 = makeStorageBuffer<cl::short3>(device.get(), BufferUsage::kDeviceOnly);
     buffer14->setSize(11);
     auto buffer15 = makeStorageBuffer<cl::int3>(device.get(), BufferUsage::kDeviceOnly);
     buffer15->setSize(16);
@@ -1040,7 +1041,9 @@ TEST(DataTest, VectorOperationsTest)
       std::array<cl::int3, 3> result;
       buffer12->read(result.data(), result.size(), 0, 0);
       {
-        const cl::int3 expected{kVecFalse, kVecFalse, kVecTrue};
+        const cl::int3 expected{Config::vecResultFalse<int32b>(),
+                                Config::vecResultFalse<int32b>(),
+                                Config::vecResultTrue<int32b>()};
         for (std::size_t i = 0; i < expected.size(); ++i) {
           ASSERT_EQ(expected[i], result[0][i]) <<
               "The vector right boolean AND are wrong.";
@@ -1052,17 +1055,21 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      std::array<cl::int3, 3> result;
+      std::array<cl::char3, 3> result;
       buffer13->read(result.data(), result.size(), 0, 0);
       {
-        const cl::int3 expected{kVecTrue, kVecFalse, kVecTrue};
+        const cl::char3 expected{Config::vecResultTrue<int8b>(),
+                                 Config::vecResultFalse<int8b>(),
+                                 Config::vecResultTrue<int8b>()};
         for (std::size_t i = 0; i < expected.size(); ++i) {
           ASSERT_EQ(expected[i], result[0][i]) <<
               "The vector right boolean OR are wrong.";
         }
       }
       {
-        const cl::int3 expected{kVecTrue, kVecTrue, kVecTrue};
+        const cl::char3 expected{Config::vecResultTrue<int8b>(),
+                                 Config::vecResultTrue<int8b>(),
+                                 Config::vecResultTrue<int8b>()};
         for (std::size_t i = 0; i < expected.size(); ++i) {
           ASSERT_EQ(expected[i], result[1][i]) <<
               "The vector right boolean OR are wrong.";
@@ -1072,10 +1079,12 @@ TEST(DataTest, VectorOperationsTest)
       }
     }
     {
-      std::array<cl::int3, 11> result;
+      std::array<cl::short3, 11> result;
       buffer14->read(result.data(), result.size(), 0, 0);
       {
-        const cl::int3 expected{kVecTrue, kVecFalse, kVecTrue};
+        const cl::short3 expected{Config::vecResultTrue<int16b>(),
+                                  Config::vecResultFalse<int16b>(),
+                                  Config::vecResultTrue<int16b>()};
         for (std::size_t i = 0; i < expected.size(); ++i) {
           ASSERT_TRUE(result[0][i])
               << "The vector equal operation is wrong.";
@@ -1088,7 +1097,9 @@ TEST(DataTest, VectorOperationsTest)
         }
       }
       {
-        const cl::int3 expected{kVecTrue, kVecTrue, kVecTrue};
+        const cl::short3 expected{Config::vecResultTrue<int16b>(),
+                                  Config::vecResultTrue<int16b>(),
+                                  Config::vecResultTrue<int16b>()};
         for (std::size_t i = 0; i < expected.size(); ++i) {
           ASSERT_EQ(expected[i], result[4][i])
               << "The vector equal operation is wrong.";
@@ -1101,7 +1112,9 @@ TEST(DataTest, VectorOperationsTest)
         }
       }
       {
-        const cl::int3 expected{kVecFalse, kVecTrue, kVecFalse};
+        const cl::short3 expected{Config::vecResultFalse<int16b>(),
+                                  Config::vecResultTrue<int16b>(),
+                                  Config::vecResultFalse<int16b>()};
         for (std::size_t i = 0; i < expected.size(); ++i) {
           ASSERT_EQ(expected[i], result[8][i])
               << "The vector equal operation is wrong.";
@@ -1128,7 +1141,9 @@ TEST(DataTest, VectorOperationsTest)
         }
       }
       {
-        const cl::int3 expected{kVecTrue, kVecTrue, kVecFalse};
+        const cl::int3 expected{Config::vecResultTrue<int32b>(),
+                                Config::vecResultTrue<int32b>(),
+                                Config::vecResultFalse<int32b>()};
         for (std::size_t i = 0; i < expected.size(); ++i) {
           ASSERT_EQ(expected[i], result[4][i])
               << "The vector relation operations is wrong.";
@@ -1139,7 +1154,9 @@ TEST(DataTest, VectorOperationsTest)
         }
       }
       {
-        const cl::int3 expected{kVecTrue, kVecFalse, kVecFalse};
+        const cl::int3 expected{Config::vecResultTrue<int32b>(),
+                                Config::vecResultFalse<int32b>(),
+                                Config::vecResultFalse<int32b>()};
         for (std::size_t i = 0; i < expected.size(); ++i) {
           ASSERT_EQ(expected[i], result[5][i])
               << "The vector relation operations is wrong.";
@@ -1150,7 +1167,9 @@ TEST(DataTest, VectorOperationsTest)
         }
       }
       {
-        const cl::int3 expected{kVecFalse, kVecTrue, kVecTrue};
+        const cl::int3 expected{Config::vecResultFalse<int32b>(),
+                                Config::vecResultTrue<int32b>(),
+                                Config::vecResultTrue<int32b>()};
         for (std::size_t i = 0; i < expected.size(); ++i) {
           ASSERT_EQ(expected[i], result[6][i])
               << "The vector relation operations is wrong.";
@@ -1161,7 +1180,9 @@ TEST(DataTest, VectorOperationsTest)
         }
       }
       {
-        const cl::int3 expected{kVecFalse, kVecFalse, kVecTrue};
+        const cl::int3 expected{Config::vecResultFalse<int32b>(),
+                                Config::vecResultFalse<int32b>(),
+                                Config::vecResultTrue<int32b>()};
         for (std::size_t i = 0; i < expected.size(); ++i) {
           ASSERT_EQ(expected[i], result[7][i])
               << "The vector relation operations is wrong.";
@@ -1191,127 +1212,6 @@ TEST(DataTest, VectorOperationsTest)
   }
 }
 
-//TEST(DataTest, HalfLoadStoreTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    auto input_scalar =
-//        makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
-//    input_scalar->setSize(3);
-//    {
-//      std::array<cl::half, 3> input;
-//      input[0] = zisc::SingleFloat::fromFloat(1.0f);
-//      input[1] = zisc::SingleFloat::fromFloat(2.0f);
-//      input[2] = zisc::SingleFloat::fromFloat(4.0f);
-//      input_scalar->write(input.data(), input.size(), 0, 0);
-//    }
-//    auto output_scalar =
-//        makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
-//    output_scalar->setSize(3);
-//    auto input_vector2 =
-//        makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
-//    input_vector2->setSize(4);
-//    {
-//      std::array<cl::half, 4> input;
-//      input[0] = zisc::SingleFloat::fromFloat(1.0f);
-//      input[1] = zisc::SingleFloat::fromFloat(2.0f);
-//      input[2] = zisc::SingleFloat::fromFloat(4.0f);
-//      input[3] = zisc::SingleFloat::fromFloat(8.0f);
-//      input_vector2->write(input.data(), input.size(), 0, 0);
-//    }
-//    auto output_vector2 =
-//        makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
-//    output_vector2->setSize(4);
-//    auto input_vector3 =
-//        makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
-//    input_vector3->setSize(6);
-//    {
-//      std::array<cl::half, 6> input;
-//      input[0] = zisc::SingleFloat::fromFloat(1.0f);
-//      input[1] = zisc::SingleFloat::fromFloat(2.0f);
-//      input[2] = zisc::SingleFloat::fromFloat(4.0f);
-//      input[3] = zisc::SingleFloat::fromFloat(8.0f);
-//      input[4] = zisc::SingleFloat::fromFloat(16.0f);
-//      input[5] = zisc::SingleFloat::fromFloat(32.0f);
-//      input_vector3->write(input.data(), input.size(), 0, 0);
-//    }
-//    auto output_vector3 =
-//        makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
-//    output_vector3->setSize(6);
-//    auto input_vector4 =
-//        makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
-//    input_vector4->setSize(8);
-//    {
-//      std::array<cl::half, 8> input;
-//      input[0] = zisc::SingleFloat::fromFloat(1.0f);
-//      input[1] = zisc::SingleFloat::fromFloat(2.0f);
-//      input[2] = zisc::SingleFloat::fromFloat(4.0f);
-//      input[3] = zisc::SingleFloat::fromFloat(8.0f);
-//      input[4] = zisc::SingleFloat::fromFloat(16.0f);
-//      input[5] = zisc::SingleFloat::fromFloat(32.0f);
-//      input[6] = zisc::SingleFloat::fromFloat(64.0f);
-//      input[7] = zisc::SingleFloat::fromFloat(128.0f);
-//      input_vector4->write(input.data(), input.size(), 0, 0);
-//    }
-//    auto output_vector4 =
-//        makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
-//    output_vector4->setSize(8);
-//
-//    auto kernel = makeZinvulKernel(device.get(), data, testHalfLoadStore, 1);
-//    kernel->run(*input_scalar, *output_scalar, *input_vector2, *output_vector2,
-//        *input_vector3, *output_vector3, *input_vector4, *output_vector4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    {
-//      std::array<cl::half, 3> result;
-//      output_scalar->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
-//        const float expected = static_cast<float>(2u << i);
-//        const auto r = zisc::SingleFloat{result[i]};
-//        ASSERT_EQ(expected, r.toFloat()) << "Loading and storing half failed.";
-//      }
-//    }
-//
-////    {
-////      std::array<cl::half, 4> result;
-////      output_vector2->read(result.data(), result.size(), 0, 0);
-////      for (std::size_t i = 0; i < result.size(); ++i) {
-////        const float expected = static_cast<float>(2u << i);
-////        const auto r = zisc::SingleFloat{result[i]};
-////        ASSERT_EQ(expected, r.toFloat()) << "Loading and storing half2 failed.";
-////      }
-////    }
-////
-////    {
-////      std::array<cl::half, 6> result;
-////      output_vector3->read(result.data(), result.size(), 0, 0);
-////      for (std::size_t i = 0; i < result.size(); ++i) {
-////        const float expected = static_cast<float>(2u << i);
-////        const auto r = zisc::SingleFloat{result[i]};
-////        ASSERT_EQ(expected, r.toFloat()) << "Loading and storing half3 failed.";
-////      }
-////    }
-//
-//    {
-//      std::array<cl::half, 8> result;
-//      output_vector4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
-//        const float expected = static_cast<float>(2u << i);
-//        const auto r = zisc::SingleFloat{result[i]};
-//        ASSERT_EQ(expected, r.toFloat()) << "Loading and storing half4 failed.";
-//      }
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
 //namespace {
 //
 //using Ray1 = zinvul::data::KernelGroup::Ray1;

@@ -97,7 +97,7 @@ template <typename Type> template <typename AddressType> inline
 auto VectorData<Type>::loadImpl(const size_t offset, AddressType p)
     noexcept -> ValueType
 {
-  if constexpr (kIsHalfType<Type>) {
+  if constexpr (kIsHalf<Type>) {
     const auto data = loadHalfImpl(offset, p);
     return data;
   }
@@ -131,7 +131,7 @@ template <typename Type> template <typename AddressType> inline
 auto VectorData<Type>::loadHalfImpl(const size_t offset, AddressType p)
     noexcept -> ValueType
 {
-  static_assert(!kIsHalfType<Type>, "The loadHalf isn't implemented yet.");
+  static_assert(!kIsHalf<Type>, "The loadHalf isn't implemented yet.");
 //  using UVecData = VectorData<uint16b>;
 //
 //  const auto ptr = toConstData(p);
@@ -147,7 +147,7 @@ void VectorData<Type>::storeImpl(const ValueType data,
                                  const size_t offset,
                                  AddressType p) noexcept
 {
-  if constexpr (kIsHalfType<Type>) {
+  if constexpr (kIsHalf<Type>) {
     storeHalfImpl(data, offset, p);
   }
   else {
@@ -177,7 +177,7 @@ void VectorData<Type>::storeHalfImpl(const ValueType data,
                                      const size_t offset,
                                      AddressType p) noexcept
 {
-  static_assert(!kIsHalfType<Type>, "The storeHalf isn't implemented yet.");
+  static_assert(!kIsHalf<Type>, "The storeHalf isn't implemented yet.");
 //  using UVecData = VectorData<uint16b>;
 //
 //  const UVecData::ValueType udata{};

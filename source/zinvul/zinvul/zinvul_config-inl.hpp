@@ -53,6 +53,43 @@ constexpr bool Config::isVulkanBackendEnabled() noexcept
   return is_enabled;
 }
 
+/*!
+  */
+inline
+constexpr int32b Config::scalarResultFalse() noexcept
+{
+  const int32b result = 0b0;
+  return result;
+}
+
+/*!
+  */
+inline
+constexpr int32b Config::scalarResultTrue() noexcept
+{
+  const int32b result = 0b1;
+  return result;
+}
+
+/*!
+  */
+template <typename Type> inline
+constexpr auto Config::vecResultFalse() noexcept -> ComparisonResultType<Type>
+{
+  const ComparisonResultType<Type> result = 0b0;
+  return result;
+}
+
+/*!
+  */
+template <typename Type> inline
+constexpr auto Config::vecResultTrue() noexcept -> ComparisonResultType<Type>
+{
+  const auto zero = Config::vecResultFalse<Type>();
+  const ComparisonResultType<Type> result = ~zero;
+  return result;
+}
+
 } // namespace zinvul
 
 #endif // ZINVUL_CONFIG_INL_HPP

@@ -14,8 +14,10 @@
 // Standard C++ library
 #include <cmath>
 #include <cstddef>
+#include <memory>
 #include <type_traits>
 // Zisc
+#include "zisc/floating_point.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "types.hpp"
@@ -32,73 +34,102 @@ template <typename Float> inline
 int32b isequal(const Float lhs, const Float rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return (lhs == rhs) ? 1 : 0;
+  const auto result = (lhs == rhs) ? Config::scalarResultTrue()
+                                   : Config::scalarResultFalse();
+  return result;
 }
 
 template <typename Float> inline
 int32b isnotequal(const Float lhs, const Float rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return (lhs != rhs) ? 1 : 0;
+  const auto result = (lhs != rhs) ? Config::scalarResultTrue()
+                                   : Config::scalarResultFalse();
+  return result;
 }
 
 template <typename Float> inline
 int32b isgreater(const Float lhs, const Float rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return (lhs > rhs) ? 1 : 0;
+  const auto result = (lhs > rhs) ? Config::scalarResultTrue()
+                                  : Config::scalarResultFalse();
+  return result;
 }
 
 template <typename Float> inline
 int32b isgreaterequal(const Float lhs, const Float rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return (lhs >= rhs) ? 1 : 0;
+  const auto result = (lhs >= rhs) ? Config::scalarResultTrue()
+                                   : Config::scalarResultFalse();
+  return result;
 }
 
 template <typename Float> inline
 int32b isless(const Float lhs, const Float rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return (lhs < rhs) ? 1 : 0;
+  const auto result = (lhs < rhs) ? Config::scalarResultTrue()
+                                  : Config::scalarResultFalse();
+  return result;
 }
 
 template <typename Float> inline
 int32b islessequal(const Float lhs, const Float rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return (lhs <= rhs) ? 1 : 0;
+  const auto result = (lhs <= rhs) ? Config::scalarResultTrue()
+                                   : Config::scalarResultFalse();
+  return result;
 }
 
 template <typename Float> inline
 int32b isinf(const Float value) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return std::isinf(value) ? 1 : 0;
+  const auto result = std::isinf(value) ? Config::scalarResultTrue()
+                                        : Config::scalarResultFalse();
+  return result;
 }
 
 template <typename Float> inline
 int32b isnan(const Float value) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return std::isnan(value) ? 1 : 0;
+  const auto result = std::isnan(value) ? Config::scalarResultTrue()
+                                        : Config::scalarResultFalse();
+  return result;
 }
 
 template <typename Float> inline
 int32b signbit(const Float value) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return std::signbit(value) ? 1 : 0;
+  const auto result = std::signbit(value) ? Config::scalarResultTrue()
+                                          : Config::scalarResultFalse();
+  return result;
 }
 
-template <typename Type1, typename Type2, const std::size_t kN> inline
-Vector<Type1, kN> select(const Vector<Type1, kN>& a,
-                         const Vector<Type1, kN>& b,
-                         const Vector<Type2, kN>& c) noexcept
+template <typename Type, std::size_t kN> inline
+Vector<Type, kN> bitselect(const Vector<Type, kN>& a,
+                           const Vector<Type, kN>& b,
+                           const Vector<Type, kN>& c) noexcept
 {
-  Vector<Type1, kN> result;
+  Vector<Type, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = c[i] ? b[i] : a[i];
+    result[i] = zinvul::cl::bitselect(a[i], b[i], c[i]);
+  return result;
+}
+
+template <typename Type, typename Integer, std::size_t kN> inline
+Vector<Type, kN> select(const Vector<Type, kN>& a,
+                        const Vector<Type, kN>& b,
+                        const Vector<Integer, kN>& c) noexcept
+{
+  Vector<Type, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = zinvul::cl::select(a[i], b[i], c[i]);
   return result;
 }
 
@@ -109,7 +140,8 @@ Vector<Type1, kN> select(const Vector<Type1, kN>& a,
 inline
 int32b isequal(const float lhs, const float rhs) noexcept
 {
-  return clinner::isequal(lhs, rhs);
+  const auto result = clinner::isequal(lhs, rhs);
+  return result;
 }
 
 /*!
@@ -117,17 +149,20 @@ int32b isequal(const float lhs, const float rhs) noexcept
 inline
 int32b isequal(const double lhs, const double rhs) noexcept
 {
-  return clinner::isequal(lhs, rhs);
+  const auto result = clinner::isequal(lhs, rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Float, std::size_t kN> inline
-Vector<int32b, kN> isequal(const Vector<Float, kN>& lhs,
-                           const Vector<Float, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Float>, kN> isequal(
+    const Vector<Float, kN>& lhs,
+    const Vector<Float, kN>& rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return lhs == rhs;
+  const auto result = lhs == rhs;
+  return result;
 }
 
 /*!
@@ -135,7 +170,8 @@ Vector<int32b, kN> isequal(const Vector<Float, kN>& lhs,
 inline
 int32b isnotequal(const float lhs, const float rhs) noexcept
 {
-  return clinner::isnotequal(lhs, rhs);
+  const auto result = clinner::isnotequal(lhs, rhs);
+  return result;
 }
 
 /*!
@@ -143,17 +179,20 @@ int32b isnotequal(const float lhs, const float rhs) noexcept
 inline
 int32b isnotequal(const double lhs, const double rhs) noexcept
 {
-  return clinner::isnotequal(lhs, rhs);
+  const auto result = clinner::isnotequal(lhs, rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Float, std::size_t kN> inline
-Vector<int32b, kN> isnotequal(const Vector<Float, kN>& lhs,
-                              const Vector<Float, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Float>, kN> isnotequal(
+    const Vector<Float, kN>& lhs,
+    const Vector<Float, kN>& rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return lhs != rhs;
+  const auto result = lhs != rhs;
+  return result;
 }
 
 /*!
@@ -161,7 +200,8 @@ Vector<int32b, kN> isnotequal(const Vector<Float, kN>& lhs,
 inline
 int32b isgreater(const float lhs, const float rhs) noexcept
 {
-  return clinner::isgreater(lhs, rhs);
+  const auto result = clinner::isgreater(lhs, rhs);
+  return result;
 }
 
 /*!
@@ -169,17 +209,20 @@ int32b isgreater(const float lhs, const float rhs) noexcept
 inline
 int32b isgreater(const double lhs, const double rhs) noexcept
 {
-  return clinner::isgreater(lhs, rhs);
+  const auto result = clinner::isgreater(lhs, rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Float, std::size_t kN> inline
-Vector<int32b, kN> isgreater(const Vector<Float, kN>& lhs,
-                             const Vector<Float, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Float>, kN> isgreater(
+    const Vector<Float, kN>& lhs,
+    const Vector<Float, kN>& rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return lhs > rhs;
+  const auto result = lhs > rhs;
+  return result;
 }
 
 /*!
@@ -187,7 +230,8 @@ Vector<int32b, kN> isgreater(const Vector<Float, kN>& lhs,
 inline
 int32b isgreaterequal(const float lhs, const float rhs) noexcept
 {
-  return clinner::isgreaterequal(lhs, rhs);
+  const auto result = clinner::isgreaterequal(lhs, rhs);
+  return result;
 }
 
 /*!
@@ -195,17 +239,20 @@ int32b isgreaterequal(const float lhs, const float rhs) noexcept
 inline
 int32b isgreaterequal(const double lhs, const double rhs) noexcept
 {
-  return clinner::isgreaterequal(lhs, rhs);
+  const auto result = clinner::isgreaterequal(lhs, rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Float, std::size_t kN> inline
-Vector<int32b, kN> isgreaterequal(const Vector<Float, kN>& lhs,
-                                  const Vector<Float, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Float>, kN> isgreaterequal(
+    const Vector<Float, kN>& lhs,
+    const Vector<Float, kN>& rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return lhs >= rhs;
+  const auto result = lhs >= rhs;
+  return result;
 }
 
 /*!
@@ -213,7 +260,8 @@ Vector<int32b, kN> isgreaterequal(const Vector<Float, kN>& lhs,
 inline
 int32b isless(const float lhs, const float rhs) noexcept
 {
-  return clinner::isless(lhs, rhs);
+  const auto result = clinner::isless(lhs, rhs);
+  return result;
 }
 
 /*!
@@ -221,17 +269,20 @@ int32b isless(const float lhs, const float rhs) noexcept
 inline
 int32b isless(const double lhs, const double rhs) noexcept
 {
-  return clinner::isless(lhs, rhs);
+  const auto result = clinner::isless(lhs, rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Float, std::size_t kN> inline
-Vector<int32b, kN> isless(const Vector<Float, kN>& lhs,
-                          const Vector<Float, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Float>, kN> isless(
+    const Vector<Float, kN>& lhs,
+    const Vector<Float, kN>& rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return lhs < rhs;
+  const auto result = lhs < rhs;
+  return result;
 }
 
 /*!
@@ -239,7 +290,8 @@ Vector<int32b, kN> isless(const Vector<Float, kN>& lhs,
 inline
 int32b islessequal(const float lhs, const float rhs) noexcept
 {
-  return clinner::islessequal(lhs, rhs);
+  const auto result = clinner::islessequal(lhs, rhs);
+  return result;
 }
 
 /*!
@@ -247,17 +299,20 @@ int32b islessequal(const float lhs, const float rhs) noexcept
 inline
 int32b islessequal(const double lhs, const double rhs) noexcept
 {
-  return clinner::islessequal(lhs, rhs);
+  const auto result = clinner::islessequal(lhs, rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Float, std::size_t kN> inline
-Vector<int32b, kN> islessequal(const Vector<Float, kN>& lhs,
-                               const Vector<Float, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Float>, kN> islessequal(
+    const Vector<Float, kN>& lhs,
+    const Vector<Float, kN>& rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  return lhs <= rhs;
+  const auto result = lhs <= rhs;
+  return result;
 }
 
 /*!
@@ -265,7 +320,8 @@ Vector<int32b, kN> islessequal(const Vector<Float, kN>& lhs,
 inline
 int32b isinf(const float value) noexcept
 {
-  return clinner::isinf(value);
+  const auto result = clinner::isinf(value);
+  return result;
 }
 
 /*!
@@ -273,18 +329,22 @@ int32b isinf(const float value) noexcept
 inline
 int32b isinf(const double value) noexcept
 {
-  return clinner::isinf(value);
+  const auto result = clinner::isinf(value);
+  return result;
 }
 
 /*!
   */
 template <typename Float, std::size_t kN> inline
-Vector<int32b, kN> isinf(const Vector<Float, kN>& value) noexcept
+Vector<Config::ComparisonResultType<Float>, kN> isinf(
+    const Vector<Float, kN>& value) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Float>, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::isinf(value[i]) ? kVecTrue : kVecFalse;
+    result[i] = std::isinf(value[i])
+        ? Config::vecResultTrue<Float>()
+        : Config::vecResultFalse<Float>();
   return result;
 }
 
@@ -293,7 +353,8 @@ Vector<int32b, kN> isinf(const Vector<Float, kN>& value) noexcept
 inline
 int32b isnan(const float value) noexcept
 {
-  return clinner::isnan(value);
+  const auto result = clinner::isnan(value);
+  return result;
 }
 
 /*!
@@ -301,18 +362,22 @@ int32b isnan(const float value) noexcept
 inline
 int32b isnan(const double value) noexcept
 {
-  return clinner::isnan(value);
+  const auto result = clinner::isnan(value);
+  return result;
 }
 
 /*!
   */
 template <typename Float, std::size_t kN> inline
-Vector<int32b, kN> isnan(const Vector<Float, kN>& value) noexcept
+Vector<Config::ComparisonResultType<Float>, kN> isnan(
+    const Vector<Float, kN>& value) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Float>, kN> result;
   for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::isnan(value[i]) ? kVecTrue : kVecFalse;
+    result[i] = std::isnan(value[i])
+        ? Config::vecResultTrue<Float>()
+        : Config::vecResultFalse<Float>();
   return result;
 }
 
@@ -321,7 +386,8 @@ Vector<int32b, kN> isnan(const Vector<Float, kN>& value) noexcept
 inline
 int32b signbit(const float value) noexcept
 {
-  return clinner::signbit(value);
+  const auto result = clinner::signbit(value);
+  return result;
 }
 
 /*!
@@ -329,37 +395,73 @@ int32b signbit(const float value) noexcept
 inline
 int32b signbit(const double value) noexcept
 {
-  return clinner::signbit(value);
-}
-
-/*!
-  */
-template <typename Float, std::size_t kN> inline
-Vector<int32b, kN> signbit(const Vector<Float, kN>& value) noexcept
-{
-  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  Vector<int32b, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
-    result[i] = std::signbit(value[i]) ? kVecTrue : kVecFalse;
+  const auto result = clinner::signbit(value);
   return result;
 }
 
 /*!
   */
-template <typename Type1, typename Type2> inline
-Type1 select(const Type1& a, const Type1& b, const Type2& c) noexcept
+template <typename Float, std::size_t kN> inline
+Vector<Config::ComparisonResultType<Float>, kN> signbit(
+    const Vector<Float, kN>& value) noexcept
 {
-  constexpr bool is_scalar_type1 = std::is_integral_v<Type1> ||
-                                   std::is_floating_point_v<Type1>;
-  constexpr bool is_scalar_type2 = std::is_integral_v<Type2> ||
-                                   std::is_floating_point_v<Type2>;
-  static_assert((is_scalar_type1 && is_scalar_type2) ||
-                (!is_scalar_type1 && !is_scalar_type2),
-                "The Type1 and Type2 don't have same n component.");
-  if constexpr (is_scalar_type1)
-    return c ? b : a;
-  else
-    return clinner::select(a, b, c);
+  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
+  Vector<Config::ComparisonResultType<Float>, kN> result;
+  for (std::size_t i = 0; i < kN; ++i)
+    result[i] = std::signbit(value[i])
+        ? Config::vecResultTrue<Float>()
+        : Config::vecResultFalse<Float>();
+  return result;
+}
+
+/*!
+  */
+template <typename TypeN> inline
+TypeN bitselect(const TypeN& a, const TypeN& b, const TypeN& c) noexcept
+{
+  constexpr bool is_scalar_value = std::is_integral_v<TypeN> ||
+                                   std::is_floating_point_v<TypeN>;
+  if constexpr (is_scalar_value) {
+    if constexpr (std::is_integral_v<TypeN>) {
+      const auto result = zisc::cast<TypeN>((a ^ c) | (b & c));
+      return result;
+    }
+    else {
+      // Floating point pattern
+      using BitType = typename zisc::FloatingPointFromBytes<sizeof(TypeN)>::BitType;
+      const auto data = bitselect(*zisc::treatAs<const BitType*>(&a),
+                                  *zisc::treatAs<const BitType*>(&b),
+                                  *zisc::treatAs<const BitType*>(&c));
+      const auto result = *zisc::treatAs<const TypeN*>(&data);
+      return result;
+    }
+  }
+  else {
+    const auto result = clinner::bitselect(a, b, c);
+    return result;
+  }
+}
+
+/*!
+  */
+template <typename TypeN, typename IntegerN> inline
+TypeN select(const TypeN& a, const TypeN& b, const IntegerN& c) noexcept
+{
+  constexpr bool is_scalar_value = std::is_integral_v<TypeN> ||
+                                   std::is_floating_point_v<TypeN>;
+  constexpr bool is_scalar_condition = std::is_integral_v<IntegerN> ||
+                                       std::is_floating_point_v<IntegerN>;
+  static_assert((is_scalar_value && is_scalar_condition) ||
+                (!is_scalar_value && !is_scalar_condition),
+                "The TypeN and IntegerN don't have same n component.");
+  if constexpr (is_scalar_value) {
+    const auto result =  c ? b : a;
+    return result;
+  }
+  else {
+    const auto result = clinner::select(a, b, c);
+    return result;
+  }
 }
 
 } // namespace cl

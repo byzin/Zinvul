@@ -2443,840 +2443,526 @@ TEST(BuiltInFuncTest, AtomicFloatIncGlobalTest)
   }
 }
 
-//TEST(BuiltInFuncTest, RelationalFunctionTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n_scalars = 24;
-//    constexpr std::size_t n_vectors = 11;
-//    auto scalar_results =
-//        makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
-//    scalar_results->setSize(n_scalars);
-//    auto vector_results =
-//        makeStorageBuffer<cl::int4>(device.get(), BufferUsage::kDeviceOnly);
-//    vector_results->setSize(n_vectors);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testRelational, 1);
-//    kernel->run(*scalar_results, *vector_results, {1}, 0);
-//    device->waitForCompletion();
-//
-//    // Scalar results
-//    {
-//      std::array<int32b, n_scalars> result;
-//      scalar_results->read(result.data(), result.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_TRUE(result[index++]) << "The isequal func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The isequal func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The isnotequal func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The isnotequal func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The isgreater func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The isgreater func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The isgreater func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The isgreaterequal func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The isgreaterequal func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The isgreaterequal func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The isless func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The isless func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The isless func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The islessequal func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The islessequal func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The islessequal func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The isinf func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The isinf func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The isnan func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The isnan func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The signbit func is wrong.";
-//      ASSERT_FALSE(result[index++]) << "The signbit func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The signbit func is wrong.";
-//      ASSERT_TRUE(result[index++]) << "The signbit func is wrong.";
-//    }
-//    // Vector results
-//    {
-//      std::array<cl::int4, n_vectors> result;
-//      vector_results->read(result.data(), result.size(), 0, 0);
-//      std::size_t index = 0;
+TEST(BuiltInFuncTest, RelationalF1Test)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b n = 24;
+
+    auto result_buff = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testRelationalF1));
+    kernel->run(*result_buff, {1}, 0);
+    device->waitForCompletion();
+
+//    const char* error_message = "Relational f1 test failed.";
+    {
+      std::vector<int32b> results;
+      results.resize(n);
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b index = 0;
+      ASSERT_TRUE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_TRUE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_TRUE(results[index++]);
+      ASSERT_TRUE(results[index++]);
+      ASSERT_TRUE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_TRUE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_TRUE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_TRUE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_TRUE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+      ASSERT_TRUE(results[index++]);
+      ASSERT_FALSE(results[index++]);
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, RelationalF4Test)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b n = 12;
+
+    auto result_buff = makeStorageBuffer<cl::int4>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testRelationalF4));
+    kernel->run(*result_buff, {1}, 0);
+    device->waitForCompletion();
+
+//    const char* error_message = "Relational f4 test failed.";
+    {
+      std::vector<cl::int4> results;
+      results.resize(n);
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b index = 0;
+      // isEqual
+      {
+        const auto result = results[index++];
+        ASSERT_FALSE(result[0]);
+        ASSERT_TRUE(result[1]);
+        ASSERT_FALSE(result[2]);
+        ASSERT_FALSE(result[3]);
+      }
+      // isNotEqual
+      {
+        const auto result = results[index++];
+        ASSERT_TRUE(result[0]);
+        ASSERT_FALSE(result[1]);
+        ASSERT_TRUE(result[2]);
+        ASSERT_TRUE(result[3]);
+      }
+      // isGreater
+      {
+        const auto result = results[index++];
+        ASSERT_FALSE(result[0]);
+        ASSERT_FALSE(result[1]);
+        ASSERT_TRUE(result[2]);
+        ASSERT_TRUE(result[3]);
+      }
+      // isGreater
+      {
+        const auto result = results[index++];
+        ASSERT_TRUE(result[0]);
+        ASSERT_TRUE(result[1]);
+        ASSERT_FALSE(result[2]);
+        ASSERT_TRUE(result[3]);
+      }
+      // isGreaterEqual
+      {
+        const auto result = results[index++];
+        ASSERT_FALSE(result[0]);
+        ASSERT_TRUE(result[1]);
+        ASSERT_TRUE(result[2]);
+        ASSERT_TRUE(result[3]);
+      }
+      // isLess
+      {
+        const auto result = results[index++];
+        ASSERT_TRUE(result[0]);
+        ASSERT_FALSE(result[1]);
+        ASSERT_FALSE(result[2]);
+        ASSERT_FALSE(result[3]);
+      }
+      // isLess
+      {
+        const auto result = results[index++];
+        ASSERT_FALSE(result[0]);
+        ASSERT_FALSE(result[1]);
+        ASSERT_TRUE(result[2]);
+        ASSERT_FALSE(result[3]);
+      }
+      // isLessEqual
+      {
+        const auto result = results[index++];
+        ASSERT_TRUE(result[0]);
+        ASSERT_TRUE(result[1]);
+        ASSERT_FALSE(result[2]);
+        ASSERT_FALSE(result[3]);
+      }
+      // isInf
+      {
+        const auto result = results[index++];
+        ASSERT_FALSE(result[0]);
+        ASSERT_FALSE(result[1]);
+        ASSERT_TRUE(result[2]);
+        ASSERT_TRUE(result[3]);
+      }
+      // isNan
+      {
+        const auto result = results[index++];
+        ASSERT_FALSE(result[0]);
+        ASSERT_FALSE(result[1]);
+        ASSERT_FALSE(result[2]);
+        ASSERT_TRUE(result[3]);
+      }
+      // isSignBitSet
+      {
+        const auto result = results[index++];
+        EXPECT_FALSE(result[0]);
+        EXPECT_FALSE(result[1]);
+        EXPECT_TRUE(result[2]);
+        EXPECT_FALSE(result[3]);
+      }
+      // isSignBitSet
+      {
+        const auto result = results[index++];
+        EXPECT_FALSE(result[0]);
+        EXPECT_TRUE(result[1]);
+        EXPECT_FALSE(result[2]);
+        EXPECT_TRUE(result[3]);
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, BitselectUTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b n = 1;
+
+    auto result1_buff = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    result1_buff->setSize(n);
+    auto result2_buff = makeStorageBuffer<cl::uchar2>(device.get(), BufferUsage::kDeviceOnly);
+    result2_buff->setSize(n);
+    auto result3_buff = makeStorageBuffer<cl::ushort3>(device.get(), BufferUsage::kDeviceOnly);
+    result3_buff->setSize(n);
+    auto result4_buff = makeStorageBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceOnly);
+    result4_buff->setSize(n);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testBitselectU));
+    kernel->run(*result1_buff, *result2_buff, *result3_buff, *result4_buff, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'selectBit' func for uint test failed.";
+    {
+      std::array<uint32b, n> results;
+      result1_buff->read(results.data(), results.size(), 0, 0);
+
 //      {
-//        const cl::int4 expected{kVecTrue, kVecTrue, kVecTrue, kVecTrue};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The isequal func is wrong.";
+//        const uint32b expected = 0b010110101'010110101'01011010'01011010u;
+//        EXPECT_EQ(expected, results[0]) << error_message;
 //      }
+    }
+    {
+      std::array<cl::uchar2, n> results;
+      result2_buff->read(results.data(), results.size(), 0, 0);
+
 //      {
-//        const cl::int4 expected{kVecFalse, kVecTrue, kVecFalse, kVecFalse};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The isequal func is wrong.";
+//        const cl::uchar2 expected{0, 0};
+//        for (std::size_t i = 0; i < expected.size(); ++i)
+//          EXPECT_EQ(expected[i], results[0][i]) << error_message;
 //      }
+    }
+    {
+      std::array<cl::ushort3, n> results;
+      result3_buff->read(results.data(), results.size(), 0, 0);
+
 //      {
-//        const cl::int4 expected{kVecFalse, kVecFalse, kVecFalse, kVecFalse};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The isnotequal func is wrong.";
+//        const cl::ushort3 expected{0, 0, 0};
+//        for (std::size_t i = 0; i < expected.size(); ++i)
+//          EXPECT_EQ(expected[i], results[0][i]) << error_message;
 //      }
+    }
+    {
+      std::array<cl::uint4, n> results;
+      result4_buff->read(results.data(), results.size(), 0, 0);
+
 //      {
-//        const cl::int4 expected{kVecTrue, kVecFalse, kVecTrue, kVecTrue};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The isnotequal func is wrong.";
+//        const cl::uint4 expected{0, 0, 0, 0};
+//        for (std::size_t i = 0; i < expected.size(); ++i)
+//          EXPECT_EQ(expected[i], results[0][i]) << error_message;
 //      }
-//      {
-//        const cl::int4 expected{kVecFalse, kVecFalse, kVecTrue, kVecTrue};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The isgreater func is wrong.";
-//      }
-//      {
-//        const cl::int4 expected{kVecFalse, kVecTrue, kVecTrue, kVecTrue};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The isgreaterequal func is wrong.";
-//      }
-//      {
-//        const cl::int4 expected{kVecTrue, kVecFalse, kVecFalse, kVecFalse};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The isless func is wrong.";
-//      }
-//      {
-//        const cl::int4 expected{kVecTrue, kVecTrue, kVecFalse, kVecFalse};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The islessequal func is wrong.";
-//      }
-//      {
-//        const cl::int4 expected{kVecFalse, kVecTrue, kVecTrue, kVecFalse};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The isinf func is wrong.";
-//      }
-//      {
-//        const cl::int4 expected{kVecFalse, kVecFalse, kVecFalse, kVecTrue};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The isnan func is wrong.";
-//      }
-//      {
-//        const cl::int4 expected{kVecFalse, kVecFalse, kVecTrue, kVecTrue};
-//        const auto r = result[index++];
-//        for (std::size_t i = 0; i < 4; ++i) 
-//          ASSERT_EQ(expected[i], r[i]) << "The signbit func is wrong.";
-//      }
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(BuiltInFuncTest, SelectTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n_scalars = 4;
-//    constexpr std::size_t n_2vectors = 2;
-//    constexpr std::size_t n_3vectors = 2;
-//    constexpr std::size_t n_4vectors = 2;
-//    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
-//    results1->setSize(n_scalars);
-//    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceOnly);
-//    results2->setSize(n_2vectors);
-//    auto results3 = makeStorageBuffer<cl::int3>(device.get(), BufferUsage::kDeviceOnly);
-//    results3->setSize(n_3vectors);
-//    auto results4 = makeStorageBuffer<cl::int4>(device.get(), BufferUsage::kDeviceOnly);
-//    results4->setSize(n_4vectors);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testSelect, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "The 'select' func is wrong.";
-//    // Scalar results
-//    {
-//      std::array<int32b, n_scalars> results;
-//      results1->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index++]) << error_message;
-//      ASSERT_EQ(5, results[index++]) << error_message;
-//      ASSERT_EQ(-5, results[index++]) << error_message;
-//      ASSERT_EQ(5, results[index++]) << error_message;
-//    }
-//    // Vector2 results
-//    {
-//      std::array<cl::int2, n_2vectors> results;
-//      results2->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index].x) << error_message;
-//      ASSERT_EQ(-2, results[index++].y) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index++].y) << error_message;
-//    }
-//    // Vector3 results
-//    {
-//      std::array<cl::int3, n_3vectors> results;
-//      results3->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index].x) << error_message;
-//      ASSERT_EQ(-2, results[index].y) << error_message;
-//      ASSERT_EQ(-9, results[index++].z) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index++].z) << error_message;
-//    }
-//    // Vector4 results
-//    {
-//      std::array<cl::int4, n_4vectors> results;
-//      results4->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index].x) << error_message;
-//      ASSERT_EQ(-2, results[index].y) << error_message;
-//      ASSERT_EQ(-9, results[index].z) << error_message;
-//      ASSERT_EQ(-15, results[index++].w) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index].z) << error_message;
-//      ASSERT_EQ(15, results[index++].w) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(BuiltInFuncTest, zSelectImplTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n_scalars = 4;
-//    constexpr std::size_t n_2vectors = 2;
-//    constexpr std::size_t n_3vectors = 2;
-//    constexpr std::size_t n_4vectors = 2;
-//    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
-//    results1->setSize(n_scalars);
-//    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceOnly);
-//    results2->setSize(n_2vectors);
-//    auto results3 = makeStorageBuffer<cl::int3>(device.get(), BufferUsage::kDeviceOnly);
-//    results3->setSize(n_3vectors);
-//    auto results4 = makeStorageBuffer<cl::int4>(device.get(), BufferUsage::kDeviceOnly);
-//    results4->setSize(n_4vectors);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelectImpl, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "The 'zSelectImpl' func is wrong.";
-//    // Scalar results
-//    {
-//      std::array<int32b, n_scalars> results;
-//      results1->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index++]) << error_message;
-//      ASSERT_EQ(5, results[index++]) << error_message;
-//      ASSERT_EQ(-5, results[index++]) << error_message;
-//      ASSERT_EQ(5, results[index++]) << error_message;
-//    }
-//    // Vector2 results
-//    {
-//      std::array<cl::int2, n_2vectors> results;
-//      results2->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index].x) << error_message;
-//      ASSERT_EQ(-2, results[index++].y) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index++].y) << error_message;
-//    }
-//    // Vector3 results
-//    {
-//      std::array<cl::int3, n_3vectors> results;
-//      results3->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index].x) << error_message;
-//      ASSERT_EQ(-2, results[index].y) << error_message;
-//      ASSERT_EQ(-9, results[index++].z) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index++].z) << error_message;
-//    }
-//    // Vector4 results
-//    {
-//      std::array<cl::int4, n_4vectors> results;
-//      results4->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index].x) << error_message;
-//      ASSERT_EQ(-2, results[index].y) << error_message;
-//      ASSERT_EQ(-9, results[index].z) << error_message;
-//      ASSERT_EQ(-15, results[index++].w) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index].z) << error_message;
-//      ASSERT_EQ(15, results[index++].w) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(BuiltInFuncTest, zSelectTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n_scalars = 4;
-//    constexpr std::size_t n_2vectors = 2;
-//    constexpr std::size_t n_3vectors = 2;
-//    constexpr std::size_t n_4vectors = 2;
-//    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
-//    results1->setSize(n_scalars);
-//    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceOnly);
-//    results2->setSize(n_2vectors);
-//    auto results3 = makeStorageBuffer<cl::int3>(device.get(), BufferUsage::kDeviceOnly);
-//    results3->setSize(n_3vectors);
-//    auto results4 = makeStorageBuffer<cl::int4>(device.get(), BufferUsage::kDeviceOnly);
-//    results4->setSize(n_4vectors);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelect, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "The 'zSelect' func is wrong.";
-//    // Scalar results
-//    {
-//      std::array<int32b, n_scalars> results;
-//      results1->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index++]) << error_message;
-//      ASSERT_EQ(5, results[index++]) << error_message;
-//      ASSERT_EQ(-5, results[index++]) << error_message;
-//      ASSERT_EQ(5, results[index++]) << error_message;
-//    }
-//    // Vector2 results
-//    {
-//      std::array<cl::int2, n_2vectors> results;
-//      results2->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index].x) << error_message;
-//      ASSERT_EQ(-2, results[index++].y) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index++].y) << error_message;
-//    }
-//    // Vector3 results
-//    {
-//      std::array<cl::int3, n_3vectors> results;
-//      results3->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index].x) << error_message;
-//      ASSERT_EQ(-2, results[index].y) << error_message;
-//      ASSERT_EQ(-9, results[index++].z) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index++].z) << error_message;
-//    }
-//    // Vector4 results
-//    {
-//      std::array<cl::int4, n_4vectors> results;
-//      results4->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5, results[index].x) << error_message;
-//      ASSERT_EQ(-2, results[index].y) << error_message;
-//      ASSERT_EQ(-9, results[index].z) << error_message;
-//      ASSERT_EQ(-15, results[index++].w) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index].z) << error_message;
-//      ASSERT_EQ(15, results[index++].w) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(BuiltInFuncTest, SelectUTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n_scalars = 2;
-//    constexpr std::size_t n_2vectors = 2;
-//    constexpr std::size_t n_3vectors = 2;
-//    constexpr std::size_t n_4vectors = 2;
-//    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
-//    results1->setSize(n_scalars);
-//    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceOnly);
-//    results2->setSize(n_2vectors);
-//    auto results3 = makeStorageBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceOnly);
-//    results3->setSize(n_3vectors);
-//    auto results4 = makeStorageBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceOnly);
-//    results4->setSize(n_4vectors);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testSelectU, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "The 'select' func is wrong.";
-//    // Scalar results
-//    {
-//      std::array<uint32b, n_scalars> results;
-//      results1->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index++]) << error_message;
-//      ASSERT_EQ(5, results[index++]) << error_message;
-//    }
-//    // Vector2 results
-//    {
-//      std::array<cl::uint2, n_2vectors> results;
-//      results2->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index++].y) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(4, results[index++].y) << error_message;
-//    }
-//    // Vector3 results
-//    {
-//      std::array<cl::uint3, n_3vectors> results;
-//      results3->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index++].z) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(4, results[index].y) << error_message;
-//      ASSERT_EQ(18, results[index++].z) << error_message;
-//    }
-//    // Vector4 results
-//    {
-//      std::array<cl::uint4, n_4vectors> results;
-//      results4->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index].z) << error_message;
-//      ASSERT_EQ(15, results[index++].w) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(4, results[index].y) << error_message;
-//      ASSERT_EQ(18, results[index].z) << error_message;
-//      ASSERT_EQ(30, results[index++].w) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(BuiltInFuncTest, zSelectUImplTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n_scalars = 2;
-//    constexpr std::size_t n_2vectors = 2;
-//    constexpr std::size_t n_3vectors = 2;
-//    constexpr std::size_t n_4vectors = 2;
-//    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
-//    results1->setSize(n_scalars);
-//    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceOnly);
-//    results2->setSize(n_2vectors);
-//    auto results3 = makeStorageBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceOnly);
-//    results3->setSize(n_3vectors);
-//    auto results4 = makeStorageBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceOnly);
-//    results4->setSize(n_4vectors);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelectUImpl, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "The 'zSelectUImpl' func is wrong.";
-//    // Scalar results
-//    {
-//      std::array<uint32b, n_scalars> results;
-//      results1->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index++]) << error_message;
-//      ASSERT_EQ(5, results[index++]) << error_message;
-//    }
-//    // Vector2 results
-//    {
-//      std::array<cl::uint2, n_2vectors> results;
-//      results2->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index++].y) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(4, results[index++].y) << error_message;
-//    }
-//    // Vector3 results
-//    {
-//      std::array<cl::uint3, n_3vectors> results;
-//      results3->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index++].z) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(4, results[index].y) << error_message;
-//      ASSERT_EQ(18, results[index++].z) << error_message;
-//    }
-//    // Vector4 results
-//    {
-//      std::array<cl::uint4, n_4vectors> results;
-//      results4->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index].z) << error_message;
-//      ASSERT_EQ(15, results[index++].w) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(4, results[index].y) << error_message;
-//      ASSERT_EQ(18, results[index].z) << error_message;
-//      ASSERT_EQ(30, results[index++].w) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(BuiltInFuncTest, zSelectUTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n_scalars = 2;
-//    constexpr std::size_t n_2vectors = 2;
-//    constexpr std::size_t n_3vectors = 2;
-//    constexpr std::size_t n_4vectors = 2;
-//    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
-//    results1->setSize(n_scalars);
-//    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceOnly);
-//    results2->setSize(n_2vectors);
-//    auto results3 = makeStorageBuffer<cl::uint3>(device.get(), BufferUsage::kDeviceOnly);
-//    results3->setSize(n_3vectors);
-//    auto results4 = makeStorageBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceOnly);
-//    results4->setSize(n_4vectors);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelectU, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "The 'zSelectU' func is wrong.";
-//    // Scalar results
-//    {
-//      std::array<uint32b, n_scalars> results;
-//      results1->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index++]) << error_message;
-//      ASSERT_EQ(5, results[index++]) << error_message;
-//    }
-//    // Vector2 results
-//    {
-//      std::array<cl::uint2, n_2vectors> results;
-//      results2->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index++].y) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(4, results[index++].y) << error_message;
-//    }
-//    // Vector3 results
-//    {
-//      std::array<cl::uint3, n_3vectors> results;
-//      results3->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index++].z) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(4, results[index].y) << error_message;
-//      ASSERT_EQ(18, results[index++].z) << error_message;
-//    }
-//    // Vector4 results
-//    {
-//      std::array<cl::uint4, n_4vectors> results;
-//      results4->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(10, results[index].x) << error_message;
-//      ASSERT_EQ(2, results[index].y) << error_message;
-//      ASSERT_EQ(9, results[index].z) << error_message;
-//      ASSERT_EQ(15, results[index++].w) << error_message;
-//      ASSERT_EQ(5, results[index].x) << error_message;
-//      ASSERT_EQ(4, results[index].y) << error_message;
-//      ASSERT_EQ(18, results[index].z) << error_message;
-//      ASSERT_EQ(30, results[index++].w) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(BuiltInFuncTest, SelectFTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n_scalars = 4;
-//    constexpr std::size_t n_2vectors = 2;
-//    constexpr std::size_t n_3vectors = 2;
-//    constexpr std::size_t n_4vectors = 2;
-//    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
-//    results1->setSize(n_scalars);
-//    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceOnly);
-//    results2->setSize(n_2vectors);
-//    auto results3 = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceOnly);
-//    results3->setSize(n_3vectors);
-//    auto results4 = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
-//    results4->setSize(n_4vectors);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testSelectF, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "The 'select' func is wrong.";
-//    // Scalar results
-//    {
-//      std::array<float, n_scalars> results;
-//      results1->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index++]) << error_message;
-//      ASSERT_EQ(5.0f, results[index++]) << error_message;
-//      ASSERT_EQ(-5.0f, results[index++]) << error_message;
-//      ASSERT_EQ(5.0f, results[index++]) << error_message;
-//    }
-//    // Vector2 results
-//    {
-//      std::array<cl::float2, n_2vectors> results;
-//      results2->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(-2.0f, results[index++].y) << error_message;
-//      ASSERT_EQ(5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(2.0f, results[index++].y) << error_message;
-//    }
-//    // Vector3 results
-//    {
-//      std::array<cl::float3, n_3vectors> results;
-//      results3->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(-2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(-9.0f, results[index++].z) << error_message;
-//      ASSERT_EQ(5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(9.0f, results[index++].z) << error_message;
-//    }
-//    // Vector4 results
-//    {
-//      std::array<cl::float4, n_4vectors> results;
-//      results4->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(-2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(-9.0f, results[index].z) << error_message;
-//      ASSERT_EQ(-15.0f, results[index++].w) << error_message;
-//      ASSERT_EQ(5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(9.0f, results[index].z) << error_message;
-//      ASSERT_EQ(15.0f, results[index++].w) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(BuiltInFuncTest, zSelectFImplTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n_scalars = 4;
-//    constexpr std::size_t n_2vectors = 2;
-//    constexpr std::size_t n_3vectors = 2;
-//    constexpr std::size_t n_4vectors = 2;
-//    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
-//    results1->setSize(n_scalars);
-//    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceOnly);
-//    results2->setSize(n_2vectors);
-//    auto results3 = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceOnly);
-//    results3->setSize(n_3vectors);
-//    auto results4 = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
-//    results4->setSize(n_4vectors);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelectFImpl, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "The 'zSelectFImpl' func is wrong.";
-//    // Scalar results
-//    {
-//      std::array<float, n_scalars> results;
-//      results1->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index++]) << error_message;
-//      ASSERT_EQ(5.0f, results[index++]) << error_message;
-//      ASSERT_EQ(-5.0f, results[index++]) << error_message;
-//      ASSERT_EQ(5.0f, results[index++]) << error_message;
-//    }
-//    // Vector2 results
-//    {
-//      std::array<cl::float2, n_2vectors> results;
-//      results2->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(-2.0f, results[index++].y) << error_message;
-//      ASSERT_EQ(5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(2.0f, results[index++].y) << error_message;
-//    }
-//    // Vector3 results
-//    {
-//      std::array<cl::float3, n_3vectors> results;
-//      results3->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(-2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(-9.0f, results[index++].z) << error_message;
-//      ASSERT_EQ(5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(9.0f, results[index++].z) << error_message;
-//    }
-//    // Vector4 results
-//    {
-//      std::array<cl::float4, n_4vectors> results;
-//      results4->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(-2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(-9.0f, results[index].z) << error_message;
-//      ASSERT_EQ(-15.0f, results[index++].w) << error_message;
-//      ASSERT_EQ(5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(9.0f, results[index].z) << error_message;
-//      ASSERT_EQ(15.0f, results[index++].w) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
-//
-//TEST(BuiltInFuncTest, zSelectFTest)
-//{
-//  using namespace zinvul;
-//
-//  auto options = makeTestOptions();
-//  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-//    auto& device = device_list[number];
-//    std::cout << getTestDeviceInfo(*device);
-//
-//    constexpr std::size_t n_scalars = 4;
-//    constexpr std::size_t n_2vectors = 2;
-//    constexpr std::size_t n_3vectors = 2;
-//    constexpr std::size_t n_4vectors = 2;
-//    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
-//    results1->setSize(n_scalars);
-//    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceOnly);
-//    results2->setSize(n_2vectors);
-//    auto results3 = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceOnly);
-//    results3->setSize(n_3vectors);
-//    auto results4 = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
-//    results4->setSize(n_4vectors);
-//
-//    auto kernel = makeZinvulKernel(device.get(), built_in_func, testzSelectF, 1);
-//    kernel->run(*results1, *results2, *results3, *results4, {1}, 0);
-//    device->waitForCompletion();
-//
-//    const char* error_message = "The 'zSelectF' func is wrong.";
-//    // Scalar results
-//    {
-//      std::array<float, n_scalars> results;
-//      results1->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index++]) << error_message;
-//      ASSERT_EQ(5.0f, results[index++]) << error_message;
-//      ASSERT_EQ(-5.0f, results[index++]) << error_message;
-//      ASSERT_EQ(5.0f, results[index++]) << error_message;
-//    }
-//    // Vector2 results
-//    {
-//      std::array<cl::float2, n_2vectors> results;
-//      results2->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(-2.0f, results[index++].y) << error_message;
-//      ASSERT_EQ(5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(2.0f, results[index++].y) << error_message;
-//    }
-//    // Vector3 results
-//    {
-//      std::array<cl::float3, n_3vectors> results;
-//      results3->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(-2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(-9.0f, results[index++].z) << error_message;
-//      ASSERT_EQ(5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(9.0f, results[index++].z) << error_message;
-//    }
-//    // Vector4 results
-//    {
-//      std::array<cl::float4, n_4vectors> results;
-//      results4->read(results.data(), results.size(), 0, 0);
-//      std::size_t index = 0;
-//      ASSERT_EQ(-5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(-2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(-9.0f, results[index].z) << error_message;
-//      ASSERT_EQ(-15.0f, results[index++].w) << error_message;
-//      ASSERT_EQ(5.0f, results[index].x) << error_message;
-//      ASSERT_EQ(2.0f, results[index].y) << error_message;
-//      ASSERT_EQ(9.0f, results[index].z) << error_message;
-//      ASSERT_EQ(15.0f, results[index++].w) << error_message;
-//    }
-//
-//    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
-//  }
-//}
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, SelectITest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b n = 2;
+
+    auto result1_buff = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    result1_buff->setSize(n);
+    auto result2_buff = makeStorageBuffer<cl::char2>(device.get(), BufferUsage::kDeviceOnly);
+    result2_buff->setSize(n);
+    auto result3_buff = makeStorageBuffer<cl::short3>(device.get(), BufferUsage::kDeviceOnly);
+    result3_buff->setSize(n);
+    auto result4_buff = makeStorageBuffer<cl::int4>(device.get(), BufferUsage::kDeviceOnly);
+    result4_buff->setSize(n);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testSelectI));
+    kernel->run(*result1_buff, *result2_buff, *result3_buff, *result4_buff, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'testSelect' func for int test failed.";
+    {
+      std::array<int32b, n> results;
+      result1_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const int32b expected = 1;
+        ASSERT_EQ(expected, results[0]) << error_message;
+      }
+      {
+        const int32b expected = -1;
+        ASSERT_EQ(expected, results[1]) << error_message;
+      }
+    }
+    {
+      std::array<cl::char2, n> results;
+      result2_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const cl::char2 expected{1, -2};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[0][i]) << error_message;
+      }
+      {
+        const cl::char2 expected{-1, 2};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[1][i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::short3, n> results;
+      result3_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const cl::short3 expected{1, -2, 3};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[0][i]) << error_message;
+      }
+      {
+        const cl::short3 expected{-1, 2, -3};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[1][i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::int4, n> results;
+      result4_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const cl::int4 expected{1, -2, 3, -4};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[0][i]) << error_message;
+      }
+      {
+        const cl::int4 expected{-1, 2, -3, 4};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[1][i]) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, SelectUTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b n = 2;
+
+    auto result1_buff = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    result1_buff->setSize(n);
+    auto result2_buff = makeStorageBuffer<cl::uchar2>(device.get(), BufferUsage::kDeviceOnly);
+    result2_buff->setSize(n);
+    auto result3_buff = makeStorageBuffer<cl::ushort3>(device.get(), BufferUsage::kDeviceOnly);
+    result3_buff->setSize(n);
+    auto result4_buff = makeStorageBuffer<cl::uint4>(device.get(), BufferUsage::kDeviceOnly);
+    result4_buff->setSize(n);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testSelectU));
+    kernel->run(*result1_buff, *result2_buff, *result3_buff, *result4_buff, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'testSelect' func for uint test failed.";
+    {
+      std::array<uint32b, n> results;
+      result1_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const uint32b expected = 1;
+        ASSERT_EQ(expected, results[0]) << error_message;
+      }
+      {
+        const uint32b expected = 2;
+        ASSERT_EQ(expected, results[1]) << error_message;
+      }
+    }
+    {
+      std::array<cl::uchar2, n> results;
+      result2_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const cl::uchar2 expected{1, 4};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[0][i]) << error_message;
+      }
+      {
+        const cl::uchar2 expected{3, 2};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[1][i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::ushort3, n> results;
+      result3_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const cl::ushort3 expected{1, 5, 3};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[0][i]) << error_message;
+      }
+      {
+        const cl::ushort3 expected{4, 2, 6};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[1][i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::uint4, n> results;
+      result4_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const cl::uint4 expected{1, 6, 3, 8};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[0][i]) << error_message;
+      }
+      {
+        const cl::uint4 expected{5, 2, 7, 4};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[1][i]) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(BuiltInFuncTest, SelectFTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b n = 2;
+
+    auto result1_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result1_buff->setSize(n);
+    auto result2_buff = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceOnly);
+    result2_buff->setSize(n);
+    auto result3_buff = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceOnly);
+    result3_buff->setSize(n);
+    auto result4_buff = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
+    result4_buff->setSize(n);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testSelectF));
+    kernel->run(*result1_buff, *result2_buff, *result3_buff, *result4_buff, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'testSelect' func for float test failed.";
+    {
+      std::array<float, n> results;
+      result1_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const float expected = 1.0f;
+        ASSERT_FLOAT_EQ(expected, results[0]) << error_message;
+      }
+      {
+        const float expected = -1.0f;
+        ASSERT_FLOAT_EQ(expected, results[1]) << error_message;
+      }
+    }
+    {
+      std::array<cl::float2, n> results;
+      result2_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const cl::float2 expected{1.0f, -2.0f};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_FLOAT_EQ(expected[i], results[0][i]) << error_message;
+      }
+      {
+        const cl::float2 expected{-1.0f, 2.0f};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_FLOAT_EQ(expected[i], results[1][i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::float3, n> results;
+      result3_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const cl::float3 expected{1.0f, -2.0f, 3.0f};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[0][i]) << error_message;
+      }
+      {
+        const cl::float3 expected{-1.0f, 2.0f, -3.0f};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[1][i]) << error_message;
+      }
+    }
+    {
+      std::array<cl::float4, n> results;
+      result4_buff->read(results.data(), results.size(), 0, 0);
+
+      {
+        const cl::float4 expected{1.0f, -2.0f, 3.0f, -4.0f};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[0][i]) << error_message;
+      }
+      {
+        const cl::float4 expected{-1.0f, 2.0f, -3.0f, 4.0f};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+          ASSERT_EQ(expected[i], results[1][i]) << error_message;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
 
 TEST(BuiltInFuncTest, Int8bVectorDataTest)
 {

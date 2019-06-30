@@ -396,127 +396,152 @@ Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
 
 //! Check if two values are equal in value
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator==(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator==(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator==(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator==(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator==(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator==(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator!=(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator!=(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator!=(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator!=(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator!=(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator!=(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator<(const Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator<(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator<(const Type& lhs,
-                             const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator<(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator<(const Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator<(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator<=(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator<=(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator<=(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator<=(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator<=(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator<=(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator>(const Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator>(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator>(const Type& lhs,
-                             const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator>(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator>(const Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator>(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator>=(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator>=(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator>=(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator>=(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator>=(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator>=(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept;
 
 //! Return the result of boolean negation operations
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator!(const Vector<Type, kN>& value) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator!(
+    const Vector<Type, kN>& value) noexcept;
 
 //! Return the result of boolean AND operations
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator&&(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator&&(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //! Return the result of boolean AND operations
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator&&(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator&&(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //! Return the result of boolean AND operations
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator&&(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator&&(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept;
 
 //! Return the result of boolean OR operations
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator||(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator||(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //! Return the result of boolean OR operations
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator||(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator||(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept;
 
 //! Return the result of boolean OR operations
 template <typename Type, std::size_t kN>
-Vector<int32b, kN> operator||(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept;
+Vector<Config::ComparisonResultType<Type>, kN> operator||(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept;
 
 // Type aliases
 // Vector2

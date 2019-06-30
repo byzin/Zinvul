@@ -11,265 +11,349 @@
 #define ZINVUL_BUILT_IN_FUNC_TEST_RELATIONAL_CL
 
 // Zinvul
-#include "zinvul/cl/math.cl"
+#include "zinvul/cl/limits.cl"
+#include "zinvul/cl/relational.cl"
 #include "zinvul/cl/types.cl"
+#include "zinvul/cl/type_traits.cl"
 #include "zinvul/cl/utility.cl"
 
-///*!
-//  */
-//kernel void testRelational(global int32b* scalar_results,
-//                           global int4* vector_results)
-//{
-//  const uint index = zGetGlobalIdX();
-//  if (index == 0) {
-//    // Scalar
-//    uint scalar_index = 0;
-//    scalar_results[scalar_index++] = isequal(1.0f, 1.0f);
-//    scalar_results[scalar_index++] = isequal(1.0f, 2.0f);
-//    scalar_results[scalar_index++] = isnotequal(1.0f, 1.0f);
-//    scalar_results[scalar_index++] = isnotequal(1.0f, 2.0f);
-//    scalar_results[scalar_index++] = isgreater(1.0f, 0.0f);
-//    scalar_results[scalar_index++] = isgreater(1.0f, 1.0f);
-//    scalar_results[scalar_index++] = isgreater(1.0f, 2.0f);
-//    scalar_results[scalar_index++] = isgreaterequal(1.0f, 0.0f);
-//    scalar_results[scalar_index++] = isgreaterequal(1.0f, 1.0f);
-//    scalar_results[scalar_index++] = isgreaterequal(1.0f, 2.0f);
-//    scalar_results[scalar_index++] = isless(1.0f, 0.0f);
-//    scalar_results[scalar_index++] = isless(1.0f, 1.0f);
-//    scalar_results[scalar_index++] = isless(1.0f, 2.0f);
-//    scalar_results[scalar_index++] = islessequal(1.0f, 0.0f);
-//    scalar_results[scalar_index++] = islessequal(1.0f, 1.0f);
-//    scalar_results[scalar_index++] = islessequal(1.0f, 2.0f);
-//    scalar_results[scalar_index++] = isinf(1.0f);
-//    scalar_results[scalar_index++] = isinf(INFINITY);
-//    scalar_results[scalar_index++] = isnan(1.0f);
-//    scalar_results[scalar_index++] = isnan(NAN);
-//    scalar_results[scalar_index++] = signbit(1.0f);
-//    scalar_results[scalar_index++] = signbit(0.0f);
-//    scalar_results[scalar_index++] = signbit(-0.0f);
-//    scalar_results[scalar_index++] = signbit(-1.0f);
-//    // Vector
-//    uint vector_index = 0;
-//    {
-//      const float4 v0 = zMakeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
-//      const float4 v1 = zMakeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
-//      const float4 v2 = zMakeFloat4(1.0f, 1.0f, 1.0f, 1.0f);
-//#if defined(Z_DEBUG_MODE)
-//      vector_results[vector_index++] = isequal(v0, v1);
-//#else // Z_DEBUG_MODE
-//      vector_results[vector_index++] = zMakeInt4(~0, ~0, ~0, ~0);
-//#endif // Z_DEBUG_MODE
-//      vector_results[vector_index++] = isequal(v0, v2);
-//      vector_results[vector_index++] = isnotequal(v0, v1);
-//      vector_results[vector_index++] = isnotequal(v0, v2);
-//      vector_results[vector_index++] = isgreater(v0, v2);
-//      vector_results[vector_index++] = isgreaterequal(v0, v2);
-//      vector_results[vector_index++] = isless(v0, v2);
-//      vector_results[vector_index++] = islessequal(v0, v2);
-//    }
-//    {
-//      const float4 v0 = zMakeFloat4(MAXFLOAT, -INFINITY, INFINITY, NAN);
-//      vector_results[vector_index++] = isinf(v0);
-//      vector_results[vector_index++] = isnan(v0);
-//    }
-//    {
-//      const float4 v0 = zMakeFloat4(1.0f, 0.0f, -0.0f, -1.0f);
-//      vector_results[vector_index++] = signbit(v0);
-//    }
-//  }
-//}
-//
-//#define ZINVUL_TEST_SELECT(select1, select2, select3, select4, results1, results2, results3, results4) \
-//  const uint index = zGetGlobalIdX(); \
-//  if (index == 0) { \
-//    uint table_index = 0; \
-//    { \
-//      const int32b x = 5; \
-//      results1[table_index++] = select1(x, -x, 0 <= x); \
-//    } \
-//    { \
-//      const int32b x = 5; \
-//      results1[table_index++] = select1(x, -x, x < 0); \
-//    } \
-//    { \
-//      const int32b x = -5; \
-//      results1[table_index++] = select1(x, -x, 0 <= x); \
-//    } \
-//    { \
-//      const int32b x = -5; \
-//      results1[table_index++] = select1(x, -x, x < 0); \
-//    } \
-//    table_index = 0; \
-//    { \
-//      const int2 x = zMakeInt2(5, -2); \
-//      results2[table_index++] = select2(x, -x, 0 <= x); \
-//    } \
-//    { \
-//      const int2 x = zMakeInt2(5, -2); \
-//      results2[table_index++] = select2(x, -x, x < 0); \
-//    } \
-//    table_index = 0; \
-//    { \
-//      const int3 x = zMakeInt3(5, -2, 9); \
-//      results3[table_index++] = select3(x, -x, 0 <= x); \
-//    } \
-//    { \
-//      const int3 x = zMakeInt3(5, -2, 9); \
-//      results3[table_index++] = select3(x, -x, x < 0); \
-//    } \
-//    table_index = 0; \
-//    { \
-//      const int4 x = zMakeInt4(5, -2, 9, -15); \
-//      results4[table_index++] = select4(x, -x, 0 <= x); \
-//    } \
-//    { \
-//      const int4 x = zMakeInt4(5, -2, 9, -15); \
-//      results4[table_index++] = select4(x, -x, x < 0); \
-//    } \
-//  } \
-//
-//kernel void testSelect(global int32b* results1, global int2* results2,
-//    global int3* results3, global int4* results4)
-//{
-//  ZINVUL_TEST_SELECT(select, select, select, select, results1, results2, results3, results4);
-//}
-//
-//kernel void testzSelectImpl(global int32b* results1, global int2* results2,
-//    global int3* results3, global int4* results4)
-//{
-//  ZINVUL_TEST_SELECT(zSelectImpl, zSelect2Impl, zSelect3Impl, zSelect4Impl, results1, results2, results3, results4);
-//}
-//
-//kernel void testzSelect(global int32b* results1, global int2* results2,
-//    global int3* results3, global int4* results4)
-//{
-//  ZINVUL_TEST_SELECT(zSelect, zSelect2, zSelect3, zSelect4, results1, results2, results3, results4);
-//}
-//
-//#define ZINVUL_TEST_SELECTU(select1, select2, select3, select4, results1, results2, results3, results4) \
-//  const uint index = zGetGlobalIdX(); \
-//  if (index == 0) { \
-//    uint table_index = 0; \
-//    { \
-//      const uint32b x = 5; \
-//      results1[table_index++] = select1(x, 2u * x, x == 5u); \
-//    } \
-//    { \
-//      const uint32b x = 5; \
-//      results1[table_index++] = select1(x, 2u * x, x != 5u); \
-//    } \
-//    table_index = 0; \
-//    { \
-//      const uint2 x = zMakeUInt2(5, 2); \
-//      results2[table_index++] = select2(x, 2u * x, x == 5u); \
-//    } \
-//    { \
-//      const uint2 x = zMakeUInt2(5, 2); \
-//      results2[table_index++] = select2(x, 2u * x, x != 5u); \
-//    } \
-//    table_index = 0; \
-//    { \
-//      const uint3 x = zMakeUInt3(5, 2, 9); \
-//      results3[table_index++] = select3(x, 2u * x, x == 5u); \
-//    } \
-//    { \
-//      const uint3 x = zMakeUInt3(5, 2, 9); \
-//      results3[table_index++] = select3(x, 2u * x, x != 5u); \
-//    } \
-//    table_index = 0; \
-//    { \
-//      const uint4 x = zMakeUInt4(5, 2, 9, 15); \
-//      results4[table_index++] = select4(x, 2u * x, x == 5u); \
-//    } \
-//    { \
-//      const uint4 x = zMakeUInt4(5, 2, 9, 15); \
-//      results4[table_index++] = select4(x, 2u * x, x != 5u); \
-//    } \
-//  } \
-//
-//kernel void testSelectU(global uint32b* results1, global uint2* results2,
-//    global uint3* results3, global uint4* results4)
-//{
-//  ZINVUL_TEST_SELECTU(select, select, select, select, results1, results2, results3, results4);
-//}
-//
-//kernel void testzSelectUImpl(global uint32b* results1, global uint2* results2,
-//    global uint3* results3, global uint4* results4)
-//{
-//  ZINVUL_TEST_SELECTU(zSelectUImpl, zSelectU2Impl, zSelectU3Impl, zSelectU4Impl, results1, results2, results3, results4);
-//}
-//
-//kernel void testzSelectU(global uint32b* results1, global uint2* results2,
-//    global uint3* results3, global uint4* results4)
-//{
-//  ZINVUL_TEST_SELECTU(zSelectU, zSelectU2, zSelectU3, zSelectU4, results1, results2, results3, results4);
-//}
-//
-//#define ZINVUL_TEST_SELECTF(select1, select2, select3, select4, results1, results2, results3, results4) \
-//  const uint index = zGetGlobalIdX(); \
-//  if (index == 0) { \
-//    uint table_index = 0; \
-//    { \
-//      const float x = 5.0f; \
-//      results1[table_index++] = select1(x, -x, 0.0f <= x); \
-//    } \
-//    { \
-//      const float x = 5.0f; \
-//      results1[table_index++] = select1(x, -x, x < 0.0f); \
-//    } \
-//    { \
-//      const float x = -5.0f; \
-//      results1[table_index++] = select1(x, -x, 0.0f <= x); \
-//    } \
-//    { \
-//      const float x = -5.0f; \
-//      results1[table_index++] = select1(x, -x, x < 0.0f); \
-//    } \
-//    table_index = 0; \
-//    { \
-//      const float2 x = zMakeFloat2(5.0f, -2.0f); \
-//      results2[table_index++] = select2(x, -x, 0.0f <= x); \
-//    } \
-//    { \
-//      const float2 x = zMakeFloat2(5.0f, -2.0f); \
-//      results2[table_index++] = select2(x, -x, x < 0.0f); \
-//    } \
-//    table_index = 0; \
-//    { \
-//      const float3 x = zMakeFloat3(5.0f, -2.0f, 9.0f); \
-//      results3[table_index++] = select3(x, -x, 0.0f <= x); \
-//    } \
-//    { \
-//      const float3 x = zMakeFloat3(5.0f, -2.0f, 9.0f); \
-//      results3[table_index++] = select3(x, -x, x < 0.0f); \
-//    } \
-//    table_index = 0; \
-//    { \
-//      const float4 x = zMakeFloat4(5.0f, -2.0f, 9.0f, -15.0f); \
-//      results4[table_index++] = select4(x, -x, 0.0f <= x); \
-//    } \
-//    { \
-//      const float4 x = zMakeFloat4(5.0f, -2.0f, 9.0f, -15.0f); \
-//      results4[table_index++] = select4(x, -x, x < 0.0f); \
-//    } \
-//  } \
-//
-//kernel void testSelectF(global float* results1, global float2* results2,
-//    global float3* results3, global float4* results4)
-//{
-//  ZINVUL_TEST_SELECTF(select, select, select, select, results1, results2, results3, results4);
-//}
-//
-//kernel void testzSelectFImpl(global float* results1, global float2* results2,
-//    global float3* results3, global float4* results4)
-//{
-//  ZINVUL_TEST_SELECTF(zSelectFImpl, zSelectF2Impl, zSelectF3Impl, zSelectF4Impl, results1, results2, results3, results4);
-//}
-//
-//kernel void testzSelectF(global float* results1, global float2* results2,
-//    global float3* results3, global float4* results4)
-//{
-//  ZINVUL_TEST_SELECTF(zSelectF, zSelectF2, zSelectF3, zSelectF4, results1, results2, results3, results4);
-//}
+using namespace zinvul;
+
+// Forward declaration
+__kernel void testRelationalF1(GlobalPtr<int32b> results);
+__kernel void testRelationalF4(GlobalPtr<int4> results);
+__kernel void testBitselectU(GlobalPtr<uint32b> results1,
+    GlobalPtr<uchar2> results2,
+    GlobalPtr<ushort3> results3,
+    GlobalPtr<uint4> results4);
+__kernel void testSelectI(GlobalPtr<int32b> results1,
+    GlobalPtr<char2> results2,
+    GlobalPtr<short3> results3,
+    GlobalPtr<int4> results4);
+__kernel void testSelectU(GlobalPtr<uint32b> results1,
+    GlobalPtr<uchar2> results2,
+    GlobalPtr<ushort3> results3,
+    GlobalPtr<uint4> results4);
+__kernel void testSelectF(GlobalPtr<float> results1,
+    GlobalPtr<float2> results2,
+    GlobalPtr<float3> results3,
+    GlobalPtr<float4> results4);
+
+namespace test {
+
+template <typename FloatN, typename ResultN> inline
+void testRelationalImpl(const FloatN a,
+    const FloatN b,
+    const FloatN c,
+    const FloatN d,
+    GlobalPtr<ResultN> results) noexcept;
+
+/*!
+  */
+template <typename FloatN, typename ResultN> inline
+void testRelationalImpl(const FloatN a,
+    const FloatN b,
+    const FloatN c,
+    const FloatN d,
+    GlobalPtr<ResultN> results) noexcept
+{
+  uint32b index = 0;
+  results[index++] = isEqual(a, b);
+  results[index++] = isNotEqual(a, b);
+  results[index++] = isGreater(a, b);
+  results[index++] = isGreater(a, d);
+  results[index++] = isGreaterEqual(a, b);
+  results[index++] = isLess(a, b);
+  results[index++] = isLess(a, d);
+  results[index++] = isLessEqual(a, b);
+  results[index++] = isInf(d);
+  results[index++] = isNan(c);
+  results[index++] = isSignBitSet(c);
+  results[index++] = isSignBitSet(d);
+}
+
+} // namespace test
+
+/*!
+  */
+__kernel void testRelationalF1(GlobalPtr<int32b> results)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    using Limits = zinvul::NumericLimits<float>;
+    {
+      const float a = 1.0f;
+      const float b = 1.0f;
+      const float c = -1.0f;
+      const float d = Limits::infinity();
+      test::testRelationalImpl(a, b, c, d, results);
+    }
+    {
+      const float a = 0.0f;
+      const float b = Limits::infinity();
+      const float c = -Limits::infinity();
+      const float d = Limits::quietNan();
+      test::testRelationalImpl(a, b, c, d, results + 12);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testRelationalF4(GlobalPtr<int4> results)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    using Limits = zinvul::NumericLimits<float>;
+    const float4 a{1.0f, 2.0f, 3.0f, 4.0f};
+    const float4 b{3.0f, 2.0f, 1.0f, 0.0f};
+    const float4 c{1.0f, 0.0f, -1.0f, Limits::quietNan()};
+    const float4 d{0.0f, -1.0f, Limits::infinity(), -Limits::infinity()};
+    test::testRelationalImpl(a, b, c, d, results);
+  }
+}
+
+/*!
+  */
+__kernel void testBitselectU(GlobalPtr<uint32b> results1,
+    GlobalPtr<uchar2> results2,
+    GlobalPtr<ushort3> results3,
+    GlobalPtr<uint4> results4)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    {
+      const uint32b a = 0b01010101'01010101'01010101'01010101u;
+      const uint32b b = 0b10101010'10101011'10101010'10101010u;
+      const uint32b c = 0b00001111'00001111'00001111'00001111u;
+      results1[0] = selectBit(a, b, c);
+    }
+    {
+      const uchar2 a = makeUChar2(0b01010101u);
+      const uchar2 b = makeUChar2(0b10101010u);
+      const uchar2 c{0b00001111u, 0b11110000u};
+      results2[0] = selectBit(a, b, c);
+    }
+    {
+      const ushort3 a = makeUShort3(0b01010101'01010101u);
+      const ushort3 b = makeUShort3(0b10101010'10101010u);
+      const ushort3 c{0b00001111'00001111u, 0b11110000'11110000u, 0b00110011'00110011u};
+      results3[0] = selectBit(a, b, c);
+    }
+    {
+      const uint4 a = makeUInt4(0b01010101'01010101'01010101'01010101u);
+      const uint4 b = makeUInt4(0b10101010'10101011'10101010'10101010u);
+      const uint4 c{0b00001111'00001111'00001111'00001111u,
+                   0b11110000'11110000'11110000'11110000u,
+                   0b00110011'00110011'00110011'00110011u,
+                   0b11001100'11001100'11001100'11001100u};
+      results4[0] = selectBit(a, b, c);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testSelectI(GlobalPtr<int32b> results1,
+    GlobalPtr<char2> results2,
+    GlobalPtr<short3> results3,
+    GlobalPtr<int4> results4)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    constexpr int32b sfalse = kResultFalse<int32b>;
+    constexpr int32b strue = kResultTrue<int32b>;
+    constexpr int32b vfalse = kResultFalse<int4>;
+    constexpr int32b vtrue = kResultTrue<int4>;
+
+    {
+      const int32b a = 1;
+      const int32b b = -1;
+      const int32b c = sfalse;
+      results1[0] = selectValue(a, b, c);
+    }
+    {
+      const int32b a = 1;
+      const int32b b = -1;
+      const int32b c = strue;
+      results1[1] = selectValue(a, b, c);
+    }
+
+    {
+      const char2 a{1, 2};
+      const char2 b{-1, -2};
+      const char2 c{kResultFalse<char2>, kResultTrue<char2>};
+      results2[0] = selectValue(a, b, c);
+    }
+    {
+      const char2 a{1, 2};
+      const char2 b{-1, -2};
+      const char2 c{kResultTrue<char2>, kResultFalse<char2>};
+      results2[1] = selectValue(a, b, c);
+    }
+
+    {
+      const short3 a{1, 2, 3};
+      const short3 b{-1, -2, -3};
+      const short3 c{kResultFalse<short3>, kResultTrue<short3>, kResultFalse<short3>};
+      results3[0] = selectValue(a, b, c);
+    }
+    {
+      const short3 a{1, 2, 3};
+      const short3 b{-1, -2, -3};
+      const short3 c{kResultTrue<short3>, kResultFalse<short3>, kResultTrue<short3>};
+      results3[1] = selectValue(a, b, c);
+    }
+
+    {
+      const int4 a{1, 2, 3, 4};
+      const int4 b{-1, -2, -3, -4};
+      const int4 c{vfalse, vtrue, vfalse, vtrue};
+      results4[0] = selectValue(a, b, c);
+    }
+    {
+      const int4 a{1, 2, 3, 4};
+      const int4 b{-1, -2, -3, -4};
+      const int4 c{vtrue, vfalse, vtrue, vfalse};
+      results4[1] = selectValue(a, b, c);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testSelectU(GlobalPtr<uint32b> results1,
+    GlobalPtr<uchar2> results2,
+    GlobalPtr<ushort3> results3,
+    GlobalPtr<uint4> results4)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    constexpr int32b sfalse = kResultFalse<uint32b>;
+    constexpr int32b strue = kResultTrue<uint32b>;
+    constexpr int32b vfalse = kResultFalse<uint4>;
+    constexpr int32b vtrue = kResultTrue<uint4>;
+
+    {
+      const uint32b a = 1u;
+      const uint32b b = 2u;
+      const int32b c = sfalse;
+      results1[0] = selectValue(a, b, c);
+    }
+    {
+      const uint32b a = 1u;
+      const uint32b b = 2u;
+      const int32b c = strue;
+      results1[1] = selectValue(a, b, c);
+    }
+
+    {
+      const uchar2 a{1u, 2u};
+      const uchar2 b{3u, 4u};
+      const char2 c{kResultFalse<char2>, kResultTrue<char2>};
+      results2[0] = selectValue(a, b, c);
+    }
+    {
+      const uchar2 a{1u, 2u};
+      const uchar2 b{3u, 4u};
+      const char2 c{kResultTrue<char2>, kResultFalse<char2>};
+      results2[1] = selectValue(a, b, c);
+    }
+
+    {
+      const ushort3 a{1u, 2u, 3u};
+      const ushort3 b{4u, 5u, 6u};
+      const short3 c{kResultFalse<short3>, kResultTrue<short3>, kResultFalse<short3>};
+      results3[0] = selectValue(a, b, c);
+    }
+    {
+      const ushort3 a{1u, 2u, 3u};
+      const ushort3 b{4u, 5u, 6u};
+      const short3 c{kResultTrue<short3>, kResultFalse<short3>, kResultTrue<short3>};
+      results3[1] = selectValue(a, b, c);
+    }
+
+    {
+      const uint4 a{1u, 2u, 3u, 4u};
+      const uint4 b{5u, 6u, 7u, 8u};
+      const int4 c{vfalse, vtrue, vfalse, vtrue};
+      results4[0] = selectValue(a, b, c);
+    }
+    {
+      const uint4 a{1u, 2u, 3u, 4u};
+      const uint4 b{5u, 6u, 7u, 8u};
+      const int4 c{vtrue, vfalse, vtrue, vfalse};
+      results4[1] = selectValue(a, b, c);
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testSelectF(GlobalPtr<float> results1,
+    GlobalPtr<float2> results2,
+    GlobalPtr<float3> results3,
+    GlobalPtr<float4> results4)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    constexpr int32b sfalse = kResultFalse<float>;
+    constexpr int32b strue = kResultTrue<float>;
+    constexpr int32b vfalse = kResultFalse<float4>;
+    constexpr int32b vtrue = kResultTrue<float4>;
+
+    {
+      const float a = 1.0f;
+      const float b =-1.0f;
+      const int32b c = sfalse;
+      results1[0] = selectValue(a, b, c);
+    }
+    {
+      const float a = 1.0f;
+      const float b = -1.0f;
+      const int32b c = strue;
+      results1[1] = selectValue(a, b, c);
+    }
+
+    {
+      const float2 a{1.0f, 2.0f};
+      const float2 b{-1.0f, -2.0f};
+      const int2 c{vfalse, vtrue};
+      results2[0] = selectValue(a, b, c);
+    }
+    {
+      const float2 a{1.0f, 2.0f};
+      const float2 b{-1.0f, -2.0f};
+      const int2 c{vtrue, vfalse};
+      results2[1] = selectValue(a, b, c);
+    }
+
+    {
+      const float3 a{1.0f, 2.0f, 3.0f};
+      const float3 b{-1.0f, -2.0f, -3.0f};
+      const int3 c{vfalse, vtrue, vfalse};
+      results3[0] = selectValue(a, b, c);
+    }
+    {
+      const float3 a{1.0f, 2.0f, 3.0f};
+      const float3 b{-1.0f, -2.0f, -3.0f};
+      const int3 c{vtrue, vfalse, vtrue};
+      results3[1] = selectValue(a, b, c);
+    }
+
+    {
+      const float4 a{1.0f, 2.0f, 3.0f, 4.0f};
+      const float4 b{-1.0f, -2.0f, -3.0f, -4.0f};
+      const int4 c{vfalse, vtrue, vfalse, vtrue};
+      results4[0] = selectValue(a, b, c);
+    }
+    {
+      const float4 a{1.0f, 2.0f, 3.0f, 4.0f};
+      const float4 b{-1.0f, -2.0f, -3.0f, -4.0f};
+      const int4 c{vtrue, vfalse, vtrue, vfalse};
+      results4[1] = selectValue(a, b, c);
+    }
+  }
+}
 
 #endif /* ZINVUL_BUILT_IN_FUNC_TEST_RELATIONAL_CL */

@@ -15,7 +15,7 @@
 
 namespace zinvul {
 
-// Vector types
+//! Vector types
 template <typename Type>
 struct VectorType
 {
@@ -25,13 +25,175 @@ struct VectorType
   static_assert(sizeof(Type) == 0, "The 'Type' is unsupported type.");
 };
 
+//! Integer vector type
+template <size_t kBytes, size_t kN>
+struct IntegerVector
+{
+  using Type = int32b;
+  using ElementType = int32b;
+  //! Return the number of elements of the type
+  static constexpr size_t size() noexcept {return 0u;}
+  static_assert(kN == 0, "The size of vector is unsupported.");
+};
+
+template <size_t kN>
+using Integer8Vector = IntegerVector<1, kN>;
+
+template <size_t kN>
+using Integer8VectorType = typename Integer8Vector<kN>::Type;
+
+template <size_t kN>
+using Integer16Vector = IntegerVector<2, kN>;
+
+template <size_t kN>
+using Integer16VectorType = typename Integer16Vector<kN>::Type;
+
+template <size_t kN>
+using Integer32Vector = IntegerVector<4, kN>;
+
+template <size_t kN>
+using Integer32VectorType = typename Integer32Vector<kN>::Type;
+
+template <size_t kN>
+using Integer64Vector = IntegerVector<8, kN>;
+
+template <size_t kN>
+using Integer64VectorType = typename Integer64Vector<kN>::Type;
+
+//! Unsigned integer vector type
+template <size_t kBytes, size_t kN>
+struct UIntegerVector
+{
+  using Type = uint32b;
+  using ElementType = uint32b;
+  //! Return the number of elements of the type
+  static constexpr size_t size() noexcept {return 0u;}
+  static_assert(kN == 0, "The size of vector is unsupported.");
+};
+
+template <size_t kN>
+using UInteger8Vector = UIntegerVector<1, kN>;
+
+template <size_t kN>
+using UInteger8VectorType = typename UInteger8Vector<kN>::Type;
+
+template <size_t kN>
+using UInteger16Vector = UIntegerVector<2, kN>;
+
+template <size_t kN>
+using UInteger16VectorType = typename UInteger16Vector<kN>::Type;
+
+template <size_t kN>
+using UInteger32Vector = UIntegerVector<4, kN>;
+
+template <size_t kN>
+using UInteger32VectorType = typename UInteger32Vector<kN>::Type;
+
+template <size_t kN>
+using UInteger64Vector = UIntegerVector<8, kN>;
+
+template <size_t kN>
+using UInteger64VectorType = typename UInteger64Vector<kN>::Type;
+
+//! Unsigned integer vector type
+template <size_t kBytes, size_t kN>
+struct FloatVector 
+{
+  using Type = float;
+  using ElementType = float;
+  //! Return the number of elements of the type
+  static constexpr size_t size() noexcept {return 0u;}
+  static_assert(kN == 0, "The size of vector is unsupported.");
+};
+
+template <size_t kN>
+using Float16Vector = FloatVector<2, kN>;
+
+template <size_t kN>
+using Float16VectorType = typename Float16Vector<kN>::Type;
+
+template <size_t kN>
+using Float32Vector = FloatVector<4, kN>;
+
+template <size_t kN>
+using Float32VectorType = typename Float32Vector<kN>::Type;
+
+template <size_t kN>
+using Float64Vector = FloatVector<8, kN>;
+
+template <size_t kN>
+using Float64VectorType = typename Float64Vector<kN>::Type;
+
+//! Integer type that is same element size and alignment as the given type
+template <typename T>
+using IntegerFrom = IntegerVector<sizeof(typename VectorType<T>::ElementType),
+                                  VectorType<T>::size()>;
+
+//! Integer type that is same element size and alignment as the given type
+template <typename T>
+using IntegerTypeFrom = typename IntegerFrom<T>::Type;
+
+//! Unsigned integer type that is same element size and alignment as the given type
+template <typename T>
+using UIntegerFrom = UIntegerVector<sizeof(typename VectorType<T>::ElementType),
+                                    VectorType<T>::size()>;
+
+//! Unsigned integer type that is same element size and alignment as the given type
+template <typename T>
+using UIntegerTypeFrom = typename UIntegerFrom<T>::Type;
+
+//! Floating point type that is same element size and alignment as the given type
+template <typename T>
+using FloatFrom = FloatVector<sizeof(typename VectorType<T>::ElementType),
+                              VectorType<T>::size()>;
+
+//! Floating point type that is same element size and alignment as the given type
+template <typename T>
+using FloatTypeFrom = typename FloatFrom<T>::Type;
+
 // Type categories
 
-//! Check if a type is half scalar or vector type
-template <typename T> struct IsHalfType;
+//! Check if a type is integer scalar or vector type
+template <typename T> struct IsInteger;
 
 template <typename T>
-constexpr int32b kIsHalfType = IsHalfType<T>::kValue;
+constexpr int32b kIsInteger = IsInteger<T>::kValue;
+
+//! Check if a type is signed integer scalar or vector type
+template <typename T> struct IsSignedInteger;
+
+template <typename T>
+constexpr int32b kIsSignedInteger = IsSignedInteger<T>::kValue;
+
+//! Check if a type is unsigned integer scalar or vector type
+template <typename T> struct IsUnsignedInteger;
+
+template <typename T>
+constexpr int32b kIsUnsignedInteger = IsUnsignedInteger<T>::kValue;
+
+//! Check if a type is floating point scalar or vector type
+template <typename T> struct IsFloatingPoint;
+
+template <typename T>
+constexpr int32b kIsFloatingPoint = IsFloatingPoint<T>::kValue;
+
+//! Check if a type is half scalar or vector type
+template <typename T> struct IsHalf;
+
+template <typename T>
+constexpr int32b kIsHalf = IsHalf<T>::kValue;
+
+//! Check if a type is float scalar or vector type
+template <typename T> struct IsSingleFloat;
+
+template <typename T>
+constexpr int32b kIsSingleFloat = IsSingleFloat<T>::kValue;
+
+//! Check if a type is double scalar or vector type
+template <typename T> struct IsDouble;
+
+template <typename T>
+constexpr int32b kIsDouble = IsDouble<T>::kValue;
 
 // Type properties
 
@@ -139,8 +301,40 @@ template <typename T> struct TypeIdentity;
 template <typename T>
 using TypeIdentityType = typename TypeIdentity<T>::Type;
 
+// Comparison type
+
+constexpr int32b kScalarResultFalse = 0b0;
+constexpr int32b kScalarResultTrue = 0b1;
+
 } // namespace zinvul
 
 #include "type_traits-inl.cl"
+
+namespace zinvul {
+
+// Comparison type
+
+//! Integer type that is used as a comparison result of the given type
+template <typename T>
+using ComparisonResult = ConditionalType<VectorType<T>::size() == 1,
+                                         Integer32Vector<1>,
+                                         IntegerFrom<T>>;
+
+//! Integer type that is used as a comparison result of the given type
+template <typename T>
+using ComparisonResultType = typename ComparisonResult<T>::Type;
+
+//! Integer value that represents 'false' of a comparison result of the given type
+template  <typename T>
+constexpr Constant<typename ComparisonResult<T>::ElementType> kResultFalse{0b0};
+
+//! Integer value that represents 'true' of a comparison result of the given type
+template  <typename T>
+constexpr Constant<typename ComparisonResult<T>::ElementType> kResultTrue =
+    (VectorType<T>::size() == 1)
+        ? typename ComparisonResult<T>::ElementType{0b1}
+        : ~kResultFalse<T>;
+
+} // namespace zinvul
 
 #endif /* ZINVUL_TYPE_TRAITS_CL */

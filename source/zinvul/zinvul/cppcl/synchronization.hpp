@@ -1,5 +1,5 @@
 /*!
-  \file memory_fence.hpp
+  \file synchronization.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_CL_MEMORY_FENCE_HPP
-#define ZINVUL_CL_MEMORY_FENCE_HPP
+#ifndef ZINVUL_CL_SYNCHRONIZATION_HPP
+#define ZINVUL_CL_SYNCHRONIZATION_HPP
 
 namespace zinvul {
 
@@ -28,4 +28,4 @@ void barrier(const uint32b /* flags */) noexcept {}
 
 } // namespace zinvul
 
-#endif // ZINVUL_CL_MEMORY_FENCE_HPP
+#endif // ZINVUL_CL_SYNCHRONIZATION_HPP

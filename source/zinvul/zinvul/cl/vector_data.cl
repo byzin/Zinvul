@@ -25,7 +25,7 @@ class VectorData
   using VecType = VectorType<Type>;
 
  public:
-  using ValueType = ConditionalType<!kIsHalfType<Type>, Type,
+  using ValueType = ConditionalType<!kIsHalf<Type>, Type,
       ConditionalType<VecType::size() == 1, float,
       ConditionalType<VecType::size() == 2, float2,
       ConditionalType<VecType::size() == 3, float3,

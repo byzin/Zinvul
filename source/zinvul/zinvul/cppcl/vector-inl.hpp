@@ -57,7 +57,8 @@ Vector<Type, 2>::Vector(const Type v0, const Type v1) noexcept :
 template <typename Type> inline
 Type& Vector<Type, 2>::operator[](const std::size_t index) noexcept
 {
-  return (index == 0) ? x : y;
+  auto& result = (index == 0) ? x : y;
+  return result;
 }
 
 /*!
@@ -65,7 +66,8 @@ Type& Vector<Type, 2>::operator[](const std::size_t index) noexcept
 template <typename Type> inline
 const Type& Vector<Type, 2>::operator[](const std::size_t index) const noexcept
 {
-  return (index == 0) ? x : y;
+  const auto& result = (index == 0) ? x : y;
+  return result;
 }
 
 /*!
@@ -110,7 +112,8 @@ Vector<Type, 3>::Vector(const Type v0, const Type v1, const Type v2) noexcept :
 template <typename Type> inline
 Type& Vector<Type, 3>::operator[](const std::size_t index) noexcept
 {
-  return (index == 0) ? x : (index == 1) ? y : z;
+  auto& result = (index == 0) ? x : (index == 1) ? y : z;
+  return result;
 }
 
 /*!
@@ -118,7 +121,8 @@ Type& Vector<Type, 3>::operator[](const std::size_t index) noexcept
 template <typename Type> inline
 const Type& Vector<Type, 3>::operator[](const std::size_t index) const noexcept
 {
-  return (index == 0) ? x : (index == 1) ? y : z;
+  const auto& result = (index == 0) ? x : (index == 1) ? y : z;
+  return result;
 }
 
 /*!
@@ -164,9 +168,10 @@ Vector<Type, 4>::Vector(const Type v0, const Type v1, const Type v2, const Type 
 template <typename Type> inline
 Type& Vector<Type, 4>::operator[](const std::size_t index) noexcept
 {
-  return ((index & 2u) == 0)
+  auto& result = ((index & 2u) == 0)
       ? (index == 0) ? x : y
       : (index == 2) ? z : w;
+  return result;
 }
 
 /*!
@@ -174,9 +179,10 @@ Type& Vector<Type, 4>::operator[](const std::size_t index) noexcept
 template <typename Type> inline
 const Type& Vector<Type, 4>::operator[](const std::size_t index) const noexcept
 {
-  return ((index & 2u) == 0)
+  const auto& result = ((index & 2u) == 0)
       ? (index == 0) ? x : y
       : (index == 2) ? z : w;
+  return result;
 }
 
 /*!
@@ -482,7 +488,8 @@ template <typename Type, std::size_t kN> inline
 Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept
 {
-  return rhs + lhs;
+  const auto result = rhs + lhs;
+  return result;
 }
 
 /*!
@@ -515,7 +522,8 @@ template <typename Type, std::size_t kN> inline
 Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept
 {
-  return -(rhs - lhs);
+  const auto result = -(rhs - lhs);
+  return result;
 }
 
 /*!
@@ -548,7 +556,8 @@ template <typename Type, std::size_t kN> inline
 Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept
 {
-  return rhs * lhs;
+  const auto result = rhs * lhs;
+  return result;
 }
 
 /*!
@@ -671,7 +680,8 @@ Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept
 {
   static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  return rhs & lhs;
+  const auto result = rhs & lhs;
+  return result;
 }
 
 /*!
@@ -707,7 +717,8 @@ Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept
 {
   static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  return rhs | lhs;
+  const auto result = rhs | lhs;
+  return result;
 }
 
 /*!
@@ -743,7 +754,8 @@ Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept
 {
   static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  return rhs ^ lhs;
+  const auto result = rhs ^ lhs;
+  return result;
 }
 
 /*!
@@ -756,7 +768,7 @@ Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
   static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] << rhs[index];
+    result[index] = zisc::cast<Type1>(lhs[index] << rhs[index]);
   return result;
 }
 
@@ -770,7 +782,7 @@ Vector<Type1, kN> operator<<(const Type1& lhs,
   static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = lhs << rhs[index];
+    result[index] = zisc::cast<Type1>(lhs << rhs[index]);
   return result;
 }
 
@@ -784,7 +796,7 @@ Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
   static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] << rhs;
+    result[index] = zisc::cast<Type1>(lhs[index] << rhs);
   return result;
 }
 
@@ -798,7 +810,7 @@ Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
   static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] >> rhs[index];
+    result[index] = zisc::cast<Type1>(lhs[index] >> rhs[index]);
   return result;
 }
 
@@ -812,7 +824,7 @@ Vector<Type1, kN> operator>>(const Type1& lhs,
   static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = lhs >> rhs[index];
+    result[index] = zisc::cast<Type1>(lhs >> rhs[index]);
   return result;
 }
 
@@ -826,262 +838,322 @@ Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
   static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] >> rhs;
+    result[index] = zisc::cast<Type1>(lhs[index] >> rhs);
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator==(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator==(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Type>, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = (lhs[index] == rhs[index]) ? kVecTrue : kVecFalse;
+    result[index] = (lhs[index] == rhs[index])
+        ? Config::vecResultTrue<Type>() 
+        : Config::vecResultFalse<Type>();
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator==(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator==(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Type>, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = (lhs == rhs[index]) ? kVecTrue : kVecFalse;
+    result[index] = (lhs == rhs[index])
+        ? Config::vecResultTrue<Type>() 
+        : Config::vecResultFalse<Type>();
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator==(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator==(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept
 {
-  return rhs == lhs;
+  const auto result = rhs == lhs;
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator!=(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator!=(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  return ~(lhs == rhs);
+  const auto result = ~(lhs == rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator!=(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator!=(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  return ~(lhs == rhs);
+  const auto result = ~(lhs == rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator!=(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator!=(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept
 {
-  return rhs != lhs;
+  const auto result = rhs != lhs;
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator<(const Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator<(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Type>, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = (lhs[index] < rhs[index]) ? kVecTrue : kVecFalse;
+    result[index] = (lhs[index] < rhs[index])
+        ? Config::vecResultTrue<Type>() 
+        : Config::vecResultFalse<Type>();
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator<(const Type& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator<(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Type>, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = (lhs < rhs[index]) ? kVecTrue : kVecFalse;
+    result[index] = (lhs < rhs[index])
+        ? Config::vecResultTrue<Type>() 
+        : Config::vecResultFalse<Type>();
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator<(const Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator<(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept
 {
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Type>, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = (lhs[index] < rhs) ? kVecTrue : kVecFalse;
+    result[index] = (lhs[index] < rhs)
+        ? Config::vecResultTrue<Type>() 
+        : Config::vecResultFalse<Type>();
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator<=(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator<=(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  return (lhs == rhs) || (lhs < rhs);
+  const auto result = (lhs == rhs) || (lhs < rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator<=(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator<=(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  return (lhs == rhs) || (lhs < rhs);
+  const auto result = (lhs == rhs) || (lhs < rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator<=(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator<=(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept
 {
-  return (lhs == rhs) || (lhs < rhs);
+  const auto result = (lhs == rhs) || (lhs < rhs);
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator>(const Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator>(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  return rhs < lhs;
+  const auto result = rhs < lhs;
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator>(const Type& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator>(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  return rhs < lhs;
+  const auto result = rhs < lhs;
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator>(const Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator>(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept
 {
-  return rhs < lhs;
+  const auto result = rhs < lhs;
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator>=(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator>=(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  return rhs <= lhs;
+  const auto result = rhs <= lhs;
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator>=(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator>=(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  return rhs <= lhs;
+  const auto result = rhs <= lhs;
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator>=(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator>=(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept
 {
-  return rhs <= lhs;
+  const auto result = rhs <= lhs;
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator!(const Vector<Type, kN>& value) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator!(
+    const Vector<Type, kN>& value) noexcept
 {
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Type>, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = !value[index] ? kVecTrue : kVecFalse;
+    result[index] = !value[index]
+        ? Config::vecResultTrue<Type>() 
+        : Config::vecResultFalse<Type>();
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator&&(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator&&(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Type>, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = (lhs[index] && rhs[index]) ? kVecTrue : kVecFalse;
+    result[index] = (lhs[index] && rhs[index])
+        ? Config::vecResultTrue<Type>() 
+        : Config::vecResultFalse<Type>();
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator&&(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator&&(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Type>, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = (lhs && rhs[index]) ? kVecTrue : kVecFalse;
+    result[index] = (lhs && rhs[index])
+        ? Config::vecResultTrue<Type>() 
+        : Config::vecResultFalse<Type>();
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator&&(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator&&(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept
 {
-  return rhs && lhs;
+  const auto result = rhs && lhs;
+  return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator||(const Vector<Type, kN>& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator||(
+    const Vector<Type, kN>& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Type>, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = (lhs[index] || rhs[index]) ? kVecTrue : kVecFalse;
+    result[index] = (lhs[index] || rhs[index])
+        ? Config::vecResultTrue<Type>()
+        : Config::vecResultFalse<Type>();
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator||(const Type& lhs,
-                              const Vector<Type, kN>& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator||(
+    const Type& lhs,
+    const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<int32b, kN> result;
+  Vector<Config::ComparisonResultType<Type>, kN> result;
   for (std::size_t index = 0; index < kN; ++index)
-    result[index] = (lhs || rhs[index]) ? kVecTrue : kVecFalse;
+    result[index] = (lhs || rhs[index])
+        ? Config::vecResultTrue<Type>()
+        : Config::vecResultFalse<Type>();
   return result;
 }
 
 /*!
   */
 template <typename Type, std::size_t kN> inline
-Vector<int32b, kN> operator||(const Vector<Type, kN>& lhs,
-                              const Type& rhs) noexcept
+Vector<Config::ComparisonResultType<Type>, kN> operator||(
+    const Vector<Type, kN>& lhs,
+    const Type& rhs) noexcept
 {
-  return rhs || lhs;
+  const auto result = rhs || lhs;
+  return result;
 }
 
 namespace clinner {
@@ -1137,7 +1209,8 @@ void vstore_halfn(const Vector<float, kN>& data,
 template <typename Type> inline
 Vector<Type, 2> vload2(const size_t offset, const Type* p) noexcept
 {
-  return clinner::vloadn<Type, 2>(offset, p);
+  const auto result = clinner::vloadn<Type, 2>(offset, p);
+  return result;
 }
 
 /*!
@@ -1145,7 +1218,8 @@ Vector<Type, 2> vload2(const size_t offset, const Type* p) noexcept
 template <typename Type> inline
 Vector<Type, 3> vload3(const size_t offset, const Type* p) noexcept
 {
-  return clinner::vloadn<Type, 3>(offset, p);
+  const auto result = clinner::vloadn<Type, 3>(offset, p);
+  return result;
 }
 
 /*!
@@ -1153,7 +1227,8 @@ Vector<Type, 3> vload3(const size_t offset, const Type* p) noexcept
 template <typename Type> inline
 Vector<Type, 4> vload4(const size_t offset, const Type* p) noexcept
 {
-  return clinner::vloadn<Type, 4>(offset, p);
+  const auto result = clinner::vloadn<Type, 4>(offset, p);
+  return result;
 }
 
 /*!
@@ -1171,7 +1246,8 @@ float vload_half(const size_t offset, const half* p) noexcept
 inline
 float2 vload_half2(const size_t offset, const half* p) noexcept
 {
-  return clinner::vload_halfn<2>(offset, p);
+  const auto result = clinner::vload_halfn<2>(offset, p);
+  return result;
 }
 
 /*!
@@ -1179,7 +1255,8 @@ float2 vload_half2(const size_t offset, const half* p) noexcept
 inline
 float3 vload_half3(const size_t offset, const half* p) noexcept
 {
-  return clinner::vload_halfn<3>(offset, p);
+  const auto result = clinner::vload_halfn<3>(offset, p);
+  return result;
 }
 
 /*!
@@ -1187,7 +1264,8 @@ float3 vload_half3(const size_t offset, const half* p) noexcept
 inline
 float4 vload_half4(const size_t offset, const half* p) noexcept
 {
-  return clinner::vload_halfn<4>(offset, p);
+  const auto result = clinner::vload_halfn<4>(offset, p);
+  return result;
 }
 
 /*!

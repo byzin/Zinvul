@@ -285,6 +285,150 @@ uint32b getGroupIdZ() noexcept
 
 namespace inner {
 
+template <typename Type>
+struct TypeValueMaker
+{
+  //! Create a value
+  static Type make(const Type v) noexcept
+  {
+    return v;
+  }
+};
+
+} // namespace inner
+
+#define ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(Type, ElemType, name) \
+  namespace inner { \
+    template <> \
+    struct TypeValueMaker< Type > \
+    { \
+      static Type make(const ElemType v) noexcept \
+      { \
+        const Type data{v, v}; \
+        return data; \
+      } \
+      static Type make(const ElemType x, const ElemType y) noexcept \
+      { \
+        const Type data{x, y}; \
+        return data; \
+      } \
+    }; \
+  } \
+  inline Type make ## name (const ElemType v) noexcept \
+  { \
+    const auto data = inner::TypeValueMaker< Type >::make(v); \
+    return data; \
+  } \
+  inline Type make ## name (const ElemType x, const ElemType y) noexcept \
+  { \
+    const auto data = inner::TypeValueMaker< Type >::make(x, y); \
+    return data; \
+  }
+
+#define ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(Type, ElemType, name) \
+  namespace inner { \
+    template <> \
+    struct TypeValueMaker< Type > \
+    { \
+      static Type make(const ElemType v) noexcept \
+      { \
+        const Type data{v, v, v}; \
+        return data; \
+      } \
+      static Type make(const ElemType x, const ElemType y, \
+                       const ElemType z) noexcept \
+      { \
+        const Type data{x, y, z}; \
+        return data; \
+      } \
+    }; \
+  } \
+  inline Type make ## name (const ElemType v) noexcept \
+  { \
+    const auto data = inner::TypeValueMaker< Type >::make(v); \
+    return data; \
+  } \
+  inline Type make ## name (const ElemType x, const ElemType y, \
+                     const ElemType z) noexcept \
+  { \
+    const auto data = inner::TypeValueMaker< Type >::make(x, y, z); \
+    return data; \
+  }
+
+#define ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(Type, ElemType, name) \
+  namespace inner { \
+    template <> \
+    struct TypeValueMaker< Type > \
+    { \
+      static Type make(const ElemType v) noexcept \
+      { \
+        const Type data{v, v, v, v}; \
+        return data; \
+      } \
+      static Type make(const ElemType x, const ElemType y, \
+                       const ElemType z, const ElemType w) noexcept \
+      { \
+        const Type data{x, y, z, w}; \
+        return data; \
+      } \
+    }; \
+  } \
+  inline Type make ## name (const ElemType v) noexcept \
+  { \
+    const auto data = inner::TypeValueMaker< Type >::make(v); \
+    return data; \
+  } \
+  inline Type make ## name (const ElemType x, const ElemType y, \
+                     const ElemType z, const ElemType w) noexcept \
+  { \
+    const auto data = inner::TypeValueMaker< Type >::make(x, y, z, w); \
+    return data; \
+  }
+
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(char2, int8b, Char2)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(uchar2, uint8b, UChar2)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(short2, int16b, Short2)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(ushort2, uint16b, UShort2)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(int2, int32b, Int2)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(uint2, uint32b, UInt2)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(long2, int64b, Long2)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(ulong2, uint64b, ULong2)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(float2, float, Float2)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(double2, double, Double2)
+
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(char3, int8b, Char3)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(uchar3, uint8b, UChar3)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(short3, int16b, Short3)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(ushort3, uint16b, UShort3)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(int3, int32b, Int3)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(uint3, uint32b, UInt3)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(long3, int64b, Long3)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(ulong3, uint64b, ULong3)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(float3, float, Float3)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(double3, double, Double3)
+
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(char4, int8b, Char4)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(uchar4, uint8b, UChar4)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(short4, int16b, Short4)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(ushort4, uint16b, UShort4)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(int4, int32b, Int4)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(uint4, uint32b, UInt4)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(long4, int64b, Long4)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(ulong4, uint64b, ULong4)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(float4, float, Float4)
+ZINVUL_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(double4, double, Double4)
+
+/*!
+  */
+template <typename Type, typename ...ArgumentTypes> inline
+Type make(const ArgumentTypes... args) noexcept
+{
+  const auto data = inner::TypeValueMaker<Type>::make(args...);
+  return data;
+}
+
+namespace inner {
+
 /*!
   */
 template <typename Type>

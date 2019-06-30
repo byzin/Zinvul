@@ -1,5 +1,5 @@
 /*!
-  \file memory_fence-inl.cl
+  \file synchronization-inl.cl
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -7,17 +7,17 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_MEMORY_FENCE_INL_CL
-#define ZINVUL_MEMORY_FENCE_INL_CL
+#ifndef ZINVUL_SYNCHRONIZATION_INL_CL
+#define ZINVUL_SYNCHRONIZATION_INL_CL
 
-#include "memory_fence.cl"
+#include "synchronization.cl"
 
 namespace zinvul {
 
 /*!
   */
 inline
-void performBarrier() noexcept
+void barrierMemory() noexcept
 {
   barrier(CLK_LOCAL_MEM_FENCE | CLK_GLOBAL_MEM_FENCE);
 }
@@ -25,7 +25,7 @@ void performBarrier() noexcept
 /*!
   */
 inline
-void performLocalBarrier() noexcept
+void barrierLocalMemory() noexcept
 {
   barrier(CLK_LOCAL_MEM_FENCE);
 }
@@ -33,11 +33,11 @@ void performLocalBarrier() noexcept
 /*!
   */
 inline
-void performGlobalBarrier() noexcept
+void barrierGlobalMemory() noexcept
 {
   barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
 } // namespace zinvul
 
-#endif /* ZINVUL_MEMORY_FENCE_INL_CL */
+#endif /* ZINVUL_SYNCHRONIZATION_INL_CL */

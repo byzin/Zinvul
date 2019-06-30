@@ -10,6 +10,8 @@
 #ifndef ZINVUL_CONFIG_HPP
 #define ZINVUL_CONFIG_HPP
 
+// Standard C++ library
+#include <type_traits>
 // Zisc
 #include "zisc/zisc_config.hpp"
 #include "zisc/utility.hpp"
@@ -33,9 +35,6 @@ using uint8b = zisc::uint8b;
 using uint16b = zisc::uint16b;
 using uint32b = zisc::uint32b;
 using uint64b = zisc::uint64b;
-// Vector values
-constexpr int32b kVecFalse = 0b0;
-constexpr int32b kVecTrue = ~0b0;
 
 // Device
 
@@ -81,11 +80,33 @@ enum class BufferUsage : uint32b
 class Config
 {
  public:
+  //! Result type of vector comparison
+  template <typename Type>
+  using ComparisonResultType = std::conditional_t<sizeof(Type) == 1, int8b,
+                               std::conditional_t<sizeof(Type) == 2, int16b,
+                               std::conditional_t<sizeof(Type) == 8, int64b,
+                                                                     int32b>>>;
+
+
   //! Return whether uniform buffer is enabled
   static constexpr bool isUniformBufferEnabled() noexcept;
 
   //! Return whether vulkan backendb is enabled
   static constexpr bool isVulkanBackendEnabled() noexcept;
+
+  //! Represent 'false' value of scalar value comparison
+  static constexpr int32b scalarResultFalse() noexcept;
+
+  //! Represent 'true' value of scalar value comparison
+  static constexpr int32b scalarResultTrue() noexcept;
+
+  //! Represent 'false' value of scalar value comparison
+  template <typename Type>
+  static constexpr ComparisonResultType<Type> vecResultFalse() noexcept;
+
+  //! Represent 'true' value of scalar value comparison
+  template <typename Type>
+  static constexpr ComparisonResultType<Type> vecResultTrue() noexcept;
 };
 
 } // namespace zinvul
