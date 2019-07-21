@@ -156,7 +156,6 @@ void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
     const uint32b n = ((num_of_works % taskBucketSize()) == 0)
         ? num_of_works / taskBucketSize()
         : num_of_works / taskBucketSize() + 1;
-    cl::clinner::Atomic::setMutex(&mutex_);
     cl::clinner::WorkGroup::setWorkGroupSize(group_size);
     for (uint32b bucket_id = id++; bucket_id < n; bucket_id = id++) {
       for (uint32b i = 0; i < taskBucketSize(); ++i) {

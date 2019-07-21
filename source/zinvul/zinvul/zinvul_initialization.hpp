@@ -8,8 +8,6 @@
 
 // Standard C++ library
 #include <array>
-// Zisc
-#include "zisc/spin_lock_mutex.hpp"
 // Zinvul
 #include "zinvul/cppcl/atomic.hpp"
 #include "zinvul/cppcl/utility.hpp"
@@ -34,6 +32,5 @@ static_assert(false, "The header 'vk_mem_alloc.h' is already loaded.");
 
 thread_local std::array<zinvul::uint32b, 3> zinvul::cl::clinner::WorkGroup::work_group_id_;
 thread_local std::array<zinvul::uint32b, 3> zinvul::cl::clinner::WorkGroup::work_group_size_;
-thread_local zisc::SpinLockMutex* zinvul::cl::clinner::Atomic::mutex_;
 
 #endif // ZINVUL_ZINVUL_INITIALIZATION_HPP

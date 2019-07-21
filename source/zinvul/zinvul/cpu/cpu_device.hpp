@@ -18,7 +18,6 @@
 // Zisc
 #include "zisc/function_reference.hpp"
 #include "zisc/memory_resource.hpp"
-#include "zisc/spin_lock_mutex.hpp"
 #include "zisc/thread_manager.hpp"
 #include "zisc/unique_memory_pointer.hpp"
 // Zinvul
@@ -107,7 +106,6 @@ class CpuDevice : public Device
 
 
   zisc::ThreadManager thread_manager_;
-  zisc::SpinLockMutex mutex_;
   std::string name_;
   std::string vendor_name_;
   uint32b task_bucket_size_;

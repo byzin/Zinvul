@@ -10,8 +10,6 @@
 #ifndef ZINVUL_CL_ATOMIC_HPP
 #define ZINVUL_CL_ATOMIC_HPP
 
-// Zisc
-#include "zisc/spin_lock_mutex.hpp"
 // Zinvul
 #include "address_space_pointer.hpp"
 #include "types.hpp"

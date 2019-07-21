@@ -18,6 +18,7 @@
 #include <type_traits>
 #include <utility>
 // Zisc
+#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "types.hpp"
