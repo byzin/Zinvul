@@ -25,12 +25,12 @@ class Array
  public:
   // Type aliases
   using Type = RemoveCvrefType<T>;
-  using Reference = Generic<Type>&;
-  using ConstReference = const Generic<Type>&;
-  using Pointer = GenericPtr<Type>;
-  using ConstPointer = ConstGenericPtr<Type>;
-  using Iterator = GenericPtr<Type>;
-  using ConstIterator = ConstGenericPtr<Type>;
+  using Reference = Type&;
+  using ConstReference = const Type&;
+  using Pointer = Type*;
+  using ConstPointer = const Type*;
+  using Iterator = Type*;
+  using ConstIterator = const Type*;
 
 
   //! Return an iterator to the first element of the container

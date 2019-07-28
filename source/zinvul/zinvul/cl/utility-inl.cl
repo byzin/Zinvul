@@ -435,14 +435,14 @@ template <typename Type>
 struct TypeConverter
 {
   template <typename T>
-  static Type cast(T&& value) noexcept
+  static Type cast(T value) noexcept
   {
     auto result = static_cast<Type>(value);
     return result;
   }
 
   template <typename T>
-  static Type treatAs(T&& object) noexcept
+  static Type treatAs(T object) noexcept
   {
     auto result = reinterpret_cast<Type>(object);
     return result;
@@ -457,13 +457,13 @@ struct TypeConverter
   struct TypeConverter< Type > \
   { \
     template <typename T> \
-    static Type cast(T&& value) noexcept \
+    static Type cast(T value) noexcept \
     { \
       auto result = convert_ ## name (value); \
       return result; \
     } \
     template <typename T> \
-    static Type treatAs(T&& object) noexcept \
+    static Type treatAs(T object) noexcept \
     { \
       auto result = *reinterpret_cast< const Type* >(&object); \
       return result; \

@@ -19,7 +19,18 @@ namespace zinvul {
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::begin() noexcept -> Iterator
+typename Array<T, kN>::Iterator
+Array<T, kN>::begin() noexcept
+{
+  Iterator iterator = data();
+  return iterator;
+}
+
+/*!
+  */
+template <typename T, size_t kN> inline
+typename Array<T, kN>::ConstIterator
+Array<T, kN>::begin() const noexcept
 {
   auto iterator = data();
   return iterator;
@@ -28,7 +39,8 @@ auto Array<T, kN>::begin() noexcept -> Iterator
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::begin() const noexcept -> ConstIterator
+typename Array<T, kN>::ConstIterator
+Array<T, kN>::cbegin() const noexcept
 {
   auto iterator = data();
   return iterator;
@@ -37,16 +49,8 @@ auto Array<T, kN>::begin() const noexcept -> ConstIterator
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::cbegin() const noexcept -> ConstIterator
-{
-  auto iterator = data();
-  return iterator;
-}
-
-/*!
-  */
-template <typename T, size_t kN> inline
-auto Array<T, kN>::end() noexcept -> Iterator
+typename Array<T, kN>::Iterator
+Array<T, kN>::end() noexcept
 {
   auto iterator = begin() + size();
   return iterator;
@@ -55,7 +59,8 @@ auto Array<T, kN>::end() noexcept -> Iterator
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::end() const noexcept -> ConstIterator
+typename Array<T, kN>::ConstIterator
+Array<T, kN>::end() const noexcept
 {
   auto iterator = begin() + size();
   return iterator;
@@ -64,7 +69,8 @@ auto Array<T, kN>::end() const noexcept -> ConstIterator
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::cend() const noexcept -> ConstIterator
+typename Array<T, kN>::ConstIterator
+Array<T, kN>::cend() const noexcept
 {
   auto iterator = cbegin() + size();
   return iterator;
@@ -73,8 +79,8 @@ auto Array<T, kN>::cend() const noexcept -> ConstIterator
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::operator[](const size_t index) noexcept
-    -> Reference
+typename Array<T, kN>::Reference
+Array<T, kN>::operator[](const size_t index) noexcept
 {
   return get(index);
 }
@@ -82,8 +88,8 @@ auto Array<T, kN>::operator[](const size_t index) noexcept
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::operator[](const size_t index) const noexcept
-    -> ConstReference
+typename Array<T, kN>::ConstReference
+Array<T, kN>::operator[](const size_t index) const noexcept
 {
   return get(index);
 }
@@ -91,7 +97,8 @@ auto Array<T, kN>::operator[](const size_t index) const noexcept
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::data() noexcept -> Pointer
+typename Array<T, kN>::Pointer
+Array<T, kN>::data() noexcept
 {
   auto p = data_;
   return p;
@@ -100,7 +107,8 @@ auto Array<T, kN>::data() noexcept -> Pointer
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::data() const noexcept -> ConstPointer
+typename Array<T, kN>::ConstPointer
+Array<T, kN>::data() const noexcept
 {
   auto p = data_;
   return p;
@@ -118,8 +126,8 @@ void Array<T, kN>::fill(ConstReference value) noexcept
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::get(const size_t index) noexcept
-    -> Reference
+typename Array<T, kN>::Reference
+Array<T, kN>::get(const size_t index) noexcept
 {
   return data_[index];
 }
@@ -127,8 +135,8 @@ auto Array<T, kN>::get(const size_t index) noexcept
 /*!
   */
 template <typename T, size_t kN> inline
-auto Array<T, kN>::get(const size_t index) const noexcept
-    -> ConstReference
+typename Array<T, kN>::ConstReference
+Array<T, kN>::get(const size_t index) const noexcept
 {
   return data_[index];
 }

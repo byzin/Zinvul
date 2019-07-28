@@ -864,14 +864,14 @@ __kernel void testArray(ConstGlobalPtr<uint32b> src,
   if (index == 0) {
     size_t idx = 0;
     // Construct
-    Private<Array<uint32b, n>> array;
+    Array<uint32b, n> array;
     for (size_t i = 0; i < array.size(); ++i)
       array.set(i, i + 1);
-    for (const auto value : array)
-      dst[idx++] = value;
+    for (size_t i = 0; i < array.size(); ++i)
+      dst[idx++] = array[i];
     array.fill(2);
-    for (const auto value : array)
-      dst[idx++] = value;
+    for (auto ite = array.begin(); ite != array.end(); ++ite)
+      dst[idx++] = *ite;
     // Access
     for (size_t i = 0; i < array.size(); ++i) {
       array[i] = src[i];

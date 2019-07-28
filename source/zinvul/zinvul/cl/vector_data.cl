@@ -63,17 +63,6 @@ class VectorData
                     const size_t offset,
                     PrivatePtr<DataType> p) noexcept;
  private:
-  //! Return a raw pointer
-  template <typename AddressType>
-  static auto getPtr(AddressType p) noexcept
-  {
-#if defined(ZINVUL_CPU)
-    return p.get();
-#else // ZINVUL_CPU
-    return p;
-#endif // ZINVUL_CPU
-  }
-
   //! Return a data
   template <typename AddressType>
   static ValueType loadImpl(const size_t offset, AddressType p) noexcept;

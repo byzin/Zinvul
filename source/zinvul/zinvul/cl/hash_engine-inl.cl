@@ -53,7 +53,7 @@ ResultType HashEngine<HashClass, ResultType>::hash(
 {
   // Make a seed array
   constexpr size_t n = sizeof(UInteger);
-  Private<Array<uint8b, n>> seed_array;
+  Array<uint8b, n> seed_array;
   for (size_t i = 0; i < n; ++i) {
     constexpr auto mask = static_cast<UInteger>(NumericLimits<uint8b>::max());
     seed_array[i] = cast<uint8b>(mask & (seed >> (8u * i)));

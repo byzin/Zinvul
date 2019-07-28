@@ -102,21 +102,20 @@ auto VectorData<Type>::loadImpl(const size_t offset, AddressType p)
     return data;
   }
   else {
-    auto ptr = getPtr(p);
     if constexpr (size() == 1) {
-      const auto data = ptr[offset];
+      const auto data = p[offset];
       return data;
     }
     else if constexpr (size() == 2) {
-      const auto data = vload2(offset, ptr);
+      const auto data = vload2(offset, p);
       return data;
     }
     else if constexpr (size() == 3) {
-      const auto data = vload3(offset, ptr);
+      const auto data = vload3(offset, p);
       return data;
     }
     else if constexpr (size() == 4) {
-      const auto data = vload4(offset, ptr);
+      const auto data = vload4(offset, p);
       return data;
     }
     else {
@@ -151,18 +150,17 @@ void VectorData<Type>::storeImpl(const ValueType data,
     storeHalfImpl(data, offset, p);
   }
   else {
-    auto ptr = getPtr(p);
     if constexpr (size() == 1) {
-      ptr[offset] = data;
+      p[offset] = data;
     }
     else if constexpr (size() == 2) {
-      vstore2(data, offset, ptr);
+      vstore2(data, offset, p);
     }
     else if constexpr (size() == 3) {
-      vstore3(data, offset, ptr);
+      vstore3(data, offset, p);
     }
     else if constexpr (size() == 4) {
-      vstore4(data, offset, ptr);
+      vstore4(data, offset, p);
     }
     else {
       static_assert(0 < size(), "The size of vector is wrong.");

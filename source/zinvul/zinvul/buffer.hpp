@@ -29,7 +29,7 @@ class Buffer : private zisc::NonCopyable<Buffer<kDescriptor, T>>
 {
  public:
   //! The type of the buffer. "const", "volatile" and "reference" are removed
-  using Type = std::remove_reference_t<std::remove_cv_t<T>>;
+  using Type = std::remove_cv_t<std::remove_reference_t<T>>;
   using ConstType = std::add_const_t<Type>;
   using Pointer = std::add_pointer_t<Type>;
   using ConstPointer = std::add_pointer_t<ConstType>;
