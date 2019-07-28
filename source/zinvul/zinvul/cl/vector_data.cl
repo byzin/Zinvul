@@ -82,27 +82,6 @@ class VectorData
   static void storeHalfImpl(const ValueType data,
                             const size_t offset,
                             AddressType p) noexcept;
-
-//  //! Convert half pointer to uint16b pointer
-//  static ConstGlobalPtr<uint16b> toConstData(ConstGlobalPtr<half> p) noexcept;
-//
-//  //! Convert half pointer to uint16b pointer
-//  static ConstLocalPtr<uint16b> toConstData(ConstLocalPtr<half> p) noexcept;
-//
-//  //! Convert half pointer to uint16b pointer
-//  static ConstConstantPtr<uint16b> toConstData(ConstConstantPtr<half> p) noexcept;
-//
-//  //! Convert half pointer to uint16b pointer
-//  static ConstPrivatePtr<uint16b> toConstData(ConstPrivatePtr<half> p) noexcept;
-//
-//  //! Convert half pointer to uint16b pointer
-//  static GlobalPtr<uint16b> toData(GlobalPtr<half> p) noexcept;
-//
-//  //! Convert half pointer to uint16b pointer
-//  static LocalPtr<uint16b> toData(LocalPtr<half> p) noexcept;
-//
-//  //! Convert half pointer to uint16b pointer
-//  static PrivatePtr<uint16b> toData(PrivatePtr<half> p) noexcept;
 };
 
 } // namespace zinvul

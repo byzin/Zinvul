@@ -248,39 +248,39 @@ __kernel void testHalfVectorData(ConstGlobalPtr<half> inputs,
     GlobalPtr<half> outputs,
     const uint32b resolution)
 {
-//  const uint32b index = getGlobalIdX();
-//  if (index < resolution) {
-//    constexpr size_t n = 10u;
-//    size_t offset = n * index;
-//    {
-//      using VData = VectorData<half>;
-//      float v = VData::load(0, inputs + offset);
-//      v = 3.0f * v;
-//      VData::store(v, 0, outputs + offset);
-//      offset += VData::size();
-//    }
-//    {
-//      using VData = VectorData<half2>;
-//      float2 v = VData::load(0, inputs + offset);
-//      v = 3.0f * v;
-//      VData::store(v, 0, outputs + offset);
-//      offset += VData::size();
-//    }
-//    {
-//      using VData = VectorData<half3>;
-//      float3 v = VData::load(0, inputs + offset);
-//      v = 3.0f * v;
-//      VData::store(v, 0, outputs + offset);
-//      offset += VData::size();
-//    }
-//    {
-//      using VData = VectorData<half4>;
-//      float4 v = VData::load(0, inputs + offset);
-//      v = 3.0f * v;
-//      VData::store(v, 0, outputs + offset);
-//      offset += VData::size();
-//    }
-//  }
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    constexpr size_t n = 10u;
+    size_t offset = n * index;
+    {
+      using VData = VectorData<half>;
+      float v = VData::load(0, inputs + offset);
+      v = 3.0f * v;
+      VData::store(v, 0, outputs + offset);
+      offset += VData::size();
+    }
+    {
+      using VData = VectorData<half2>;
+      float2 v = VData::load(0, inputs + offset);
+      v = 3.0f * v;
+      VData::store(v, 0, outputs + offset);
+      offset += VData::size();
+    }
+    {
+      using VData = VectorData<half3>;
+      float3 v = VData::load(0, inputs + offset);
+      v = 3.0f * v;
+      VData::store(v, 0, outputs + offset);
+      offset += VData::size();
+    }
+    {
+      using VData = VectorData<half4>;
+      float4 v = VData::load(0, inputs + offset);
+      v = 3.0f * v;
+      VData::store(v, 0, outputs + offset);
+      offset += VData::size();
+    }
+  }
 }
 
 #endif /* ZINVUL_BUILT_IN_FUNC_TEST_VECTOR_CL */

@@ -3270,5 +3270,8 @@ TEST(BuiltInFuncTest, HalfVectorDataTest)
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+
+    std::cout << "## Warning: only CPU test is done." << std::endl;
+    break;
   }
 }

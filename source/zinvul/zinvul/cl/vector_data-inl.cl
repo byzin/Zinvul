@@ -130,13 +130,31 @@ template <typename Type> template <typename AddressType> inline
 auto VectorData<Type>::loadHalfImpl(const size_t offset, AddressType p)
     noexcept -> ValueType
 {
-  static_assert(!kIsHalf<Type>, "The loadHalf isn't implemented yet.");
-//  using UVecData = VectorData<uint16b>;
-//
-//  const auto ptr = toConstData(p);
-//  const auto udata = UVecData::load(offset, ptr);
-//
-//  return ValueType{};
+#if defined(ZINVUL_CPU)
+  if constexpr (size() == 1) {
+    const auto data = vload_half(offset, p);
+    return data;
+  }
+  else if constexpr (size() == 2) {
+    const auto data = vload_half2(offset, p);
+    return data;
+  }
+  else if constexpr (size() == 3) {
+    const auto data = vload_half3(offset, p);
+    return data;
+  }
+  else if constexpr (size() == 4) {
+    const auto data = vload_half4(offset, p);
+    return data;
+  }
+  else {
+    static_assert(0 < size(), "The size of vector is wrong.");
+  }
+#else // ZINVUL_CPU
+  (void)offset;
+  (void)p;
+  return ValueType{};
+#endif // ZINVUL_CPU
 }
 
 /*!
@@ -175,83 +193,28 @@ void VectorData<Type>::storeHalfImpl(const ValueType data,
                                      const size_t offset,
                                      AddressType p) noexcept
 {
-  static_assert(!kIsHalf<Type>, "The storeHalf isn't implemented yet.");
-//  using UVecData = VectorData<uint16b>;
-//
-//  const UVecData::ValueType udata{};
-//  auto ptr = toData(p);
-////  UVecData::store(udata, offset, ptr);
-//  if constexpr (size() == 1) {
-//    ptr[0] = udata;
-//  }
+#if defined(ZINVUL_CPU)
+  if constexpr (size() == 1) {
+    vstore_half(data, offset, p);
+  }
+  else if constexpr (size() == 2) {
+    vstore_half2(data, offset, p);
+  }
+  else if constexpr (size() == 3) {
+    vstore_half3(data, offset, p);
+  }
+  else if constexpr (size() == 4) {
+    vstore_half4(data, offset, p);
+  }
+  else {
+    static_assert(0 < size(), "The size of vector is wrong.");
+  }
+#else // ZINVUL_CPU
+  (void)data;
+  (void)offset;
+  (void)p;
+#endif // ZINVUL_CPU
 }
-
-/*!
-  */
-//template <typename Type> inline
-//ConstGlobalPtr<uint16b> VectorData<Type>::toConstData(ConstGlobalPtr<half> p)
-//    noexcept
-//{
-//  auto ptr = treatAs<ConstGlobalPtr<uint16b>>(p);
-//  return ptr;
-//}
-//
-///*!
-//  */
-//template <typename Type> inline
-//ConstLocalPtr<uint16b> VectorData<Type>::toConstData(ConstLocalPtr<half> p)
-//    noexcept
-//{
-//  auto ptr = treatAs<ConstLocalPtr<uint16b>>(p);
-//  return ptr;
-//}
-//
-///*!
-//  */
-//template <typename Type> inline
-//ConstConstantPtr<uint16b> VectorData<Type>::toConstData(ConstConstantPtr<half> p)
-//    noexcept
-//{
-//  auto ptr = treatAs<ConstConstantPtr<uint16b>>(p);
-//  return ptr;
-//}
-//
-///*!
-//  */
-//template <typename Type> inline
-//ConstPrivatePtr<uint16b> VectorData<Type>::toConstData(ConstPrivatePtr<half> p)
-//    noexcept
-//{
-//  auto ptr = treatAs<ConstPrivatePtr<uint16b>>(p);
-//  return ptr;
-//}
-//
-///*!
-//  */
-//template <typename Type> inline
-//GlobalPtr<uint16b> VectorData<Type>::toData(GlobalPtr<half> p) noexcept
-//{
-//  auto ptr = treatAs<GlobalPtr<uint16b>>(p);
-//  return ptr;
-//}
-//
-///*!
-//  */
-//template <typename Type> inline
-//LocalPtr<uint16b> VectorData<Type>::toData(LocalPtr<half> p) noexcept
-//{
-//  auto ptr = treatAs<LocalPtr<uint16b>>(p);
-//  return ptr;
-//}
-//
-///*!
-//  */
-//template <typename Type> inline
-//PrivatePtr<uint16b> VectorData<Type>::toData(PrivatePtr<half> p) noexcept
-//{
-//  auto ptr = treatAs<PrivatePtr<uint16b>>(p);
-//  return ptr;
-//}
 
 } // namespace zinvul
 

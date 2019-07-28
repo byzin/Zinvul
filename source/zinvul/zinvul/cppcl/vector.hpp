@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <type_traits>
 // Zisc
+#include "zisc/type_traits.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "types.hpp"
@@ -601,29 +602,33 @@ Vector<std::remove_cv_t<Type>, 4> vload4(
     const size_t offset,
     const AddressSpacePointer<kAddressSpaceType, Type> p) noexcept;
 
-////! Read half data from address (p + offset). The address must be 16bit aligned
-//template <AddressSpaceType kAddressSpaceType>
-//float vload_half(
-//    const size_t offset,
-//    const AddressSpacePointer<kAddressSpaceType, half> p) noexcept;
-//
-////! Read half data from address (p + offset * 2). The address must be 16bit aligned
-//template <AddressSpaceType kAddressSpaceType>
-//float2 vload_half2(
-//    const size_t offset,
-//    const AddressSpacePointer<kAddressSpaceType, half> p) noexcept;
-//
-////! Read half data from address (p + offset * 3). The address must be 16bit aligned
-//template <AddressSpaceType kAddressSpaceType>
-//float3 vload_half3(
-//    const size_t offset,
-//    const AddressSpacePointer<kAddressSpaceType, half> p) noexcept;
-//
-////! Read half data from address (p + offset * 4). The address must be 16bit aligned
-//template <AddressSpaceType kAddressSpaceType>
-//float4 vload_half4(
-//    const size_t offset,
-//    const AddressSpacePointer<kAddressSpaceType, half> p) noexcept;
+//! Read half data from address (p + offset). The address must be 16bit aligned
+template <AddressSpaceType kAddressSpaceType, typename Type>
+float vload_half(
+    const size_t offset,
+    const AddressSpacePointer<kAddressSpaceType, Type> p,
+    zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+//! Read half data from address (p + offset * 2). The address must be 16bit aligned
+template <AddressSpaceType kAddressSpaceType, typename Type>
+float2 vload_half2(
+    const size_t offset,
+    const AddressSpacePointer<kAddressSpaceType, Type> p,
+    zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+//! Read half data from address (p + offset * 3). The address must be 16bit aligned
+template <AddressSpaceType kAddressSpaceType, typename Type>
+float3 vload_half3(
+    const size_t offset,
+    const AddressSpacePointer<kAddressSpaceType, Type> p,
+    zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+//! Read half data from address (p + offset * 4). The address must be 16bit aligned
+template <AddressSpaceType kAddressSpaceType, typename Type>
+float4 vload_half4(
+    const size_t offset,
+    const AddressSpacePointer<kAddressSpaceType, Type> p,
+    zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
 
 //! Write to the address (p + offset)
 template <AddressSpaceType kAddressSpaceType, typename Type>
@@ -646,45 +651,37 @@ void vstore4(
     const size_t offset,
     AddressSpacePointer<kAddressSpaceType, Type> p) noexcept;
 
-////! The value is converted to a half and writen to the address (p + offset)
-//void vstore_half(const float data, const size_t offset, half* p) noexcept;
-//
-////! The value is converted to a half and writen to the address (p + offset)
-//template <AddressSpaceType kAddressSpaceType>
-//void vstore_half(
-//    const float data,
-//    const size_t offset,
-//    AddressSpacePointer<kAddressSpaceType, half> p) noexcept;
-//
-////! The value is converted to a half and writen to the address (p + offset * 2)
-//void vstore_half2(const float2& data, const size_t offset, half* p) noexcept;
-//
-////! The value is converted to a half and writen to the address (p + offset * 2)
-//template <AddressSpaceType kAddressSpaceType>
-//void vstore_half2(
-//    const float2 data,
-//    const size_t offset,
-//    AddressSpacePointer<kAddressSpaceType, half> p) noexcept;
-//
-////! The value is converted to a half and writen to the address (p + offset * 3)
-//void vstore_half3(const float3& data, const size_t offset, half* p) noexcept;
-//
-////! The value is converted to a half and writen to the address (p + offset * 3)
-//template <AddressSpaceType kAddressSpaceType>
-//void vstore_half3(
-//    const float3 data,
-//    const size_t offset,
-//    AddressSpacePointer<kAddressSpaceType, half> p) noexcept;
-//
-////! The value is converted to a half and writen to the address (p + offset * 4)
-//void vstore_half4(const float4& data, const size_t offset, half* p) noexcept;
-//
-////! The value is converted to a half and writen to the address (p + offset * 4)
-//template <AddressSpaceType kAddressSpaceType>
-//void vstore_half4(
-//    const float4 data,
-//    const size_t offset,
-//    AddressSpacePointer<kAddressSpaceType, half> p) noexcept;
+//! The value is converted to a half and writen to the address (p + offset)
+template <AddressSpaceType kAddressSpaceType, typename Type>
+void vstore_half(
+    const float data,
+    const size_t offset,
+    AddressSpacePointer<kAddressSpaceType, Type> p,
+    zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset * 2)
+template <AddressSpaceType kAddressSpaceType, typename Type>
+void vstore_half2(
+    const float2& data,
+    const size_t offset,
+    AddressSpacePointer<kAddressSpaceType, Type> p,
+    zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset * 3)
+template <AddressSpaceType kAddressSpaceType, typename Type>
+void vstore_half3(
+    const float3& data,
+    const size_t offset,
+    AddressSpacePointer<kAddressSpaceType, Type> p,
+    zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset * 4)
+template <AddressSpaceType kAddressSpaceType, typename Type>
+void vstore_half4(
+    const float4& data,
+    const size_t offset,
+    AddressSpacePointer<kAddressSpaceType, Type> p,
+    zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
 
 } // namespace cl
 
