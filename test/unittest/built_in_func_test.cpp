@@ -10,6 +10,7 @@
 // Standard C++ library
 #include <algorithm>
 #include <array>
+#include <bitset>
 #include <cstddef>
 #include <iostream>
 #include <vector>
@@ -3273,5 +3274,131 @@ TEST(BuiltInFuncTest, HalfVectorDataTest)
 
     std::cout << "## Warning: only CPU test is done." << std::endl;
     break;
+  }
+}
+
+TEST(BuiltInFuncTest, HalfUVectorDataTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr std::size_t n = 10;
+    constexpr std::size_t n_special = 5;
+    constexpr uint32b resolution = 1024;
+
+    auto buffer1 = makeStorageBuffer<uint16b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(n * resolution + n_special);
+    {
+      std::vector<uint16b> inputs;
+      inputs.resize(buffer1->size());
+      std::size_t index = 0;
+      for (std::size_t i = 0; i < resolution; ++i) {
+        for (std::size_t j = 0; j < n; ++j) {
+          const std::size_t u = (n * (i / 4)) + j;
+          std::size_t shift = 0;
+          {
+            std::size_t k = i;
+            while (k) {
+              ++shift;
+              k = k >> 1;
+            }
+          }
+          float t = zisc::cast<float>((u * u) >> shift);
+          t = (1 < (i % 4)) ? 1.0f / t : t;
+          t = ((i % 2) == 0) ? t : -t;
+//          std::cout << "[" << index << "]: u = " << u
+//                    << ", f = " << std::scientific << t << std::endl;
+          const auto data = zisc::SingleFloat::fromFloat(t);
+          inputs[index++] = zisc::HalfFloat{data}.bits();
+        }
+      }
+      buffer1->write(inputs.data(), inputs.size(), 0, 0);
+    }
+
+    auto buffer2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    buffer2->setSize(buffer1->size());
+
+    auto buffer3 = makeStorageBuffer<uint16b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer3->setSize(buffer1->size());
+
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kHostToDevice);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testHalfUVectorData));
+    kernel->run(*buffer1, *buffer2, *buffer3, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The load and store funcs of uint16 are wrong:";
+    {
+      std::vector<float> fresults;
+      fresults.resize(buffer1->size());
+      buffer2->read(fresults.data(), fresults.size(), 0, 0);
+
+      std::vector<uint16b> results;
+      results.resize(buffer1->size());
+      buffer3->read(results.data(), results.size(), 0, 0);
+
+      std::size_t index = 0;
+      for (std::size_t i = 0; i < resolution; ++i) {
+        for (std::size_t j = 0; j < n; ++j) {
+          const std::size_t u = (n * (i / 4)) + j;
+          std::size_t shift = 0;
+          {
+            std::size_t k = i;
+            while (k) {
+              ++shift;
+              k = k >> 1;
+            }
+          }
+          float expected = zisc::cast<float>((u * u) >> shift);
+          {
+            bool is_subnormal_half = false;
+            expected = (1 < (i % 4)) ? 1.0f / expected : expected;
+            expected = ((i % 2) == 0) ? expected : -expected;
+            {
+              auto data = zisc::SingleFloat::fromFloat(expected);
+              auto hdata = zisc::HalfFloat{data};
+              is_subnormal_half = hdata.isSubnormal();
+              data = hdata;
+              expected = data.toFloat();
+            }
+            const float result = fresults[index];
+            ASSERT_FALSE(is_subnormal_half);
+            EXPECT_FLOAT_EQ(expected, result) << error_message
+                << " [" << index << "]: " << std::scientific << result << std::endl
+                << "    subnormal: " << is_subnormal_half;
+          }
+          {
+            expected = 3.0f * expected;
+            {
+              auto data = zisc::SingleFloat::fromFloat(expected);
+              data = zisc::HalfFloat{data};
+              expected = data.toFloat();
+            }
+            const zisc::HalfFloat data{results[index]};
+            const zisc::SingleFloat t{data};
+            const float result = t.toFloat();
+            const std::bitset<16> bits{results[index]};
+            EXPECT_FLOAT_EQ(expected, result) << error_message
+                << " [" << index << "]: " << std::scientific << result << std::endl
+                << "bits : " << bits;
+            std::cout << "## Bit: " << bits << std::endl;
+          }
+          ++index;
+          if (index == 24)
+            break;
+        }
+        if( index == 24 )
+          break;
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
   }
 }

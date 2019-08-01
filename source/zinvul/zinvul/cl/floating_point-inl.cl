@@ -12,51 +12,133 @@
 
 #include "floating_point.cl"
 // Zinvul
+#include "relational.cl"
+#include "math.cl"
 #include "types.cl"
+#include "type_traits.cl"
 #include "utility.cl"
 
 namespace zinvul {
 
 /*!
   */
-template <FloatingPointFormat kFormat> template <typename UInt> inline
-auto FloatingPoint<kFormat>::expandToBit(const UInt x) noexcept -> BitType
+template <FloatingPointFormat kFormat>
+template <FloatingPointFormat kDstFormat, size_t kN> inline
+typename FloatingPoint<kDstFormat>::template BitVec<kN>
+FloatingPoint<kFormat>::downscale(const BitVec<kN> x) noexcept
 {
-  constexpr size_t bit_size = sizeof(BitType);
-  constexpr size_t int_size = sizeof(UInt);
-  if constexpr (int_size == bit_size) {
-    return x;
+  using DstFloat = FloatingPoint<kDstFormat>;
+  using DstBitType = typename DstFloat::BitType;
+  using DstIntVec = typename DstFloat::template IntVec<kN>;
+  using DstBitVec = typename DstFloat::template BitVec<kN>;
+  static_assert(sizeof(DstBitVec) < sizeof(BitVec<kN>),
+                "The size of dst float should be greater than the size of src.");
+
+  constexpr BitType exp_bias = exponentBias();
+  constexpr BitType dst_exp_bias = DstFloat::exponentBias();
+  constexpr size_t sig_size = significandBitSize();
+  constexpr size_t dst_sig_size = DstFloat::significandBitSize();
+
+  constexpr BitType lower_bound = ((exp_bias + 1) - dst_exp_bias) << sig_size;
+  constexpr BitType upper_bound = ((exp_bias + 1) + dst_exp_bias) << sig_size;
+
+  DstBitVec dst_bit = make<DstBitVec>(static_cast<DstBitType>(0));
+
+  // Exponent bits
+  {
+    constexpr size_t sig_size_diff = sig_size - dst_sig_size;
+    constexpr BitType exp_bias_diff = (exp_bias - dst_exp_bias) << dst_sig_size;
+    BitVec<kN> src_exp_bit = x & exponentBitMask();
+    src_exp_bit = src_exp_bit >> sig_size_diff; 
+    src_exp_bit = src_exp_bit - exp_bias_diff;
+    dst_bit = cast<DstBitVec>(src_exp_bit) & DstFloat::exponentBitMask();
+#if defined(ZINVUL_VULKAN)
+    //! \todo [Bug] MSB of exponent bits disappears, remove this macro in future
+    constexpr DstBitType l_mask =
+        ~static_cast<DstBitType>(DstFloat::signBitMask() >> 1);
+    constexpr DstBitType h_mask =
+        static_cast<DstBitType>(DstFloat::signBitMask() >> 1);
+    constexpr BitType middle = static_cast<BitType>(exp_bias << sig_size);
+    const DstBitVec dst_bit_l = dst_bit & l_mask;
+    const DstBitVec dst_bit_h = dst_bit | h_mask;
+    const DstIntVec flag = cast<DstIntVec>(middle < src_exp_bit);
+    dst_bit = selectValue(dst_bit_l, dst_bit_h, flag); 
+#endif
   }
-  else if constexpr (int_size < bit_size) {
-    constexpr size_t diff = bit_size - int_size;
-    return cast<BitType>(x) << (diff * 8);
+
+  // Significand bits
+  {
+    constexpr size_t sig_size_diff = sig_size - dst_sig_size;
+    const BitVec<kN> src_sig_bit = x & significandBitMask();
+    const DstBitVec dst_sig_bit = cast<DstBitVec>(src_sig_bit >> sig_size_diff);
+    dst_bit = dst_bit | dst_sig_bit;
   }
-  else {
-    constexpr size_t diff = int_size - bit_size;
-    return cast<BitType>(x >> (diff * 8));
+
+  // Rounding
+  {
+    constexpr size_t sig_size_diff = sig_size - dst_sig_size;
+    const BitVec<kN> src_t_bit = cast<BitVec<kN>>(x << dst_sig_size) &
+                                 significandBitMask();
+    const DstBitVec truncated_bit = cast<DstBitVec>(src_t_bit >> sig_size_diff);
+    dst_bit = DstFloat::template round<kN>(dst_bit, truncated_bit);
   }
+
+  // Special case
+  {
+    const BitVec<kN> src_exp_bit = x & exponentBitMask();
+    // Zero
+    const auto zero_bit = make<DstBitVec>(DstFloat::zeroBit());
+    DstIntVec flag = cast<DstIntVec>(src_exp_bit < lower_bound) | // Subnormal
+                     cast<DstIntVec>(isZeroBit<kN>(x)); // Input is zero
+    dst_bit = selectValue(dst_bit, zero_bit, flag);
+    // Inf
+    const auto inf_bit = make<DstBitVec>(DstFloat::infinityBit());
+    flag = cast<DstIntVec>(upper_bound <= src_exp_bit) | // Overflow
+           cast<DstIntVec>(isInfBit<kN>(x)); // Input is inf
+    dst_bit = selectValue(dst_bit, inf_bit, flag);
+    // Nan
+    const auto nan_bit = make<DstBitVec>(DstFloat::quietNanBit());
+    flag = cast<DstIntVec>(isNanBit<kN>(x));
+    dst_bit = selectValue(dst_bit, nan_bit, flag);
+  }
+
+  // Sign bit
+  {
+    constexpr size_t bit_size = exponentBitSize() + sig_size + 1;
+    constexpr size_t dst_bit_size = DstFloat::exponentBitSize() + dst_sig_size + 1;
+    constexpr size_t bit_size_diff = bit_size - dst_bit_size;
+    const BitVec<kN> src_sign_bit = x & signBitMask();
+    const DstBitVec dst_sign_bit = cast<DstBitVec>(src_sign_bit >> bit_size_diff);
+    dst_bit = dst_sign_bit | dst_bit;
+  }
+
+  return dst_bit;
 }
 
 /*!
   */
-template <FloatingPointFormat kFormat> template <typename UInt2> inline
-auto FloatingPoint<kFormat>::expandToBit2(const UInt2 x) noexcept -> Bit2Type
+template <FloatingPointFormat kFormat> template <typename UVec> inline
+auto FloatingPoint<kFormat>::expandToBit(const UVec x) noexcept
+    -> BitVec<VectorType<UVec>::size()>
 {
-  constexpr size_t bit_size = sizeof(Bit2Type) / 2;
-  constexpr size_t int_size = sizeof(UInt2) / 2;
+  using UVecData = VectorType<UVec>;
+  using BVec = BitVec<UVecData::size()>;
+  using BVecData = VectorType<BVec>;
+
+  constexpr size_t int_size = sizeof(typename UVecData::ElementType);
+  constexpr size_t bit_size = sizeof(typename BVecData::ElementType);
   if constexpr (int_size == bit_size) {
     return x;
   }
   else if constexpr (int_size < bit_size) {
     constexpr size_t diff = bit_size - int_size;
-    Private<Bit2Type> y{cast<BitType>(x.x), cast<BitType>(x.y)};
-    return y << (diff * 8);
+    const auto result = cast<BVec>(x) << (diff * 8);
+    return result;
   }
   else {
     constexpr size_t diff = int_size - bit_size;
-    Private<Bit2Type> y{cast<BitType>(x.x) >> (diff * 8),
-                        cast<BitType>(x.y) >> (diff * 8)};
-    return y;
+    const auto result = cast<BVec>(x >> (diff * 8));
+    return result;
   }
 }
 
@@ -74,9 +156,9 @@ constexpr size_t FloatingPoint<kFormat>::exponentBias() noexcept
 template <FloatingPointFormat kFormat> inline
 constexpr auto FloatingPoint<kFormat>::exponentBitMask() noexcept -> BitType
 {
-  Private<BitType> mask = 0;
+  BitType mask = 0;
   for (size_t bit = 0; bit < exponentBitSize(); ++bit) {
-    const Private<BitType> one = 1u;
+    const BitType one = 1u;
     mask = mask | static_cast<BitType>(one << (significandBitSize() + bit));
   }
   return mask;
@@ -96,23 +178,122 @@ constexpr size_t FloatingPoint<kFormat>::exponentBitSize() noexcept
 /*!
   */
 template <FloatingPointFormat kFormat> inline
-auto FloatingPoint<kFormat>::mapTo01(const BitType x) noexcept -> FloatType
+constexpr auto FloatingPoint<kFormat>::infinityBit() noexcept -> BitType
 {
-  constexpr auto k =
-      static_cast<FloatType>(1.0) /
-      static_cast<FloatType>(static_cast<BitType>(1) << (significandBitSize() + 1));
-  return k * cast<FloatType>(x >> exponentBitSize());
+  const BitType value = exponentBitMask();
+  return value;
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> template <size_t kN> inline
+auto FloatingPoint<kFormat>::isInfBit(const BitVec<kN> x) noexcept -> IntVec<kN>
+{
+  constexpr BitType zero = static_cast<BitType>(0);
+  const auto exp_bit = x & exponentBitMask();
+  const auto sig_bit = x & significandBitMask();
+  const auto result = (exp_bit == exponentBitMask()) && (sig_bit == zero);
+  return cast<IntVec<kN>>(result);
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> template <size_t kN> inline
+auto FloatingPoint<kFormat>::isNanBit(const BitVec<kN> x) noexcept -> IntVec<kN>
+{
+  constexpr BitType zero = static_cast<BitType>(0);
+  const auto exp_bit = x & exponentBitMask();
+  const auto sig_bit = x & significandBitMask();
+  const auto result = (exp_bit == exponentBitMask()) && (zero < sig_bit);
+  return cast<IntVec<kN>>(result);
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> template <size_t kN> inline
+auto FloatingPoint<kFormat>::isZeroBit(const BitVec<kN> x) noexcept -> IntVec<kN>
+{
+  constexpr BitType zero = static_cast<BitType>(0);
+  constexpr BitType value_bit_mask = static_cast<BitType>(~signBitMask());
+  const auto value_bit = x & value_bit_mask;
+  const auto result = value_bit == zero;
+  return cast<IntVec<kN>>(result);
 }
 
 /*!
   */
 template <FloatingPointFormat kFormat> inline
-auto FloatingPoint<kFormat>::mapTo01(const Bit2Type x) noexcept -> Float2Type
+void FloatingPoint<kFormat>::mapTo01(const BitType x,
+                                     GenericPtr<FloatType> result) noexcept
 {
-  constexpr auto k =
-      static_cast<FloatType>(1.0) /
-      static_cast<FloatType>(static_cast<BitType>(1) << (significandBitSize() + 1));
-  return k * cast<Float2Type>(x >> exponentBitSize());
+  if constexpr (kFormat != FloatingPointFormat::kHalf)
+    *result = mapTo01Impl<1>(x);
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> inline
+void FloatingPoint<kFormat>::mapTo01(const BitVec<2> x,
+                                     GenericPtr<FloatVec<2>> result) noexcept
+{
+  if constexpr (kFormat != FloatingPointFormat::kHalf)
+    *result = mapTo01Impl<2>(x);
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> inline
+void FloatingPoint<kFormat>::mapTo01(const BitVec<3> x,
+                                     GenericPtr<FloatVec<3>> result) noexcept
+{
+  if constexpr (kFormat != FloatingPointFormat::kHalf)
+    *result = mapTo01Impl<3>(x);
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> inline
+void FloatingPoint<kFormat>::mapTo01(const BitVec<4> x,
+                                     GenericPtr<FloatVec<4>> result) noexcept
+{
+  if constexpr (kFormat != FloatingPointFormat::kHalf)
+    *result = mapTo01Impl<4>(x);
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> inline
+constexpr auto FloatingPoint<kFormat>::oneBit() noexcept -> BitType
+{
+  const auto exp_bit = static_cast<BitType>(exponentBias() << significandBitSize());
+  return exp_bit;
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> inline
+constexpr auto FloatingPoint<kFormat>::quietNanBit() noexcept -> BitType
+{
+  const BitType exp_bit = exponentBitMask();
+  const BitType significand_bit = BitType{0b1u} << (significandBitSize() - 1);
+  const BitType value = exp_bit | significand_bit;
+  return value;
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> template <size_t kN> inline
+auto FloatingPoint<kFormat>::round(
+    const BitVec<kN> bit,
+    const BitVec<kN> truncated_bit) noexcept -> BitVec<kN>
+{
+  constexpr BitType one = BitType{0b01};
+  constexpr BitType middle = one << (significandBitSize() - 1);
+  IntVec<kN> flag = cast<IntVec<kN>>(truncated_bit == middle) & isOdd(bit);
+  flag = flag | cast<IntVec<kN>>(middle < truncated_bit);
+  const BitVec<kN> next = bit + one;
+  const BitVec<kN> result = selectValue(bit, next, flag);
+  return result;
 }
 
 /*!
@@ -120,8 +301,7 @@ auto FloatingPoint<kFormat>::mapTo01(const Bit2Type x) noexcept -> Float2Type
 template <FloatingPointFormat kFormat> inline
 constexpr auto FloatingPoint<kFormat>::signBitMask() noexcept -> BitType
 {
-  const Private<BitType> mask = BitType{1u} <<
-                                (exponentBitSize() + significandBitSize());
+  const BitType mask = BitType{1u} << (exponentBitSize() + significandBitSize());
   return mask;
 }
 
@@ -130,9 +310,9 @@ constexpr auto FloatingPoint<kFormat>::signBitMask() noexcept -> BitType
 template <FloatingPointFormat kFormat> inline
 constexpr auto FloatingPoint<kFormat>::significandBitMask() noexcept -> BitType
 {
-  Private<BitType> mask = 0;
+  BitType mask = 0;
   for (size_t bit = 0; bit < significandBitSize(); ++bit) {
-    const Private<BitType> one = 1u;
+    const BitType one = 1u;
     mask = mask | static_cast<BitType>(one << bit);
   }
   return mask;
@@ -147,6 +327,96 @@ constexpr size_t FloatingPoint<kFormat>::significandBitSize() noexcept
                       (kFormat == FloatingPointFormat::kSingle) ? 23 :
                       (kFormat == FloatingPointFormat::kDouble) ? 52 : 1;
   return size;
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> inline
+constexpr auto FloatingPoint<kFormat>::zeroBit() noexcept -> BitType
+{
+  const BitType value = 0;
+  return value;
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat>
+template <FloatingPointFormat kDstFormat, size_t kN> inline
+typename FloatingPoint<kDstFormat>::template BitVec<kN>
+FloatingPoint<kFormat>::upscale(const BitVec<kN> x) noexcept
+{
+  using DstFloat = FloatingPoint<kDstFormat>;
+  using DstBitType = typename DstFloat::BitType;
+  using DstBitVec = typename DstFloat::template BitVec<kN>;
+  using DstIntVec = typename DstFloat::template IntVec<kN>;
+  static_assert(sizeof(BitVec<kN>) < sizeof(DstBitVec),
+                "The size of dst float should be greater than the size of src.");
+
+  constexpr DstBitType exp_bias = exponentBias();
+  constexpr DstBitType dst_exp_bias = DstFloat::exponentBias();
+  constexpr size_t sig_size = significandBitSize();
+  constexpr size_t dst_sig_size = DstFloat::significandBitSize();
+
+  DstBitVec dst_bit = make<DstBitVec>(static_cast<DstBitType>(0));
+
+  // Exponent bits
+  {
+    constexpr size_t sig_size_diff = dst_sig_size - sig_size;
+    constexpr DstBitType exp_bias_diff = (dst_exp_bias - exp_bias) << dst_sig_size;
+    const BitVec<kN> src_exp_bit = x & exponentBitMask();
+    dst_bit = cast<DstBitVec>(src_exp_bit) << sig_size_diff;
+    dst_bit = dst_bit + exp_bias_diff;
+  }
+
+  // Significand bits
+  {
+    constexpr size_t sig_size_diff = dst_sig_size - sig_size;
+    const BitVec<kN> src_sig_bit = x & significandBitMask();
+    const DstBitVec dst_sig_bit = cast<DstBitVec>(src_sig_bit) << sig_size_diff;
+    dst_bit = dst_bit | dst_sig_bit;
+  }
+
+  // Special case
+  {
+    const BitVec<kN> src_exp_bit = x & exponentBitMask();
+    // Zero
+    const auto zero_bit = make<DstBitVec>(DstFloat::zeroBit());
+    DstIntVec flag = cast<DstIntVec>(src_exp_bit == zeroBit()) | // Subnormal
+                     cast<DstIntVec>(isZeroBit<kN>(x)); // Input is zero
+    dst_bit = selectValue(dst_bit, zero_bit, flag);
+    // Inf
+    const auto inf_bit = make<DstBitVec>(DstFloat::infinityBit());
+    flag = cast<DstIntVec>(isInfBit<kN>(x)); // Input is inf
+    dst_bit = selectValue(dst_bit, inf_bit, flag);
+    // Nan
+    const auto nan_bit = make<DstBitVec>(DstFloat::quietNanBit());
+    flag = cast<DstIntVec>(isNanBit<kN>(x));
+    dst_bit = selectValue(dst_bit, nan_bit, flag);
+  }
+
+  // Sign bit
+  {
+    constexpr size_t bit_size = exponentBitSize() + sig_size + 1;
+    constexpr size_t dst_bit_size = DstFloat::exponentBitSize() + dst_sig_size + 1;
+    constexpr size_t bit_size_diff = dst_bit_size - bit_size;
+    const BitVec<kN> src_sign_bit = x & signBitMask();
+    const DstBitVec dst_sign_bit = cast<DstBitVec>(src_sign_bit) << bit_size_diff;
+    dst_bit = dst_sign_bit | dst_bit;
+  }
+
+  return dst_bit;
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> template <size_t kN> inline
+auto FloatingPoint<kFormat>::mapTo01Impl(const BitVec<kN> x) noexcept
+    -> FloatVec<kN>
+{
+  constexpr auto k =
+      static_cast<FloatType>(1.0) /
+      static_cast<FloatType>(static_cast<BitType>(1) << (significandBitSize() + 1));
+  return k * cast<FloatVec<kN>>(x >> exponentBitSize());
 }
 
 } // namespace zinvul

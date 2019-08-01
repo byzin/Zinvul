@@ -11,7 +11,10 @@
 #define ZINVUL_MATH_CL
 
 #include "types.cl"
+#include "type_traits.cl"
 #include "utility.cl"
+
+namespace zinvul {
 
 //// Constants
 //#define zCharMax 127
@@ -1174,7 +1177,20 @@
 //  const int4 result = (value & 1) == 1;
 //  return result;
 //}
-//
+
+//! Check if the given value is odd
+template <typename IntegerN> inline
+auto isOdd(const IntegerN value) noexcept
+{
+  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
+  using VecType = VectorType<IntegerN>;
+  using DataType = typename VecType::ElementType;
+  using IntType = typename IntegerVector<sizeof(DataType), VecType::size()>::Type;
+  constexpr DataType one{0b01};
+  const IntType result = (value & one) == one;
+  return result;
+}
+
 ////! Check if the given value is odd
 //int32b zIsOddU(const uint32b value)
 //{
@@ -4579,5 +4595,7 @@
 //#endif
 //  return result;
 //}
+
+} // namespace zinvul
 
 #endif /* ZINVUL_MATH_CL */

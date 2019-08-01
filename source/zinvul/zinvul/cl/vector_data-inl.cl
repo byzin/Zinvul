@@ -12,6 +12,7 @@
 
 #include "vector_data.cl"
 // Zinvul
+#include "floating_point.cl"
 #include "types.cl"
 #include "type_traits.cl"
 
@@ -56,6 +57,46 @@ auto VectorData<Type>::load(const size_t offset, ConstPrivatePtr<DataType> p)
 /*!
   */
 template <typename Type> inline
+auto VectorData<Type>::loadHalfU(const size_t offset, ConstGlobalPtr<DataType> p)
+    noexcept -> FloatType
+{
+  static_assert(kIsSame<uint16b, DataType>, "The DataType isn't uint16b.");
+  return loadHalfUImpl(offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
+auto VectorData<Type>::loadHalfU(const size_t offset, ConstLocalPtr<DataType> p)
+    noexcept -> FloatType
+{
+  static_assert(kIsSame<uint16b, DataType>, "The DataType isn't uint16b.");
+  return loadHalfUImpl(offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
+auto VectorData<Type>::loadHalfU(const size_t offset, ConstConstantPtr<DataType> p)
+    noexcept -> FloatType
+{
+  static_assert(kIsSame<uint16b, DataType>, "The DataType isn't uint16b.");
+  return loadHalfUImpl(offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
+auto VectorData<Type>::loadHalfU(const size_t offset, ConstPrivatePtr<DataType> p)
+    noexcept -> FloatType
+{
+  static_assert(kIsSame<uint16b, DataType>, "The DataType isn't uint16b.");
+  return loadHalfUImpl(offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
 constexpr size_t VectorData<Type>::size() noexcept
 {
   return VecType::size();
@@ -89,6 +130,36 @@ void VectorData<Type>::store(const ValueType data,
                              PrivatePtr<DataType> p) noexcept
 {
   storeImpl(data, offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
+void VectorData<Type>::storeHalfU(const FloatType data,
+                                  const size_t offset,
+                                  GlobalPtr<DataType> p) noexcept
+{
+  storeHalfUImpl(data, offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
+void VectorData<Type>::storeHalfU(const FloatType data,
+                                  const size_t offset,
+                                  LocalPtr<DataType> p) noexcept
+{
+  storeHalfUImpl(data, offset, p);
+}
+
+/*!
+  */
+template <typename Type> inline
+void VectorData<Type>::storeHalfU(const FloatType data,
+                                  const size_t offset,
+                                  PrivatePtr<DataType> p) noexcept
+{
+  storeHalfUImpl(data, offset, p);
 }
 
 /*!
@@ -160,6 +231,21 @@ auto VectorData<Type>::loadHalfImpl(const size_t offset, AddressType p)
 /*!
   */
 template <typename Type> template <typename AddressType> inline
+auto VectorData<Type>::loadHalfUImpl(const size_t offset, AddressType p)
+    noexcept -> FloatType
+{
+  static_assert(kIsSame<uint16b, DataType>, "The DataType isn't uint16b.");
+  constexpr size_t n = size();
+
+  const auto data = load(offset, p);
+  const auto udata = HalfFloat::upscale<FloatingPointFormat::kSingle, n>(data);
+  const auto fdata = treatAs<FloatType>(udata);
+  return fdata;
+}
+
+/*!
+  */
+template <typename Type> template <typename AddressType> inline
 void VectorData<Type>::storeImpl(const ValueType data,
                                  const size_t offset,
                                  AddressType p) noexcept
@@ -214,6 +300,22 @@ void VectorData<Type>::storeHalfImpl(const ValueType data,
   (void)offset;
   (void)p;
 #endif // ZINVUL_CPU
+}
+
+/*!
+  */
+template <typename Type> template <typename AddressType> inline
+void VectorData<Type>::storeHalfUImpl(const FloatType fdata,
+                                      const size_t offset,
+                                      AddressType p) noexcept
+{
+  static_assert(kIsSame<uint16b, DataType>, "The DataType isn't uint16b.");
+  constexpr size_t n = size();
+  using BitType = SingleFloat::BitVec<n>;
+
+  const auto udata = treatAs<BitType>(fdata);
+  const auto data = SingleFloat::downscale<FloatingPointFormat::kHalf, n>(udata);
+  store(data, offset, p);
 }
 
 } // namespace zinvul

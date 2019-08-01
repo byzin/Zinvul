@@ -26,7 +26,7 @@ class Fnv1aHashEngine : public HashEngine<Fnv1aHashEngine<ResultType>, ResultTyp
 
   //! Implementation of the hash function
   template <typename Int8>
-  static ResultType hashValue(const Int8* seed, const size_t n) noexcept;
+  static ResultType hashValue(ConstGenericPtr<Int8> seed, const size_t n) noexcept;
 };
 
 using Fnv1aHash32 = Fnv1aHashEngine<uint32b>;

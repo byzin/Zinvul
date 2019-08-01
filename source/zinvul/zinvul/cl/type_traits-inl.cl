@@ -127,7 +127,7 @@ ZINVUL_UINTEGER_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(ulong4, uint64b, 4);
   template <> \
   struct FloatVector< sizeof( ElemT ), n > \
   { \
-    using fType = T; \
+    using Type = T; \
     using ElementType = ElemT; \
     static constexpr size_t size() noexcept {return n ;} \
   }
@@ -140,6 +140,10 @@ ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(float, float, 1);
 ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(float2, float, 2);
 ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(float3, float, 3);
 ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(float4, float, 4);
+ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(double, double, 1);
+ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(double2, double, 2);
+ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(double3, double, 3);
+ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(double4, double, 4);
 
 template <typename T>
 struct IsSignedInteger

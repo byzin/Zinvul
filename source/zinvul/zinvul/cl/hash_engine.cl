@@ -26,10 +26,10 @@ class HashEngine
   static ResultType hash(const char(&seed)[kN]) noexcept;
 
   //! Compute a hash value
-  static ResultType hash(const int8b* seed, const size_t n) noexcept;
+  static ResultType hash(ConstGenericPtr<int8b> seed, const size_t n) noexcept;
 
   //! Compute a hash value
-  static ResultType hash(const uint8b* seed, const size_t n) noexcept;
+  static ResultType hash(ConstGenericPtr<uint8b> seed, const size_t n) noexcept;
 
   //! Compute a hash value
   template <typename UInteger>

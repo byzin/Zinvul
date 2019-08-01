@@ -23,25 +23,25 @@ template <typename HashClass, typename ResultType> template <size_t kN> inline
 ResultType HashEngine<HashClass, ResultType>::hash(
     const char(&seed)[kN]) noexcept
 {
-  return HashClass::hashValue(seed, kN - 1);
+  return HashClass::template hashValue<char>(seed, kN - 1);
 }
 
 /*!
   */
 template <typename HashClass, typename ResultType> inline
-ResultType HashEngine<HashClass, ResultType>::hash(const int8b* seed,
+ResultType HashEngine<HashClass, ResultType>::hash(ConstGenericPtr<int8b> seed,
                                                    const size_t n) noexcept
 {
-  return HashClass::hashValue(seed, n);
+  return HashClass::template hashValue<int8b>(seed, n);
 }
 
 /*!
   */
 template <typename HashClass, typename ResultType> inline
-ResultType HashEngine<HashClass, ResultType>::hash(const uint8b* seed,
+ResultType HashEngine<HashClass, ResultType>::hash(ConstGenericPtr<uint8b> seed,
                                                    const size_t n) noexcept
 {
-  return HashClass::hashValue(seed, n);
+  return HashClass::template hashValue<uint8b>(seed, n);
 }
 
 /*!
@@ -59,7 +59,7 @@ ResultType HashEngine<HashClass, ResultType>::hash(
     seed_array[i] = cast<uint8b>(mask & (seed >> (8u * i)));
   }
   // Hash the seed
-  return hash(seed_array.data(), n);
+  return HashClass::template hashValue<uint8b>(seed_array.data(), n);
 }
 
 } // namespace zinvul

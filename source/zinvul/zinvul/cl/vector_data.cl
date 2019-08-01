@@ -25,11 +25,11 @@ class VectorData
   using VecType = VectorType<Type>;
 
  public:
-  using ValueType = ConditionalType<!kIsHalf<Type>, Type,
-      ConditionalType<VecType::size() == 1, float,
-      ConditionalType<VecType::size() == 2, float2,
-      ConditionalType<VecType::size() == 3, float3,
-      ConditionalType<VecType::size() == 4, float4, void>>>>>;
+  using FloatType = ConditionalType<VecType::size() == 1, float,
+                    ConditionalType<VecType::size() == 2, float2,
+                    ConditionalType<VecType::size() == 3, float3,
+                    ConditionalType<VecType::size() == 4, float4, void>>>>;
+  using ValueType = ConditionalType<!kIsHalf<Type>, Type, FloatType>;
   using DataType = typename VecType::ElementType;
 
 
@@ -44,6 +44,22 @@ class VectorData
 
   //! Return a data
   static ValueType load(const size_t offset, ConstPrivatePtr<DataType> p) noexcept;
+
+  //! Return a data
+  static FloatType loadHalfU(const size_t offset,
+                             ConstGlobalPtr<DataType> p) noexcept;
+
+  //! Return a data
+  static FloatType loadHalfU(const size_t offset,
+                             ConstLocalPtr<DataType> p) noexcept;
+
+  //! Return a data
+  static FloatType loadHalfU(const size_t offset,
+                             ConstConstantPtr<DataType> p) noexcept;
+
+  //! Return a data
+  static FloatType loadHalfU(const size_t offset,
+                             ConstPrivatePtr<DataType> p) noexcept;
 
   //! Return the number of elements of the type
   static constexpr size_t size() noexcept;
@@ -62,6 +78,22 @@ class VectorData
   static void store(const ValueType data,
                     const size_t offset,
                     PrivatePtr<DataType> p) noexcept;
+
+  //! Write a scalar data
+  static void storeHalfU(const FloatType data,
+                         const size_t offset,
+                         GlobalPtr<DataType> p) noexcept;
+
+  //! Write a scalar data
+  static void storeHalfU(const FloatType data,
+                         const size_t offset,
+                         LocalPtr<DataType> p) noexcept;
+
+  //! Write a scalar data
+  static void storeHalfU(const FloatType data,
+                         const size_t offset,
+                         PrivatePtr<DataType> p) noexcept;
+
  private:
   //! Return a data
   template <typename AddressType>
@@ -70,6 +102,10 @@ class VectorData
   //! Return a data
   template <typename AddressType>
   static ValueType loadHalfImpl(const size_t offset, AddressType p) noexcept;
+
+  //! Return a data
+  template <typename AddressType>
+  static FloatType loadHalfUImpl(const size_t offset, AddressType p) noexcept;
 
   //! Write a data
   template <typename AddressType>
@@ -82,6 +118,12 @@ class VectorData
   static void storeHalfImpl(const ValueType data,
                             const size_t offset,
                             AddressType p) noexcept;
+
+  //! Write a data
+  template <typename AddressType>
+  static void storeHalfUImpl(const FloatType data,
+                             const size_t offset,
+                             AddressType p) noexcept;
 };
 
 } // namespace zinvul

@@ -38,6 +38,11 @@ __kernel void testFloatVectorData(ConstGlobalPtr<float> inputs,
 __kernel void testHalfVectorData(ConstGlobalPtr<half> inputs,
     GlobalPtr<half> outputs,
     const uint32b resolution);
+__kernel void testHalfUVectorData(ConstGlobalPtr<uint16b> inputs,
+    GlobalPtr<float> outputs1,
+    GlobalPtr<uint16b> outputs2,
+    const uint32b resolution);
+
 
 __kernel void testInt8bVectorData(ConstGlobalPtr<int8b> inputs,
     GlobalPtr<int8b> outputs,
@@ -278,6 +283,56 @@ __kernel void testHalfVectorData(ConstGlobalPtr<half> inputs,
       float4 v = VData::load(0, inputs + offset);
       v = 3.0f * v;
       VData::store(v, 0, outputs + offset);
+      offset += VData::size();
+    }
+  }
+}
+
+/*!
+  */
+__kernel void testHalfUVectorData(ConstGlobalPtr<uint16b> inputs,
+    GlobalPtr<float> outputs1,
+    GlobalPtr<uint16b> outputs2,
+    const uint32b resolution)
+{
+  const uint32b index = getGlobalIdX();
+  if (index < resolution) {
+    constexpr size_t n = 10u;
+    size_t offset = n * index;
+    {
+      using FData = VectorData<float>;
+      using VData = VectorData<uint16b>;
+      float v = VData::loadHalfU(0, inputs + offset);
+      FData::store(v, 0, outputs1 + offset);
+      v = 3.0f * v;
+      VData::storeHalfU(v, 0, outputs2 + offset);
+      offset += VData::size();
+    }
+    {
+      using FData = VectorData<float2>;
+      using VData = VectorData<ushort2>;
+      float2 v = VData::loadHalfU(0, inputs + offset);
+      FData::store(v, 0, outputs1 + offset);
+      v = 3.0f * v;
+      VData::storeHalfU(v, 0, outputs2 + offset);
+      offset += VData::size();
+    }
+    {
+      using FData = VectorData<float3>;
+      using VData = VectorData<ushort3>;
+      float3 v = VData::loadHalfU(0, inputs + offset);
+      FData::store(v, 0, outputs1 + offset);
+      v = 3.0f * v;
+      VData::storeHalfU(v, 0, outputs2 + offset);
+      offset += VData::size();
+    }
+    {
+      using FData = VectorData<float4>;
+      using VData = VectorData<ushort4>;
+      float4 v = VData::loadHalfU(0, inputs + offset);
+      FData::store(v, 0, outputs1 + offset);
+      v = 3.0f * v;
+      VData::storeHalfU(v, 0, outputs2 + offset);
       offset += VData::size();
     }
   }

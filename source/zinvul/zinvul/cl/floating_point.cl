@@ -36,27 +36,26 @@ class FloatingPoint
       ConditionalType<kFormat == FloatingPointFormat::kHalf, half,
       ConditionalType<kFormat == FloatingPointFormat::kSingle, float,
       ConditionalType<kFormat == FloatingPointFormat::kDouble, double, void>>>;
-  using Float2Type =
-      ConditionalType<kFormat == FloatingPointFormat::kHalf, half2,
-      ConditionalType<kFormat == FloatingPointFormat::kSingle, float2,
-      ConditionalType<kFormat == FloatingPointFormat::kDouble, double2, void>>>;
   using BitType =
       ConditionalType<kFormat == FloatingPointFormat::kHalf, uint16b,
       ConditionalType<kFormat == FloatingPointFormat::kSingle, uint32b,
       ConditionalType<kFormat == FloatingPointFormat::kDouble, uint64b, void>>>;
-  using Bit2Type =
-      ConditionalType<kFormat == FloatingPointFormat::kHalf, ushort2,
-      ConditionalType<kFormat == FloatingPointFormat::kSingle, uint2,
-      ConditionalType<kFormat == FloatingPointFormat::kDouble, ulong2, void>>>;
+  template <size_t kN>
+  using FloatVec = typename FloatVector<sizeof(FloatType), kN>::Type;
+  template <size_t kN>
+  using IntVec = typename IntegerVector<sizeof(BitType), kN>::Type;
+  template <size_t kN>
+  using BitVec = typename UIntegerVector<sizeof(BitType), kN>::Type;
 
+
+  //! Return the upscaled bit
+  template <FloatingPointFormat kDstFormat, size_t kN>
+  static typename FloatingPoint<kDstFormat>::template BitVec<kN>
+  downscale(const BitVec<kN> x) noexcept;
 
   //! Expand an input value to the bittype size
-  template <typename UInt>
-  static BitType expandToBit(const UInt x) noexcept;
-
-  //! Expand an input value to the bittype size
-  template <typename UInt2>
-  static Bit2Type expandToBit2(const UInt2 x) noexcept;
+  template <typename UVec>
+  static BitVec<VectorType<UVec>::size()> expandToBit(const UVec x) noexcept;
 
   //! Return the exponent bias
   static constexpr size_t exponentBias() noexcept;
@@ -67,11 +66,43 @@ class FloatingPoint
   //! Return the exponent bit size
   static constexpr size_t exponentBitSize() noexcept;
 
-  //! Map an unsigned integer into a [0, 1) float
-  static FloatType mapTo01(const BitType x) noexcept;
+  //! Return the positive infinity value
+  static constexpr BitType infinityBit() noexcept;
+
+  //! Check if the given value is infinity
+  template <size_t kN>
+  static IntVec<kN> isInfBit(const BitVec<kN> x) noexcept;
+
+  //! Check if the given value is NaN
+  template <size_t kN>
+  static IntVec<kN> isNanBit(const BitVec<kN> x) noexcept;
+
+  //! Check if the given value is zero
+  template <size_t kN>
+  static IntVec<kN> isZeroBit(const BitVec<kN> x) noexcept;
 
   //! Map an unsigned integer into a [0, 1) float
-  static Float2Type mapTo01(const Bit2Type x) noexcept;
+  static void mapTo01(const BitType x, GenericPtr<FloatType> result) noexcept;
+
+  //! Map an unsigned integer into a [0, 1) float
+  static void mapTo01(const BitVec<2> x, GenericPtr<FloatVec<2>> result) noexcept;
+
+  //! Map an unsigned integer into a [0, 1) float
+  static void mapTo01(const BitVec<3> x, GenericPtr<FloatVec<3>> result) noexcept;
+
+  //! Map an unsigned integer into a [0, 1) float
+  static void mapTo01(const BitVec<4> x, GenericPtr<FloatVec<4>> result) noexcept;
+
+  //! Return the positive one value
+  static constexpr BitType oneBit() noexcept;
+
+  //! Return a quiet NaN
+  static constexpr BitType quietNanBit() noexcept;
+
+  //! Round to nearest, where ties round to the nearest
+  template <size_t kN>
+  static BitVec<kN> round(const BitVec<kN> bit,
+                          const BitVec<kN> truncated_bit) noexcept;
 
   //! Return the sign bit mask
   static constexpr BitType signBitMask() noexcept;
@@ -81,6 +112,19 @@ class FloatingPoint
 
   //! Return the significand bit size
   static constexpr size_t significandBitSize() noexcept;
+
+  //! Return the upscaled bit
+  template <FloatingPointFormat kDstFormat, size_t kN>
+  static typename FloatingPoint<kDstFormat>::template BitVec<kN>
+  upscale(const BitVec<kN> x) noexcept;
+
+  //! Return the positive zero value
+  static constexpr BitType zeroBit() noexcept;
+
+ private:
+  //! Map an unsigned integer into a [0, 1) float
+  template <size_t kN>
+  static FloatVec<kN> mapTo01Impl(const BitVec<kN> x) noexcept;
 };
 
 // Type alias

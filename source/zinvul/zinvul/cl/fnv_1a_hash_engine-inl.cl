@@ -58,7 +58,7 @@ struct Fnv1aHashEngineImpl<uint64b>
 /*!
   */
 template <typename ResultType> template <typename Int8> inline
-ResultType Fnv1aHashEngine<ResultType>::hashValue(const Int8* inputs,
+ResultType Fnv1aHashEngine<ResultType>::hashValue(ConstGenericPtr<Int8> inputs,
                                                   const size_t n) noexcept
 {
   auto x = inner::Fnv1aHashEngineImpl<ResultType>::offset();
