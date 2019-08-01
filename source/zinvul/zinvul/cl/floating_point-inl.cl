@@ -58,10 +58,11 @@ FloatingPoint<kFormat>::downscale(const BitVec<kN> x) noexcept
         ~static_cast<DstBitType>(DstFloat::signBitMask() >> 1);
     constexpr DstBitType h_mask =
         static_cast<DstBitType>(DstFloat::signBitMask() >> 1);
-    constexpr BitType middle = static_cast<BitType>(exp_bias << sig_size);
+    constexpr BitType middle = 
+        static_cast<BitType>(dst_exp_bias + 1) << dst_sig_size;
     const DstBitVec dst_bit_l = dst_bit & l_mask;
     const DstBitVec dst_bit_h = dst_bit | h_mask;
-    const DstIntVec flag = cast<DstIntVec>(middle < src_exp_bit);
+    const DstIntVec flag = cast<DstIntVec>(middle <= src_exp_bit);
     dst_bit = selectValue(dst_bit_l, dst_bit_h, flag); 
 #endif
   }

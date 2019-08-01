@@ -13,6 +13,7 @@
 #include <bitset>
 #include <cstddef>
 #include <iostream>
+#include <limits>
 #include <vector>
 // GoogleTest
 #include "gtest/gtest.h"
@@ -3288,35 +3289,35 @@ TEST(BuiltInFuncTest, HalfUVectorDataTest)
     std::cout << getTestDeviceInfo(*device);
 
     constexpr std::size_t n = 10;
-    constexpr std::size_t n_special = 5;
-    constexpr uint32b resolution = 1024;
+    constexpr std::size_t n_special = 8;
+    constexpr uint32b resolution = 65545 / n;
 
-    auto buffer1 = makeStorageBuffer<uint16b>(device.get(), BufferUsage::kDeviceOnly);
+    auto buffer1 = makeStorageBuffer<cl::half>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(n * resolution + n_special);
     {
-      std::vector<uint16b> inputs;
+      std::vector<cl::half> inputs;
       inputs.resize(buffer1->size());
       std::size_t index = 0;
       for (std::size_t i = 0; i < resolution; ++i) {
         for (std::size_t j = 0; j < n; ++j) {
           const std::size_t u = (n * (i / 4)) + j;
-          std::size_t shift = 0;
-          {
-            std::size_t k = i;
-            while (k) {
-              ++shift;
-              k = k >> 1;
-            }
-          }
-          float t = zisc::cast<float>((u * u) >> shift);
+          float t = zisc::cast<float>(u);
           t = (1 < (i % 4)) ? 1.0f / t : t;
           t = ((i % 2) == 0) ? t : -t;
 //          std::cout << "[" << index << "]: u = " << u
 //                    << ", f = " << std::scientific << t << std::endl;
           const auto data = zisc::SingleFloat::fromFloat(t);
-          inputs[index++] = zisc::HalfFloat{data}.bits();
+          inputs[index++] = zisc::HalfFloat{data};
         }
       }
+      inputs[index++] = std::numeric_limits<zisc::HalfFloat>::max();
+      inputs[index++] = std::numeric_limits<zisc::HalfFloat>::lowest();
+      inputs[index++] = std::numeric_limits<zisc::HalfFloat>::min();
+      inputs[index++] = -std::numeric_limits<zisc::HalfFloat>::min();
+      inputs[index++] = std::numeric_limits<zisc::HalfFloat>::epsilon();
+      inputs[index++] = std::numeric_limits<zisc::HalfFloat>::infinity();
+      inputs[index++] = -std::numeric_limits<zisc::HalfFloat>::infinity();
+      inputs[index++] = std::numeric_limits<zisc::HalfFloat>::quiet_NaN();
       buffer1->write(inputs.data(), inputs.size(), 0, 0);
     }
 
@@ -3331,7 +3332,7 @@ TEST(BuiltInFuncTest, HalfUVectorDataTest)
     res_buff->write(&resolution, 1, 0, 0);
 
     auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(built_in_func, testHalfUVectorData));
-    kernel->run(*buffer1, *buffer2, *buffer3, *res_buff, {resolution}, 0);
+    kernel->run(*(buffer1->treatAs<uint16b>()), *buffer2, *buffer3, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
     const char* error_message = "The load and store funcs of uint16 are wrong:";
@@ -3348,15 +3349,7 @@ TEST(BuiltInFuncTest, HalfUVectorDataTest)
       for (std::size_t i = 0; i < resolution; ++i) {
         for (std::size_t j = 0; j < n; ++j) {
           const std::size_t u = (n * (i / 4)) + j;
-          std::size_t shift = 0;
-          {
-            std::size_t k = i;
-            while (k) {
-              ++shift;
-              k = k >> 1;
-            }
-          }
-          float expected = zisc::cast<float>((u * u) >> shift);
+          float expected = zisc::cast<float>(u);
           {
             bool is_subnormal_half = false;
             expected = (1 < (i % 4)) ? 1.0f / expected : expected;
@@ -3369,10 +3362,10 @@ TEST(BuiltInFuncTest, HalfUVectorDataTest)
               expected = data.toFloat();
             }
             const float result = fresults[index];
-            ASSERT_FALSE(is_subnormal_half);
-            EXPECT_FLOAT_EQ(expected, result) << error_message
-                << " [" << index << "]: " << std::scientific << result << std::endl
-                << "    subnormal: " << is_subnormal_half;
+            ASSERT_FALSE(is_subnormal_half) << "Subnormal: "
+                << " [" << index << "]: " << std::scientific << result;
+            ASSERT_FLOAT_EQ(expected, result) << error_message
+                << " [" << index << "]: " << std::scientific << result;
           }
           {
             expected = 3.0f * expected;
@@ -3385,17 +3378,75 @@ TEST(BuiltInFuncTest, HalfUVectorDataTest)
             const zisc::SingleFloat t{data};
             const float result = t.toFloat();
             const std::bitset<16> bits{results[index]};
-            EXPECT_FLOAT_EQ(expected, result) << error_message
+            ASSERT_FLOAT_EQ(expected, result) << error_message
                 << " [" << index << "]: " << std::scientific << result << std::endl
                 << "bits : " << bits;
-            std::cout << "## Bit: " << bits << std::endl;
           }
           ++index;
-          if (index == 24)
-            break;
         }
-        if( index == 24 )
-          break;
+      }
+      {
+        const auto expected = std::numeric_limits<zisc::HalfFloat>::max();
+        const zisc::HalfFloat result{results[index++]};
+        const std::bitset<16> expectedbits{expected.bits()};
+        const std::bitset<16> bits{result.bits()};
+        ASSERT_EQ(expected, result) << error_message
+            << "expected bits: " << expectedbits << std::endl
+            << "resultbits   : " << bits;
+      }
+      {
+        const auto expected = std::numeric_limits<zisc::HalfFloat>::lowest();
+        const zisc::HalfFloat result{results[index++]};
+        const std::bitset<16> expectedbits{expected.bits()};
+        const std::bitset<16> bits{result.bits()};
+        ASSERT_EQ(expected, result) << error_message
+            << "expected bits: " << expectedbits << std::endl
+            << "resultbits   : " << bits;
+      }
+      {
+        const auto expected = std::numeric_limits<zisc::HalfFloat>::min();
+        const zisc::HalfFloat result{results[index++]};
+        const std::bitset<16> expectedbits{expected.bits()};
+        const std::bitset<16> bits{result.bits()};
+        ASSERT_EQ(expected, result) << error_message
+            << "expected bits: " << expectedbits << std::endl
+            << "resultbits   : " << bits;
+      }
+      {
+        const auto expected = -std::numeric_limits<zisc::HalfFloat>::min();
+        const zisc::HalfFloat result{results[index++]};
+        const std::bitset<16> expectedbits{expected.bits()};
+        const std::bitset<16> bits{result.bits()};
+        ASSERT_EQ(expected, result) << error_message
+            << "expected bits: " << expectedbits << std::endl
+            << "resultbits   : " << bits;
+      }
+      {
+        const auto expected = std::numeric_limits<zisc::HalfFloat>::epsilon();
+        const zisc::HalfFloat result{results[index++]};
+        const std::bitset<16> expectedbits{expected.bits()};
+        const std::bitset<16> bits{result.bits()};
+        ASSERT_EQ(expected, result) << error_message
+            << "expected bits: " << expectedbits << std::endl
+            << "resultbits   : " << bits;
+      }
+      {
+        const zisc::HalfFloat result{results[index++]};
+        const std::bitset<16> bits{result.bits()};
+        ASSERT_TRUE(result.isInf()) << error_message
+            << "resultbits   : " << bits;
+      }
+      {
+        const zisc::HalfFloat result{results[index++]};
+        const std::bitset<16> bits{result.bits()};
+        ASSERT_TRUE(result.isInf()) << error_message
+            << "resultbits   : " << bits;
+      }
+      {
+        const zisc::HalfFloat result{results[index++]};
+        const std::bitset<16> bits{result.bits()};
+        ASSERT_TRUE(result.isNan()) << error_message
+            << "resultbits   : " << bits;
       }
     }
 

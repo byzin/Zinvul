@@ -334,6 +334,13 @@ __kernel void testHalfUVectorData(ConstGlobalPtr<uint16b> inputs,
       v = 3.0f * v;
       VData::storeHalfU(v, 0, outputs2 + offset);
       offset += VData::size();
+      if (index == (resolution - 1)) {
+        for (size_t j = 0; j < 2; ++j) {
+          v = VData::loadHalfU(0, inputs + offset);
+          VData::storeHalfU(v, 0, outputs2 + offset);
+          offset += VData::size();
+        }
+      }
     }
   }
 }
