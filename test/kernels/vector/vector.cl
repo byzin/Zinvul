@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_DATA_TEST_VECTOR_CL
-#define ZINVUL_DATA_TEST_VECTOR_CL
+#ifndef ZINVUL_VECTOR_TEST_VECTOR_CL
+#define ZINVUL_VECTOR_TEST_VECTOR_CL
 
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
@@ -452,4 +452,4 @@ __kernel void testRelationalOperations(
   }
 }
 
-#endif /* ZINVUL_DATA_TEST_VECTOR_CL */
+#endif /* ZINVUL_VECTOR_TEST_VECTOR_CL */

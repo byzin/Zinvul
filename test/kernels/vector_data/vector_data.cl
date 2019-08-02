@@ -1,5 +1,5 @@
 /*!
-  \file vector.cl
+  \file vector_data.cl
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_BUILT_IN_FUNC_TEST_VECTOR_CL
-#define ZINVUL_BUILT_IN_FUNC_TEST_VECTOR_CL
+#ifndef ZINVUL_VECTOR_DATA_TEST_VECTOR_DATA_CL
+#define ZINVUL_VECTOR_DATA_TEST_VECTOR_DATA_CL
 
 // Zinvul
 #include "zinvul/cl/array.cl"
@@ -345,4 +345,4 @@ __kernel void testHalfUVectorData(ConstGlobalPtr<uint16b> inputs,
   }
 }
 
-#endif /* ZINVUL_BUILT_IN_FUNC_TEST_VECTOR_CL */
+#endif /* ZINVUL_VECTOR_DATA_TEST_VECTOR_DATA_CL */

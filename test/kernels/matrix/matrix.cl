@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_MATH_TEST_MATRIX_CL
-#define ZINVUL_MATH_TEST_MATRIX_CL
+#ifndef ZINVUL_MATRIX_TEST_MATRIX_CL
+#define ZINVUL_MATRIX_TEST_MATRIX_CL
 
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/matrix.cl"
@@ -1320,4 +1320,4 @@
 //  }
 //}
 
-#endif /* ZINVUL_MATH_TEST_MATRIX_CL */
+#endif /* ZINVUL_MATRIX_TEST_MATRIX_CL */

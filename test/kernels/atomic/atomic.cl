@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_BUILT_IN_FUNC_TEST_ATOMIC_CL
-#define ZINVUL_BUILT_IN_FUNC_TEST_ATOMIC_CL
+#ifndef ZINVUL_ATOMIC_TEST_ATOMIC_CL
+#define ZINVUL_ATOMIC_TEST_ATOMIC_CL
 
 // Zinvul
 #include "zinvul/cl/array.cl"
@@ -1000,4 +1000,4 @@ __kernel void testAtomicFloatIncGlobal(GlobalPtr<uint32b> result,
 
 #pragma clang diagnostic pop
 
-#endif /* ZINVUL_BUILT_IN_FUNC_TEST_ATOMIC_CL */
+#endif /* ZINVUL_ATOMIC_TEST_ATOMIC_CL */

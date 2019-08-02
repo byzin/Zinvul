@@ -27,11 +27,11 @@
 #include "zisc/utility.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
-#include "zinvul/kernel_set/math.hpp"
+#include "zinvul/kernel_set/matrix.hpp"
 // Test
 #include "test.hpp"
 
-//TEST(MathTest, zInitMatrix2x2Test)
+//TEST(MatrixTest, zInitMatrix2x2Test)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -114,7 +114,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zInitMatrix3x3Test)
+//TEST(MatrixTest, zInitMatrix3x3Test)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -198,7 +198,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zInitMatrix4x4Test)
+//TEST(MatrixTest, zInitMatrix4x4Test)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -283,7 +283,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix2x2AdditionTest)
+//TEST(MatrixTest, zMatrix2x2AdditionTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -327,7 +327,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix3x3AdditionTest)
+//TEST(MatrixTest, zMatrix3x3AdditionTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -372,7 +372,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix4x4AdditionTest)
+//TEST(MatrixTest, zMatrix4x4AdditionTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -418,7 +418,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix2x2SubtractionTest)
+//TEST(MatrixTest, zMatrix2x2SubtractionTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -462,7 +462,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix3x3SubtractionTest)
+//TEST(MatrixTest, zMatrix3x3SubtractionTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -507,7 +507,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix4x4SubtractionTest)
+//TEST(MatrixTest, zMatrix4x4SubtractionTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -553,7 +553,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix2x2MultiplicationTest)
+//TEST(MatrixTest, zMatrix2x2MultiplicationTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -603,7 +603,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix2x2ScalarMultiplicationTest)
+//TEST(MatrixTest, zMatrix2x2ScalarMultiplicationTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -652,7 +652,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix3x3MultiplicationTest)
+//TEST(MatrixTest, zMatrix3x3MultiplicationTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -704,7 +704,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix3x3ScalarMultiplicationTest)
+//TEST(MatrixTest, zMatrix3x3ScalarMultiplicationTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -755,7 +755,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix4x4MultiplicationTest)
+//TEST(MatrixTest, zMatrix4x4MultiplicationTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
@@ -809,7 +809,7 @@
 //  }
 //}
 //
-//TEST(MathTest, zMatrix4x4ScalarMultiplicationTest)
+//TEST(MatrixTest, zMatrix4x4ScalarMultiplicationTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();

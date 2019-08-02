@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_BUILT_IN_FUNC_TEST_WORK_ITEM_CL
-#define ZINVUL_BUILT_IN_FUNC_TEST_WORK_ITEM_CL
+#ifndef ZINVUL_WORK_ITEM_TEST_WORK_ITEM_CL
+#define ZINVUL_WORK_ITEM_TEST_WORK_ITEM_CL
 
 // Zinvul
 #include "zinvul/cl/atomic.cl"
@@ -125,4 +125,4 @@ __kernel void testWorkItem3D(GlobalPtr<uint32b> work_size_table,
   }
 }
 
-#endif /* ZINVUL_BUILT_IN_FUNC_TEST_WORK_ITEM_CL */
+#endif /* ZINVUL_WORK_ITEM_TEST_WORK_ITEM_CL */

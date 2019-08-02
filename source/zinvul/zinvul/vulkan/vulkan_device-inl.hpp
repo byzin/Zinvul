@@ -853,6 +853,7 @@ void VulkanDevice::initMemoryAllocator() noexcept
 
   auto result = vmaCreateAllocator(&allocator_create_info, &allocator_);
   ZISC_ASSERT(result == VK_SUCCESS, "Memory allocator creation failed.");
+  (void)result;
 }
 
 /*!

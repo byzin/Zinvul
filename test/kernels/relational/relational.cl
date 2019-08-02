@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_BUILT_IN_FUNC_TEST_RELATIONAL_CL
-#define ZINVUL_BUILT_IN_FUNC_TEST_RELATIONAL_CL
+#ifndef ZINVUL_RELATIONAL_TEST_RELATIONAL_CL
+#define ZINVUL_RELATIONAL_TEST_RELATIONAL_CL
 
 // Zinvul
 #include "zinvul/cl/limits.cl"
@@ -356,4 +356,4 @@ __kernel void testSelectF(GlobalPtr<float> results1,
   }
 }
 
-#endif /* ZINVUL_BUILT_IN_FUNC_TEST_RELATIONAL_CL */
+#endif /* ZINVUL_RELATIONAL_TEST_RELATIONAL_CL */

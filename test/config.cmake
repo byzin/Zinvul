@@ -61,16 +61,41 @@ function(buildUnitTest)
   file(GLOB_RECURSE data_cl_files ${data_dir}/*.cl)
   makeKernelSet(data data_source_files data_definitions
     SOURCE_FILES ${data_cl_files} INCLUDE_DIRS ${data_dir} DEFINITIONS ${data_definitions})
-  # Built-in functions
-  set(built_in_func_dir ${__test_root__}/kernels/built_in_func)
-  file(GLOB_RECURSE built_in_func_cl_files ${built_in_func_dir}/*.cl)
-  makeKernelSet(built_in_func built_in_func_source_files built_in_func_definitions
-      SOURCE_FILES ${built_in_func_cl_files} INCLUDE_DIRS ${built_in_func_dir})
+  # Vector
+  set(vector_dir ${__test_root__}/kernels/vector)
+  file(GLOB_RECURSE vector_cl_files ${vector_dir}/*.cl)
+  makeKernelSet(vector vector_source_files vector_definitions
+    SOURCE_FILES ${vector_cl_files} INCLUDE_DIRS ${vector_dir} DEFINITIONS ${vector_definitions})
+  # WorkItem
+  set(work_item_dir ${__test_root__}/kernels/work_item)
+  file(GLOB_RECURSE work_item_cl_files ${work_item_dir}/*.cl)
+  makeKernelSet(work_item work_item_files work_item_definitions
+      SOURCE_FILES ${work_item_cl_files} INCLUDE_DIRS ${work_item_dir})
+  # Atomic
+  set(atomic_dir ${__test_root__}/kernels/atomic)
+  file(GLOB_RECURSE atomic_cl_files ${atomic_dir}/*.cl)
+  makeKernelSet(atomic atomic_files atomic_definitions
+      SOURCE_FILES ${atomic_cl_files} INCLUDE_DIRS ${atomic_dir})
+  # VectorData
+  set(vector_data_dir ${__test_root__}/kernels/vector_data)
+  file(GLOB_RECURSE vector_data_cl_files ${vector_data_dir}/*.cl)
+  makeKernelSet(vector_data vector_data_files vector_data_definitions
+      SOURCE_FILES ${vector_data_cl_files} INCLUDE_DIRS ${vector_data_dir})
+  # Relational functions
+  set(relational_dir ${__test_root__}/kernels/relational)
+  file(GLOB_RECURSE relational_cl_files ${relational_dir}/*.cl)
+  makeKernelSet(relational relational_source_files relational_definitions
+      SOURCE_FILES ${relational_cl_files} INCLUDE_DIRS ${relational_dir})
   # Math
   set(math_dir ${__test_root__}/kernels/math)
   file(GLOB_RECURSE math_cl_files ${math_dir}/*.cl)
   makeKernelSet(math math_source_files math_definitions
       SOURCE_FILES ${math_cl_files} INCLUDE_DIRS ${math_dir})
+  # Matrix
+  set(matrix_dir ${__test_root__}/kernels/matrix)
+  file(GLOB_RECURSE matrix_cl_files ${matrix_dir}/*.cl)
+  makeKernelSet(matrix matrix_source_files matrix_definitions
+      SOURCE_FILES ${matrix_cl_files} INCLUDE_DIRS ${matrix_dir})
   # Random
   set(rng_dir ${__test_root__}/kernels/rng)
   file(GLOB_RECURSE rng_cl_files ${rng_dir}/*.cl)
@@ -89,8 +114,13 @@ function(buildUnitTest)
                           ${zisc_header_files}
                           ${zinvul_source_files}
                           ${data_source_files}
-                          ${built_in_func_source_files}
+                          ${vector_source_files}
+                          ${work_item_source_files}
+                          ${atomic_files}
+                          ${vector_data_files}
+                          ${relational_source_files}
                           ${math_source_files}
+                          ${matrix_source_files}
                           ${rng_source_files}
                           ${experiment_source_files})
   source_group(UnitTest FILES ${unittest_source_files})
@@ -124,10 +154,24 @@ function(buildUnitTest)
                                               ${zinvul_definitions}
                                               ${environment_definitions}
                                               ${data_definitions}
-                                              ${built_in_func_definitions}
+                                              ${vector_definitions}
+                                              ${work_item_definitions}
+                                              ${atomic_definitions}
+                                              ${vector_data_definitions}
+                                              ${relational_definitions}
                                               ${math_definitions}
+                                              ${matrix_definitions}
                                               ${rng_definitions}
                                               ${experiment_definitions})
-  add_dependencies(UnitTest data built_in_func math rng experiment)
+  add_dependencies(UnitTest data
+                            vector
+                            work_item
+                            atomic
+                            vector_data
+                            relational
+                            math
+                            matrix
+                            rng
+                            experiment)
   setStaticAnalyzer(UnitTest)
 endfunction(buildUnitTest)
