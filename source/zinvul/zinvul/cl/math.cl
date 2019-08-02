@@ -1185,9 +1185,9 @@ auto isOdd(const IntegerN value) noexcept
   static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
   using VecType = VectorType<IntegerN>;
   using DataType = typename VecType::ElementType;
-  using IntType = typename IntegerVector<sizeof(DataType), VecType::size()>::Type;
+  using CmpResult = ComparisonResultType<IntegerN>;
   constexpr DataType one{0b01};
-  const IntType result = (value & one) == one;
+  const auto result = cast<CmpResult>((value & one) == one);
   return result;
 }
 

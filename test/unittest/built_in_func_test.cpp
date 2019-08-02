@@ -3369,18 +3369,28 @@ TEST(BuiltInFuncTest, HalfUVectorDataTest)
           }
           {
             expected = 3.0f * expected;
+            std::bitset<16> expectedbits;
             {
               auto data = zisc::SingleFloat::fromFloat(expected);
+              zisc::HalfFloat hdata{data};
+              expectedbits = hdata.bits();
               data = zisc::HalfFloat{data};
               expected = data.toFloat();
             }
-            const zisc::HalfFloat data{results[index]};
-            const zisc::SingleFloat t{data};
-            const float result = t.toFloat();
-            const std::bitset<16> bits{results[index]};
+            float result = 0.0f;
+            std::bitset<16> bits;
+            {
+              const zisc::HalfFloat hdata{results[index]};
+              bits = hdata.bits();
+              const zisc::SingleFloat data{hdata};
+              result = data.toFloat();
+            }
             ASSERT_FLOAT_EQ(expected, result) << error_message
                 << " [" << index << "]: " << std::scientific << result << std::endl
-                << "bits : " << bits;
+                << "  expected    : " << std::scientific << expected
+                << " (" << expectedbits << ")" << std::endl
+                << "  result      : " << std::scientific << result
+                << " (" <<  bits << ")";
           }
           ++index;
         }

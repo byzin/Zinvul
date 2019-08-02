@@ -316,9 +316,7 @@ namespace zinvul {
 
 //! Integer type that is used as a comparison result of the given type
 template <typename T>
-using ComparisonResult = ConditionalType<VectorType<T>::size() == 1,
-                                         Integer32Vector<1>,
-                                         IntegerFrom<T>>;
+using ComparisonResult = IntegerFrom<T>;
 
 //! Integer type that is used as a comparison result of the given type
 template <typename T>

@@ -29,8 +29,8 @@ FloatingPoint<kFormat>::downscale(const BitVec<kN> x) noexcept
 {
   using DstFloat = FloatingPoint<kDstFormat>;
   using DstBitType = typename DstFloat::BitType;
-  using DstIntVec = typename DstFloat::template IntVec<kN>;
   using DstBitVec = typename DstFloat::template BitVec<kN>;
+  using DstResult = ComparisonResultType<DstBitVec>;
   static_assert(sizeof(DstBitVec) < sizeof(BitVec<kN>),
                 "The size of dst float should be greater than the size of src.");
 
@@ -62,7 +62,7 @@ FloatingPoint<kFormat>::downscale(const BitVec<kN> x) noexcept
         static_cast<BitType>(dst_exp_bias + 1) << dst_sig_size;
     const DstBitVec dst_bit_l = dst_bit & l_mask;
     const DstBitVec dst_bit_h = dst_bit | h_mask;
-    const DstIntVec flag = cast<DstIntVec>(middle <= src_exp_bit);
+    const DstResult flag = cast<DstResult>(middle <= src_exp_bit);
     dst_bit = selectValue(dst_bit_l, dst_bit_h, flag); 
 #endif
   }
@@ -89,17 +89,17 @@ FloatingPoint<kFormat>::downscale(const BitVec<kN> x) noexcept
     const BitVec<kN> src_exp_bit = x & exponentBitMask();
     // Zero
     const auto zero_bit = make<DstBitVec>(DstFloat::zeroBit());
-    DstIntVec flag = cast<DstIntVec>(src_exp_bit < lower_bound) | // Subnormal
-                     cast<DstIntVec>(isZeroBit<kN>(x)); // Input is zero
+    DstResult flag = cast<DstResult>(src_exp_bit < lower_bound) | // Subnormal
+                     cast<DstResult>(isZeroBit<kN>(x)); // Input is zero
     dst_bit = selectValue(dst_bit, zero_bit, flag);
     // Inf
     const auto inf_bit = make<DstBitVec>(DstFloat::infinityBit());
-    flag = cast<DstIntVec>(upper_bound <= src_exp_bit) | // Overflow
-           cast<DstIntVec>(isInfBit<kN>(x)); // Input is inf
+    flag = cast<DstResult>(upper_bound <= src_exp_bit) | // Overflow
+           cast<DstResult>(isInfBit<kN>(x)); // Input is inf
     dst_bit = selectValue(dst_bit, inf_bit, flag);
     // Nan
     const auto nan_bit = make<DstBitVec>(DstFloat::quietNanBit());
-    flag = cast<DstIntVec>(isNanBit<kN>(x));
+    flag = cast<DstResult>(isNanBit<kN>(x));
     dst_bit = selectValue(dst_bit, nan_bit, flag);
   }
 
@@ -188,37 +188,40 @@ constexpr auto FloatingPoint<kFormat>::infinityBit() noexcept -> BitType
 /*!
   */
 template <FloatingPointFormat kFormat> template <size_t kN> inline
-auto FloatingPoint<kFormat>::isInfBit(const BitVec<kN> x) noexcept -> IntVec<kN>
+auto FloatingPoint<kFormat>::isInfBit(const BitVec<kN> x) noexcept
+    -> ComparisonResultType<BitVec<kN>>
 {
   constexpr BitType zero = static_cast<BitType>(0);
   const auto exp_bit = x & exponentBitMask();
   const auto sig_bit = x & significandBitMask();
   const auto result = (exp_bit == exponentBitMask()) && (sig_bit == zero);
-  return cast<IntVec<kN>>(result);
+  return cast<ComparisonResultType<BitVec<kN>>>(result);
 }
 
 /*!
   */
 template <FloatingPointFormat kFormat> template <size_t kN> inline
-auto FloatingPoint<kFormat>::isNanBit(const BitVec<kN> x) noexcept -> IntVec<kN>
+auto FloatingPoint<kFormat>::isNanBit(const BitVec<kN> x) noexcept
+    -> ComparisonResultType<BitVec<kN>>
 {
   constexpr BitType zero = static_cast<BitType>(0);
   const auto exp_bit = x & exponentBitMask();
   const auto sig_bit = x & significandBitMask();
   const auto result = (exp_bit == exponentBitMask()) && (zero < sig_bit);
-  return cast<IntVec<kN>>(result);
+  return cast<ComparisonResultType<BitVec<kN>>>(result);
 }
 
 /*!
   */
 template <FloatingPointFormat kFormat> template <size_t kN> inline
-auto FloatingPoint<kFormat>::isZeroBit(const BitVec<kN> x) noexcept -> IntVec<kN>
+auto FloatingPoint<kFormat>::isZeroBit(const BitVec<kN> x) noexcept
+    -> ComparisonResultType<BitVec<kN>>
 {
   constexpr BitType zero = static_cast<BitType>(0);
   constexpr BitType value_bit_mask = static_cast<BitType>(~signBitMask());
   const auto value_bit = x & value_bit_mask;
   const auto result = value_bit == zero;
-  return cast<IntVec<kN>>(result);
+  return cast<ComparisonResultType<BitVec<kN>>>(result);
 }
 
 /*!
@@ -288,10 +291,11 @@ auto FloatingPoint<kFormat>::round(
     const BitVec<kN> bit,
     const BitVec<kN> truncated_bit) noexcept -> BitVec<kN>
 {
+  using CmpResult = ComparisonResultType<BitVec<kN>>;
   constexpr BitType one = BitType{0b01};
   constexpr BitType middle = one << (significandBitSize() - 1);
-  IntVec<kN> flag = cast<IntVec<kN>>(truncated_bit == middle) & isOdd(bit);
-  flag = flag | cast<IntVec<kN>>(middle < truncated_bit);
+  const CmpResult flag = (cast<CmpResult>(truncated_bit == middle) & isOdd(bit)) |
+                         cast<CmpResult>(middle < truncated_bit);
   const BitVec<kN> next = bit + one;
   const BitVec<kN> result = selectValue(bit, next, flag);
   return result;
@@ -349,7 +353,7 @@ FloatingPoint<kFormat>::upscale(const BitVec<kN> x) noexcept
   using DstFloat = FloatingPoint<kDstFormat>;
   using DstBitType = typename DstFloat::BitType;
   using DstBitVec = typename DstFloat::template BitVec<kN>;
-  using DstIntVec = typename DstFloat::template IntVec<kN>;
+  using DstResult = ComparisonResultType<DstBitVec>;
   static_assert(sizeof(BitVec<kN>) < sizeof(DstBitVec),
                 "The size of dst float should be greater than the size of src.");
 
@@ -382,16 +386,16 @@ FloatingPoint<kFormat>::upscale(const BitVec<kN> x) noexcept
     const BitVec<kN> src_exp_bit = x & exponentBitMask();
     // Zero
     const auto zero_bit = make<DstBitVec>(DstFloat::zeroBit());
-    DstIntVec flag = cast<DstIntVec>(src_exp_bit == zeroBit()) | // Subnormal
-                     cast<DstIntVec>(isZeroBit<kN>(x)); // Input is zero
+    DstResult flag = cast<DstResult>(src_exp_bit == zeroBit()) | // Subnormal
+                     cast<DstResult>(isZeroBit<kN>(x)); // Input is zero
     dst_bit = selectValue(dst_bit, zero_bit, flag);
     // Inf
     const auto inf_bit = make<DstBitVec>(DstFloat::infinityBit());
-    flag = cast<DstIntVec>(isInfBit<kN>(x)); // Input is inf
+    flag = cast<DstResult>(isInfBit<kN>(x)); // Input is inf
     dst_bit = selectValue(dst_bit, inf_bit, flag);
     // Nan
     const auto nan_bit = make<DstBitVec>(DstFloat::quietNanBit());
-    flag = cast<DstIntVec>(isNanBit<kN>(x));
+    flag = cast<DstResult>(isNanBit<kN>(x));
     dst_bit = selectValue(dst_bit, nan_bit, flag);
   }
 

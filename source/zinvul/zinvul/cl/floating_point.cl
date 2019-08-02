@@ -43,8 +43,6 @@ class FloatingPoint
   template <size_t kN>
   using FloatVec = typename FloatVector<sizeof(FloatType), kN>::Type;
   template <size_t kN>
-  using IntVec = typename IntegerVector<sizeof(BitType), kN>::Type;
-  template <size_t kN>
   using BitVec = typename UIntegerVector<sizeof(BitType), kN>::Type;
 
 
@@ -71,15 +69,15 @@ class FloatingPoint
 
   //! Check if the given value is infinity
   template <size_t kN>
-  static IntVec<kN> isInfBit(const BitVec<kN> x) noexcept;
+  static ComparisonResultType<BitVec<kN>> isInfBit(const BitVec<kN> x) noexcept;
 
   //! Check if the given value is NaN
   template <size_t kN>
-  static IntVec<kN> isNanBit(const BitVec<kN> x) noexcept;
+  static ComparisonResultType<BitVec<kN>> isNanBit(const BitVec<kN> x) noexcept;
 
   //! Check if the given value is zero
   template <size_t kN>
-  static IntVec<kN> isZeroBit(const BitVec<kN> x) noexcept;
+  static ComparisonResultType<BitVec<kN>> isZeroBit(const BitVec<kN> x) noexcept;
 
   //! Map an unsigned integer into a [0, 1) float
   static void mapTo01(const BitType x, GenericPtr<FloatType> result) noexcept;
