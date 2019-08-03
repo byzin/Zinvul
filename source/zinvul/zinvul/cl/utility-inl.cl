@@ -465,8 +465,15 @@ struct TypeConverter
     template <typename T> \
     static Type treatAs(T object) noexcept \
     { \
-      auto result = *reinterpret_cast< const Type* >(&object); \
-      return result; \
+      static_assert(sizeof(T) == sizeof(Type), \
+                    "The size of T doesn't match the size of Type."); \
+      union Data \
+      { \
+        T src_; \
+        Type result_; \
+      }; \
+      Data data = {object}; \
+      return data.result_; \
     } \
   }
 

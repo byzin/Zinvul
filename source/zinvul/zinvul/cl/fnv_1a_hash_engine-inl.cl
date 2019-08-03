@@ -63,7 +63,7 @@ ResultType Fnv1aHashEngine<ResultType>::hashValue(ConstGenericPtr<Int8> inputs,
 {
   auto x = inner::Fnv1aHashEngineImpl<ResultType>::offset();
   for (size_t i = 0; i < n; ++i) {
-    x = (x ^ cast<ResultType>(inputs[i])) *
+    x = (x ^ static_cast<ResultType>(inputs[i])) *
         inner::Fnv1aHashEngineImpl<ResultType>::prime();
   }
   return x;

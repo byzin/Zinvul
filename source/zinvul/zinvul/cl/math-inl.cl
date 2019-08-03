@@ -1,5 +1,5 @@
 /*!
-  \file math.cl
+  \file math-inl.cl
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -7,11 +7,14 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_MATH_CL
-#define ZINVUL_MATH_CL
+#ifndef ZINVUL_MATH_INL_CL
+#define ZINVUL_MATH_INL_CL
 
+#include "math.cl"
 // Zinvul
 #include "types.cl"
+#include "type_traits.cl"
+#include "utility.cl"
 
 namespace zinvul {
 
@@ -1177,9 +1180,19 @@ namespace zinvul {
 //  return result;
 //}
 
-//! Check if the given value is odd
-template <typename IntegerN>
-auto isOdd(const IntegerN value) noexcept;
+/*!
+  */
+template <typename IntegerN> inline
+auto isOdd(const IntegerN value) noexcept
+{
+  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
+  using VecType = VectorType<IntegerN>;
+  using DataType = typename VecType::ElementType;
+  using CmpResult = ComparisonResultType<IntegerN>;
+  constexpr DataType one{0b01};
+  const auto result = (value & one) == one;
+  return cast<CmpResult>(result);
+}
 
 ////! Check if the given value is odd
 //int32b zIsOddU(const uint32b value)
@@ -4588,6 +4601,4 @@ auto isOdd(const IntegerN value) noexcept;
 
 } // namespace zinvul
 
-#include "math-inl.cl"
-
-#endif /* ZINVUL_MATH_CL */
+#endif /* ZINVUL_MATH_INL_CL */

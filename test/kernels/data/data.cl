@@ -79,7 +79,8 @@ __kernel void testCastUint32bToFloat(GlobalPtr<uint32b> buffer1,
     ConstGlobalPtr<uint32b> buffer2,
     GlobalPtr<float> buffer3,
     const uint32b resolution);
-__kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
+__kernel void testNumericLimits(GlobalPtr<int32b> digits_buffer,
+    GlobalPtr<int8b> int8_buffer,
     GlobalPtr<uint8b> uint8_buffer,
     GlobalPtr<int16b> int16_buffer,
     GlobalPtr<uint16b> uint16_buffer,
@@ -87,7 +88,8 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
     GlobalPtr<uint32b> uint32_buffer,
     GlobalPtr<float> float_buffer);
 #if !defined(Z_MAC)
-__kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
+__kernel void testNumericLimits64(GlobalPtr<int32b> digits_buffer,
+    GlobalPtr<int64b> int64_buffer,
     GlobalPtr<uint64b> uint64_buffer,
     GlobalPtr<double> double_buffer);
 #endif // !Z_MAC
@@ -714,7 +716,8 @@ __kernel void testCastUint32bToFloat(GlobalPtr<uint32b> buffer1,
 
 /*!
   */
-__kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
+__kernel void testNumericLimits(GlobalPtr<int32b> digits_buffer,
+    GlobalPtr<int8b> int8_buffer,
     GlobalPtr<uint8b> uint8_buffer,
     GlobalPtr<int16b> int16_buffer,
     GlobalPtr<uint16b> uint16_buffer,
@@ -724,8 +727,16 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
 {
   const uint32b index = getGlobalIdX();
   if (index == 0) {
+    size_t digitsi = 0;
     // int8
     {
+      constexpr auto d2 = NumericLimits<int8b>::digits();
+      digits_buffer[digitsi++] = d2;
+      constexpr auto d10 = NumericLimits<int8b>::digits10();
+      digits_buffer[digitsi++] = d10;
+      constexpr auto md10 = NumericLimits<int8b>::maxDigits10();
+      digits_buffer[digitsi++] = md10;
+
       size_t i = 0;
       constexpr auto vmin = NumericLimits<int8b>::min();
       int8_buffer[i++] = vmin;
@@ -736,6 +747,13 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
     }
     // uint8
     {
+      constexpr auto d2 = NumericLimits<uint8b>::digits();
+      digits_buffer[digitsi++] = d2;
+      constexpr auto d10 = NumericLimits<uint8b>::digits10();
+      digits_buffer[digitsi++] = d10;
+      constexpr auto md10 = NumericLimits<uint8b>::maxDigits10();
+      digits_buffer[digitsi++] = md10;
+
       size_t i = 0;
       constexpr auto vmin = NumericLimits<uint8b>::min();
       uint8_buffer[i++] = vmin;
@@ -746,6 +764,13 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
     }
     // int16
     {
+      constexpr auto d2 = NumericLimits<int16b>::digits();
+      digits_buffer[digitsi++] = d2;
+      constexpr auto d10 = NumericLimits<int16b>::digits10();
+      digits_buffer[digitsi++] = d10;
+      constexpr auto md10 = NumericLimits<int16b>::maxDigits10();
+      digits_buffer[digitsi++] = md10;
+
       size_t i = 0;
       constexpr auto vmin = NumericLimits<int16b>::min();
       int16_buffer[i++] = vmin;
@@ -756,6 +781,13 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
     }
     // uint16
     {
+      constexpr auto d2 = NumericLimits<uint16b>::digits();
+      digits_buffer[digitsi++] = d2;
+      constexpr auto d10 = NumericLimits<uint16b>::digits10();
+      digits_buffer[digitsi++] = d10;
+      constexpr auto md10 = NumericLimits<uint16b>::maxDigits10();
+      digits_buffer[digitsi++] = md10;
+
       size_t i = 0;
       constexpr auto vmin = NumericLimits<uint16b>::min();
       uint16_buffer[i++] = vmin;
@@ -766,6 +798,13 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
     }
     // int32
     {
+      constexpr auto d2 = NumericLimits<int32b>::digits();
+      digits_buffer[digitsi++] = d2;
+      constexpr auto d10 = NumericLimits<int32b>::digits10();
+      digits_buffer[digitsi++] = d10;
+      constexpr auto md10 = NumericLimits<int32b>::maxDigits10();
+      digits_buffer[digitsi++] = md10;
+
       size_t i = 0;
       constexpr auto vmin = NumericLimits<int32b>::min();
       int32_buffer[i++] = vmin;
@@ -776,6 +815,13 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
     }
     // uint32
     {
+      constexpr auto d2 = NumericLimits<uint32b>::digits();
+      digits_buffer[digitsi++] = d2;
+      constexpr auto d10 = NumericLimits<uint32b>::digits10();
+      digits_buffer[digitsi++] = d10;
+      constexpr auto md10 = NumericLimits<uint32b>::maxDigits10();
+      digits_buffer[digitsi++] = md10;
+
       size_t i = 0;
       constexpr auto vmin = NumericLimits<uint32b>::min();
       uint32_buffer[i++] = vmin;
@@ -786,6 +832,13 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
     }
     // float 
     {
+      constexpr auto d2 = NumericLimits<float>::digits();
+      digits_buffer[digitsi++] = d2;
+      constexpr auto d10 = NumericLimits<float>::digits10();
+      digits_buffer[digitsi++] = d10;
+      constexpr auto md10 = NumericLimits<float>::maxDigits10();
+      digits_buffer[digitsi++] = md10;
+
       size_t i = 0;
       constexpr auto vmin = NumericLimits<float>::min();
       float_buffer[i++] = vmin;
@@ -807,14 +860,23 @@ __kernel void testNumericLimits(GlobalPtr<int8b> int8_buffer,
 
 /*!
   */
-__kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
+__kernel void testNumericLimits64(GlobalPtr<int32b> digits_buffer,
+    GlobalPtr<int64b> int64_buffer,
     GlobalPtr<uint64b> uint64_buffer,
     GlobalPtr<double> double_buffer)
 {
   const uint32b index = getGlobalIdX();
   if (index == 0) {
+    size_t digitsi = 0;
     // int64
     {
+      constexpr auto d2 = NumericLimits<int64b>::digits();
+      digits_buffer[digitsi++] = d2;
+      constexpr auto d10 = NumericLimits<int64b>::digits10();
+      digits_buffer[digitsi++] = d10;
+      constexpr auto md10 = NumericLimits<int64b>::maxDigits10();
+      digits_buffer[digitsi++] = md10;
+
       size_t i = 0;
       constexpr auto vmin = NumericLimits<int64b>::min();
       int64_buffer[i++] = vmin;
@@ -825,6 +887,13 @@ __kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
     }
     // uint64
     {
+      constexpr auto d2 = NumericLimits<uint64b>::digits();
+      digits_buffer[digitsi++] = d2;
+      constexpr auto d10 = NumericLimits<uint64b>::digits10();
+      digits_buffer[digitsi++] = d10;
+      constexpr auto md10 = NumericLimits<uint64b>::maxDigits10();
+      digits_buffer[digitsi++] = md10;
+
       size_t i = 0;
       constexpr auto vmin = NumericLimits<uint64b>::min();
       uint64_buffer[i++] = vmin;
@@ -835,6 +904,13 @@ __kernel void testNumericLimits64(GlobalPtr<int64b> int64_buffer,
     }
     // double
     {
+      constexpr auto d2 = NumericLimits<double>::digits();
+      digits_buffer[digitsi++] = d2;
+      constexpr auto d10 = NumericLimits<double>::digits10();
+      digits_buffer[digitsi++] = d10;
+      constexpr auto md10 = NumericLimits<double>::maxDigits10();
+      digits_buffer[digitsi++] = md10;
+
       size_t i = 0;
       constexpr auto vmin = NumericLimits<double>::min();
       double_buffer[i++] = vmin;

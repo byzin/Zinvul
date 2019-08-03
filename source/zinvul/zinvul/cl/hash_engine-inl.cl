@@ -56,7 +56,7 @@ ResultType HashEngine<HashClass, ResultType>::hash(
   Array<uint8b, n> seed_array;
   for (size_t i = 0; i < n; ++i) {
     constexpr auto mask = static_cast<UInteger>(NumericLimits<uint8b>::max());
-    seed_array[i] = cast<uint8b>(mask & (seed >> (8u * i)));
+    seed_array[i] = static_cast<uint8b>(mask & (seed >> (8u * i)));
   }
   // Hash the seed
   return HashClass::template hashValue<uint8b>(seed_array.data(), n);

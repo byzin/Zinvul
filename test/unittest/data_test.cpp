@@ -1248,6 +1248,9 @@ TEST(DataTest, NumericLimitsTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
+    auto buffer0 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer0->setSize(3 * 7);
+
     auto buffer1 = makeStorageBuffer<int8b>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(3);
     auto buffer2 = makeStorageBuffer<uint8b>(device.get(), BufferUsage::kDeviceOnly);
@@ -1264,8 +1267,71 @@ TEST(DataTest, NumericLimitsTest)
     buffer7->setSize(6);
 
     auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testNumericLimits));
-    kernel->run(*buffer1, *buffer2, *buffer3, *buffer4, *buffer5, *buffer6, *buffer7, {1}, 0);
+    kernel->run(*buffer0, *buffer1, *buffer2, *buffer3, *buffer4, *buffer5, *buffer6, *buffer7, {1}, 0);
     device->waitForCompletion();
+
+    // Digits
+    {
+      std::vector<int32b> results;
+      results.resize(buffer0->size());
+      buffer0->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(std::numeric_limits<int8b>::digits, results[i++])
+        << "The NumericLimits<int8b> is wrong.";
+      ++i;
+//      ASSERT_EQ(std::numeric_limits<int8b>::digits10, results[i++])
+//        << "The NumericLimits<int8b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int8b>::max_digits10, results[i++])
+        << "The NumericLimits<int8b> is wrong.";
+
+      ASSERT_EQ(std::numeric_limits<uint8b>::digits, results[i++])
+        << "The NumericLimits<uint8b> is wrong.";
+      ++i;
+//      ASSERT_EQ(std::numeric_limits<uint8b>::digits10, results[i++])
+//        << "The NumericLimits<uint8b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint8b>::max_digits10, results[i++])
+        << "The NumericLimits<uint8b> is wrong.";
+
+      ASSERT_EQ(std::numeric_limits<int16b>::digits, results[i++])
+        << "The NumericLimits<int16b> is wrong.";
+      ++i;
+//      ASSERT_EQ(std::numeric_limits<int16b>::digits10, results[i++])
+//        << "The NumericLimits<int16b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int16b>::max_digits10, results[i++])
+        << "The NumericLimits<int16b> is wrong.";
+
+      ASSERT_EQ(std::numeric_limits<uint16b>::digits, results[i++])
+        << "The NumericLimits<uint16b> is wrong.";
+      ++i;
+//      ASSERT_EQ(std::numeric_limits<uint16b>::digits10, results[i++])
+//        << "The NumericLimits<uint16b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint16b>::max_digits10, results[i++])
+        << "The NumericLimits<uint16b> is wrong.";
+
+      ASSERT_EQ(std::numeric_limits<int32b>::digits, results[i++])
+        << "The NumericLimits<int32b> is wrong.";
+      ++i;
+//      ASSERT_EQ(std::numeric_limits<int32b>::digits10, results[i++])
+//        << "The NumericLimits<int32b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int32b>::max_digits10, results[i++])
+        << "The NumericLimits<int32b> is wrong.";
+
+      ASSERT_EQ(std::numeric_limits<uint32b>::digits, results[i++])
+        << "The NumericLimits<uint32b> is wrong.";
+      ++i;
+//      ASSERT_EQ(std::numeric_limits<uint32b>::digits10, results[i++])
+//        << "The NumericLimits<uint32b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint32b>::max_digits10, results[i++])
+        << "The NumericLimits<uint32b> is wrong.";
+
+      ASSERT_EQ(std::numeric_limits<float>::digits, results[i++])
+        << "The NumericLimits<float> is wrong.";
+      ASSERT_EQ(std::numeric_limits<float>::digits10, results[i++])
+        << "The NumericLimits<float> is wrong.";
+      ++i;
+//      ASSERT_EQ(std::numeric_limits<float>::max_digits10, results[i++])
+//        << "The NumericLimits<float> is wrong.";
+    }
 
     {
       std::vector<int8b> results;
@@ -1381,6 +1447,8 @@ TEST(DataTest, NumericLimits64Test)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
+    auto buffer0 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer0->setSize(3 * 7);
     auto buffer1 = makeStorageBuffer<int64b>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(3);
     auto buffer2 = makeStorageBuffer<uint64b>(device.get(), BufferUsage::kDeviceOnly);
@@ -1389,9 +1457,39 @@ TEST(DataTest, NumericLimits64Test)
     buffer3->setSize(6);
 
     auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(data, testNumericLimits64));
-    kernel->run(*buffer1, *buffer2, *buffer3, {1}, 0);
+    kernel->run(*buffer0, *buffer1, *buffer2, *buffer3, {1}, 0);
     device->waitForCompletion();
 
+    // Digits
+    {
+      std::vector<int32b> results;
+      results.resize(buffer0->size());
+      buffer0->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      ASSERT_EQ(std::numeric_limits<int64b>::digits, results[i++])
+        << "The NumericLimits<int64b> is wrong.";
+      ++i;
+//      ASSERT_EQ(std::numeric_limits<int64b>::digits10, results[i++])
+//        << "The NumericLimits<int64b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<int64b>::max_digits10, results[i++])
+        << "The NumericLimits<int64b> is wrong.";
+
+      ASSERT_EQ(std::numeric_limits<uint64b>::digits, results[i++])
+        << "The NumericLimits<uint64b> is wrong.";
+      ++i;
+//      ASSERT_EQ(std::numeric_limits<uint64b>::digits10, results[i++])
+//        << "The NumericLimits<uint64b> is wrong.";
+      ASSERT_EQ(std::numeric_limits<uint64b>::max_digits10, results[i++])
+        << "The NumericLimits<uint64b> is wrong.";
+
+      ASSERT_EQ(std::numeric_limits<double>::digits, results[i++])
+        << "The NumericLimits<double> is wrong.";
+      ASSERT_EQ(std::numeric_limits<double>::digits10, results[i++])
+        << "The NumericLimits<double> is wrong.";
+      ++i;
+//      ASSERT_EQ(std::numeric_limits<double>::max_digits10, results[i++])
+//        << "The NumericLimits<double> is wrong.";
+    }
     {
       std::vector<int64b> results;
       results.resize(3);
