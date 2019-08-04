@@ -16,7 +16,23 @@
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
-using namespace zinvul;
+using zinvul::int8b;
+using zinvul::int16b;
+using zinvul::int32b;
+using zinvul::int64b;
+using zinvul::uint8b;
+using zinvul::uint16b;
+using zinvul::uint32b;
+using zinvul::uint64b;
+using zinvul::GlobalPtr;
+using zinvul::ConstGlobalPtr;
+using zinvul::ConstantPtr;
+using zinvul::ConstConstantPtr;
+using zinvul::Local;
+using zinvul::LocalPtr;
+using zinvul::ConstLocalPtr;
+using zinvul::cast;
+using zinvul::treatAs;
 
 __kernel void testCmj64(GlobalPtr<float> result_1d, GlobalPtr<float2> result_2d, const uint32b seed, const uint32b num_of_samples);
 #if !defined(Z_MAC)
@@ -37,8 +53,8 @@ __kernel void testCmj256PerformanceNormalization(GlobalPtr<float4> color_buffer,
   */
 __kernel void testCmj64(GlobalPtr<float> result_1d, GlobalPtr<float2> result_2d, const uint32b seed, const uint32b num_of_samples)
 {
-  const uint32b index = getGlobalIdX();
-  using Cmj = CmjN64;
+  const uint32b index = zinvul::getGlobalIdX();
+  using Cmj = zinvul::CmjN64;
   if (index < num_of_samples) {
     constexpr uint32b root_n = Cmj::getRootPeriod();
     constexpr uint32b n = root_n * root_n;
@@ -63,8 +79,8 @@ __kernel void testCmj64(GlobalPtr<float> result_1d, GlobalPtr<float2> result_2d,
   */
 __kernel void testCmj64D(GlobalPtr<double> result_1d, GlobalPtr<double2> result_2d, const uint32b seed, const uint32b num_of_samples)
 {
-  const uint32b index = getGlobalIdX();
-  using Cmj = CmjN64;
+  const uint32b index = zinvul::getGlobalIdX();
+  using Cmj = zinvul::CmjN64;
   if (index < num_of_samples) {
     constexpr uint32b root_n = Cmj::getRootPeriod();
     constexpr uint32b n = root_n * root_n;
@@ -89,8 +105,8 @@ __kernel void testCmj64D(GlobalPtr<double> result_1d, GlobalPtr<double2> result_
   */
 __kernel void testCmj64Image(GlobalPtr<float> color_buffer, const uint32b sample, const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
-  using Cmj = CmjN64;
+  const uint32b index = zinvul::getGlobalIdX();
+  using Cmj = zinvul::CmjN64;
   if (index < resolution) {
     const uint32b seed = index;
     const float c = Cmj::generate1D<float>(sample, seed);
@@ -106,9 +122,9 @@ __kernel void testCmj256Performance(GlobalPtr<float4> color_buffer,
     const uint32b iterations,
     const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
 
-  using Cmj = CmjN256;
+  using Cmj = zinvul::CmjN256;
   constexpr uint32b root_n = Cmj::getRootPeriod();
   constexpr uint32b n = root_n * root_n;
   constexpr uint32b seed = 0u;
@@ -143,7 +159,7 @@ __kernel void testCmj256PerformanceNormalization(GlobalPtr<float4> color_buffer,
     ConstGlobalPtr<float4> color_comp_buffer,
     const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index < resolution) {
     float4 color = color_buffer[index] + color_comp_buffer[index];
 

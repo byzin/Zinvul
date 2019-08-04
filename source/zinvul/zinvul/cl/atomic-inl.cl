@@ -386,6 +386,208 @@ Integer Atomic::performImpl(BufferPtr p,
   return old;
 }
 
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_add(GlobalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::add(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_add(LocalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::add(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_sub(GlobalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::sub(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_sub(LocalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::sub(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Type> inline
+Type atomic_xchg(GlobalPtr<Type> p, const Type value) noexcept
+{
+  const auto old = Atomic::swap(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Type> inline
+Type atomic_xchg(LocalPtr<Type> p, const Type value) noexcept
+{
+  const auto old = Atomic::swap(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_inc(GlobalPtr<Integer> p) noexcept
+{
+  const auto old = Atomic::increment(p);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_inc(LocalPtr<Integer> p) noexcept
+{
+  const auto old = Atomic::increment(p);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_dec(GlobalPtr<Integer> p) noexcept
+{
+  const auto old = Atomic::decrement(p);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_dec(LocalPtr<Integer> p) noexcept
+{
+  const auto old = Atomic::decrement(p);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_cmpxchg(GlobalPtr<Integer> p,
+                       const Integer comp,
+                       const Integer value) noexcept
+{
+  const auto old = Atomic::compareAndSwap(p, comp, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_cmpxchg(LocalPtr<Integer> p,
+                       const Integer comp,
+                       const Integer value) noexcept
+{
+  const auto old = Atomic::compareAndSwap(p, comp, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_min(GlobalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::min(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_min(LocalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::min(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_max(GlobalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::max(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_max(LocalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::max(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_and(GlobalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::bitAnd(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_and(LocalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::bitAnd(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_or(GlobalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::bitOr(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_or(LocalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::bitOr(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atoic_xor(GlobalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::bitXor(p, value);
+  return old;
+}
+
+/*!
+  */
+template <typename Integer> inline
+Integer atomic_xor(LocalPtr<Integer> p, const Integer value) noexcept
+{
+  const auto old = Atomic::bitXor(p, value);
+  return old;
+}
+
 } // namespace zinvul
 
 #endif /* ZINVUL_ATOMIC_INL_CL */

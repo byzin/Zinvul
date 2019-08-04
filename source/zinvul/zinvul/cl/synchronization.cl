@@ -10,16 +10,33 @@
 #ifndef ZINVUL_SYNCHRONIZATION_CL
 #define ZINVUL_SYNCHRONIZATION_CL
 
+// Zinvul
+#include "types.cl"
+
 namespace zinvul {
 
-//! Any variables stored in local or global memories are flushed
-void barrierMemory() noexcept;
+/*!
+ */
+class Synchronization
+{
+ public:
+  //! Any variables stored in memories of the given types are flushed
+  static void barrier(const int32b flags) noexcept;
 
-//! Any variables stored in local memory are flushed
-void barrierLocalMemory() noexcept;
+  //! Any variables stored in global memory are flushed
+  static void barrierGlobal() noexcept;
 
-//! Any variables stored in global memory are flushed
-void barrierGlobalMemory() noexcept;
+  //! Any variables stored in local memory are flushed
+  static void barrierLocal() noexcept;
+
+  //! Any variables stored in global and local memory are flushed
+  static void barrierAll() noexcept;
+};
+
+// CL function aliases
+
+//! Any variables stored in memories of the given types are flushed
+void barrier(const int32b flags) noexcept;
 
 } // namespace zinvul
 

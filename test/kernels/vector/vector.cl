@@ -13,7 +13,23 @@
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
-using namespace zinvul;
+using zinvul::int8b;
+using zinvul::int16b;
+using zinvul::int32b;
+using zinvul::int64b;
+using zinvul::uint8b;
+using zinvul::uint16b;
+using zinvul::uint32b;
+using zinvul::uint64b;
+using zinvul::GlobalPtr;
+using zinvul::ConstGlobalPtr;
+using zinvul::ConstantPtr;
+using zinvul::ConstConstantPtr;
+using zinvul::Local;
+using zinvul::LocalPtr;
+using zinvul::ConstLocalPtr;
+using zinvul::cast;
+using zinvul::treatAs;
 
 // Prototypes
 __kernel void testVectorOperations(
@@ -37,7 +53,7 @@ __kernel void testVectorOperations(
     GlobalPtr<char3> buffer13, GlobalPtr<short3> buffer14, GlobalPtr<int3> buffer15,
     GlobalPtr<float4> buffer16)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     // Addition operations
     {
@@ -272,7 +288,7 @@ __kernel void testRelationalOperations(
     GlobalPtr<int32b> result1, GlobalPtr<int2> result2,
     GlobalPtr<int3> result3, GlobalPtr<int4> result4)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     // Scalar
     size_t scalar_index = 0;

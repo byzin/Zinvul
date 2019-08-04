@@ -11,21 +11,31 @@
 #define ZINVUL_SYNCHRONIZATION_INL_CL
 
 #include "synchronization.cl"
+// Zinvul
+#include "types.cl"
 
 namespace zinvul {
 
 /*!
   */
 inline
-void barrierMemory() noexcept
+void Synchronization::barrier(const int32b flags) noexcept
 {
-  barrier(CLK_LOCAL_MEM_FENCE | CLK_GLOBAL_MEM_FENCE);
+  ZINVUL_GLOBAL_NAMESPACE::barrier(flags);
 }
 
 /*!
   */
 inline
-void barrierLocalMemory() noexcept
+void Synchronization::barrierGlobal() noexcept
+{
+  barrier(CLK_GLOBAL_MEM_FENCE);
+}
+
+/*!
+  */
+inline
+void Synchronization::barrierLocal() noexcept
 {
   barrier(CLK_LOCAL_MEM_FENCE);
 }
@@ -33,9 +43,17 @@ void barrierLocalMemory() noexcept
 /*!
   */
 inline
-void barrierGlobalMemory() noexcept
+void Synchronization::barrierAll() noexcept
 {
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  barrier(CLK_LOCAL_MEM_FENCE | CLK_GLOBAL_MEM_FENCE);
+}
+
+/*!
+  */
+inline
+void barrier(const int32b flags) noexcept
+{
+  Synchronization::barrier(flags);
 }
 
 } // namespace zinvul

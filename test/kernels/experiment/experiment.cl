@@ -17,7 +17,23 @@
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
-using namespace zinvul;
+using zinvul::int8b;
+using zinvul::int16b;
+using zinvul::int32b;
+using zinvul::int64b;
+using zinvul::uint8b;
+using zinvul::uint16b;
+using zinvul::uint32b;
+using zinvul::uint64b;
+using zinvul::GlobalPtr;
+using zinvul::ConstGlobalPtr;
+using zinvul::ConstantPtr;
+using zinvul::ConstConstantPtr;
+using zinvul::Local;
+using zinvul::LocalPtr;
+using zinvul::ConstLocalPtr;
+using zinvul::cast;
+using zinvul::treatAs;
 
 // Forward declaration
 __kernel void experiment(GlobalPtr<float4> buffer0, const uint32b resolution);
@@ -27,7 +43,7 @@ __kernel void experiment(GlobalPtr<float4> buffer0, const uint32b resolution);
   */
 __kernel void experiment(GlobalPtr<float4> buffer0, const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index < resolution) {
     const float4 value{1.0f, 2.0f, 3.0f, 4.0f};
     zinvul::print("## PrintMessage\n");

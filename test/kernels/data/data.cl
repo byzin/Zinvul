@@ -16,7 +16,23 @@
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
-using namespace zinvul;
+using zinvul::int8b;
+using zinvul::int16b;
+using zinvul::int32b;
+using zinvul::int64b;
+using zinvul::uint8b;
+using zinvul::uint16b;
+using zinvul::uint32b;
+using zinvul::uint64b;
+using zinvul::GlobalPtr;
+using zinvul::ConstGlobalPtr;
+using zinvul::ConstantPtr;
+using zinvul::ConstConstantPtr;
+using zinvul::Local;
+using zinvul::LocalPtr;
+using zinvul::ConstLocalPtr;
+using zinvul::cast;
+using zinvul::treatAs;
 
 namespace test {
 class OptionTest;
@@ -133,7 +149,7 @@ __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst)
 {
   constexpr size_t storage_size = 10;
   Local<test::PointerTest> storage[storage_size];
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     for (size_t i = 0; i < storage_size; ++i)
       (storage + i)->init();
@@ -201,7 +217,7 @@ __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst)
 __kernel void testMemoryMap(GlobalPtr<test::MemoryMapTest> buffer0,
     const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index < resolution) {
     test::MemoryMapTest value = buffer0[index];
     value.u_ = 100u - value.u_;
@@ -219,8 +235,8 @@ __kernel void testLocalInput(ConstGlobalPtr<uint32b> buffer0,
     LocalPtr<uint32b> buffer3,
     LocalPtr<uint32b> buffer4)
 {
-  const uint32b index = getGlobalIdX();
-  const uint32b i = getLocalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
+  const uint32b i = zinvul::getLocalIdX();
   if (index < resolution) {
     buffer3[i] = buffer0[index];
     buffer4[i] = buffer1[index];
@@ -287,7 +303,7 @@ class OptionTest
 __kernel void testGlobalInstance(GlobalPtr<uint32b> results,
     GlobalPtr<test::OptionTest> options)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     results[0] = options->getValue1();
     options->setValue2(10);
@@ -302,7 +318,7 @@ __kernel void testLocalInstance(GlobalPtr<uint32b> results,
 {
   constexpr size_t size = 2;
   Local<test::OptionTest> options[size];
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     options->init();
     // options[1].init(); //! \todo clspv crashes
@@ -322,7 +338,7 @@ __kernel void testConstantArg(ConstantPtr<uint4> constant1,
     GlobalPtr<float4> out2,
     const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index < resolution) {
     out1[index] = constant1[index];
     out2[index] = constant2[index];
@@ -333,7 +349,7 @@ __kernel void testConstantArg(ConstantPtr<uint4> constant1,
   */
 __kernel void copyBufferTest(ConstGlobalPtr<uint32b> src, GlobalPtr<uint32b> dst)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     for (size_t i = 0; i < 16; ++i) {
       dst[i] = src[i];
@@ -345,7 +361,7 @@ __kernel void copyBufferTest(ConstGlobalPtr<uint32b> src, GlobalPtr<uint32b> dst
   */
 __kernel void multiplyBufferTest(GlobalPtr<int32b> table, const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index < resolution) {
     table[index] = 2 * table[index];
   }
@@ -369,7 +385,7 @@ __kernel void testTypeCast(
     GlobalPtr<float> fbuffer1,
     GlobalPtr<float4> fbuffer2)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     // int8b
     {
@@ -478,7 +494,7 @@ __kernel void testTypeReinterpreting(
     GlobalPtr<float> fbuffer1,
     GlobalPtr<float4> fbuffer2)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     // uint32b
     {
@@ -576,7 +592,7 @@ __kernel void testTypeReinterpreting(
 //  */
 //__kernel void testVariablePointer(global Ray1* ray1_table, global Ray2* ray2_table, const uint32b resolution)
 //{
-//  const uint32b index = getGlobalIdX();
+//  const uint32b index = zinvul::getGlobalIdX();
 //  if (index < resolution) {
 //    const uint32b i = 2 * index;
 //    {
@@ -599,7 +615,7 @@ __kernel void testTypeReinterpreting(
   */
 __kernel void testInt8bBuffer(GlobalPtr<int8b> buffer)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index <= UCHAR_MAX) {
     const int32b v = cast<int32b>(index) + CHAR_MIN;
     buffer[index] = cast<int8b>(v);
@@ -610,7 +626,7 @@ __kernel void testInt8bBuffer(GlobalPtr<int8b> buffer)
   */
 __kernel void testUint8bBuffer(GlobalPtr<uint8b> buffer)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index <= UCHAR_MAX) {
     const uint8b v = cast<uint8b>(index);
     buffer[index] = v;
@@ -621,7 +637,7 @@ __kernel void testUint8bBuffer(GlobalPtr<uint8b> buffer)
   */
 __kernel void testInt16bBuffer(GlobalPtr<int16b> buffer)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index <= USHRT_MAX) {
     const int32b v = cast<int32b>(index) + SHRT_MIN;
     buffer[index] = cast<int16b>(v);
@@ -632,7 +648,7 @@ __kernel void testInt16bBuffer(GlobalPtr<int16b> buffer)
   */
 __kernel void testUint16bBuffer(GlobalPtr<uint16b> buffer)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index <= USHRT_MAX) {
     const uint16b v = cast<uint16b>(index);
     buffer[index] = v;
@@ -646,7 +662,7 @@ __kernel void testCastUint8bToFloat(GlobalPtr<uint8b> buffer1,
     GlobalPtr<float> buffer3,
     const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index < resolution) {
     const size_t offset = (sizeof(float) / sizeof(uint8b)) * index;
     // Writing test
@@ -671,7 +687,7 @@ __kernel void testCastUint16bToFloat(GlobalPtr<uint16b> buffer1,
     GlobalPtr<float> buffer3,
     const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index < resolution) {
     const size_t offset = (sizeof(float) / sizeof(uint16b)) * index;
     // Writing test
@@ -696,7 +712,7 @@ __kernel void testCastUint32bToFloat(GlobalPtr<uint32b> buffer1,
     GlobalPtr<float> buffer3,
     const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index < resolution) {
     const size_t offset = (sizeof(float) / sizeof(uint32b)) * index;
     // Writing test
@@ -725,132 +741,132 @@ __kernel void testNumericLimits(GlobalPtr<int32b> digits_buffer,
     GlobalPtr<uint32b> uint32_buffer,
     GlobalPtr<float> float_buffer)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     size_t digitsi = 0;
     // int8
     {
-      constexpr auto d2 = NumericLimits<int8b>::digits();
+      constexpr auto d2 = zinvul::NumericLimits<int8b>::digits();
       digits_buffer[digitsi++] = d2;
-      constexpr auto d10 = NumericLimits<int8b>::digits10();
+      constexpr auto d10 = zinvul::NumericLimits<int8b>::digits10();
       digits_buffer[digitsi++] = d10;
-      constexpr auto md10 = NumericLimits<int8b>::maxDigits10();
+      constexpr auto md10 = zinvul::NumericLimits<int8b>::maxDigits10();
       digits_buffer[digitsi++] = md10;
 
       size_t i = 0;
-      constexpr auto vmin = NumericLimits<int8b>::min();
+      constexpr auto vmin = zinvul::NumericLimits<int8b>::min();
       int8_buffer[i++] = vmin;
-      constexpr auto vlow = NumericLimits<int8b>::lowest();
+      constexpr auto vlow = zinvul::NumericLimits<int8b>::lowest();
       int8_buffer[i++] = vlow;
-      constexpr auto vmax = NumericLimits<int8b>::max();
+      constexpr auto vmax = zinvul::NumericLimits<int8b>::max();
       int8_buffer[i++] = vmax;
     }
     // uint8
     {
-      constexpr auto d2 = NumericLimits<uint8b>::digits();
+      constexpr auto d2 = zinvul::NumericLimits<uint8b>::digits();
       digits_buffer[digitsi++] = d2;
-      constexpr auto d10 = NumericLimits<uint8b>::digits10();
+      constexpr auto d10 = zinvul::NumericLimits<uint8b>::digits10();
       digits_buffer[digitsi++] = d10;
-      constexpr auto md10 = NumericLimits<uint8b>::maxDigits10();
+      constexpr auto md10 = zinvul::NumericLimits<uint8b>::maxDigits10();
       digits_buffer[digitsi++] = md10;
 
       size_t i = 0;
-      constexpr auto vmin = NumericLimits<uint8b>::min();
+      constexpr auto vmin = zinvul::NumericLimits<uint8b>::min();
       uint8_buffer[i++] = vmin;
-      constexpr auto vlow = NumericLimits<uint8b>::lowest();
+      constexpr auto vlow = zinvul::NumericLimits<uint8b>::lowest();
       uint8_buffer[i++] = vlow;
-      constexpr auto vmax = NumericLimits<uint8b>::max();
+      constexpr auto vmax = zinvul::NumericLimits<uint8b>::max();
       uint8_buffer[i++] = vmax;
     }
     // int16
     {
-      constexpr auto d2 = NumericLimits<int16b>::digits();
+      constexpr auto d2 = zinvul::NumericLimits<int16b>::digits();
       digits_buffer[digitsi++] = d2;
-      constexpr auto d10 = NumericLimits<int16b>::digits10();
+      constexpr auto d10 = zinvul::NumericLimits<int16b>::digits10();
       digits_buffer[digitsi++] = d10;
-      constexpr auto md10 = NumericLimits<int16b>::maxDigits10();
+      constexpr auto md10 = zinvul::NumericLimits<int16b>::maxDigits10();
       digits_buffer[digitsi++] = md10;
 
       size_t i = 0;
-      constexpr auto vmin = NumericLimits<int16b>::min();
+      constexpr auto vmin = zinvul::NumericLimits<int16b>::min();
       int16_buffer[i++] = vmin;
-      constexpr auto vlow = NumericLimits<int16b>::lowest();
+      constexpr auto vlow = zinvul::NumericLimits<int16b>::lowest();
       int16_buffer[i++] = vlow;
-      constexpr auto vmax = NumericLimits<int16b>::max();
+      constexpr auto vmax = zinvul::NumericLimits<int16b>::max();
       int16_buffer[i++] = vmax;
     }
     // uint16
     {
-      constexpr auto d2 = NumericLimits<uint16b>::digits();
+      constexpr auto d2 = zinvul::NumericLimits<uint16b>::digits();
       digits_buffer[digitsi++] = d2;
-      constexpr auto d10 = NumericLimits<uint16b>::digits10();
+      constexpr auto d10 = zinvul::NumericLimits<uint16b>::digits10();
       digits_buffer[digitsi++] = d10;
-      constexpr auto md10 = NumericLimits<uint16b>::maxDigits10();
+      constexpr auto md10 = zinvul::NumericLimits<uint16b>::maxDigits10();
       digits_buffer[digitsi++] = md10;
 
       size_t i = 0;
-      constexpr auto vmin = NumericLimits<uint16b>::min();
+      constexpr auto vmin = zinvul::NumericLimits<uint16b>::min();
       uint16_buffer[i++] = vmin;
-      constexpr auto vlow = NumericLimits<uint16b>::lowest();
+      constexpr auto vlow = zinvul::NumericLimits<uint16b>::lowest();
       uint16_buffer[i++] = vlow;
-      constexpr auto vmax = NumericLimits<uint16b>::max();
+      constexpr auto vmax = zinvul::NumericLimits<uint16b>::max();
       uint16_buffer[i++] = vmax;
     }
     // int32
     {
-      constexpr auto d2 = NumericLimits<int32b>::digits();
+      constexpr auto d2 = zinvul::NumericLimits<int32b>::digits();
       digits_buffer[digitsi++] = d2;
-      constexpr auto d10 = NumericLimits<int32b>::digits10();
+      constexpr auto d10 = zinvul::NumericLimits<int32b>::digits10();
       digits_buffer[digitsi++] = d10;
-      constexpr auto md10 = NumericLimits<int32b>::maxDigits10();
+      constexpr auto md10 = zinvul::NumericLimits<int32b>::maxDigits10();
       digits_buffer[digitsi++] = md10;
 
       size_t i = 0;
-      constexpr auto vmin = NumericLimits<int32b>::min();
+      constexpr auto vmin = zinvul::NumericLimits<int32b>::min();
       int32_buffer[i++] = vmin;
-      constexpr auto vlow = NumericLimits<int32b>::lowest();
+      constexpr auto vlow = zinvul::NumericLimits<int32b>::lowest();
       int32_buffer[i++] = vlow;
-      constexpr auto vmax = NumericLimits<int32b>::max();
+      constexpr auto vmax = zinvul::NumericLimits<int32b>::max();
       int32_buffer[i++] = vmax;
     }
     // uint32
     {
-      constexpr auto d2 = NumericLimits<uint32b>::digits();
+      constexpr auto d2 = zinvul::NumericLimits<uint32b>::digits();
       digits_buffer[digitsi++] = d2;
-      constexpr auto d10 = NumericLimits<uint32b>::digits10();
+      constexpr auto d10 = zinvul::NumericLimits<uint32b>::digits10();
       digits_buffer[digitsi++] = d10;
-      constexpr auto md10 = NumericLimits<uint32b>::maxDigits10();
+      constexpr auto md10 = zinvul::NumericLimits<uint32b>::maxDigits10();
       digits_buffer[digitsi++] = md10;
 
       size_t i = 0;
-      constexpr auto vmin = NumericLimits<uint32b>::min();
+      constexpr auto vmin = zinvul::NumericLimits<uint32b>::min();
       uint32_buffer[i++] = vmin;
-      constexpr auto vlow = NumericLimits<uint32b>::lowest();
+      constexpr auto vlow = zinvul::NumericLimits<uint32b>::lowest();
       uint32_buffer[i++] = vlow;
-      constexpr auto vmax = NumericLimits<uint32b>::max();
+      constexpr auto vmax = zinvul::NumericLimits<uint32b>::max();
       uint32_buffer[i++] = vmax;
     }
     // float 
     {
-      constexpr auto d2 = NumericLimits<float>::digits();
+      constexpr auto d2 = zinvul::NumericLimits<float>::digits();
       digits_buffer[digitsi++] = d2;
-      constexpr auto d10 = NumericLimits<float>::digits10();
+      constexpr auto d10 = zinvul::NumericLimits<float>::digits10();
       digits_buffer[digitsi++] = d10;
-      constexpr auto md10 = NumericLimits<float>::maxDigits10();
+      constexpr auto md10 = zinvul::NumericLimits<float>::maxDigits10();
       digits_buffer[digitsi++] = md10;
 
       size_t i = 0;
-      constexpr auto vmin = NumericLimits<float>::min();
+      constexpr auto vmin = zinvul::NumericLimits<float>::min();
       float_buffer[i++] = vmin;
-      constexpr auto vlow = NumericLimits<float>::lowest();
+      constexpr auto vlow = zinvul::NumericLimits<float>::lowest();
       float_buffer[i++] = vlow;
-      constexpr auto vmax = NumericLimits<float>::max();
+      constexpr auto vmax = zinvul::NumericLimits<float>::max();
       float_buffer[i++] = vmax;
-      constexpr auto vepsilon = NumericLimits<float>::epsilon();
+      constexpr auto vepsilon = zinvul::NumericLimits<float>::epsilon();
       float_buffer[i++] = vepsilon;
-      auto vinfinity = NumericLimits<float>::infinity();
+      auto vinfinity = zinvul::NumericLimits<float>::infinity();
       float_buffer[i++] = vinfinity;
-      auto vnan = NumericLimits<float>::quietNan();
+      auto vnan = zinvul::NumericLimits<float>::quietNan();
       float_buffer[i++] = vnan;
     }
   }
@@ -865,64 +881,64 @@ __kernel void testNumericLimits64(GlobalPtr<int32b> digits_buffer,
     GlobalPtr<uint64b> uint64_buffer,
     GlobalPtr<double> double_buffer)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     size_t digitsi = 0;
     // int64
     {
-      constexpr auto d2 = NumericLimits<int64b>::digits();
+      constexpr auto d2 = zinvul::NumericLimits<int64b>::digits();
       digits_buffer[digitsi++] = d2;
-      constexpr auto d10 = NumericLimits<int64b>::digits10();
+      constexpr auto d10 = zinvul::NumericLimits<int64b>::digits10();
       digits_buffer[digitsi++] = d10;
-      constexpr auto md10 = NumericLimits<int64b>::maxDigits10();
+      constexpr auto md10 = zinvul::NumericLimits<int64b>::maxDigits10();
       digits_buffer[digitsi++] = md10;
 
       size_t i = 0;
-      constexpr auto vmin = NumericLimits<int64b>::min();
+      constexpr auto vmin = zinvul::NumericLimits<int64b>::min();
       int64_buffer[i++] = vmin;
-      constexpr auto vlow = NumericLimits<int64b>::lowest();
+      constexpr auto vlow = zinvul::NumericLimits<int64b>::lowest();
       int64_buffer[i++] = vlow;
-      constexpr auto vmax = NumericLimits<int64b>::max();
+      constexpr auto vmax = zinvul::NumericLimits<int64b>::max();
       int64_buffer[i++] = vmax;
     }
     // uint64
     {
-      constexpr auto d2 = NumericLimits<uint64b>::digits();
+      constexpr auto d2 = zinvul::NumericLimits<uint64b>::digits();
       digits_buffer[digitsi++] = d2;
-      constexpr auto d10 = NumericLimits<uint64b>::digits10();
+      constexpr auto d10 = zinvul::NumericLimits<uint64b>::digits10();
       digits_buffer[digitsi++] = d10;
-      constexpr auto md10 = NumericLimits<uint64b>::maxDigits10();
+      constexpr auto md10 = zinvul::NumericLimits<uint64b>::maxDigits10();
       digits_buffer[digitsi++] = md10;
 
       size_t i = 0;
-      constexpr auto vmin = NumericLimits<uint64b>::min();
+      constexpr auto vmin = zinvul::NumericLimits<uint64b>::min();
       uint64_buffer[i++] = vmin;
-      constexpr auto vlow = NumericLimits<uint64b>::lowest();
+      constexpr auto vlow = zinvul::NumericLimits<uint64b>::lowest();
       uint64_buffer[i++] = vlow;
-      constexpr auto vmax = NumericLimits<uint64b>::max();
+      constexpr auto vmax = zinvul::NumericLimits<uint64b>::max();
       uint64_buffer[i++] = vmax;
     }
     // double
     {
-      constexpr auto d2 = NumericLimits<double>::digits();
+      constexpr auto d2 = zinvul::NumericLimits<double>::digits();
       digits_buffer[digitsi++] = d2;
-      constexpr auto d10 = NumericLimits<double>::digits10();
+      constexpr auto d10 = zinvul::NumericLimits<double>::digits10();
       digits_buffer[digitsi++] = d10;
-      constexpr auto md10 = NumericLimits<double>::maxDigits10();
+      constexpr auto md10 = zinvul::NumericLimits<double>::maxDigits10();
       digits_buffer[digitsi++] = md10;
 
       size_t i = 0;
-      constexpr auto vmin = NumericLimits<double>::min();
+      constexpr auto vmin = zinvul::NumericLimits<double>::min();
       double_buffer[i++] = vmin;
-      constexpr auto vlow = NumericLimits<double>::lowest();
+      constexpr auto vlow = zinvul::NumericLimits<double>::lowest();
       double_buffer[i++] = vlow;
-      constexpr auto vmax = NumericLimits<double>::max();
+      constexpr auto vmax = zinvul::NumericLimits<double>::max();
       double_buffer[i++] = vmax;
-      constexpr auto vepsilon = NumericLimits<double>::epsilon();
+      constexpr auto vepsilon = zinvul::NumericLimits<double>::epsilon();
       double_buffer[i++] = vepsilon;
-      auto vinfinity = NumericLimits<double>::infinity();
+      auto vinfinity = zinvul::NumericLimits<double>::infinity();
       double_buffer[i++] = vinfinity;
-      auto vnan = NumericLimits<double>::quietNan();
+      auto vnan = zinvul::NumericLimits<double>::quietNan();
       double_buffer[i++] = vnan;
     }
   }
@@ -936,11 +952,11 @@ __kernel void testArray(ConstGlobalPtr<uint32b> src,
     GlobalPtr<uint32b> dst)
 {
   constexpr size_t n = 5;
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     size_t idx = 0;
     // Construct
-    Array<uint32b, n> array;
+    zinvul::Array<uint32b, n> array;
     for (size_t i = 0; i < array.size(); ++i)
       array.set(i, i + 1);
     for (size_t i = 0; i < array.size(); ++i)
@@ -967,44 +983,44 @@ __kernel void testArray(ConstGlobalPtr<uint32b> src,
   */
 __kernel void testFnv1AHash32(GlobalPtr<uint32b> hash32_buffer)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     size_t i = 0;
     {
       const char seed[] = "";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
-      hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "a";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
-      hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "b";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
-      hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "foobar";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
-      hash32_buffer[i++] = Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const uint8b seed = 'a';
-      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
     }
     {
       const uint8b seed = 'b';
-      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
     }
     {
       const uint32b seed = 123'456'789u;
-      hash32_buffer[i++] = Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
     }
   }
 }
@@ -1015,44 +1031,44 @@ __kernel void testFnv1AHash32(GlobalPtr<uint32b> hash32_buffer)
   */
 __kernel void testFnv1AHash64(GlobalPtr<uint64b> hash64_buffer)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     size_t i = 0;
     {
       const char seed[] = "";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
-      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "a";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
-      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "b";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
-      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "foobar";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
-      hash64_buffer[i++] = Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const uint8b seed = 'a';
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
     }
     {
       const uint8b seed = 'b';
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
     }
     {
       const uint64b seed = 123'456'789u;
-      hash64_buffer[i++] = Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
     }
   }
 }

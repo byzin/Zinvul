@@ -15,9 +15,6 @@
 #include "zinvul/cl/math.cl"
 #include "zinvul/cl/utility.cl"
 
-//using namespace zinvul;
-
-
 using zinvul::int8b;
 using zinvul::int16b;
 using zinvul::int32b;
@@ -28,6 +25,13 @@ using zinvul::uint32b;
 using zinvul::uint64b;
 using zinvul::GlobalPtr;
 using zinvul::ConstGlobalPtr;
+using zinvul::ConstantPtr;
+using zinvul::ConstConstantPtr;
+using zinvul::Local;
+using zinvul::LocalPtr;
+using zinvul::ConstLocalPtr;
+using zinvul::cast;
+using zinvul::treatAs;
 
 // Forward declaration
 __kernel void testConstantValue(GlobalPtr<float> result);

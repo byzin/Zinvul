@@ -15,7 +15,23 @@
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
 
-using namespace zinvul;
+using zinvul::int8b;
+using zinvul::int16b;
+using zinvul::int32b;
+using zinvul::int64b;
+using zinvul::uint8b;
+using zinvul::uint16b;
+using zinvul::uint32b;
+using zinvul::uint64b;
+using zinvul::GlobalPtr;
+using zinvul::ConstGlobalPtr;
+using zinvul::ConstantPtr;
+using zinvul::ConstConstantPtr;
+using zinvul::Local;
+using zinvul::LocalPtr;
+using zinvul::ConstLocalPtr;
+using zinvul::cast;
+using zinvul::treatAs;
 
 // Forward declaration
 __kernel void testWorkItem1D(GlobalPtr<uint32b> work_size_table,
@@ -38,25 +54,25 @@ __kernel void testWorkItem1D(GlobalPtr<uint32b> work_size_table,
     GlobalPtr<uint32b> out_of_range,
     const uint32b resolution)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
-    work_size_table[0] = getNumGroupsX();
-    work_size_table[1] = getNumGroupsY();
-    work_size_table[2] = getNumGroupsZ();
-    work_size_table[3] = getLocalSizeX();
-    work_size_table[4] = getLocalSizeY();
-    work_size_table[5] = getLocalSizeZ();
-    work_size_table[6] = getGlobalSizeX();
-    work_size_table[7] = getGlobalSizeY();
-    work_size_table[8] = getGlobalSizeZ();
+    work_size_table[0] = zinvul::getNumGroupsX();
+    work_size_table[1] = zinvul::getNumGroupsY();
+    work_size_table[2] = zinvul::getNumGroupsZ();
+    work_size_table[3] = zinvul::getLocalSizeX();
+    work_size_table[4] = zinvul::getLocalSizeY();
+    work_size_table[5] = zinvul::getLocalSizeZ();
+    work_size_table[6] = zinvul::getGlobalSizeX();
+    work_size_table[7] = zinvul::getGlobalSizeY();
+    work_size_table[8] = zinvul::getGlobalSizeZ();
   }
   if (index < resolution) {
-    const uint32b id = getGroupIdX() * getLocalSizeX() + getLocalIdX();
+    const uint32b id = zinvul::getGroupIdX() * zinvul::getLocalSizeX() + zinvul::getLocalIdX();
     if (index == id)
       work_item_table[id] = 1u;
   }
   else {
-    Atomic::increment(out_of_range);
+    zinvul::atomic_inc(out_of_range);
   }
 }
 
@@ -67,28 +83,28 @@ __kernel void testWorkItem2D(GlobalPtr<uint32b> work_size_table,
     GlobalPtr<uint32b> out_of_range,
     const uint2 resolution)
 {
-  const uint32b index = getGlobalIdY() * getGlobalSizeX() + getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdY() * zinvul::getGlobalSizeX() + zinvul::getGlobalIdX();
   if (index == 0) {
-    work_size_table[0] = getNumGroupsX();
-    work_size_table[1] = getNumGroupsY();
-    work_size_table[2] = getNumGroupsZ();
-    work_size_table[3] = getLocalSizeX();
-    work_size_table[4] = getLocalSizeY();
-    work_size_table[5] = getLocalSizeZ();
-    work_size_table[6] = getGlobalSizeX();
-    work_size_table[7] = getGlobalSizeY();
-    work_size_table[8] = getGlobalSizeZ();
+    work_size_table[0] = zinvul::getNumGroupsX();
+    work_size_table[1] = zinvul::getNumGroupsY();
+    work_size_table[2] = zinvul::getNumGroupsZ();
+    work_size_table[3] = zinvul::getLocalSizeX();
+    work_size_table[4] = zinvul::getLocalSizeY();
+    work_size_table[5] = zinvul::getLocalSizeZ();
+    work_size_table[6] = zinvul::getGlobalSizeX();
+    work_size_table[7] = zinvul::getGlobalSizeY();
+    work_size_table[8] = zinvul::getGlobalSizeZ();
   }
   const uint32b res = resolution.x * resolution.y;
   if (index < res) {
-    const uint32b x = getGroupIdX() * getLocalSizeX() + getLocalIdX();
-    const uint32b y = getGroupIdY() * getLocalSizeY() + getLocalIdY();
-    const uint32b id = y * getGlobalSizeX() + x;
+    const uint32b x = zinvul::getGroupIdX() * zinvul::getLocalSizeX() + zinvul::getLocalIdX();
+    const uint32b y = zinvul::getGroupIdY() * zinvul::getLocalSizeY() + zinvul::getLocalIdY();
+    const uint32b id = y * zinvul::getGlobalSizeX() + x;
     if (index == id)
       work_item_table[id] = 1u;
   }
   else {
-    Atomic::increment(out_of_range);
+    zinvul::atomic_inc(out_of_range);
   }
 }
 
@@ -99,29 +115,29 @@ __kernel void testWorkItem3D(GlobalPtr<uint32b> work_size_table,
     GlobalPtr<uint32b> out_of_range,
     const uint3 resolution)
 {
-  const uint32b index = getGlobalIdZ() * (getGlobalSizeX() * getGlobalSizeY()) + getGlobalIdY() * getGlobalSizeX() + getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdZ() * (zinvul::getGlobalSizeX() * zinvul::getGlobalSizeY()) + zinvul::getGlobalIdY() * zinvul::getGlobalSizeX() + zinvul::getGlobalIdX();
   if (index == 0) {
-    work_size_table[0] = getNumGroupsX();
-    work_size_table[1] = getNumGroupsY();
-    work_size_table[2] = getNumGroupsZ();
-    work_size_table[3] = getLocalSizeX();
-    work_size_table[4] = getLocalSizeY();
-    work_size_table[5] = getLocalSizeZ();
-    work_size_table[6] = getGlobalSizeX();
-    work_size_table[7] = getGlobalSizeY();
-    work_size_table[8] = getGlobalSizeZ();
+    work_size_table[0] = zinvul::getNumGroupsX();
+    work_size_table[1] = zinvul::getNumGroupsY();
+    work_size_table[2] = zinvul::getNumGroupsZ();
+    work_size_table[3] = zinvul::getLocalSizeX();
+    work_size_table[4] = zinvul::getLocalSizeY();
+    work_size_table[5] = zinvul::getLocalSizeZ();
+    work_size_table[6] = zinvul::getGlobalSizeX();
+    work_size_table[7] = zinvul::getGlobalSizeY();
+    work_size_table[8] = zinvul::getGlobalSizeZ();
   }
   const uint32b res = resolution.x * resolution.y * resolution.z;
   if (index < res) {
-    const uint32b x = getGroupIdX() * getLocalSizeX() + getLocalIdX();
-    const uint32b y = getGroupIdY() * getLocalSizeY() + getLocalIdY();
-    const uint32b z = getGroupIdZ() * getLocalSizeZ() + getLocalIdZ();
-    const uint32b id = z * (getGlobalSizeX() * getGlobalSizeY()) + y * getGlobalSizeX() + x;
+    const uint32b x = zinvul::getGroupIdX() * zinvul::getLocalSizeX() + zinvul::getLocalIdX();
+    const uint32b y = zinvul::getGroupIdY() * zinvul::getLocalSizeY() + zinvul::getLocalIdY();
+    const uint32b z = zinvul::getGroupIdZ() * zinvul::getLocalSizeZ() + zinvul::getLocalIdZ();
+    const uint32b id = z * (zinvul::getGlobalSizeX() * zinvul::getGlobalSizeY()) + y * zinvul::getGlobalSizeX() + x;
     if (index == id)
       work_item_table[id] = 1u;
   }
   else {
-    Atomic::increment(out_of_range);
+    zinvul::atomic_inc(out_of_range);
   }
 }
 

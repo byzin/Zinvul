@@ -10,19 +10,29 @@
 #ifndef ZINVUL_CL_SYNCHRONIZATION_HPP
 #define ZINVUL_CL_SYNCHRONIZATION_HPP
 
+// Zinvul
+#include "types.hpp"
+#include "zinvul/zinvul_config.hpp"
+
 namespace zinvul {
 
 namespace cl {
 
-// Forward declaration
-void barrier(const uint32b /* flags */) noexcept;
+/*!
+ \brief Memory address space
+ */
+enum cl_mem_fence_flags
+{
+  CLK_LOCAL_MEM_FENCE =  0b01 << 0,
+  CLK_GLOBAL_MEM_FENCE = 0b01 << 1
+};
 
-constexpr uint32b CLK_LOCAL_MEM_FENCE = 0b01u << 0;
-constexpr uint32b CLK_GLOBAL_MEM_FENCE = 0b01u << 1;
+// Forward declaration
+void barrier(const int32b /* flags */) noexcept;
 
 //! Dummy function
 inline
-void barrier(const uint32b /* flags */) noexcept {}
+void barrier(const int32b /* flags */) noexcept {}
 
 } // namespace cl
 

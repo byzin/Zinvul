@@ -88,6 +88,8 @@ class Math
   static constexpr Float calcPi(const int32b n) noexcept;
 };
 
+// CL function aliases
+
 // Basic operations
 
 //! Return the absolute value of the given value
