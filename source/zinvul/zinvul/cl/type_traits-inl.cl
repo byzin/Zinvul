@@ -317,6 +317,12 @@ struct IsArithmetic
 };
 
 template <typename T>
+struct IsSigned
+{
+  static constexpr int32b kValue = kIsSignedInteger<T> | kIsFloatingPoint<T>;
+};
+
+template <typename T>
 struct IsLValueReference
 {
   static constexpr int32b kValue = kScalarResultFalse;

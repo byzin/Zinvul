@@ -15,7 +15,19 @@
 #include "zinvul/cl/math.cl"
 #include "zinvul/cl/utility.cl"
 
-using namespace zinvul;
+//using namespace zinvul;
+
+
+using zinvul::int8b;
+using zinvul::int16b;
+using zinvul::int32b;
+using zinvul::int64b;
+using zinvul::uint8b;
+using zinvul::uint16b;
+using zinvul::uint32b;
+using zinvul::uint64b;
+using zinvul::GlobalPtr;
+using zinvul::ConstGlobalPtr;
 
 // Forward declaration
 __kernel void testConstantValue(GlobalPtr<float> result);
@@ -25,10 +37,39 @@ __kernel void testConstantValue64(GlobalPtr<double> result);
 
 __kernel void testConstantValue(GlobalPtr<float> result)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
-    constexpr float pi = kPi<float>;
-    result[0] = pi;
+    size_t i = 0;
+    {
+      constexpr float pi = zinvul::kPi<float>;
+      result[i++] = pi;
+    }
+    {
+      constexpr float pi = zinvul::kPi<float>;
+      constexpr float s = zinvul::mathconst::sqrt(pi);
+      result[i++] = s;
+    }
+    {
+      constexpr float s = zinvul::mathconst::sqrt(2.0f);
+      result[i++] = s;
+    }
+    {
+      constexpr float s = zinvul::mathconst::sqrt(3.0f);
+      result[i++] = s;
+    }
+    {
+      constexpr float pi = zinvul::kPi<float>;
+      constexpr float c = zinvul::mathconst::cbrt(pi);
+      result[i++] = c;
+    }
+    {
+      constexpr float c = zinvul::mathconst::cbrt(2.0f);
+      result[i++] = c;
+    }
+    {
+      constexpr float c = zinvul::mathconst::cbrt(3.0f);
+      result[i++] = c;
+    }
   }
 }
 
@@ -37,10 +78,39 @@ __kernel void testConstantValue(GlobalPtr<float> result)
 // Forward declaration
 __kernel void testConstantValue64(GlobalPtr<double> result)
 {
-  const uint32b index = getGlobalIdX();
+  const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
-    constexpr double pi = kPi<double>;
-    result[0] = pi;
+    size_t i = 0;
+    {
+      constexpr double pi = zinvul::kPi<double>;
+      result[i++] = pi;
+    }
+    {
+      constexpr double pi = zinvul::kPi<double>;
+      constexpr double s = zinvul::mathconst::sqrt(pi);
+      result[i++] = s;
+    }
+    {
+      constexpr double s = zinvul::mathconst::sqrt(2.0);
+      result[i++] = s;
+    }
+    {
+      constexpr double s = zinvul::mathconst::sqrt(3.0);
+      result[i++] = s;
+    }
+    {
+      constexpr double pi = zinvul::kPi<double>;
+      constexpr double c = zinvul::mathconst::cbrt(pi);
+      result[i++] = c;
+    }
+    {
+      constexpr double c = zinvul::mathconst::cbrt(2.0);
+      result[i++] = c;
+    }
+    {
+      constexpr double c = zinvul::mathconst::cbrt(3.0);
+      result[i++] = c;
+    }
   }
 }
 

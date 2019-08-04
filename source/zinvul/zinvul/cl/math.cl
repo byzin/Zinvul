@@ -20,7 +20,7 @@ namespace zinvul {
 
 //! Circular constant
 template <typename Float>
-constexpr Constant<Float> kPi = constmath::pi<Float>();
+constexpr Constant<Float> kPi = mathconst::Math::pi<Float>();
 
 //// Constants
 //#define zCharMax 127

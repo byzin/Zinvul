@@ -201,6 +201,12 @@ template <typename T> struct IsArithmetic;
 template <typename T>
 constexpr int32b kIsArithmetic = IsArithmetic<T>::kValue;
 
+//! Check if a type is a signed arithmetic type
+template <typename T> struct IsSigned;
+
+template <typename T>
+constexpr int32b kIsSigned = IsSigned<T>::kValue;
+
 // Type properties
 
 //! Check if a type is lvalue reference

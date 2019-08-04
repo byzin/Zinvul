@@ -61,21 +61,71 @@ TEST(MathTest, ConstantValueTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
+    constexpr std::size_t n = 7;
+
     auto buffer1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
-    buffer1->setSize(1);
+    buffer1->setSize(n);
 
     auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testConstantValue));
     kernel->run(*buffer1, {1}, 0);
     device->waitForCompletion();
 
-    const char* error_message = "Float pi is wrong.";
     {
-      const float expected = 4.0f * std::atan(1.0f);
-      ::printFloat("expected pi", expected);
-      float pi = 0.0f;
-      buffer1->read(&pi, 1, 0, 0);
-      ::printFloat("zinvul pi", pi);
-      ASSERT_FLOAT_EQ(expected, pi) << error_message;
+      std::vector<float> results;
+      results.resize(n);
+      buffer1->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      {
+        const float expected = 4.0f * std::atan(1.0f);
+        ::printFloat("expected pi", expected);
+        const float pi = results[i++];
+        ::printFloat("zinvul pi", pi);
+        EXPECT_FLOAT_EQ(expected, pi) << "pi doesn't match.";
+      }
+      {
+        const float pi = 4.0f * std::atan(1.0f);
+        const float expected = std::sqrt(pi);
+        ::printFloat("expected sqrt(pi)", expected);
+        const float s = results[i++];
+        ::printFloat("zinvul sqrt(pi)", s);
+        EXPECT_FLOAT_EQ(expected, s) << "sqrt(pi) doesn't match.";
+      }
+      {
+        const float expected = std::sqrt(2.0f);
+        ::printFloat("expected sqrt(2)", expected);
+        const float s = results[i++];
+        ::printFloat("zinvul sqrt(2)", s);
+        EXPECT_FLOAT_EQ(expected, s) << "sqrt(2) doesn't match.";
+      }
+      {
+        const float expected = std::sqrt(3.0f);
+        ::printFloat("expected sqrt(3)", expected);
+        const float s = results[i++];
+        ::printFloat("zinvul sqrt(3)", s);
+        EXPECT_FLOAT_EQ(expected, s) << "sqrt(3) doesn't match.";
+      }
+      {
+        const float pi = 4.0f * std::atan(1.0f);
+        const float expected = std::cbrt(pi);
+        ::printFloat("expected cbrt(pi)", expected);
+        const float s = results[i++];
+        ::printFloat("zinvul cbrt(pi)", s);
+        EXPECT_FLOAT_EQ(expected, s) << "cbrt(pi) doesn't match.";
+      }
+      {
+        const float expected = std::cbrt(2.0f);
+        ::printFloat("expected cbrt(2)", expected);
+        const float s = results[i++];
+        ::printFloat("zinvul cbrt(2)", s);
+        EXPECT_FLOAT_EQ(expected, s) << "cbrt(2) doesn't match.";
+      }
+      {
+        const float expected = std::cbrt(3.0f);
+        ::printFloat("expected cbrt(3)", expected);
+        const float s = results[i++];
+        ::printFloat("zinvul cbrt(3)", s);
+        EXPECT_FLOAT_EQ(expected, s) << "cbrt(3) doesn't match.";
+      }
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;
@@ -94,21 +144,71 @@ TEST(MathTest, ConstantValue64Test)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
+    constexpr std::size_t n = 7;
+
     auto buffer1 = makeStorageBuffer<double>(device.get(), BufferUsage::kDeviceOnly);
-    buffer1->setSize(1);
+    buffer1->setSize(n);
 
     auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testConstantValue64));
     kernel->run(*buffer1, {1}, 0);
     device->waitForCompletion();
 
-    const char* error_message = "Float pi is wrong.";
     {
-      const double expected = 4.0 * std::atan(1.0);
-      ::printFloat("expected pi", expected);
-      double pi = 0.0;
-      buffer1->read(&pi, 1, 0, 0);
-      ::printFloat("zinvul pi", pi);
-      ASSERT_DOUBLE_EQ(expected, pi) << error_message;
+      std::vector<double> results;
+      results.resize(n);
+      buffer1->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      {
+        const double expected = 4.0 * std::atan(1.0);
+        ::printFloat("expected pi", expected);
+        const double pi = results[i++];
+        ::printFloat("zinvul pi", pi);
+        EXPECT_DOUBLE_EQ(expected, pi) << "pi doesn't match.";
+      }
+      {
+        const double pi = 4.0 * std::atan(1.0);
+        const double expected = std::sqrt(pi);
+        ::printFloat("expected sqrt(pi)", expected);
+        const double s = results[i++];
+        ::printFloat("zinvul sqrt(pi)", s);
+        EXPECT_DOUBLE_EQ(expected, s) << "sqrt(pi) doesn't match.";
+      }
+      {
+        const double expected = std::sqrt(2.0);
+        ::printFloat("expected sqrt(2)", expected);
+        const double s = results[i++];
+        ::printFloat("zinvul sqrt(2)", s);
+        EXPECT_DOUBLE_EQ(expected, s) << "sqrt(2) doesn't match.";
+      }
+      {
+        const double expected = std::sqrt(3.0);
+        ::printFloat("expected sqrt(3)", expected);
+        const double s = results[i++];
+        ::printFloat("zinvul sqrt(3)", s);
+        EXPECT_DOUBLE_EQ(expected, s) << "sqrt(3) doesn't match.";
+      }
+      {
+        const double pi = 4.0 * std::atan(1.0);
+        const double expected = std::cbrt(pi);
+        ::printFloat("expected cbrt(pi)", expected);
+        const double s = results[i++];
+        ::printFloat("zinvul cbrt(pi)", s);
+        EXPECT_DOUBLE_EQ(expected, s) << "cbrt(pi) doesn't match.";
+      }
+      {
+        const double expected = std::cbrt(2.0);
+        ::printFloat("expected cbrt(2)", expected);
+        const double s = results[i++];
+        ::printFloat("zinvul cbrt(2)", s);
+        EXPECT_DOUBLE_EQ(expected, s) << "cbrt(2) doesn't match.";
+      }
+      {
+        const double expected = std::cbrt(3.0);
+        ::printFloat("expected cbrt(3)", expected);
+        const double s = results[i++];
+        ::printFloat("zinvul cbrt(3)", s);
+        EXPECT_DOUBLE_EQ(expected, s) << "cbrt(3) doesn't match.";
+      }
     }
 
     std::cout << getTestDeviceUsedMemory(*device) << std::endl;

@@ -230,7 +230,7 @@ Integer Atomic::addImpl(BufferPtr p, const Integer value) noexcept
   using I = RemoveCvrefType<Integer>;
   static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
                 "The Integer isn't int or unsigned int.");
-  const Private<Integer> old = atomic_add(p, value);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_add(p, value);
   return old;
 }
 
@@ -242,7 +242,7 @@ Integer Atomic::subImpl(BufferPtr p, const Integer value) noexcept
   using I = RemoveCvrefType<Integer>;
   static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
                 "The Integer isn't int or unsigned int.");
-  const Private<Integer> old = atomic_sub(p, value);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_sub(p, value);
   return old;
 }
 
@@ -254,7 +254,7 @@ Type Atomic::swapImpl(BufferPtr p, const Type value) noexcept
   using T = RemoveCvrefType<Type>;
   static_assert(kIsSame<T, int32b> || kIsSame<T, uint32b> || kIsSame<T, float>,
                 "The Type isn't int, unsigned int or float.");
-  const Private<Type> old = atomic_xchg(p, value);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_xchg(p, value);
   return old;
 }
 
@@ -266,7 +266,7 @@ Integer Atomic::incrementImpl(BufferPtr p) noexcept
   using I = RemoveCvrefType<Integer>;
   static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
                 "The Integer isn't int or unsigned int.");
-  const Private<Integer> old = atomic_inc(p);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_inc(p);
   return old;
 }
 
@@ -278,7 +278,7 @@ Integer Atomic::decrementImpl(BufferPtr p) noexcept
   using I = RemoveCvrefType<Integer>;
   static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
                 "The Integer isn't int or unsigned int.");
-  const Private<Integer> old = atomic_dec(p);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_dec(p);
   return old;
 }
 
@@ -292,7 +292,7 @@ Integer Atomic::compareAndSwapImpl(BufferPtr p,
   using I = RemoveCvrefType<Integer>;
   static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
                 "The Integer isn't int or unsigned int.");
-  const Private<Integer> old = atomic_cmpxchg(p, comp, value);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_cmpxchg(p, comp, value);
   return old;
 }
 
@@ -304,7 +304,7 @@ Integer Atomic::minImpl(BufferPtr p, const Integer value) noexcept
   using I = RemoveCvrefType<Integer>;
   static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
                 "The Integer isn't int or unsigned int.");
-  const Private<Integer> old = atomic_min(p, value);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_min(p, value);
   return old;
 }
 
@@ -316,7 +316,7 @@ Integer Atomic::maxImpl(BufferPtr p, const Integer value) noexcept
   using I = RemoveCvrefType<Integer>;
   static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
                 "The Integer isn't int or unsigned int.");
-  const Private<Integer> old = atomic_max(p, value);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_max(p, value);
   return old;
 }
 
@@ -328,7 +328,7 @@ Integer Atomic::bitAndImpl(BufferPtr p, const Integer value) noexcept
   using I = RemoveCvrefType<Integer>;
   static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
                 "The Integer isn't int or unsigned int.");
-  const Private<Integer> old = atomic_and(p, value);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_and(p, value);
   return old;
 }
 
@@ -340,7 +340,7 @@ Integer Atomic::bitOrImpl(BufferPtr p, const Integer value) noexcept
   using I = RemoveCvrefType<Integer>;
   static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
                 "The Integer isn't int or unsigned int.");
-  const Private<Integer> old = atomic_or(p, value);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_or(p, value);
   return old;
 }
 
@@ -352,7 +352,7 @@ Integer Atomic::bitXorImpl(BufferPtr p, const Integer value) noexcept
   using I = RemoveCvrefType<Integer>;
   static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
                 "The Integer isn't int or unsigned int.");
-  const Private<Integer> old = atomic_xor(p, value);
+  const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_xor(p, value);
   return old;
 }
 
