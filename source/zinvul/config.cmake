@@ -378,6 +378,7 @@ function(makeKernelSet kernel_set_name zinvul_source_files zinvul_definitions)
         message(WARNING "The `spirv-dis` command not found.")
       endif()
       # SPIR-V per .cl file
+      list(APPEND clspv_options -D=ZINVUL_GLOBAL_NAMESPACE="") # Workaround
       foreach(cl_file IN LISTS ZINVUL_SOURCE_FILES)
         get_filename_component(rga_spv_file_path "${cl_file}" NAME_WLE)
         set(rga_spv_file_path ${spv_analysis_dir}/${rga_spv_file_path}.spv)

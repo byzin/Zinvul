@@ -103,7 +103,7 @@ void CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::run(
     const std::array<uint32b, kDimension> works,
     const uint32b /* queue_index */) noexcept
 {
-  const auto command = [this, &args...]()
+  const auto command = [this, &args...]() noexcept
   {
     using ArgPack = std::tuple<ArgumentTypes...>;
     runFunc<ArgPack>(args...);

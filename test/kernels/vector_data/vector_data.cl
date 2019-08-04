@@ -56,7 +56,7 @@ __kernel void testInt8bVectorData(ConstGlobalPtr<int8b> inputs,
     {
       using VData = VectorData<int8b>;
       int8b v = VData::load(0, inputs + offset);
-      v = v << shift;
+      v = static_cast<int8b>(v << shift);
       VData::store(v, 0, outputs + offset);
       offset += VData::size();
     }
@@ -96,7 +96,7 @@ __kernel void testInt16bVectorData(ConstGlobalPtr<int16b> inputs,
     {
       using VData = VectorData<int16b>;
       int16b v = VData::load(0, inputs + offset);
-      v = v << shift;
+      v = static_cast<int16b>(v << shift);
       VData::store(v, 0, outputs + offset);
       offset += VData::size();
     }

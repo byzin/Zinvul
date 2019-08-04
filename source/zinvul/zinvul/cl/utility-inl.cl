@@ -21,12 +21,19 @@
 
 namespace zinvul {
 
+#if defined(Z_CLANG)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdouble-promotion"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-security"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
+#elif defined(Z_GCC)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
 
 /*!
   */
@@ -63,9 +70,14 @@ void assertIfFalse(const int32b condition,
   }
 }
 
+#if defined(Z_CLANG)
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
+#elif defined(Z_GCC)
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
+#endif
 
 /*!
   */

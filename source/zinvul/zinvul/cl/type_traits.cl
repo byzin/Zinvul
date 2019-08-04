@@ -195,6 +195,12 @@ template <typename T> struct IsDouble;
 template <typename T>
 constexpr int32b kIsDouble = IsDouble<T>::kValue;
 
+//! Check if a type is an arithmetic type
+template <typename T> struct IsArithmetic;
+
+template <typename T>
+constexpr int32b kIsArithmetic = IsArithmetic<T>::kValue;
+
 // Type properties
 
 //! Check if a type is lvalue reference

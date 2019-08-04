@@ -8,14 +8,23 @@
   */
 
 #ifndef ZINVUL_@kernel_set_name@_CL
-#define ZINVUL_@kernel_set_name@_CL
+#define ZINVUL_@kernel_set_name@_CL @set_number@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc++98-compat"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc++98-c++11-compat-pedantic"
 
+// Definitions
+#define ZINVUL_GLOBAL_NAMESPACE
+
 @kernel_include_lines@
+
+static_assert(ZINVUL_@kernel_set_name@_CL == @set_number@,
+              "The number of the kernel set is changed.");
+#if !defined(ZINVUL_GLOBAL_NAMESPACE)
+static_assert(false, "The ZINVUL_GLOBAL_NAMESPACE macro isn't defined.");
+#endif // ZINVUL_GLOBAL_NAMESPACE
 
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop

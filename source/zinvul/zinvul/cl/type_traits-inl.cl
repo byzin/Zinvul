@@ -145,15 +145,17 @@ ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(double2, double, 2);
 ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(double3, double, 3);
 ZINVUL_FLOAT_VECTOR_TEMPLATE_SPECIALIZATION_IMPL(double4, double, 4);
 
+namespace inner {
+
 template <typename T>
-struct IsSignedInteger
+struct IsSignedIntegerHelper
 {
   static constexpr int32b kValue = kScalarResultFalse;
 };
 
 #define ZINVUL_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
-  struct IsSignedInteger< Type > \
+  struct IsSignedIntegerHelper< Type > \
   { \
     static constexpr int32b kValue = kScalarResultTrue; \
   }
@@ -176,14 +178,14 @@ ZINVUL_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(long3);
 ZINVUL_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(long4);
 
 template <typename T>
-struct IsUnsignedInteger
+struct IsUnsignedIntegerHelper
 {
   static constexpr int32b kValue = kScalarResultFalse;
 };
 
 #define ZINVUL_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
-  struct IsUnsignedInteger< Type > \
+  struct IsUnsignedIntegerHelper< Type > \
   { \
     static constexpr int32b kValue = kScalarResultTrue; \
   }
@@ -206,20 +208,14 @@ ZINVUL_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(ulong3);
 ZINVUL_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(ulong4);
 
 template <typename T>
-struct IsInteger
-{
-  static constexpr int32b kValue = kIsSignedInteger<T> | kIsUnsignedInteger<T>;
-};
-
-template <typename T>
-struct IsHalf
+struct IsHalfHelper
 {
   static constexpr int32b kValue = kScalarResultFalse;
 };
 
 #define ZINVUL_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
-  struct IsHalf< Type > \
+  struct IsHalfHelper< Type > \
   { \
     static constexpr int32b kValue = kScalarResultTrue; \
   }
@@ -230,14 +226,14 @@ ZINVUL_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(half3);
 ZINVUL_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(half4);
 
 template <typename T>
-struct IsSingleFloat
+struct IsSingleFloatHelper
 {
   static constexpr int32b kValue = kScalarResultFalse;
 };
 
 #define ZINVUL_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
-  struct IsSingleFloat< Type > \
+  struct IsSingleFloatHelper< Type > \
   { \
     static constexpr int32b kValue = kScalarResultTrue; \
   }
@@ -248,14 +244,14 @@ ZINVUL_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(float3);
 ZINVUL_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(float4);
 
 template <typename T>
-struct IsDouble
+struct IsDoubleHelper
 {
   static constexpr int32b kValue = kScalarResultFalse;
 };
 
 #define ZINVUL_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
-  struct IsDouble< Type > \
+  struct IsDoubleHelper< Type > \
   { \
     static constexpr int32b kValue = kScalarResultTrue; \
   }
@@ -265,10 +261,59 @@ ZINVUL_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double2);
 ZINVUL_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double3);
 ZINVUL_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double4);
 
+} // namespace inner
+
+template <typename T>
+struct IsSignedInteger
+{
+  using Type = RemoveCvType<T>;
+  static constexpr int32b kValue = inner::IsSignedIntegerHelper<Type>::kValue;
+};
+
+template <typename T>
+struct IsUnsignedInteger
+{
+  using Type = RemoveCvType<T>;
+  static constexpr int32b kValue = inner::IsUnsignedIntegerHelper<Type>::kValue;
+};
+
+template <typename T>
+struct IsInteger
+{
+  static constexpr int32b kValue = kIsSignedInteger<T> | kIsUnsignedInteger<T>;
+};
+
+template <typename T>
+struct IsHalf
+{
+  using Type = RemoveCvType<T>;
+  static constexpr int32b kValue = inner::IsHalfHelper<Type>::kValue;
+};
+
+template <typename T>
+struct IsSingleFloat
+{
+  using Type = RemoveCvType<T>;
+  static constexpr int32b kValue = inner::IsSingleFloatHelper<Type>::kValue;
+};
+
+template <typename T>
+struct IsDouble
+{
+  using Type = RemoveCvType<T>;
+  static constexpr int32b kValue = inner::IsDoubleHelper<Type>::kValue;
+};
+
 template <typename T>
 struct IsFloatingPoint
 {
   static constexpr int32b kValue = kIsHalf<T> | kIsSingleFloat<T> | kIsDouble<T>;
+};
+
+template <typename T>
+struct IsArithmetic
+{
+  static constexpr int32b kValue = kIsInteger<T> | kIsFloatingPoint<T>;
 };
 
 template <typename T>

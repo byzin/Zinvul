@@ -15,6 +15,37 @@
 #include "zinvul/cl/math.cl"
 #include "zinvul/cl/utility.cl"
 
+using namespace zinvul;
+
+// Forward declaration
+__kernel void testConstantValue(GlobalPtr<float> result);
+#if !defined(Z_MAC)
+__kernel void testConstantValue64(GlobalPtr<double> result);
+#endif // !Z_MAC
+
+__kernel void testConstantValue(GlobalPtr<float> result)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    constexpr float pi = kPi<float>;
+    result[0] = pi;
+  }
+}
+
+#if !defined(Z_MAC)
+
+// Forward declaration
+__kernel void testConstantValue64(GlobalPtr<double> result)
+{
+  const uint32b index = getGlobalIdX();
+  if (index == 0) {
+    constexpr double pi = kPi<double>;
+    result[0] = pi;
+  }
+}
+
+#endif // !Z_MAC
+
 //#define ZINVUL_TEST_ABS(abs1, abs2, abs3, abs4, results1, results2, results3, results4) \
 //  const uint32b index = zGetGlobalIdX(); \
 //  if (index == 0) { \

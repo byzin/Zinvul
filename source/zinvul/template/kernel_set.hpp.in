@@ -42,6 +42,7 @@ namespace cl {
 
 namespace @kernel_set_name@ {
 
+// Definitions
 #if defined(__kernel)
   static_assert(false, "The macro '__kernel' is already defined.");
 #endif // __kernel
@@ -52,8 +53,11 @@ namespace @kernel_set_name@ {
 #endif // kernel
 #define kernel
 
+#define ZINVUL_GLOBAL_NAMESPACE ::zinvul::cl
+
 @kernel_include_lines@
 
+#undef ZINVUL_GLOBAL_NAMESPACE
 #undef __kernel
 #undef kernel
 

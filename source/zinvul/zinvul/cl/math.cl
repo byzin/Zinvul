@@ -11,9 +11,16 @@
 #define ZINVUL_MATH_CL
 
 // Zinvul
+#include "math_const.cl"
 #include "types.cl"
 
 namespace zinvul {
+
+// Constant values
+
+//! Circular constant
+template <typename Float>
+constexpr Constant<Float> kPi = constmath::pi<Float>();
 
 //// Constants
 //#define zCharMax 127

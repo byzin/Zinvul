@@ -22,6 +22,7 @@
 #include "gtest/gtest.h"
 // Zisc
 #include "zisc/compensated_summation.hpp"
+#include "zisc/floating_point.hpp"
 #include "zisc/math.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
@@ -29,6 +30,92 @@
 #include "zinvul/kernel_set/math.hpp"
 // Test
 #include "test.hpp"
+
+namespace {
+
+template <typename Float>
+void printFloat(const char* message, const Float x)
+{
+  using FloatData = zisc::FloatingPointFromBytes<sizeof(Float)>;
+  std::cout << std::setfill(' ') << std::setw(24) << message << ": "
+            << std::scientific
+            << std::setprecision(std::numeric_limits<Float>::max_digits10)
+            << x;
+  if (sizeof(FloatData) == 4)
+    std::cout << "f";
+  std::cout << std::endl;
+  const auto data = FloatData::fromFloat(x);
+  std::cout << "                     hex: " << std::hex << data.bits();
+  std::cout << std::endl;
+}
+
+} // namespace 
+
+TEST(MathTest, ConstantValueTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto buffer1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(1);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testConstantValue));
+    kernel->run(*buffer1, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "Float pi is wrong.";
+    {
+      const float expected = 4.0f * std::atan(1.0f);
+      ::printFloat("expected pi", expected);
+      float pi = 0.0f;
+      buffer1->read(&pi, 1, 0, 0);
+      ::printFloat("zinvul pi", pi);
+      ASSERT_FLOAT_EQ(expected, pi) << error_message;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+#if !defined(Z_MAC)
+
+TEST(MathTest, ConstantValue64Test)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto buffer1 = makeStorageBuffer<double>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(1);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testConstantValue64));
+    kernel->run(*buffer1, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "Float pi is wrong.";
+    {
+      const double expected = 4.0 * std::atan(1.0);
+      ::printFloat("expected pi", expected);
+      double pi = 0.0;
+      buffer1->read(&pi, 1, 0, 0);
+      ::printFloat("zinvul pi", pi);
+      ASSERT_DOUBLE_EQ(expected, pi) << error_message;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+#endif // !defined(Z_MAC)
 
 //TEST(MathTest, ConstantValueTest)
 //{
