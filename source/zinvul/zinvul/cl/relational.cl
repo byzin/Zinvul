@@ -16,49 +16,110 @@
 
 namespace zinvul {
 
+/*!
+  \brief Relational functions
+  */
+class Relation
+{
+ public:
+  //! Return the component-wise compare of x == y
+  template <typename FloatN>
+  static ComparisonResultType<FloatN> isEqual(const FloatN x,
+                                              const FloatN y) noexcept;
+
+  //! Return the component-wise compare of x != y
+  template <typename FloatN>
+  static ComparisonResultType<FloatN> isNotEqual(const FloatN x,
+                                                 const FloatN y) noexcept;
+
+  //! Return the component-wise compare of x > y
+  template <typename FloatN>
+  static ComparisonResultType<FloatN> isGreater(const FloatN x,
+                                                const FloatN y) noexcept;
+
+  //! Return the component-wise compare of x >= y
+  template <typename FloatN>
+  static ComparisonResultType<FloatN> isGreaterEqual(const FloatN x,
+                                                     const FloatN y) noexcept;
+
+  //! Return the component-wise compare of x < y
+  template <typename FloatN>
+  static ComparisonResultType<FloatN> isLess(const FloatN x,
+                                             const FloatN y) noexcept;
+
+  //! Return the component-wise compare of x <= y
+  template <typename FloatN>
+  static ComparisonResultType<FloatN> isLessEqual(const FloatN x,
+                                                  const FloatN y) noexcept;
+
+  //! Determin if the given floating point is a positive or negative infinity
+  template <typename FloatN>
+  static ComparisonResultType<FloatN> isInf(const FloatN arg) noexcept;
+
+  //! Determin if the given floating point is a NaN
+  template <typename FloatN>
+  static ComparisonResultType<FloatN> isNan(const FloatN arg) noexcept;
+
+  //! Determin if the given floating point is negative
+  template <typename FloatN>
+  static ComparisonResultType<FloatN> isSignBitSet(const FloatN arg) noexcept;
+
+  //! Each bit of the result is set to (a[i] ^ c[i]) | (b[i] & c[i])
+  template <typename TypeN>
+  static TypeN selectBit(const TypeN a, const TypeN b, const TypeN c) noexcept;
+
+  //! Each component of the result is set to c[i] ? b[i] : a[i]
+  template <typename TypeN, typename IntegerN>
+  static TypeN selectValue(const TypeN a, const TypeN b, const IntegerN c) noexcept;
+};
+
+// OpenCL function aliases
+
 //! Return the component-wise compare of x == y
 template <typename FloatN>
-ComparisonResultType<FloatN> isEqual(const FloatN x, const FloatN y) noexcept;
+ComparisonResultType<FloatN> isequal(const FloatN x, const FloatN y) noexcept;
 
 //! Return the component-wise compare of x != y
 template <typename FloatN>
-ComparisonResultType<FloatN> isNotEqual(const FloatN x, const FloatN y) noexcept;
+ComparisonResultType<FloatN> isnotequal(const FloatN x, const FloatN y) noexcept;
 
 //! Return the component-wise compare of x > y
 template <typename FloatN>
-ComparisonResultType<FloatN> isGreater(const FloatN x, const FloatN y) noexcept;
+ComparisonResultType<FloatN> isgreater(const FloatN x, const FloatN y) noexcept;
 
 //! Return the component-wise compare of x >= y
 template <typename FloatN>
-ComparisonResultType<FloatN> isGreaterEqual(const FloatN x, const FloatN y) noexcept;
+ComparisonResultType<FloatN> isgreaterequal(const FloatN x,
+                                            const FloatN y) noexcept;
 
 //! Return the component-wise compare of x < y
 template <typename FloatN>
-ComparisonResultType<FloatN> isLess(const FloatN x, const FloatN y) noexcept;
+ComparisonResultType<FloatN> isless(const FloatN x, const FloatN y) noexcept;
 
 //! Return the component-wise compare of x <= y
 template <typename FloatN>
-ComparisonResultType<FloatN> isLessEqual(const FloatN x, const FloatN y) noexcept;
+ComparisonResultType<FloatN> islessequal(const FloatN x,
+                                         const FloatN y) noexcept;
 
 //! Determin if the given floating point is a positive or negative infinity
 template <typename FloatN>
-ComparisonResultType<FloatN> isInf(const FloatN arg) noexcept;
+ComparisonResultType<FloatN> isinf(const FloatN arg) noexcept;
 
 //! Determin if the given floating point is a NaN
 template <typename FloatN>
-ComparisonResultType<FloatN> isNan(const FloatN arg) noexcept;
+ComparisonResultType<FloatN> isnan(const FloatN arg) noexcept;
 
 //! Determin if the given floating point is negative
 template <typename FloatN>
-ComparisonResultType<FloatN> isSignBitSet(const FloatN arg) noexcept;
+ComparisonResultType<FloatN> signbit(const FloatN arg) noexcept;
 
 //! Each bit of the result is set to (a[i] ^ c[i]) | (b[i] & c[i])
 template <typename TypeN>
-TypeN selectBit(const TypeN a, const TypeN b, const TypeN c) noexcept;
+TypeN bitselect(const TypeN a, const TypeN b, const TypeN c) noexcept;
 
 //! Each component of the result is set to c[i] ? b[i] : a[i]
 template <typename TypeN, typename IntegerN>
-TypeN selectValue(const TypeN a, const TypeN b, const IntegerN c) noexcept;
+TypeN select(const TypeN a, const TypeN b, const IntegerN c) noexcept;
 
 } // namespace zinvul
 

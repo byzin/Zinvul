@@ -12,8 +12,8 @@
 
 #include "floating_point.cl"
 // Zinvul
-#include "relational.cl"
 #include "math.cl"
+#include "relational.cl"
 #include "types.cl"
 #include "type_traits.cl"
 #include "utility.cl"
@@ -63,7 +63,7 @@ FloatingPoint<kFormat>::downscale(const BitVec<kN> x) noexcept
     const DstBitVec dst_bit_l = dst_bit & l_mask;
     const DstBitVec dst_bit_h = dst_bit | h_mask;
     const DstResult flag = cast<DstResult>(middle <= src_exp_bit);
-    dst_bit = selectValue(dst_bit_l, dst_bit_h, flag); 
+    dst_bit = zinvul::select(dst_bit_l, dst_bit_h, flag); 
 #endif
   }
 
@@ -91,16 +91,16 @@ FloatingPoint<kFormat>::downscale(const BitVec<kN> x) noexcept
     const auto zero_bit = make<DstBitVec>(DstFloat::zeroBit());
     DstResult flag = cast<DstResult>(src_exp_bit < lower_bound) | // Subnormal
                      cast<DstResult>(isZeroBit<kN>(x)); // Input is zero
-    dst_bit = selectValue(dst_bit, zero_bit, flag);
+    dst_bit = zinvul::select(dst_bit, zero_bit, flag);
     // Inf
     const auto inf_bit = make<DstBitVec>(DstFloat::infinityBit());
     flag = cast<DstResult>(upper_bound <= src_exp_bit) | // Overflow
            cast<DstResult>(isInfBit<kN>(x)); // Input is inf
-    dst_bit = selectValue(dst_bit, inf_bit, flag);
+    dst_bit = zinvul::select(dst_bit, inf_bit, flag);
     // Nan
     const auto nan_bit = make<DstBitVec>(DstFloat::quietNanBit());
     flag = cast<DstResult>(isNanBit<kN>(x));
-    dst_bit = selectValue(dst_bit, nan_bit, flag);
+    dst_bit = zinvul::select(dst_bit, nan_bit, flag);
   }
 
   // Sign bit
@@ -297,7 +297,7 @@ auto FloatingPoint<kFormat>::round(
   const CmpResult flag = (cast<CmpResult>(truncated_bit == middle) & isOdd(bit)) |
                          cast<CmpResult>(middle < truncated_bit);
   const BitVec<kN> next = bit + one;
-  const BitVec<kN> result = selectValue(bit, next, flag);
+  const BitVec<kN> result = zinvul::select(bit, next, flag);
   return result;
 }
 
@@ -388,15 +388,15 @@ FloatingPoint<kFormat>::upscale(const BitVec<kN> x) noexcept
     const auto zero_bit = make<DstBitVec>(DstFloat::zeroBit());
     DstResult flag = cast<DstResult>(src_exp_bit == zeroBit()) | // Subnormal
                      cast<DstResult>(isZeroBit<kN>(x)); // Input is zero
-    dst_bit = selectValue(dst_bit, zero_bit, flag);
+    dst_bit = zinvul::select(dst_bit, zero_bit, flag);
     // Inf
     const auto inf_bit = make<DstBitVec>(DstFloat::infinityBit());
     flag = cast<DstResult>(isInfBit<kN>(x)); // Input is inf
-    dst_bit = selectValue(dst_bit, inf_bit, flag);
+    dst_bit = zinvul::select(dst_bit, inf_bit, flag);
     // Nan
     const auto nan_bit = make<DstBitVec>(DstFloat::quietNanBit());
     flag = cast<DstResult>(isNanBit<kN>(x));
-    dst_bit = selectValue(dst_bit, nan_bit, flag);
+    dst_bit = zinvul::select(dst_bit, nan_bit, flag);
   }
 
   // Sign bit
