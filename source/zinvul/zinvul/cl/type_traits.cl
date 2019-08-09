@@ -15,9 +15,42 @@
 
 namespace zinvul {
 
-//! Vector types
+//! Make a signed integer type from byte size
+template <size_t kBytes>
+struct IntegerFromBytes
+{
+  using Type = int32b;
+  static_assert(kBytes == 0, "The specified size is unsupported.");
+};
+
+template <size_t kBytes>
+using IntegerTypeFromBytes = typename IntegerFromBytes<kBytes>::Type;
+
+//! Make an unsigned integer type from byte size
+template <size_t kBytes>
+struct UIntegerFromBytes
+{
+  using Type = int32b;
+  static_assert(kBytes == 0, "The specified size is unsupported.");
+};
+
+template <size_t kBytes>
+using UIntegerTypeFromBytes = typename UIntegerFromBytes<kBytes>::Type;
+
+//! Make a floating point type from byte size
+template <size_t kBytes>
+struct FloatFromBytes
+{
+  using Type = int32b;
+  static_assert(kBytes == 0, "The specified size is unsupported.");
+};
+
+template <size_t kBytes>
+using FloatTypeFromBytes = typename FloatFromBytes<kBytes>::Type;
+
+//! Information of a vector type
 template <typename Type>
-struct VectorType
+struct VectorTypeInfo
 {
   using ElementType = int32b;
   //! Return the number of elements of the type
@@ -25,131 +58,67 @@ struct VectorType
   static_assert(sizeof(Type) == 0, "The 'Type' is unsupported type.");
 };
 
-//! Integer vector type
-template <size_t kBytes, size_t kN>
-struct IntegerVector
+//! Make a vector type
+template <typename ElementType, size_t kN>
+struct VectorFromElems
 {
   using Type = int32b;
-  using ElementType = int32b;
-  //! Return the number of elements of the type
-  static constexpr size_t size() noexcept {return 0u;}
-  static_assert(kN == 0, "The size of vector is unsupported.");
+  static_assert(sizeof(ElementType) == 0, "The vector type is unsupported type.");
 };
 
-template <size_t kN>
-using Integer8Vector = IntegerVector<1, kN>;
+template <typename ElementType, size_t kN>
+using VectorTypeFromElems = typename VectorFromElems<ElementType, kN>::Type;
 
 template <size_t kN>
-using Integer8VectorType = typename Integer8Vector<kN>::Type;
+using Integer8VecType = VectorTypeFromElems<int8b, kN>;
 
 template <size_t kN>
-using Integer16Vector = IntegerVector<2, kN>;
+using Integer16VecType = VectorTypeFromElems<int16b, kN>;
 
 template <size_t kN>
-using Integer16VectorType = typename Integer16Vector<kN>::Type;
+using Integer32VecType = VectorTypeFromElems<int32b, kN>;
 
 template <size_t kN>
-using Integer32Vector = IntegerVector<4, kN>;
+using Integer64VecType = VectorTypeFromElems<int64b, kN>;
 
 template <size_t kN>
-using Integer32VectorType = typename Integer32Vector<kN>::Type;
+using UInteger8VecType = VectorTypeFromElems<uint8b, kN>;
 
 template <size_t kN>
-using Integer64Vector = IntegerVector<8, kN>;
+using UInteger16VecType = VectorTypeFromElems<uint16b, kN>;
 
 template <size_t kN>
-using Integer64VectorType = typename Integer64Vector<kN>::Type;
-
-//! Unsigned integer vector type
-template <size_t kBytes, size_t kN>
-struct UIntegerVector
-{
-  using Type = uint32b;
-  using ElementType = uint32b;
-  //! Return the number of elements of the type
-  static constexpr size_t size() noexcept {return 0u;}
-  static_assert(kN == 0, "The size of vector is unsupported.");
-};
+using UInteger32VecType = VectorTypeFromElems<uint32b, kN>;
 
 template <size_t kN>
-using UInteger8Vector = UIntegerVector<1, kN>;
+using UInteger64VecType = VectorTypeFromElems<uint64b, kN>;
 
 template <size_t kN>
-using UInteger8VectorType = typename UInteger8Vector<kN>::Type;
+using Float16VecType = VectorTypeFromElems<half, kN>;
 
 template <size_t kN>
-using UInteger16Vector = UIntegerVector<2, kN>;
+using Float32VecType = VectorTypeFromElems<float, kN>;
 
 template <size_t kN>
-using UInteger16VectorType = typename UInteger16Vector<kN>::Type;
+using Float64VecType = VectorTypeFromElems<double, kN>;
 
-template <size_t kN>
-using UInteger32Vector = UIntegerVector<4, kN>;
-
-template <size_t kN>
-using UInteger32VectorType = typename UInteger32Vector<kN>::Type;
-
-template <size_t kN>
-using UInteger64Vector = UIntegerVector<8, kN>;
-
-template <size_t kN>
-using UInteger64VectorType = typename UInteger64Vector<kN>::Type;
-
-//! Unsigned integer vector type
-template <size_t kBytes, size_t kN>
-struct FloatVector 
-{
-  using Type = float;
-  using ElementType = float;
-  //! Return the number of elements of the type
-  static constexpr size_t size() noexcept {return 0u;}
-  static_assert(kN == 0, "The size of vector is unsupported.");
-};
-
-template <size_t kN>
-using Float16Vector = FloatVector<2, kN>;
-
-template <size_t kN>
-using Float16VectorType = typename Float16Vector<kN>::Type;
-
-template <size_t kN>
-using Float32Vector = FloatVector<4, kN>;
-
-template <size_t kN>
-using Float32VectorType = typename Float32Vector<kN>::Type;
-
-template <size_t kN>
-using Float64Vector = FloatVector<8, kN>;
-
-template <size_t kN>
-using Float64VectorType = typename Float64Vector<kN>::Type;
-
-//! Integer type that is same element size and alignment as the given type
+//! Integer vector type that has same element size and alignment as the given type
 template <typename T>
-using IntegerFrom = IntegerVector<sizeof(typename VectorType<T>::ElementType),
-                                  VectorType<T>::size()>;
+using IntegerTypeFromVec = VectorTypeFromElems<
+    IntegerTypeFromBytes<sizeof(typename VectorTypeInfo<T>::ElementType)>,
+    VectorTypeInfo<T>::size()>;
 
-//! Integer type that is same element size and alignment as the given type
+//! Unsigned integer type that has same element size and alignment as the given type
 template <typename T>
-using IntegerTypeFrom = typename IntegerFrom<T>::Type;
+using UIntegerTypeFromVec = VectorTypeFromElems<
+    UIntegerTypeFromBytes<sizeof(typename VectorTypeInfo<T>::ElementType)>,
+    VectorTypeInfo<T>::size()>;
 
-//! Unsigned integer type that is same element size and alignment as the given type
+//! Floating point type that has same element size and alignment as the given type
 template <typename T>
-using UIntegerFrom = UIntegerVector<sizeof(typename VectorType<T>::ElementType),
-                                    VectorType<T>::size()>;
-
-//! Unsigned integer type that is same element size and alignment as the given type
-template <typename T>
-using UIntegerTypeFrom = typename UIntegerFrom<T>::Type;
-
-//! Floating point type that is same element size and alignment as the given type
-template <typename T>
-using FloatFrom = FloatVector<sizeof(typename VectorType<T>::ElementType),
-                              VectorType<T>::size()>;
-
-//! Floating point type that is same element size and alignment as the given type
-template <typename T>
-using FloatTypeFrom = typename FloatFrom<T>::Type;
+using FloatTypeFrom = VectorTypeFromElems<
+    FloatTypeFromBytes<sizeof(typename VectorTypeInfo<T>::ElementType)>,
+    VectorTypeInfo<T>::size()>;
 
 // Type categories
 
@@ -328,21 +297,22 @@ namespace zinvul {
 
 //! Integer type that is used as a comparison result of the given type
 template <typename T>
-using ComparisonResult = IntegerFrom<T>;
+using ComparisonResultType = IntegerTypeFromVec<RemoveCvType<T>>;
 
 //! Integer type that is used as a comparison result of the given type
-template <typename T>
-using ComparisonResultType = typename ComparisonResult<T>::Type;
+template  <typename T>
+using ComparisonResultScalarType = 
+    IntegerTypeFromVec<typename VectorTypeInfo<RemoveCvType<T>>::ElementType>;
 
 //! Integer value that represents 'false' of a comparison result of the given type
 template  <typename T>
-constexpr Constant<typename ComparisonResult<T>::ElementType> kResultFalse{0b0};
+constexpr Constant<ComparisonResultScalarType<T>> kResultFalse{0b0};
 
 //! Integer value that represents 'true' of a comparison result of the given type
 template  <typename T>
-constexpr Constant<typename ComparisonResult<T>::ElementType> kResultTrue =
-    (VectorType<T>::size() == 1)
-        ? typename ComparisonResult<T>::ElementType{0b1}
+constexpr Constant<ComparisonResultScalarType<T>> kResultTrue =
+    (VectorTypeInfo<RemoveCvType<T>>::size() == 1)
+        ? ComparisonResultScalarType<T>{0b1}
         : ~kResultFalse<T>;
 
 } // namespace zinvul

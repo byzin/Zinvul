@@ -1186,8 +1186,8 @@ template <typename IntegerN> inline
 auto isOdd(const IntegerN value) noexcept
 {
   static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
-  using VecType = VectorType<IntegerN>;
-  using DataType = typename VecType::ElementType;
+  using VecInfo = VectorTypeInfo<IntegerN>;
+  using DataType = typename VecInfo::ElementType;
   using CmpResult = ComparisonResultType<IntegerN>;
   constexpr DataType one{0b01};
   const auto result = (value & one) == one;

@@ -285,9 +285,7 @@ TEST(VectorDataTest, HalfVectorDataTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
-  std::cout << "## Warning: only CPU test will be done." << std::endl;
-  const std::size_t number = 0; {
+  for (std::size_t number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 

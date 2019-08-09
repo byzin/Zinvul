@@ -41,9 +41,9 @@ class FloatingPoint
       ConditionalType<kFormat == FloatingPointFormat::kSingle, uint32b,
       ConditionalType<kFormat == FloatingPointFormat::kDouble, uint64b, void>>>;
   template <size_t kN>
-  using FloatVec = typename FloatVector<sizeof(FloatType), kN>::Type;
+  using FloatVec = VectorTypeFromElems<FloatType, kN>;
   template <size_t kN>
-  using BitVec = typename UIntegerVector<sizeof(BitType), kN>::Type;
+  using BitVec = VectorTypeFromElems<BitType, kN>;
 
 
   //! Return the upscaled bit
@@ -53,7 +53,7 @@ class FloatingPoint
 
   //! Expand an input value to the bittype size
   template <typename UVec>
-  static BitVec<VectorType<UVec>::size()> expandToBit(const UVec x) noexcept;
+  static BitVec<VectorTypeInfo<UVec>::size()> expandToBit(const UVec x) noexcept;
 
   //! Return the exponent bias
   static constexpr size_t exponentBias() noexcept;

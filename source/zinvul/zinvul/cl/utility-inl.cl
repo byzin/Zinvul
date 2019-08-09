@@ -462,30 +462,27 @@ struct TypeConverter
 };
 
 #define ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(Type) \
-    ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(Type, Type)
+    ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(Type, Type); \
+    ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(const Type, Type)
 
 #define ZINVUL_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(Type, name) \
   template <> \
   struct TypeConverter< Type > \
   { \
+    using DstType = RemoveCvType< Type >; \
     template <typename T> \
-    static Type cast(T value) noexcept \
+    static DstType cast(const T value) noexcept \
     { \
       auto result = convert_ ## name (value); \
       return result; \
     } \
     template <typename T> \
-    static Type treatAs(T object) noexcept \
+    static DstType treatAs(const T object) noexcept \
     { \
       static_assert(sizeof(T) == sizeof(Type), \
                     "The size of T doesn't match the size of Type."); \
-      union Data \
-      { \
-        T src_; \
-        Type result_; \
-      }; \
-      Data data = {object}; \
-      return data.result_; \
+      const DstType* result = reinterpret_cast<const DstType*>(&object); \
+      return *result; \
     } \
   }
 
@@ -560,7 +557,7 @@ struct TypeConverter<AddressSpacePointer<kASpaceType, Type>>
 template <typename Type, typename T> inline
 Type cast(T value) noexcept
 {
-  auto result = inner::TypeConverter<Type>::cast(value);
+  auto result = inner::TypeConverter<RemoveVolatileType<Type>>::cast(value);
   return result;
 }
 
@@ -569,7 +566,7 @@ Type cast(T value) noexcept
 template <typename Type, typename T> inline
 Type treatAs(T object) noexcept
 {
-  auto result = inner::TypeConverter<Type>::treatAs(object);
+  auto result = inner::TypeConverter<RemoveVolatileType<Type>>::treatAs(object);
   return result;
 }
 

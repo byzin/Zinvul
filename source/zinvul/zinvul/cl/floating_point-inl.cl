@@ -120,14 +120,14 @@ FloatingPoint<kFormat>::downscale(const BitVec<kN> x) noexcept
   */
 template <FloatingPointFormat kFormat> template <typename UVec> inline
 auto FloatingPoint<kFormat>::expandToBit(const UVec x) noexcept
-    -> BitVec<VectorType<UVec>::size()>
+    -> BitVec<VectorTypeInfo<UVec>::size()>
 {
-  using UVecData = VectorType<UVec>;
-  using BVec = BitVec<UVecData::size()>;
-  using BVecData = VectorType<BVec>;
+  using UVecInfo = VectorTypeInfo<UVec>;
+  using BVec = BitVec<UVecInfo::size()>;
+  using BVecInfo = VectorTypeInfo<BVec>;
 
-  constexpr size_t int_size = sizeof(typename UVecData::ElementType);
-  constexpr size_t bit_size = sizeof(typename BVecData::ElementType);
+  constexpr size_t int_size = sizeof(typename UVecInfo::ElementType);
+  constexpr size_t bit_size = sizeof(typename BVecInfo::ElementType);
   if constexpr (int_size == bit_size) {
     return x;
   }
