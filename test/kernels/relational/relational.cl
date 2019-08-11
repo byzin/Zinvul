@@ -177,9 +177,9 @@ __kernel void testSelectI(GlobalPtr<int32b> results1,
 {
   const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
-    constexpr int32b sfalse = zinvul::kResultFalse<int32b>;
+    constexpr int32b sfalse = zinvul::kResultFalse;
     constexpr int32b strue = zinvul::kResultTrue<int32b>;
-    constexpr int32b vfalse = zinvul::kResultFalse<int4>;
+    constexpr int32b vfalse = zinvul::kResultFalse;
     constexpr int32b vtrue = zinvul::kResultTrue<int4>;
 
     {
@@ -198,26 +198,26 @@ __kernel void testSelectI(GlobalPtr<int32b> results1,
     {
       const char2 a{1, 2};
       const char2 b{-1, -2};
-      const char2 c{zinvul::kResultFalse<char2>, zinvul::kResultTrue<char2>};
+      const char2 c{static_cast<int8b>(vfalse), static_cast<int8b>(vtrue)};
       results2[0] = zinvul::select(a, b, c);
     }
     {
       const char2 a{1, 2};
       const char2 b{-1, -2};
-      const char2 c{zinvul::kResultTrue<char2>, zinvul::kResultFalse<char2>};
+      const char2 c{static_cast<int8b>(vtrue), static_cast<int8b>(vfalse)};
       results2[1] = zinvul::select(a, b, c);
     }
 
     {
       const short3 a{1, 2, 3};
       const short3 b{-1, -2, -3};
-      const short3 c{zinvul::kResultFalse<short3>, zinvul::kResultTrue<short3>, zinvul::kResultFalse<short3>};
+      const short3 c{static_cast<int16b>(vfalse), static_cast<int16b>(vtrue), static_cast<int16b>(vfalse)};
       results3[0] = zinvul::select(a, b, c);
     }
     {
       const short3 a{1, 2, 3};
       const short3 b{-1, -2, -3};
-      const short3 c{zinvul::kResultTrue<short3>, zinvul::kResultFalse<short3>, zinvul::kResultTrue<short3>};
+      const short3 c{static_cast<int16b>(vtrue), static_cast<int16b>(vfalse), static_cast<int16b>(vtrue)};
       results3[1] = zinvul::select(a, b, c);
     }
 
@@ -245,9 +245,9 @@ __kernel void testSelectU(GlobalPtr<uint32b> results1,
 {
   const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
-    constexpr int32b sfalse = zinvul::kResultFalse<uint32b>;
+    constexpr int32b sfalse = zinvul::kResultFalse;
     constexpr int32b strue = zinvul::kResultTrue<uint32b>;
-    constexpr int32b vfalse = zinvul::kResultFalse<uint4>;
+    constexpr int32b vfalse = zinvul::kResultFalse;
     constexpr int32b vtrue = zinvul::kResultTrue<uint4>;
 
     {
@@ -266,26 +266,26 @@ __kernel void testSelectU(GlobalPtr<uint32b> results1,
     {
       const uchar2 a{1u, 2u};
       const uchar2 b{3u, 4u};
-      const char2 c{zinvul::kResultFalse<char2>, zinvul::kResultTrue<char2>};
+      const char2 c{static_cast<int8b>(vfalse), static_cast<int8b>(vtrue)};
       results2[0] = zinvul::select(a, b, c);
     }
     {
       const uchar2 a{1u, 2u};
       const uchar2 b{3u, 4u};
-      const char2 c{zinvul::kResultTrue<char2>, zinvul::kResultFalse<char2>};
+      const char2 c{static_cast<int8b>(vtrue), static_cast<int8b>(vfalse)};
       results2[1] = zinvul::select(a, b, c);
     }
 
     {
       const ushort3 a{1u, 2u, 3u};
       const ushort3 b{4u, 5u, 6u};
-      const short3 c{zinvul::kResultFalse<short3>, zinvul::kResultTrue<short3>, zinvul::kResultFalse<short3>};
+      const short3 c{static_cast<int16b>(vfalse), static_cast<int16b>(vtrue), static_cast<int16b>(vfalse)};
       results3[0] = zinvul::select(a, b, c);
     }
     {
       const ushort3 a{1u, 2u, 3u};
       const ushort3 b{4u, 5u, 6u};
-      const short3 c{zinvul::kResultTrue<short3>, zinvul::kResultFalse<short3>, zinvul::kResultTrue<short3>};
+      const short3 c{static_cast<int16b>(vtrue), static_cast<int16b>(vfalse), static_cast<int16b>(vtrue)};
       results3[1] = zinvul::select(a, b, c);
     }
 
@@ -313,9 +313,9 @@ __kernel void testSelectF(GlobalPtr<float> results1,
 {
   const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
-    constexpr int32b sfalse = zinvul::kResultFalse<float>;
+    constexpr int32b sfalse = zinvul::kResultFalse;
     constexpr int32b strue = zinvul::kResultTrue<float>;
-    constexpr int32b vfalse = zinvul::kResultFalse<float4>;
+    constexpr int32b vfalse = zinvul::kResultFalse;
     constexpr int32b vtrue = zinvul::kResultTrue<float4>;
 
     {

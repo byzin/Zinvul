@@ -300,29 +300,17 @@ template <typename T>
 using TypeIdentityType = typename TypeIdentity<T>::Type;
 
 // Comparison type
-//
-constexpr Constant<int32b> kScalarResultFalse = 0b0;
 
-constexpr Constant<int32b> kScalarResultTrue = 0b1;
+constexpr Constant<int32b> kResultFalse = 0b0;
+
+template <typename T>
+constexpr Constant<int32b> kResultTrue = (VectorTypeInfo<T>::size() == 1)
+    ? 0b1
+    : ~0b0;
 
 //! Integer type that is used as a comparison result of the given type
 template <typename T>
 using ComparisonResultType = IntegerTypeFromVec<RemoveCvType<T>>;
-
-//! Integer type that is used as a comparison result of the given type
-template  <typename T>
-using ComparisonResultElemType = typename VectorTypeInfo<ComparisonResultType<T>>::ElementType;
-
-//! Integer value that represents 'false' of a comparison result of the given type
-template  <typename T>
-constexpr Constant<ComparisonResultElemType<T>> kResultFalse{0b0};
-
-//! Integer value that represents 'true' of a comparison result of the given type
-template  <typename T>
-constexpr Constant<ComparisonResultElemType<T>> kResultTrue =
-    (VectorTypeInfo<RemoveCvType<T>>::size() == 1)
-        ? ComparisonResultElemType<T>{0b1}
-        : ~kResultFalse<T>;
 
 } // namespace zinvul
 

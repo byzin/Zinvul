@@ -122,11 +122,11 @@ template <typename T>
 struct AddressSpaceInfoHelper
 {
   using DataType = T;
-  static constexpr int32b kIsGlobal = kScalarResultFalse;
-  static constexpr int32b kIsLocal = kScalarResultFalse;
-  static constexpr int32b kIsConstant = kScalarResultFalse;
-  static constexpr int32b kIsPrivate = kScalarResultTrue;
-  static constexpr int32b kIsPointer = kScalarResultFalse;
+  static constexpr int32b kIsGlobal = kResultFalse;
+  static constexpr int32b kIsLocal = kResultFalse;
+  static constexpr int32b kIsConstant = kResultFalse;
+  static constexpr int32b kIsPrivate = kResultTrue<int32b>;
+  static constexpr int32b kIsPointer = kResultFalse;
 };
 
 #if defined(ZINVUL_CPU)
@@ -136,18 +136,18 @@ struct AddressSpaceInfoHelper<AddressSpacePointer<kASpaceType, T>>
 {
   using DataType = RemoveCvType<T>;
   static constexpr int32b kIsGlobal = (kASpaceType == AddressSpaceType::kGlobal)
-      ? kScalarResultTrue
-      : kScalarResultFalse;
+      ? kResultTrue<int32b>
+      : kResultFalse;
   static constexpr int32b kIsLocal = (kASpaceType == AddressSpaceType::kLocal)
-      ? kScalarResultTrue
-      : kScalarResultFalse;
+      ? kResultTrue<int32b>
+      : kResultFalse;
   static constexpr int32b kIsConstant = (kASpaceType == AddressSpaceType::kConstant)
-      ? kScalarResultTrue
-      : kScalarResultFalse;
+      ? kResultTrue<int32b>
+      : kResultFalse;
   static constexpr int32b kIsPrivate = (kASpaceType == AddressSpaceType::kPrivate)
-      ? kScalarResultTrue
-      : kScalarResultFalse;
-  static constexpr int32b kIsPointer = kScalarResultTrue;
+      ? kResultTrue<int32b>
+      : kResultFalse;
+  static constexpr int32b kIsPointer = kResultTrue<int32b>;
 };
 
 #else // ZINVUL_CPU
@@ -156,110 +156,110 @@ template <typename T>
 struct AddressSpaceInfoHelper<Global<T>>
 {
   using DataType = T;
-  static constexpr int32b kIsGlobal = kScalarResultTrue;
-  static constexpr int32b kIsLocal = kScalarResultFalse;
-  static constexpr int32b kIsConstant = kScalarResultFalse;
-  static constexpr int32b kIsPrivate = kScalarResultFalse;
-  static constexpr int32b kIsPointer = kScalarResultFalse;
+  static constexpr int32b kIsGlobal = kResultTrue<int32b>;
+  static constexpr int32b kIsLocal = kResultFalse;
+  static constexpr int32b kIsConstant = kResultFalse;
+  static constexpr int32b kIsPrivate = kResultFalse;
+  static constexpr int32b kIsPointer = kResultFalse;
 };
 
 template <typename T>
 struct AddressSpaceInfoHelper<GlobalPtr<T>>
 {
   using DataType = RemoveCvType<RemovePointerType<T>>;
-  static constexpr int32b kIsGlobal = kScalarResultTrue;
-  static constexpr int32b kIsLocal = kScalarResultFalse;
-  static constexpr int32b kIsConstant = kScalarResultFalse;
-  static constexpr int32b kIsPrivate = kScalarResultFalse;
-  static constexpr int32b kIsPointer = kScalarResultTrue;
+  static constexpr int32b kIsGlobal = kResultTrue<int32b>;
+  static constexpr int32b kIsLocal = kResultFalse;
+  static constexpr int32b kIsConstant = kResultFalse;
+  static constexpr int32b kIsPrivate = kResultFalse;
+  static constexpr int32b kIsPointer = kResultTrue<int32b>;
 };
 
 template <typename T>
 struct AddressSpaceInfoHelper<Local<T>>
 {
   using DataType = T;
-  static constexpr int32b kIsGlobal = kScalarResultFalse;
-  static constexpr int32b kIsLocal = kScalarResultTrue;
-  static constexpr int32b kIsConstant = kScalarResultFalse;
-  static constexpr int32b kIsPrivate = kScalarResultFalse;
-  static constexpr int32b kIsPointer = kScalarResultFalse;
+  static constexpr int32b kIsGlobal = kResultFalse;
+  static constexpr int32b kIsLocal = kResultTrue<int32b>;
+  static constexpr int32b kIsConstant = kResultFalse;
+  static constexpr int32b kIsPrivate = kResultFalse;
+  static constexpr int32b kIsPointer = kResultFalse;
 };
 
 template <typename T>
 struct AddressSpaceInfoHelper<LocalPtr<T>>
 {
   using DataType = RemoveCvType<RemovePointerType<T>>;
-  static constexpr int32b kIsGlobal = kScalarResultFalse;
-  static constexpr int32b kIsLocal = kScalarResultTrue;
-  static constexpr int32b kIsConstant = kScalarResultFalse;
-  static constexpr int32b kIsPrivate = kScalarResultFalse;
-  static constexpr int32b kIsPointer = kScalarResultTrue;
+  static constexpr int32b kIsGlobal = kResultFalse;
+  static constexpr int32b kIsLocal = kResultTrue<int32b>;
+  static constexpr int32b kIsConstant = kResultFalse;
+  static constexpr int32b kIsPrivate = kResultFalse;
+  static constexpr int32b kIsPointer = kResultTrue<int32b>;
 };
 
 template <typename T>
 struct AddressSpaceInfoHelper<Constant<T>>
 {
   using DataType = T;
-  static constexpr int32b kIsGlobal = kScalarResultFalse;
-  static constexpr int32b kIsLocal = kScalarResultFalse;
-  static constexpr int32b kIsConstant = kScalarResultTrue;
-  static constexpr int32b kIsPrivate = kScalarResultFalse;
-  static constexpr int32b kIsPointer = kScalarResultFalse;
+  static constexpr int32b kIsGlobal = kResultFalse;
+  static constexpr int32b kIsLocal = kResultFalse;
+  static constexpr int32b kIsConstant = kResultTrue<int32b>;
+  static constexpr int32b kIsPrivate = kResultFalse;
+  static constexpr int32b kIsPointer = kResultFalse;
 };
 
 template <typename T>
 struct AddressSpaceInfoHelper<ConstantPtr<T>>
 {
   using DataType = RemoveCvType<RemovePointerType<T>>;
-  static constexpr int32b kIsGlobal = kScalarResultFalse;
-  static constexpr int32b kIsLocal = kScalarResultFalse;
-  static constexpr int32b kIsConstant = kScalarResultTrue;
-  static constexpr int32b kIsPrivate = kScalarResultFalse;
-  static constexpr int32b kIsPointer = kScalarResultTrue;
+  static constexpr int32b kIsGlobal = kResultFalse;
+  static constexpr int32b kIsLocal = kResultFalse;
+  static constexpr int32b kIsConstant = kResultTrue<int32b>;
+  static constexpr int32b kIsPrivate = kResultFalse;
+  static constexpr int32b kIsPointer = kResultTrue<int32b>;
 };
 
 template <typename T>
 struct AddressSpaceInfoHelper<Private<T>>
 {
   using DataType = T;
-  static constexpr int32b kIsGlobal = kScalarResultFalse;
-  static constexpr int32b kIsLocal = kScalarResultFalse;
-  static constexpr int32b kIsConstant = kScalarResultFalse;
-  static constexpr int32b kIsPrivate = kScalarResultTrue;
-  static constexpr int32b kIsPointer = kScalarResultFalse;
+  static constexpr int32b kIsGlobal = kResultFalse;
+  static constexpr int32b kIsLocal = kResultFalse;
+  static constexpr int32b kIsConstant = kResultFalse;
+  static constexpr int32b kIsPrivate = kResultTrue<int32b>;
+  static constexpr int32b kIsPointer = kResultFalse;
 };
 
 template <typename T>
 struct AddressSpaceInfoHelper<PrivatePtr<T>>
 {
   using DataType = RemoveCvType<RemovePointerType<T>>;
-  static constexpr int32b kIsGlobal = kScalarResultFalse;
-  static constexpr int32b kIsLocal = kScalarResultFalse;
-  static constexpr int32b kIsConstant = kScalarResultFalse;
-  static constexpr int32b kIsPrivate = kScalarResultTrue;
-  static constexpr int32b kIsPointer = kScalarResultTrue;
+  static constexpr int32b kIsGlobal = kResultFalse;
+  static constexpr int32b kIsLocal = kResultFalse;
+  static constexpr int32b kIsConstant = kResultFalse;
+  static constexpr int32b kIsPrivate = kResultTrue<int32b>;
+  static constexpr int32b kIsPointer = kResultTrue<int32b>;
 };
 
 template <typename T>
 struct AddressSpaceInfoHelper<Generic<T>>
 {
   using DataType = T;
-  static constexpr int32b kIsGlobal = kScalarResultFalse;
-  static constexpr int32b kIsLocal = kScalarResultFalse;
-  static constexpr int32b kIsConstant = kScalarResultFalse;
-  static constexpr int32b kIsPrivate = kScalarResultTrue;
-  static constexpr int32b kIsPointer = kScalarResultFalse;
+  static constexpr int32b kIsGlobal = kResultFalse;
+  static constexpr int32b kIsLocal = kResultFalse;
+  static constexpr int32b kIsConstant = kResultFalse;
+  static constexpr int32b kIsPrivate = kResultTrue<int32b>;
+  static constexpr int32b kIsPointer = kResultFalse;
 };
 
 template <typename T>
 struct AddressSpaceInfoHelper<GenericPtr<T>>
 {
   using DataType = RemoveCvType<RemovePointerType<T>>;
-  static constexpr int32b kIsGlobal = kScalarResultFalse;
-  static constexpr int32b kIsLocal = kScalarResultFalse;
-  static constexpr int32b kIsConstant = kScalarResultFalse;
-  static constexpr int32b kIsPrivate = kScalarResultTrue;
-  static constexpr int32b kIsPointer = kScalarResultTrue;
+  static constexpr int32b kIsGlobal = kResultFalse;
+  static constexpr int32b kIsLocal = kResultFalse;
+  static constexpr int32b kIsConstant = kResultFalse;
+  static constexpr int32b kIsPrivate = kResultTrue<int32b>;
+  static constexpr int32b kIsPointer = kResultTrue<int32b>;
 };
 
 #endif // ZINVUL_CPU
@@ -312,14 +312,14 @@ namespace inner {
 template <typename T>
 struct IsSignedIntegerHelper
 {
-  static constexpr int32b kValue = kScalarResultFalse;
+  static constexpr int32b kValue = kResultFalse;
 };
 
 #define ZINVUL_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
   struct IsSignedIntegerHelper< Type > \
   { \
-    static constexpr int32b kValue = kScalarResultTrue; \
+    static constexpr int32b kValue = kResultTrue<int32b>; \
   }
 
 ZINVUL_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(int8b);
@@ -342,14 +342,14 @@ ZINVUL_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(long4);
 template <typename T>
 struct IsUnsignedIntegerHelper
 {
-  static constexpr int32b kValue = kScalarResultFalse;
+  static constexpr int32b kValue = kResultFalse;
 };
 
 #define ZINVUL_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
   struct IsUnsignedIntegerHelper< Type > \
   { \
-    static constexpr int32b kValue = kScalarResultTrue; \
+    static constexpr int32b kValue = kResultTrue<int32b>; \
   }
 
 ZINVUL_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(uint8b);
@@ -372,14 +372,14 @@ ZINVUL_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(ulong4);
 template <typename T>
 struct IsHalfHelper
 {
-  static constexpr int32b kValue = kScalarResultFalse;
+  static constexpr int32b kValue = kResultFalse;
 };
 
 #define ZINVUL_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
   struct IsHalfHelper< Type > \
   { \
-    static constexpr int32b kValue = kScalarResultTrue; \
+    static constexpr int32b kValue = kResultTrue<int32b>; \
   }
 
 ZINVUL_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(half);
@@ -390,14 +390,14 @@ ZINVUL_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(half4);
 template <typename T>
 struct IsSingleFloatHelper
 {
-  static constexpr int32b kValue = kScalarResultFalse;
+  static constexpr int32b kValue = kResultFalse;
 };
 
 #define ZINVUL_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
   struct IsSingleFloatHelper< Type > \
   { \
-    static constexpr int32b kValue = kScalarResultTrue; \
+    static constexpr int32b kValue = kResultTrue<int32b>; \
   }
 
 ZINVUL_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(float);
@@ -408,14 +408,14 @@ ZINVUL_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(float4);
 template <typename T>
 struct IsDoubleHelper
 {
-  static constexpr int32b kValue = kScalarResultFalse;
+  static constexpr int32b kValue = kResultFalse;
 };
 
 #define ZINVUL_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
   struct IsDoubleHelper< Type > \
   { \
-    static constexpr int32b kValue = kScalarResultTrue; \
+    static constexpr int32b kValue = kResultTrue<int32b>; \
   }
 
 ZINVUL_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double);
@@ -426,13 +426,13 @@ ZINVUL_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double4);
 template <typename T>
 struct IsPointerHelper
 {
-  static constexpr int32b kValue = kScalarResultFalse;
+  static constexpr int32b kValue = kResultFalse;
 };
 
 template <typename T>
 struct IsPointerHelper<T*>
 {
-  static constexpr int32b kValue = kScalarResultTrue;
+  static constexpr int32b kValue = kResultTrue<int32b>;
 };
 
 } // namespace inner
@@ -505,37 +505,37 @@ struct IsPointer
 template <typename T>
 struct IsLValueReference
 {
-  static constexpr int32b kValue = kScalarResultFalse;
+  static constexpr int32b kValue = kResultFalse;
 };
 
 template <typename T>
 struct IsLValueReference<T&>
 {
-  static constexpr int32b kValue = kScalarResultTrue;
+  static constexpr int32b kValue = kResultTrue<int32b>;
 };
 
 template <typename T>
 struct IsRValueReference
 {
-  static constexpr int32b kValue = kScalarResultFalse;
+  static constexpr int32b kValue = kResultFalse;
 };
 
 template <typename T>
 struct IsRValueReference<T&&>
 {
-  static constexpr int32b kValue = kScalarResultTrue;
+  static constexpr int32b kValue = kResultTrue<int32b>;
 };
 
 template <typename T1, typename T2>
 struct IsSame
 {
-  static constexpr int32b kValue = kScalarResultFalse;
+  static constexpr int32b kValue = kResultFalse;
 };
 
 template <typename T>
 struct IsSame<T, T>
 {
-  static constexpr int32b kValue = kScalarResultTrue;
+  static constexpr int32b kValue = kResultTrue<int32b>;
 };
 
 template <typename T>
