@@ -124,11 +124,12 @@ using FloatTypeFrom = VectorTypeFromElems<
 template <typename T>
 class AddressSpaceInfo;
 //{
-//  using Type = typename ASpaceInfo::Type;
+//  using DataType = typename ASpaceInfo::DataType;
 //  static constexpr int32b isGlobal() noexcept;
 //  static constexpr int32b isLocal() noexcept;
 //  static constexpr int32b isConstant() noexcept;
 //  static constexpr int32b isPrivate() noexcept;
+//  static constexpr int32b isPointer() noexcept;
 //};
 
 // Type categories

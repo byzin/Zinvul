@@ -20,357 +20,269 @@ namespace zinvul {
 
 /*!
   */
-template <typename Integer> inline
-Integer Atomic::add(LocalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::add(AddressSpaceInteger p, const Integer value) noexcept
 {
-  return addImpl(p, value);
+  const auto old = addImpl(p, value);
+  return old;
 }
 
 /*!
   */
-template <typename Integer> inline
-Integer Atomic::add(GlobalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::sub(AddressSpaceInteger p, const Integer value) noexcept
 {
-  return addImpl(p, value);
+  const auto old = subImpl(p, value);
+  return old;
 }
 
 /*!
   */
-template <typename Integer> inline
-Integer Atomic::sub(LocalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceType, typename Type> inline
+Type Atomic::swap(AddressSpaceType p, const Type value) noexcept
 {
-  return subImpl(p, value);
+  const auto old = swapImpl(p, value);
+  return old;
 }
 
 /*!
   */
-template <typename Integer> inline
-Integer Atomic::sub(GlobalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger> inline
+auto Atomic::increment(AddressSpaceInteger p) noexcept
 {
-  return subImpl(p, value);
+  const auto old = incrementImpl(p);
+  return old;
 }
 
 /*!
   */
-template <typename Type> inline
-Type Atomic::swap(LocalPtr<Type> p, const Type value) noexcept
+template <typename AddressSpaceInteger> inline
+auto Atomic::decrement(AddressSpaceInteger p) noexcept
 {
-  return swapImpl(p, value);
+  const auto old = decrementImpl(p);
+  return old;
 }
 
 /*!
   */
-template <typename Type> inline
-Type Atomic::swap(GlobalPtr<Type> p, const Type value) noexcept
-{
-  return swapImpl(p, value);
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer Atomic::increment(LocalPtr<Integer> p) noexcept
-{
-  return incrementImpl<LocalPtr<Integer>, Integer>(p);
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer Atomic::increment(GlobalPtr<Integer> p) noexcept
-{
-  return incrementImpl<GlobalPtr<Integer>, Integer>(p);
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer Atomic::decrement(LocalPtr<Integer> p) noexcept
-{
-  return decrementImpl<LocalPtr<Integer>, Integer>(p);
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer Atomic::decrement(GlobalPtr<Integer> p) noexcept
-{
-  return decrementImpl<GlobalPtr<Integer>, Integer>(p);
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer Atomic::compareAndSwap(LocalPtr<Integer> p,
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::compareAndSwap(AddressSpaceInteger p,
                                const Integer comp,
                                const Integer value) noexcept
 {
-  return compareAndSwapImpl(p, comp, value);
+  const auto old = compareAndSwapImpl(p, comp, value);
+  return old;
 }
 
 /*!
   */
-template <typename Integer> inline
-Integer Atomic::compareAndSwap(GlobalPtr<Integer> p,
-                               const Integer comp,
-                               const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::min(AddressSpaceInteger p, const Integer value) noexcept
 {
-  return compareAndSwapImpl(p, comp, value);
+  const auto old = minImpl(p, value);
+  return old;
 }
 
 /*!
   */
-template <typename Integer> inline
-Integer Atomic::min(LocalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::max(AddressSpaceInteger p, const Integer value) noexcept
 {
-  return minImpl(p, value);
+  const auto old = maxImpl(p, value);
+  return old;
 }
 
 /*!
   */
-template <typename Integer> inline
-Integer Atomic::min(GlobalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::bitAnd(AddressSpaceInteger p, const Integer value) noexcept
 {
-  return minImpl(p, value);
+  const auto old = bitAndImpl(p, value);
+  return old;
 }
 
 /*!
   */
-template <typename Integer> inline
-Integer Atomic::max(LocalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::bitOr(AddressSpaceInteger p, const Integer value) noexcept
 {
-  return maxImpl(p, value);
+  const auto old = bitOrImpl(p, value);
+  return old;
 }
 
 /*!
   */
-template <typename Integer> inline
-Integer Atomic::max(GlobalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::bitXor(AddressSpaceInteger p, const Integer value) noexcept
 {
-  return maxImpl(p, value);
+  const auto old = bitXorImpl(p, value);
+  return old;
 }
 
 /*!
   */
-template <typename Integer> inline
-Integer Atomic::bitAnd(LocalPtr<Integer> p, const Integer value) noexcept
-{
-  return bitAndImpl(p, value);
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer Atomic::bitAnd(GlobalPtr<Integer> p, const Integer value) noexcept
-{
-  return bitAndImpl(p, value);
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer Atomic::bitOr(LocalPtr<Integer> p, const Integer value) noexcept
-{
-  return bitOrImpl(p, value);
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer Atomic::bitOr(GlobalPtr<Integer> p, const Integer value) noexcept
-{
-  return bitOrImpl(p, value);
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer Atomic::bitXor(LocalPtr<Integer> p, const Integer value) noexcept
-{
-  return bitXorImpl(p, value);
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer Atomic::bitXor(GlobalPtr<Integer> p, const Integer value) noexcept
-{
-  return bitXorImpl(p, value);
-}
-
-/*!
-  */
-template <typename Type, typename Function, typename ...Types> inline
-Type Atomic::perform(LocalPtr<Type> p,
+template <typename AddressSpaceInteger, typename Function, typename ...Types> inline
+auto Atomic::perform(AddressSpaceInteger p,
                      Function expression,
                      Types&&... arguments) noexcept
 {
-  return performImpl<LocalPtr<Type>, Type>(p,
-                                           expression,
-                                           forward<Types>(arguments)...);
+  const auto old = performImpl(p, expression, forward<Types>(arguments)...);
+  return old;
 }
 
 /*!
   */
-template <typename Type, typename Function, typename ...Types> inline
-Type Atomic::perform(GlobalPtr<Type> p,
-                     Function expression,
-                     Types&&... arguments) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::addImpl(AddressSpaceInteger p, const Integer value) noexcept
 {
-  return performImpl<GlobalPtr<Type>, Type>(p,
-                                            expression,
-                                            forward<Types>(arguments)...);
-}
-
-/*!
-  */
-template <typename BufferPtr, typename Integer> inline
-Integer Atomic::addImpl(BufferPtr p, const Integer value) noexcept
-{
-  using I = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
-                "The Integer isn't int or unsigned int.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
+  static_assert(isInteger32<Integer>(),
+                "The Integer isn't 32bit integer type.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_add(p, value);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Integer> inline
-Integer Atomic::subImpl(BufferPtr p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::subImpl(AddressSpaceInteger p, const Integer value) noexcept
 {
-  using I = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
-                "The Integer isn't int or unsigned int.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
+  static_assert(isInteger32<Integer>(),
+                "The Integer isn't 32bit integer type.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_sub(p, value);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Type> inline
-Type Atomic::swapImpl(BufferPtr p, const Type value) noexcept
+template <typename AddressSpaceType, typename Type> inline
+Type Atomic::swapImpl(AddressSpaceType p, const Type value) noexcept
 {
-  using T = RemoveCvrefType<Type>;
-  static_assert(kIsSame<T, int32b> || kIsSame<T, uint32b> || kIsSame<T, float>,
-                "The Type isn't int, unsigned int or float.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceType>(),
+                "The given p isn't global or local 32bit integer.");
+  static_assert(isInteger32<Type>(),
+                "The Integer isn't 32bit integer type.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_xchg(p, value);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Integer> inline
-Integer Atomic::incrementImpl(BufferPtr p) noexcept
+template <typename AddressSpaceInteger> inline
+auto Atomic::incrementImpl(AddressSpaceInteger p) noexcept
 {
-  using I = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
-                "The Integer isn't int or unsigned int.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_inc(p);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Integer> inline
-Integer Atomic::decrementImpl(BufferPtr p) noexcept
+template <typename AddressSpaceInteger> inline
+auto Atomic::decrementImpl(AddressSpaceInteger p) noexcept
 {
-  using I = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
-                "The Integer isn't int or unsigned int.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_dec(p);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Integer> inline
-Integer Atomic::compareAndSwapImpl(BufferPtr p,
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::compareAndSwapImpl(AddressSpaceInteger p,
                                    const Integer comp,
                                    const Integer value) noexcept
 {
-  using I = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
-                "The Integer isn't int or unsigned int.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
+  static_assert(isInteger32<Integer>(),
+                "The Integer isn't 32bit integer type.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_cmpxchg(p, comp, value);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Integer> inline
-Integer Atomic::minImpl(BufferPtr p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::minImpl(AddressSpaceInteger p, const Integer value) noexcept
 {
-  using I = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
-                "The Integer isn't int or unsigned int.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
+  static_assert(isInteger32<Integer>(),
+                "The Integer isn't 32bit integer type.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_min(p, value);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Integer> inline
-Integer Atomic::maxImpl(BufferPtr p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::maxImpl(AddressSpaceInteger p, const Integer value) noexcept
 {
-  using I = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
-                "The Integer isn't int or unsigned int.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
+  static_assert(isInteger32<Integer>(),
+                "The Integer isn't 32bit integer type.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_max(p, value);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Integer> inline
-Integer Atomic::bitAndImpl(BufferPtr p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::bitAndImpl(AddressSpaceInteger p, const Integer value) noexcept
 {
-  using I = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
-                "The Integer isn't int or unsigned int.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
+  static_assert(isInteger32<Integer>(),
+                "The Integer isn't 32bit integer type.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_and(p, value);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Integer> inline
-Integer Atomic::bitOrImpl(BufferPtr p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::bitOrImpl(AddressSpaceInteger p, const Integer value) noexcept
 {
-  using I = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
-                "The Integer isn't int or unsigned int.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
+  static_assert(isInteger32<Integer>(),
+                "The Integer isn't 32bit integer type.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_or(p, value);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Integer> inline
-Integer Atomic::bitXorImpl(BufferPtr p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer Atomic::bitXorImpl(AddressSpaceInteger p, const Integer value) noexcept
 {
-  using I = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I, int32b> || kIsSame<I, uint32b>,
-                "The Integer isn't int or unsigned int.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
+  static_assert(isInteger32<Integer>(),
+                "The Integer isn't 32bit integer type.");
   const auto old = ZINVUL_GLOBAL_NAMESPACE::atomic_xor(p, value);
   return old;
 }
 
 /*!
   */
-template <typename BufferPtr, typename Integer, typename Function, typename ...Types>
-inline
-Integer Atomic::performImpl(BufferPtr p,
-                            Function expression,
-                            Types&&... arguments) noexcept
+template <typename AddressSpaceInteger, typename Function, typename ...Types> inline
+auto Atomic::performImpl(AddressSpaceInteger p,
+                         Function expression,
+                         Types&&... arguments) noexcept
 {
-  // Type check
-  using I1 = RemoveCvrefType<Integer>;
-  static_assert(kIsSame<I1, int32b> || kIsSame<I1, uint32b>,
-                "The Integer isn't int or unsigned int.");
-  using I2 = RemoveCvrefType<decltype(expression(*p, arguments...))>;
-  static_assert(kIsSame<I1, I2>,
-      "The buffer type and the return type of the expression isn't same.");
+  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
+                "The given p isn't global or local 32bit integer.");
+  using Integer = RemoveCvrefType<decltype(expression(*p, arguments...))>;
+  static_assert(isInteger32<Integer>(),
+                "The return type of the expression isn't 32bit integer type.");
   // Perform an expression atomically
   auto old = *p;
   auto cmp = old;
@@ -388,8 +300,39 @@ Integer Atomic::performImpl(BufferPtr p,
 
 /*!
   */
-template <typename Integer> inline
-Integer atomic_add(GlobalPtr<Integer> p, const Integer value) noexcept
+template <typename Type> inline
+constexpr bool Atomic::isGlobalOrLocalPtr() noexcept
+{
+  using ASpaceInfo = AddressSpaceInfo<Type>;
+  const bool is_global_or_local = (ASpaceInfo::isGlobal() != 0) ||
+                                  (ASpaceInfo::isLocal() != 0);
+  const bool is_pointer = ASpaceInfo::isPointer() != 0;
+  return is_global_or_local && is_pointer;
+}
+
+/*!
+  */
+template <typename Type> inline
+constexpr bool Atomic::isGlobalOrLocalInteger32Ptr() noexcept
+{
+  using ASpaceInfo = AddressSpaceInfo<Type>;
+  using DataType = typename ASpaceInfo::DataType;
+  return isGlobalOrLocalPtr<Type>() && isInteger32<DataType>();
+}
+
+/*!
+  */
+template <typename Type> inline
+constexpr bool Atomic::isInteger32() noexcept
+{
+  const bool is_integer32 = (kIsInteger<Type> != 0) && (sizeof(Type) == 4);
+  return is_integer32;
+}
+
+/*!
+  */
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer atomic_add(AddressSpaceInteger p, const Integer value) noexcept
 {
   const auto old = Atomic::add(p, value);
   return old;
@@ -397,17 +340,8 @@ Integer atomic_add(GlobalPtr<Integer> p, const Integer value) noexcept
 
 /*!
   */
-template <typename Integer> inline
-Integer atomic_add(LocalPtr<Integer> p, const Integer value) noexcept
-{
-  const auto old = Atomic::add(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer atomic_sub(GlobalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer atomic_sub(AddressSpaceInteger p, const Integer value) noexcept
 {
   const auto old = Atomic::sub(p, value);
   return old;
@@ -415,17 +349,8 @@ Integer atomic_sub(GlobalPtr<Integer> p, const Integer value) noexcept
 
 /*!
   */
-template <typename Integer> inline
-Integer atomic_sub(LocalPtr<Integer> p, const Integer value) noexcept
-{
-  const auto old = Atomic::sub(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename Type> inline
-Type atomic_xchg(GlobalPtr<Type> p, const Type value) noexcept
+template <typename AddressSpaceType, typename Type> inline
+Type atomic_xchg(AddressSpaceType p, const Type value) noexcept
 {
   const auto old = Atomic::swap(p, value);
   return old;
@@ -433,17 +358,8 @@ Type atomic_xchg(GlobalPtr<Type> p, const Type value) noexcept
 
 /*!
   */
-template <typename Type> inline
-Type atomic_xchg(LocalPtr<Type> p, const Type value) noexcept
-{
-  const auto old = Atomic::swap(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer atomic_inc(GlobalPtr<Integer> p) noexcept
+template <typename AddressSpaceInteger> inline
+auto atomic_inc(AddressSpaceInteger p) noexcept
 {
   const auto old = Atomic::increment(p);
   return old;
@@ -451,17 +367,8 @@ Integer atomic_inc(GlobalPtr<Integer> p) noexcept
 
 /*!
   */
-template <typename Integer> inline
-Integer atomic_inc(LocalPtr<Integer> p) noexcept
-{
-  const auto old = Atomic::increment(p);
-  return old;
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer atomic_dec(GlobalPtr<Integer> p) noexcept
+template <typename AddressSpaceInteger> inline
+auto atomic_dec(AddressSpaceInteger p) noexcept
 {
   const auto old = Atomic::decrement(p);
   return old;
@@ -469,17 +376,8 @@ Integer atomic_dec(GlobalPtr<Integer> p) noexcept
 
 /*!
   */
-template <typename Integer> inline
-Integer atomic_dec(LocalPtr<Integer> p) noexcept
-{
-  const auto old = Atomic::decrement(p);
-  return old;
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer atomic_cmpxchg(GlobalPtr<Integer> p,
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer atomic_cmpxchg(AddressSpaceInteger p,
                        const Integer comp,
                        const Integer value) noexcept
 {
@@ -489,19 +387,8 @@ Integer atomic_cmpxchg(GlobalPtr<Integer> p,
 
 /*!
   */
-template <typename Integer> inline
-Integer atomic_cmpxchg(LocalPtr<Integer> p,
-                       const Integer comp,
-                       const Integer value) noexcept
-{
-  const auto old = Atomic::compareAndSwap(p, comp, value);
-  return old;
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer atomic_min(GlobalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer atomic_min(AddressSpaceInteger p, const Integer value) noexcept
 {
   const auto old = Atomic::min(p, value);
   return old;
@@ -509,17 +396,8 @@ Integer atomic_min(GlobalPtr<Integer> p, const Integer value) noexcept
 
 /*!
   */
-template <typename Integer> inline
-Integer atomic_min(LocalPtr<Integer> p, const Integer value) noexcept
-{
-  const auto old = Atomic::min(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer atomic_max(GlobalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer atomic_max(AddressSpaceInteger p, const Integer value) noexcept
 {
   const auto old = Atomic::max(p, value);
   return old;
@@ -527,17 +405,8 @@ Integer atomic_max(GlobalPtr<Integer> p, const Integer value) noexcept
 
 /*!
   */
-template <typename Integer> inline
-Integer atomic_max(LocalPtr<Integer> p, const Integer value) noexcept
-{
-  const auto old = Atomic::max(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer atomic_and(GlobalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer atomic_and(AddressSpaceInteger p, const Integer value) noexcept
 {
   const auto old = Atomic::bitAnd(p, value);
   return old;
@@ -545,17 +414,8 @@ Integer atomic_and(GlobalPtr<Integer> p, const Integer value) noexcept
 
 /*!
   */
-template <typename Integer> inline
-Integer atomic_and(LocalPtr<Integer> p, const Integer value) noexcept
-{
-  const auto old = Atomic::bitAnd(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer atomic_or(GlobalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer atomic_or(AddressSpaceInteger p, const Integer value) noexcept
 {
   const auto old = Atomic::bitOr(p, value);
   return old;
@@ -563,26 +423,8 @@ Integer atomic_or(GlobalPtr<Integer> p, const Integer value) noexcept
 
 /*!
   */
-template <typename Integer> inline
-Integer atomic_or(LocalPtr<Integer> p, const Integer value) noexcept
-{
-  const auto old = Atomic::bitOr(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer atoic_xor(GlobalPtr<Integer> p, const Integer value) noexcept
-{
-  const auto old = Atomic::bitXor(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename Integer> inline
-Integer atomic_xor(LocalPtr<Integer> p, const Integer value) noexcept
+template <typename AddressSpaceInteger, typename Integer> inline
+Integer atoic_xor(AddressSpaceInteger p, const Integer value) noexcept
 {
   const auto old = Atomic::bitXor(p, value);
   return old;
