@@ -32,6 +32,9 @@ using zinvul::ConstConstantPtr;
 using zinvul::Local;
 using zinvul::LocalPtr;
 using zinvul::ConstLocalPtr;
+using zinvul::Private;
+using zinvul::PrivatePtr;
+using zinvul::ConstPrivatePtr;
 using zinvul::cast;
 using zinvul::treatAs;
 
@@ -43,6 +46,12 @@ __kernel void testInt16bVectorData(ConstGlobalPtr<int16b> inputs,
     GlobalPtr<int16b> outputs,
     const uint32b resolution);
 __kernel void testInt32bVectorData(ConstGlobalPtr<int32b> inputs,
+    GlobalPtr<int32b> outputs,
+    const uint32b resolution);
+__kernel void testInt32bVectorDataLocal(ConstGlobalPtr<int32b> inputs,
+    GlobalPtr<int32b> outputs,
+    const uint32b resolution);
+__kernel void testInt32bVectorDataPrivate(ConstGlobalPtr<int32b> inputs,
     GlobalPtr<int32b> outputs,
     const uint32b resolution);
 __kernel void testUInt32bVectorData(ConstGlobalPtr<uint32b> inputs,
@@ -59,6 +68,28 @@ __kernel void testHalfUVectorData(ConstGlobalPtr<uint16b> inputs,
     GlobalPtr<uint16b> outputs2,
     const uint32b resolution);
 
+namespace test {
+
+constexpr zinvul::Constant<uint32b> kMaxLocalSize = 64u;
+
+template <size_t kIndex, typename SrcType, typename DstType>
+void copyArray(const SrcType src,
+    const size_t src_offset, 
+    DstType dst,
+    const size_t dst_offset) noexcept;
+
+template <size_t kIndex, typename SrcType, typename DstType>
+void copyArray(const SrcType src,
+    const size_t src_offset, 
+    DstType dst,
+    const size_t dst_offset) noexcept
+{
+  dst[kIndex + dst_offset] = src[kIndex + src_offset];
+  if constexpr (1 < kIndex)
+    copyArray<kIndex - 1>(src, src_offset, dst, dst_offset);
+}
+
+} // namespace test
 
 __kernel void testInt8bVectorData(ConstGlobalPtr<int8b> inputs,
     GlobalPtr<int8b> outputs,
@@ -166,6 +197,98 @@ __kernel void testInt32bVectorData(ConstGlobalPtr<int32b> inputs,
       zinvul::vstore4(v, 0, outputs + offset);
       offset += 4; 
     }
+  }
+}
+
+/*!
+  */
+__kernel void testInt32bVectorDataLocal(ConstGlobalPtr<int32b> inputs,
+    GlobalPtr<int32b> outputs,
+    const uint32b resolution)
+{
+  const uint32b index = zinvul::getGlobalIdX();
+
+  constexpr size_t n = 10u;
+  Local<int32b> storage[n * test::kMaxLocalSize];
+
+  if (index < resolution) {
+    const size_t loffset = n * zinvul::getLocalIdX();
+    const size_t goffset = n * index;
+    test::copyArray<n>(inputs, goffset, storage, loffset);
+
+    size_t offset = 0;
+    LocalPtr<int32b> storage_ptr = storage + loffset;
+    {
+      int32b v = zinvul::VectorData::load<1>(0, storage_ptr + offset);
+      v = 2 * v;
+      zinvul::VectorData::store(v, 0, storage_ptr + offset);
+      offset += 1;
+    }
+    {
+      int2 v = zinvul::vload2(0, storage_ptr + offset);
+      v = 2 * v;
+      zinvul::vstore2(v, 0, storage_ptr + offset);
+      offset += 2;
+    }
+    {
+      int3 v = zinvul::vload3(0, storage_ptr + offset);
+      v = 2 * v;
+      zinvul::vstore3(v, 0, storage_ptr + offset);
+      offset += 3;
+    }
+    {
+      int4 v = zinvul::vload4(0, storage_ptr + offset);
+      v = 2 * v;
+      zinvul::vstore4(v, 0, storage_ptr + offset);
+      offset += 4; 
+    }
+
+    test::copyArray<n>(storage, loffset, outputs, goffset);
+  }
+}
+
+/*!
+  */
+__kernel void testInt32bVectorDataPrivate(ConstGlobalPtr<int32b> inputs,
+    GlobalPtr<int32b> outputs,
+    const uint32b resolution)
+{
+  const uint32b index = zinvul::getGlobalIdX();
+  if (index < resolution) {
+    constexpr size_t n = 10u;
+    int32b storage[n];
+
+    const size_t goffset = n * index;
+    test::copyArray<n>(inputs, goffset, storage, 0);
+
+    size_t offset = 0;
+    PrivatePtr<int32b> storage_ptr = storage;
+    {
+      int32b v = zinvul::VectorData::load<1>(0, storage_ptr + offset);
+      v = 2 * v;
+      zinvul::VectorData::store(v, 0, storage_ptr + offset);
+      offset += 1;
+    }
+    {
+      int2 v = zinvul::vload2(0, storage_ptr + offset);
+      v = 2 * v;
+      zinvul::vstore2(v, 0, storage_ptr + offset);
+      offset += 2;
+    }
+    {
+      int3 v = zinvul::vload3(0, storage_ptr + offset);
+      v = 2 * v;
+      zinvul::vstore3(v, 0, storage_ptr + offset);
+      offset += 3;
+    }
+    {
+      int4 v = zinvul::vload4(0, storage_ptr + offset);
+      v = 2 * v;
+      zinvul::vstore4(v, 0, storage_ptr + offset);
+      offset += 4; 
+    }
+
+    test::copyArray<n>(storage, 0, outputs, goffset);
   }
 }
 

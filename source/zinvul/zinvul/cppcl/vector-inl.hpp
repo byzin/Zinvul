@@ -1207,49 +1207,79 @@ void vstore_halfn(const Vector<float, kN>& data,
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-Vector<std::remove_cv_t<Type>, 2> vload2(
-    const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
+template <typename Type> inline
+auto vload2(const size_t offset,
+            const Type p,
+            zisc::EnableIf<std::is_pointer_v<Type>>) noexcept
 {
-  using T = std::remove_cv_t<Type>;
-  const auto result = clinner::vloadn<T, 2>(offset, p.get());
+  using T = std::remove_cv_t<std::remove_pointer_t<Type>>;
+  const auto result = clinner::vloadn<T, 2>(offset, p);
   return result;
 }
 
 /*!
   */
 template <AddressSpaceType kAddressSpaceType, typename Type> inline
-Vector<std::remove_cv_t<Type>, 3> vload3(
-    const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
+auto vload2(const size_t offset,
+            const AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
-  using T = std::remove_cv_t<Type>;
-  const auto result = clinner::vloadn<T, 3>(offset, p.get());
+  const auto result = vload2(offset, p.get());
+  return result;
+}
+
+/*!
+  */
+template <typename Type> inline
+auto vload3(const size_t offset,
+            const Type p,
+            zisc::EnableIf<std::is_pointer_v<Type>>) noexcept
+{
+  using T = std::remove_cv_t<std::remove_pointer_t<Type>>;
+  const auto result = clinner::vloadn<T, 3>(offset, p);
   return result;
 }
 
 /*!
   */
 template <AddressSpaceType kAddressSpaceType, typename Type> inline
-Vector<std::remove_cv_t<Type>, 4> vload4(
-    const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
+auto vload3(const size_t offset,
+            const AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
-  using T = std::remove_cv_t<Type>;
-  const auto result = clinner::vloadn<T, 4>(offset, p.get());
+  const auto result = vload3(offset, p.get());
   return result;
 }
 
 /*!
   */
+template <typename Type> inline
+auto vload4(const size_t offset,
+            const Type p,
+            zisc::EnableIf<std::is_pointer_v<Type>>) noexcept
+{
+  using T = std::remove_cv_t<std::remove_pointer_t<Type>>;
+  const auto result = clinner::vloadn<T, 4>(offset, p);
+  return result;
+}
+/*!
+  */
 template <AddressSpaceType kAddressSpaceType, typename Type> inline
+auto vload4(const size_t offset,
+            const AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
+{
+  const auto result = vload4(offset, p.get());
+  return result;
+}
+
+/*!
+  */
+template <typename Type> inline
 float vload_half(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    const Type p,
+    zisc::EnableIf<std::is_pointer_v<Type> &&
+                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
 {
-  const half* address = p.get() + offset;
+  const half* address = p + offset;
   const zisc::SingleFloat data{*address};
   const auto result = data.toFloat();
   return result;
@@ -1258,70 +1288,160 @@ float vload_half(
 /*!
   */
 template <AddressSpaceType kAddressSpaceType, typename Type> inline
+float vload_half(const size_t offset,
+                 const AddressSpacePointer<kAddressSpaceType, Type> p,
+                 zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+{
+  const auto result = vload_half(offset, p.get());
+  return result;
+}
+
+/*!
+  */
+template <typename Type> inline
 float2 vload_half2(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    const Type p,
+    zisc::EnableIf<std::is_pointer_v<Type> &&
+                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
 {
-  const auto result = clinner::vload_halfn<2>(offset, p.get());
+  const auto result = clinner::vload_halfn<2>(offset, p);
   return result;
 }
 
 /*!
   */
 template <AddressSpaceType kAddressSpaceType, typename Type> inline
+float2 vload_half2(const size_t offset,
+                   const AddressSpacePointer<kAddressSpaceType, Type> p,
+                   zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+{
+  const auto result = vload_half2(offset, p.get());
+  return result;
+}
+
+/*!
+  */
+template <typename Type> inline
 float3 vload_half3(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    const Type p,
+    zisc::EnableIf<std::is_pointer_v<Type> &&
+                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
 {
-  const auto result = clinner::vload_halfn<3>(offset, p.get());
+  const auto result = clinner::vload_halfn<3>(offset, p);
   return result;
 }
 
 /*!
   */
 template <AddressSpaceType kAddressSpaceType, typename Type> inline
+float3 vload_half3(const size_t offset,
+                   const AddressSpacePointer<kAddressSpaceType, Type> p,
+                   zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+{
+  const auto result = vload_half3(offset, p.get());
+  return result;
+}
+
+/*!
+  */
+template <typename Type> inline
 float4 vload_half4(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    const Type p,
+    zisc::EnableIf<std::is_pointer_v<Type> &&
+                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
 {
-  const auto result = clinner::vload_halfn<4>(offset, p.get());
+  const auto result = clinner::vload_halfn<4>(offset, p);
   return result;
+}
+/*!
+  */
+template <AddressSpaceType kAddressSpaceType, typename Type> inline
+float4 vload_half4(const size_t offset,
+                   const AddressSpacePointer<kAddressSpaceType, Type> p,
+                   zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+{
+  const auto result = vload_half4(offset, p.get());
+  return result;
+}
+
+/*!
+  */
+template <typename Type> inline
+void vstore2(const Vector<Type, 2>& data,
+            const size_t offset,
+            const std::add_pointer_t<Type> p) noexcept
+{
+  using T = std::remove_cv_t<Type>;
+  clinner::vstoren<T, 2>(data, offset, p);
 }
 
 /*!
   */
 template <AddressSpaceType kAddressSpaceType, typename Type> inline
 void vstore2(const Vector<Type, 2>& data,
-    const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
+             const size_t offset,
+             AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
+{
+  vstore2(data, offset, p.get());
+}
+
+/*!
+  */
+template <typename Type> inline
+void vstore3(const Vector<Type, 3>& data,
+            const size_t offset,
+            const std::add_pointer_t<Type> p) noexcept
 {
   using T = std::remove_cv_t<Type>;
-  clinner::vstoren<T, 2>(data, offset, p.get());
+  clinner::vstoren<T, 3>(data, offset, p);
 }
 
 /*!
   */
 template <AddressSpaceType kAddressSpaceType, typename Type> inline
 void vstore3(const Vector<Type, 3>& data,
-    const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
+             const size_t offset,
+             AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
-  using T = std::remove_cv_t<std::remove_reference_t<Type>>;
-  clinner::vstoren<T, 3>(data, offset, p.get());
+  vstore3(data, offset, p.get());
+}
+
+/*!
+  */
+template <typename Type> inline
+void vstore4(const Vector<Type, 4>& data,
+            const size_t offset,
+            const std::add_pointer_t<Type> p) noexcept
+{
+  using T = std::remove_cv_t<Type>;
+  clinner::vstoren<T, 4>(data, offset, p);
 }
 
 /*!
   */
 template <AddressSpaceType kAddressSpaceType, typename Type> inline
 void vstore4(const Vector<Type, 4>& data,
-    const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
+             const size_t offset,
+             AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
-  using T = std::remove_cv_t<std::remove_reference_t<Type>>;
-  clinner::vstoren<T, 4>(data, offset, p.get());
+  vstore4(data, offset, p.get());
+}
+
+/*!
+  */
+template <typename Type> inline
+void vstore_half(
+    const float data,
+    const size_t offset,
+    Type p,
+    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+{
+  half* address = p + offset;
+  const auto fdata = zisc::SingleFloat::fromFloat(data);
+  *address = fdata;
 }
 
 /*!
@@ -1333,9 +1453,19 @@ void vstore_half(
     AddressSpacePointer<kAddressSpaceType, Type> p,
     zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
 {
-  half* address = p.get() + offset;
-  const auto fdata = zisc::SingleFloat::fromFloat(data);
-  *address = fdata;
+  vstore_half(data, offset, p.get());
+}
+
+/*!
+  */
+template <typename Type> inline
+void vstore_half2(
+    const float2& data,
+    const size_t offset,
+    Type p,
+    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+{
+  clinner::vstore_halfn(data, offset, p);
 }
 
 /*!
@@ -1347,7 +1477,19 @@ void vstore_half2(
     AddressSpacePointer<kAddressSpaceType, Type> p,
     zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
 {
-  clinner::vstore_halfn(data, offset, p.get());
+  vstore_half2(data, offset, p.get());
+}
+
+/*!
+  */
+template <typename Type> inline
+void vstore_half3(
+    const float3& data,
+    const size_t offset,
+    Type p,
+    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+{
+  clinner::vstore_halfn(data, offset, p);
 }
 
 /*!
@@ -1359,7 +1501,19 @@ void vstore_half3(
     AddressSpacePointer<kAddressSpaceType, Type> p,
     zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
 {
-  clinner::vstore_halfn(data, offset, p.get());
+  vstore_half3(data, offset, p.get());
+}
+
+/*!
+  */
+template <typename Type> inline
+void vstore_half4(
+    const float4& data,
+    const size_t offset,
+    Type p,
+    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+{
+  clinner::vstore_halfn(data, offset, p);
 }
 
 /*!
@@ -1371,7 +1525,7 @@ void vstore_half4(
     AddressSpacePointer<kAddressSpaceType, Type> p,
     zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
 {
-  clinner::vstore_halfn(data, offset, p.get());
+  vstore_half4(data, offset, p.get());
 }
 
 } // namespace cl

@@ -120,81 +120,98 @@ using FloatTypeFrom = VectorTypeFromElems<
     FloatTypeFromBytes<sizeof(typename VectorTypeInfo<T>::ElementType)>,
     VectorTypeInfo<T>::size()>;
 
+//! Information of an address space type
+template <typename T>
+class AddressSpaceInfo;
+//{
+//  using Type = typename ASpaceInfo::Type;
+//  static constexpr int32b isGlobal() noexcept;
+//  static constexpr int32b isLocal() noexcept;
+//  static constexpr int32b isConstant() noexcept;
+//  static constexpr int32b isPrivate() noexcept;
+//};
+
 // Type categories
 
 //! Check if a type is integer scalar or vector type
 template <typename T> struct IsInteger;
 
 template <typename T>
-constexpr int32b kIsInteger = IsInteger<T>::kValue;
+constexpr Constant<int32b> kIsInteger = IsInteger<T>::kValue;
 
 //! Check if a type is signed integer scalar or vector type
 template <typename T> struct IsSignedInteger;
 
 template <typename T>
-constexpr int32b kIsSignedInteger = IsSignedInteger<T>::kValue;
+constexpr Constant<int32b> kIsSignedInteger = IsSignedInteger<T>::kValue;
 
 //! Check if a type is unsigned integer scalar or vector type
 template <typename T> struct IsUnsignedInteger;
 
 template <typename T>
-constexpr int32b kIsUnsignedInteger = IsUnsignedInteger<T>::kValue;
+constexpr Constant<int32b> kIsUnsignedInteger = IsUnsignedInteger<T>::kValue;
 
 //! Check if a type is floating point scalar or vector type
 template <typename T> struct IsFloatingPoint;
 
 template <typename T>
-constexpr int32b kIsFloatingPoint = IsFloatingPoint<T>::kValue;
+constexpr Constant<int32b> kIsFloatingPoint = IsFloatingPoint<T>::kValue;
 
 //! Check if a type is half scalar or vector type
 template <typename T> struct IsHalf;
 
 template <typename T>
-constexpr int32b kIsHalf = IsHalf<T>::kValue;
+constexpr Constant<int32b> kIsHalf = IsHalf<T>::kValue;
 
 //! Check if a type is float scalar or vector type
 template <typename T> struct IsSingleFloat;
 
 template <typename T>
-constexpr int32b kIsSingleFloat = IsSingleFloat<T>::kValue;
+constexpr Constant<int32b> kIsSingleFloat = IsSingleFloat<T>::kValue;
 
 //! Check if a type is double scalar or vector type
 template <typename T> struct IsDouble;
 
 template <typename T>
-constexpr int32b kIsDouble = IsDouble<T>::kValue;
+constexpr Constant<int32b> kIsDouble = IsDouble<T>::kValue;
 
 //! Check if a type is an arithmetic type
 template <typename T> struct IsArithmetic;
 
 template <typename T>
-constexpr int32b kIsArithmetic = IsArithmetic<T>::kValue;
+constexpr Constant<int32b> kIsArithmetic = IsArithmetic<T>::kValue;
 
 //! Check if a type is a signed arithmetic type
 template <typename T> struct IsSigned;
 
 template <typename T>
-constexpr int32b kIsSigned = IsSigned<T>::kValue;
+constexpr Constant<int32b> kIsSigned = IsSigned<T>::kValue;
 
 // Type properties
+
+//! Check if a type is a pointer type
+template <typename T> struct IsPointer;
+
+template <typename T>
+constexpr Constant<int32b> kIsPointer = IsPointer<T>::kValue;
 
 //! Check if a type is lvalue reference
 template <typename T> struct IsLValueReference;
 
 template <typename T>
-constexpr int32b kIsLValueReference = IsLValueReference<T>::kValue;
+constexpr Constant<int32b> kIsLValueReference = IsLValueReference<T>::kValue;
 
 //! Check if a type is rvalue reference
 template <typename T> struct IsRValueReference;
 
 template <typename T>
-constexpr int32b kIsRValueReference = IsRValueReference<T>::kValue;
+constexpr Constant<int32b> kIsRValueReference = IsRValueReference<T>::kValue;
 
 //! Check if two types are same
 template <typename T1, typename T2> struct IsSame;
 
 template <typename T1, typename T2>
-constexpr int32b kIsSame = IsSame<T1, T2>::kValue;
+constexpr Constant<int32b> kIsSame = IsSame<T1, T2>::kValue;
 
 // Miscellaneous transformations
 
@@ -283,17 +300,10 @@ template <typename T>
 using TypeIdentityType = typename TypeIdentity<T>::Type;
 
 // Comparison type
+//
+constexpr Constant<int32b> kScalarResultFalse = 0b0;
 
-constexpr int32b kScalarResultFalse = 0b0;
-constexpr int32b kScalarResultTrue = 0b1;
-
-} // namespace zinvul
-
-#include "type_traits-inl.cl"
-
-namespace zinvul {
-
-// Comparison type
+constexpr Constant<int32b> kScalarResultTrue = 0b1;
 
 //! Integer type that is used as a comparison result of the given type
 template <typename T>
@@ -301,20 +311,21 @@ using ComparisonResultType = IntegerTypeFromVec<RemoveCvType<T>>;
 
 //! Integer type that is used as a comparison result of the given type
 template  <typename T>
-using ComparisonResultScalarType = 
-    IntegerTypeFromVec<typename VectorTypeInfo<RemoveCvType<T>>::ElementType>;
+using ComparisonResultElemType = typename VectorTypeInfo<ComparisonResultType<T>>::ElementType;
 
 //! Integer value that represents 'false' of a comparison result of the given type
 template  <typename T>
-constexpr Constant<ComparisonResultScalarType<T>> kResultFalse{0b0};
+constexpr Constant<ComparisonResultElemType<T>> kResultFalse{0b0};
 
 //! Integer value that represents 'true' of a comparison result of the given type
 template  <typename T>
-constexpr Constant<ComparisonResultScalarType<T>> kResultTrue =
+constexpr Constant<ComparisonResultElemType<T>> kResultTrue =
     (VectorTypeInfo<RemoveCvType<T>>::size() == 1)
-        ? ComparisonResultScalarType<T>{0b1}
+        ? ComparisonResultElemType<T>{0b1}
         : ~kResultFalse<T>;
 
 } // namespace zinvul
+
+#include "type_traits-inl.cl"
 
 #endif /* ZINVUL_TYPE_TRAITS_CL */

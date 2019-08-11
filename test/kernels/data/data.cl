@@ -14,6 +14,7 @@
 #include "zinvul/cl/fnv_1a_hash_engine.cl"
 #include "zinvul/cl/limits.cl"
 #include "zinvul/cl/types.cl"
+#include "zinvul/cl/type_traits.cl"
 #include "zinvul/cl/utility.cl"
 
 using zinvul::int8b;
@@ -31,6 +32,9 @@ using zinvul::ConstConstantPtr;
 using zinvul::Local;
 using zinvul::LocalPtr;
 using zinvul::ConstLocalPtr;
+using zinvul::Private;
+using zinvul::PrivatePtr;
+using zinvul::ConstPrivatePtr;
 using zinvul::cast;
 using zinvul::treatAs;
 
@@ -40,6 +44,7 @@ struct MemoryMapTest;
 } // namespace test
 
 // Prototypes
+__kernel void testAddressSpaceType(GlobalPtr<int32b> results);
 __kernel void testPointer(ConstGlobalPtr<int32b> src, GlobalPtr<int32b> dst);
 __kernel void testMemoryMap(GlobalPtr<test::MemoryMapTest> buffer0,
     const uint32b resolution);
@@ -142,6 +147,145 @@ struct MemoryMapTest
 };
 
 } // test
+
+/*!
+  */
+__kernel void testAddressSpaceType(GlobalPtr<int32b> results)
+{
+  (void)results;
+
+  {
+    using Type = int32b;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(!ASpaceInfo::isGlobal());
+    static_assert(!ASpaceInfo::isLocal());
+    static_assert(!ASpaceInfo::isConstant());
+    static_assert(ASpaceInfo::isPrivate());
+    static_assert(!ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<int32b, DataType>);
+  }
+  {
+    using Type = const float*;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(!ASpaceInfo::isGlobal());
+    static_assert(!ASpaceInfo::isLocal());
+    static_assert(!ASpaceInfo::isConstant());
+    static_assert(ASpaceInfo::isPrivate());
+    static_assert(ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<float, DataType>);
+  }
+  {
+    using Type = GlobalPtr<uint32b>;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(ASpaceInfo::isGlobal());
+    static_assert(!ASpaceInfo::isLocal());
+    static_assert(!ASpaceInfo::isConstant());
+    static_assert(!ASpaceInfo::isPrivate());
+    static_assert(ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<uint32b, DataType>);
+  }
+  {
+    using Type = ConstGlobalPtr<uint32b>;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(ASpaceInfo::isGlobal());
+    static_assert(!ASpaceInfo::isLocal());
+    static_assert(!ASpaceInfo::isConstant());
+    static_assert(!ASpaceInfo::isPrivate());
+    static_assert(ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<uint32b, DataType>);
+  }
+  {
+    using Type = Local<float2>;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(!ASpaceInfo::isGlobal());
+    static_assert(ASpaceInfo::isLocal() | ASpaceInfo::isPrivate());
+    static_assert(!ASpaceInfo::isConstant());
+    static_assert(!ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<float2, DataType>);
+  }
+  {
+    using Type = LocalPtr<float2>;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(!ASpaceInfo::isGlobal());
+    static_assert(ASpaceInfo::isLocal());
+    static_assert(!ASpaceInfo::isConstant());
+    static_assert(!ASpaceInfo::isPrivate());
+    static_assert(ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<float2, DataType>);
+  }
+  {
+    using Type = ConstLocalPtr<float2>;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(!ASpaceInfo::isGlobal());
+    static_assert(ASpaceInfo::isLocal());
+    static_assert(!ASpaceInfo::isConstant());
+    static_assert(!ASpaceInfo::isPrivate());
+    static_assert(ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<float2, DataType>);
+  }
+  {
+    using Type = ConstantPtr<float4>;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(!ASpaceInfo::isGlobal());
+    static_assert(!ASpaceInfo::isLocal());
+    static_assert(ASpaceInfo::isConstant());
+    static_assert(!ASpaceInfo::isPrivate());
+    static_assert(ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<float4, DataType>);
+  }
+  {
+    using Type = ConstConstantPtr<float4>;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(!ASpaceInfo::isGlobal());
+    static_assert(!ASpaceInfo::isLocal());
+    static_assert(ASpaceInfo::isConstant());
+    static_assert(!ASpaceInfo::isPrivate());
+    static_assert(ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<float4, DataType>);
+  }
+  {
+    using Type = Private<int3>;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(!ASpaceInfo::isGlobal());
+    static_assert(!ASpaceInfo::isLocal());
+    static_assert(!ASpaceInfo::isConstant());
+    static_assert(ASpaceInfo::isPrivate());
+    static_assert(!ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<int3, DataType>);
+  }
+  {
+    using Type = PrivatePtr<int3>;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(!ASpaceInfo::isGlobal());
+    static_assert(!ASpaceInfo::isLocal());
+    static_assert(!ASpaceInfo::isConstant());
+    static_assert(ASpaceInfo::isPrivate());
+    static_assert(ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<int3, DataType>);
+  }
+  {
+    using Type = ConstPrivatePtr<int3>;
+    using ASpaceInfo = zinvul::AddressSpaceInfo<Type>;
+    static_assert(!ASpaceInfo::isGlobal());
+    static_assert(!ASpaceInfo::isLocal());
+    static_assert(!ASpaceInfo::isConstant());
+    static_assert(ASpaceInfo::isPrivate());
+    static_assert(ASpaceInfo::isPointer());
+    using DataType = typename ASpaceInfo::DataType;
+    static_assert(zinvul::kIsSame<int3, DataType>);
+  }
+}
 
 /*!
   */

@@ -119,6 +119,197 @@ ZINVUL_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(double4, double, 4);
 namespace inner {
 
 template <typename T>
+struct AddressSpaceInfoHelper
+{
+  using DataType = T;
+  static constexpr int32b kIsGlobal = kScalarResultFalse;
+  static constexpr int32b kIsLocal = kScalarResultFalse;
+  static constexpr int32b kIsConstant = kScalarResultFalse;
+  static constexpr int32b kIsPrivate = kScalarResultTrue;
+  static constexpr int32b kIsPointer = kScalarResultFalse;
+};
+
+#if defined(ZINVUL_CPU)
+
+template <AddressSpaceType kASpaceType, typename T>
+struct AddressSpaceInfoHelper<AddressSpacePointer<kASpaceType, T>>
+{
+  using DataType = RemoveCvType<T>;
+  static constexpr int32b kIsGlobal = (kASpaceType == AddressSpaceType::kGlobal)
+      ? kScalarResultTrue
+      : kScalarResultFalse;
+  static constexpr int32b kIsLocal = (kASpaceType == AddressSpaceType::kLocal)
+      ? kScalarResultTrue
+      : kScalarResultFalse;
+  static constexpr int32b kIsConstant = (kASpaceType == AddressSpaceType::kConstant)
+      ? kScalarResultTrue
+      : kScalarResultFalse;
+  static constexpr int32b kIsPrivate = (kASpaceType == AddressSpaceType::kPrivate)
+      ? kScalarResultTrue
+      : kScalarResultFalse;
+  static constexpr int32b kIsPointer = kScalarResultTrue;
+};
+
+#else // ZINVUL_CPU
+
+template <typename T>
+struct AddressSpaceInfoHelper<Global<T>>
+{
+  using DataType = T;
+  static constexpr int32b kIsGlobal = kScalarResultTrue;
+  static constexpr int32b kIsLocal = kScalarResultFalse;
+  static constexpr int32b kIsConstant = kScalarResultFalse;
+  static constexpr int32b kIsPrivate = kScalarResultFalse;
+  static constexpr int32b kIsPointer = kScalarResultFalse;
+};
+
+template <typename T>
+struct AddressSpaceInfoHelper<GlobalPtr<T>>
+{
+  using DataType = RemoveCvType<RemovePointerType<T>>;
+  static constexpr int32b kIsGlobal = kScalarResultTrue;
+  static constexpr int32b kIsLocal = kScalarResultFalse;
+  static constexpr int32b kIsConstant = kScalarResultFalse;
+  static constexpr int32b kIsPrivate = kScalarResultFalse;
+  static constexpr int32b kIsPointer = kScalarResultTrue;
+};
+
+template <typename T>
+struct AddressSpaceInfoHelper<Local<T>>
+{
+  using DataType = T;
+  static constexpr int32b kIsGlobal = kScalarResultFalse;
+  static constexpr int32b kIsLocal = kScalarResultTrue;
+  static constexpr int32b kIsConstant = kScalarResultFalse;
+  static constexpr int32b kIsPrivate = kScalarResultFalse;
+  static constexpr int32b kIsPointer = kScalarResultFalse;
+};
+
+template <typename T>
+struct AddressSpaceInfoHelper<LocalPtr<T>>
+{
+  using DataType = RemoveCvType<RemovePointerType<T>>;
+  static constexpr int32b kIsGlobal = kScalarResultFalse;
+  static constexpr int32b kIsLocal = kScalarResultTrue;
+  static constexpr int32b kIsConstant = kScalarResultFalse;
+  static constexpr int32b kIsPrivate = kScalarResultFalse;
+  static constexpr int32b kIsPointer = kScalarResultTrue;
+};
+
+template <typename T>
+struct AddressSpaceInfoHelper<Constant<T>>
+{
+  using DataType = T;
+  static constexpr int32b kIsGlobal = kScalarResultFalse;
+  static constexpr int32b kIsLocal = kScalarResultFalse;
+  static constexpr int32b kIsConstant = kScalarResultTrue;
+  static constexpr int32b kIsPrivate = kScalarResultFalse;
+  static constexpr int32b kIsPointer = kScalarResultFalse;
+};
+
+template <typename T>
+struct AddressSpaceInfoHelper<ConstantPtr<T>>
+{
+  using DataType = RemoveCvType<RemovePointerType<T>>;
+  static constexpr int32b kIsGlobal = kScalarResultFalse;
+  static constexpr int32b kIsLocal = kScalarResultFalse;
+  static constexpr int32b kIsConstant = kScalarResultTrue;
+  static constexpr int32b kIsPrivate = kScalarResultFalse;
+  static constexpr int32b kIsPointer = kScalarResultTrue;
+};
+
+template <typename T>
+struct AddressSpaceInfoHelper<Private<T>>
+{
+  using DataType = T;
+  static constexpr int32b kIsGlobal = kScalarResultFalse;
+  static constexpr int32b kIsLocal = kScalarResultFalse;
+  static constexpr int32b kIsConstant = kScalarResultFalse;
+  static constexpr int32b kIsPrivate = kScalarResultTrue;
+  static constexpr int32b kIsPointer = kScalarResultFalse;
+};
+
+template <typename T>
+struct AddressSpaceInfoHelper<PrivatePtr<T>>
+{
+  using DataType = RemoveCvType<RemovePointerType<T>>;
+  static constexpr int32b kIsGlobal = kScalarResultFalse;
+  static constexpr int32b kIsLocal = kScalarResultFalse;
+  static constexpr int32b kIsConstant = kScalarResultFalse;
+  static constexpr int32b kIsPrivate = kScalarResultTrue;
+  static constexpr int32b kIsPointer = kScalarResultTrue;
+};
+
+template <typename T>
+struct AddressSpaceInfoHelper<Generic<T>>
+{
+  using DataType = T;
+  static constexpr int32b kIsGlobal = kScalarResultFalse;
+  static constexpr int32b kIsLocal = kScalarResultFalse;
+  static constexpr int32b kIsConstant = kScalarResultFalse;
+  static constexpr int32b kIsPrivate = kScalarResultTrue;
+  static constexpr int32b kIsPointer = kScalarResultFalse;
+};
+
+template <typename T>
+struct AddressSpaceInfoHelper<GenericPtr<T>>
+{
+  using DataType = RemoveCvType<RemovePointerType<T>>;
+  static constexpr int32b kIsGlobal = kScalarResultFalse;
+  static constexpr int32b kIsLocal = kScalarResultFalse;
+  static constexpr int32b kIsConstant = kScalarResultFalse;
+  static constexpr int32b kIsPrivate = kScalarResultTrue;
+  static constexpr int32b kIsPointer = kScalarResultTrue;
+};
+
+#endif // ZINVUL_CPU
+
+} // namespace inner
+
+template <typename T>
+class AddressSpaceInfo
+{
+  using ADataType = RemoveCvType<RemovePointerType<T>>;
+  using ASpaceInfo = inner::AddressSpaceInfoHelper<ADataType>;
+
+ public:
+  using DataType = typename ASpaceInfo::DataType;
+
+  //! Check if the Type is global address space type
+  static constexpr int32b isGlobal() noexcept
+  {
+    return ASpaceInfo::kIsGlobal;
+  }
+
+  //! Check if the Type is local address space type
+  static constexpr int32b isLocal() noexcept
+  {
+    return ASpaceInfo::kIsLocal;
+  }
+
+  //! Check if the Type is constant address space type
+  static constexpr int32b isConstant() noexcept
+  {
+    return ASpaceInfo::kIsConstant;
+  }
+
+  //! Check if the Type is private address space type
+  static constexpr int32b isPrivate() noexcept
+  {
+    return ASpaceInfo::kIsPrivate;
+  }
+
+  //! Check if given address space type is pointer
+  static constexpr int32b isPointer() noexcept
+  {
+    const int32b is_pointer = kIsPointer<T> | ASpaceInfo::kIsPointer;
+    return is_pointer;
+  }
+};
+
+namespace inner {
+
+template <typename T>
 struct IsSignedIntegerHelper
 {
   static constexpr int32b kValue = kScalarResultFalse;
@@ -232,6 +423,18 @@ ZINVUL_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double2);
 ZINVUL_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double3);
 ZINVUL_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double4);
 
+template <typename T>
+struct IsPointerHelper
+{
+  static constexpr int32b kValue = kScalarResultFalse;
+};
+
+template <typename T>
+struct IsPointerHelper<T*>
+{
+  static constexpr int32b kValue = kScalarResultTrue;
+};
+
 } // namespace inner
 
 template <typename T>
@@ -291,6 +494,12 @@ template <typename T>
 struct IsSigned
 {
   static constexpr int32b kValue = kIsSignedInteger<T> | kIsFloatingPoint<T>;
+};
+
+template <typename T>
+struct IsPointer
+{
+  static constexpr int32b kValue = inner::IsPointerHelper<RemoveCvType<T>>::kValue;
 };
 
 template <typename T>
@@ -418,7 +627,7 @@ struct RemoveCvref
 template <typename T>
 struct AddPointer
 {
-  using NoPointerType = RemovePointerType<T>;
+  using NoPointerType = RemovePointerType<RemoveReferenceType<T>>;
   using Type = NoPointerType*;
 };
 

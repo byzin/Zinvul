@@ -20,150 +20,51 @@ namespace zinvul {
 
 /*!
   */
-template <size_t kN, typename Type> inline
-auto VectorData::load(const size_t offset, ConstGlobalPtr<Type> p) noexcept
-    -> VecType<Type, kN>
+template <size_t kN, typename AddressSpaceType> inline
+auto VectorData::load(const size_t offset, AddressSpaceType p) noexcept
 {
-  const auto data = loadImpl<Type, kN>(offset, p);
+  const auto data = loadImpl<kN>(offset, p);
   return data;
 }
 
 /*!
   */
-template <size_t kN, typename Type> inline
-auto VectorData::load(const size_t offset, ConstLocalPtr<Type> p) noexcept
-    -> VecType<Type, kN>
+template <size_t kN, typename AddressSpaceType> inline
+auto VectorData::loadHalf(const size_t offset, AddressSpaceType p) noexcept
 {
-  const auto data = loadImpl<Type, kN>(offset, p);
+  const auto data = loadHalfImpl<kN>(offset, p);
   return data;
 }
 
 /*!
   */
-template <size_t kN, typename Type> inline
-auto VectorData::load(const size_t offset, ConstConstantPtr<Type> p) noexcept
-    -> VecType<Type, kN>
-{
-  const auto data = loadImpl<Type, kN>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <size_t kN, typename Type> inline
-auto VectorData::load(const size_t offset, ConstPrivatePtr<Type> p) noexcept
-    -> VecType<Type, kN>
-{
-  const auto data = loadImpl<Type, kN>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <size_t kN, typename Type> inline
-auto VectorData::loadHalf(const size_t offset, ConstGlobalPtr<Type> p) noexcept
-    -> FloatVec<kN>
-{
-  const auto data = loadHalfImpl<Type, kN>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <size_t kN, typename Type> inline
-auto VectorData::loadHalf(const size_t offset, ConstLocalPtr<Type> p) noexcept
-    -> FloatVec<kN>
-{
-  const auto data = loadHalfImpl<Type, kN>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <size_t kN, typename Type> inline
-auto VectorData::loadHalf(const size_t offset, ConstConstantPtr<Type> p) noexcept
-    -> FloatVec<kN>
-{
-  const auto data = loadHalfImpl<Type, kN>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <size_t kN, typename Type> inline
-auto VectorData::loadHalf(const size_t offset, ConstPrivatePtr<Type> p) noexcept
-    -> FloatVec<kN>
-{
-  const auto data = loadHalfImpl<Type, kN>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void VectorData::store(const VectorType data,
                        const size_t offset,
-                       GlobalPtr<Type> p) noexcept
+                       AddressSpaceType p) noexcept
 {
   storeImpl(data, offset, p);
 }
 
 /*!
   */
-template <typename VectorType, typename Type> inline
-void VectorData::store(const VectorType data,
-                       const size_t offset,
-                       LocalPtr<Type> p) noexcept
-{
-  storeImpl(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void VectorData::store(const VectorType data,
-                       const size_t offset,
-                       PrivatePtr<Type> p) noexcept
-{
-  storeImpl(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void VectorData::storeHalf(const VectorType data,
                            const size_t offset,
-                           GlobalPtr<Type> p) noexcept
+                           AddressSpaceType p) noexcept
 {
-  storeHalfImpl<Type>(data, offset, p);
+  storeHalfImpl(data, offset, p);
 }
 
 /*!
   */
-template <typename VectorType, typename Type> inline
-void VectorData::storeHalf(const VectorType data,
-                           const size_t offset,
-                           LocalPtr<Type> p) noexcept
+template <size_t kN, typename AddressSpaceType> inline
+auto VectorData::loadImpl(const size_t offset, AddressSpaceType p) noexcept
 {
-  storeHalfImpl<Type>(data, offset, p);
-}
+  // Address space type check
+  using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
+  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
 
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void VectorData::storeHalf(const VectorType data,
-                           const size_t offset,
-                           PrivatePtr<Type> p) noexcept
-{
-  storeHalfImpl<Type>(data, offset, p);
-}
-
-/*!
-  */
-template <typename Type, size_t kN, typename AddressType> inline
-auto VectorData::loadImpl(const size_t offset, AddressType p) noexcept
-    -> VecType<Type, kN>
-{
   if constexpr (kN == 1) {
     const auto data = p[offset];
     return data;
@@ -182,18 +83,20 @@ auto VectorData::loadImpl(const size_t offset, AddressType p) noexcept
   }
   else {
     static_assert(0 < kN, "The size of vector is wrong.");
+    return 0;
   }
 }
 
 /*!
   */
-template <typename Type, size_t kN, typename AddressType> inline
-auto VectorData::loadHalfImpl(const size_t offset, AddressType p) noexcept
-    -> FloatVec<kN>
+template <size_t kN, typename AddressSpaceType> inline
+auto VectorData::loadHalfImpl(const size_t offset, AddressSpaceType p) noexcept
 {
-  using TypeInfo = VectorTypeInfo<RemoveCvType<Type>>;
-  static_assert(TypeInfo::size() == 1, "The Type isn't scalar type.");
-  using ElemType = typename TypeInfo::ElementType;
+  // Address space type check
+  using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
+  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
+  using ElemType = typename ASpaceInfo::DataType;
+
   if constexpr (kIsHalf<ElemType>) {
 #if defined(ZINVUL_CPU)
     if constexpr (kN == 1) {
@@ -223,26 +126,26 @@ auto VectorData::loadHalfImpl(const size_t offset, AddressType p) noexcept
 #endif // ZINVUL_CPU
   }
   else if constexpr (kIsSame<uint16b, ElemType>) {
-    const auto data = loadHalfUImpl<Type, kN>(offset, p);
+    const auto data = loadHalfUImpl<kN>(offset, p);
     return data;
   }
   else {
-    static_assert(sizeof(ElemType) == 0, "The input type is unsupported.");
+    static_assert(sizeof(ElemType) == 0, "The type isn't half type.");
   }
 }
 
 /*!
   */
-template <typename Type, size_t kN, typename AddressType> inline
-auto VectorData::loadHalfUImpl(const size_t offset, AddressType p) noexcept
-    -> FloatVec<kN>
+template <size_t kN, typename AddressSpaceType> inline
+auto VectorData::loadHalfUImpl(const size_t offset, AddressSpaceType p) noexcept
 {
-  using TypeInfo = VectorTypeInfo<RemoveCvType<Type>>;
-  static_assert(TypeInfo::size() == 1, "The Type isn't scalar type.");
-  using ElemType = typename TypeInfo::ElementType;
+  // Address space type check
+  using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
+  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
+  using ElemType = typename ASpaceInfo::DataType;
   static_assert(kIsSame<uint16b, ElemType>, "The Type isn't uint16b.");
 
-  const auto data = load<kN, Type>(offset, p);
+  const auto data = load<kN>(offset, p);
   const auto udata = HalfFloat::upscale<FloatingPointFormat::kSingle, kN>(data);
   const auto fdata = treatAs<FloatVec<kN>>(udata);
   return fdata;
@@ -250,13 +153,19 @@ auto VectorData::loadHalfUImpl(const size_t offset, AddressType p) noexcept
 
 /*!
   */
-template <typename VectorType, typename AddressType> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void VectorData::storeImpl(const VectorType data,
                            const size_t offset,
-                           AddressType p) noexcept
+                           AddressSpaceType p) noexcept
 {
+  // Source type check
   using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
   constexpr size_t n = VecInfo::size();
+
+  // Address space type check
+  using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
+  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
+
   if constexpr (n == 1) {
     p[offset] = data;
   }
@@ -276,18 +185,24 @@ void VectorData::storeImpl(const VectorType data,
 
 /*!
   */
-template <typename Type, typename VectorType, typename AddressType> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void VectorData::storeHalfImpl(const VectorType data,
                                const size_t offset,
-                               AddressType p) noexcept
+                               AddressSpaceType p) noexcept
 {
-  // Source type
+  // Source type check
   using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  using ElemType = typename VecInfo::ElementType;
-  static_assert(kIsSingleFloat<ElemType>, "The VectorType isn't float type.");
+  using FloatType = typename VecInfo::ElementType;
+  static_assert(kIsSingleFloat<FloatType>, "The VectorType isn't float type.");
   constexpr size_t n = VecInfo::size();
+
+  // Address space type check
+  using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
+  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
+  using ElemType = typename ASpaceInfo::DataType;
+
   // Destination type
-  if constexpr (kIsHalf<RemoveCvType<Type>>) {
+  if constexpr (kIsHalf<ElemType>) {
 #if defined(ZINVUL_CPU)
     if constexpr (n == 1) {
       ZINVUL_GLOBAL_NAMESPACE::vstore_half(data, offset, p);
@@ -310,30 +225,34 @@ void VectorData::storeHalfImpl(const VectorType data,
     (void)p;
 #endif // ZINVUL_CPU
   }
-  else if constexpr (kIsSame<uint16b, RemoveCvType<Type>>) {
-    storeHalfUImpl<Type>(data, offset, p);
+  else if constexpr (kIsSame<uint16b, ElemType>) {
+    storeHalfUImpl(data, offset, p);
   }
   else {
-    static_assert(sizeof(ElemType) == 0, "The input type is unsupported.");
+    static_assert(sizeof(ElemType) == 0, "The input type isn't half type.");
   }
 }
 
 /*!
   */
-template <typename Type, typename VectorType, typename AddressType> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void VectorData::storeHalfUImpl(const VectorType fdata,
                                 const size_t offset,
-                                AddressType p) noexcept
+                                AddressSpaceType p) noexcept
 {
-  // Source type
+  // Source type check
   using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  using ElemType = typename VecInfo::ElementType;
-  static_assert(kIsSingleFloat<ElemType>, "The VectorType isn't float type.");
+  using FloatType = typename VecInfo::ElementType;
+  static_assert(kIsSingleFloat<FloatType>, "The VectorType isn't float type.");
   constexpr size_t n = VecInfo::size();
-  // Destination type
-  static_assert(kIsSame<uint16b, RemoveCvType<Type>>, "The Type isn't uint16b.");
-  using BitVec = SingleFloat::BitVec<n>;
 
+  // Address space type check
+  using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
+  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
+  using ElemType = typename ASpaceInfo::DataType;
+  static_assert(kIsSame<uint16b, ElemType>, "The Type isn't uint16b.");
+
+  using BitVec = SingleFloat::BitVec<n>;
   const auto udata = treatAs<BitVec>(fdata);
   const auto data = SingleFloat::downscale<FloatingPointFormat::kHalf, n>(udata);
   store(data, offset, p);
@@ -341,9 +260,8 @@ void VectorData::storeHalfUImpl(const VectorType fdata,
 
 /*!
   */
-template <typename Type> inline
-VectorData::VecType<Type, 2> vload2(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept
+template <typename AddressSpaceType> inline
+auto vload2(const size_t offset, AddressSpaceType p) noexcept
 {
   const auto data = VectorData::load<2>(offset, p);
   return data;
@@ -351,9 +269,8 @@ VectorData::VecType<Type, 2> vload2(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
-VectorData::VecType<Type, 3> vload3(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept
+template <typename AddressSpaceType> inline
+auto vload3(const size_t offset, AddressSpaceType p) noexcept
 {
   const auto data = VectorData::load<3>(offset, p);
   return data;
@@ -361,9 +278,8 @@ VectorData::VecType<Type, 3> vload3(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
-VectorData::VecType<Type, 4> vload4(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept
+template <typename AddressSpaceType> inline
+auto vload4(const size_t offset, AddressSpaceType p) noexcept
 {
   const auto data = VectorData::load<4>(offset, p);
   return data;
@@ -371,99 +287,8 @@ VectorData::VecType<Type, 4> vload4(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
-VectorData::VecType<Type, 2> vload2(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept
-{
-  const auto data = VectorData::load<2>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::VecType<Type, 3> vload3(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept
-{
-  const auto data = VectorData::load<3>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::VecType<Type, 4> vload4(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept
-{
-  const auto data = VectorData::load<4>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::VecType<Type, 2> vload2(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept
-{
-  const auto data = VectorData::load<2>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::VecType<Type, 3> vload3(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept
-{
-  const auto data = VectorData::load<3>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::VecType<Type, 4> vload4(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept
-{
-  const auto data = VectorData::load<4>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::VecType<Type, 2> vload2(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept
-{
-  const auto data = VectorData::load<2>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::VecType<Type, 3> vload3(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept
-{
-  const auto data = VectorData::load<3>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::VecType<Type, 4> vload4(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept
-{
-  const auto data = VectorData::load<4>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<1> vload_half(const size_t offset,
-                                   ConstGlobalPtr<Type> p) noexcept
+template <typename AddressSpaceType> inline
+auto vload_half(const size_t offset, AddressSpaceType p) noexcept
 {
   const auto data = VectorData::loadHalf<1>(offset, p);
   return data;
@@ -471,9 +296,8 @@ VectorData::FloatVec<1> vload_half(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
-VectorData::FloatVec<2> vload_half2(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept
+template <typename AddressSpaceType> inline
+auto vload_half2(const size_t offset, AddressSpaceType p) noexcept
 {
   const auto data = VectorData::loadHalf<2>(offset, p);
   return data;
@@ -481,9 +305,8 @@ VectorData::FloatVec<2> vload_half2(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
-VectorData::FloatVec<3> vload_half3(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept
+template <typename AddressSpaceType> inline
+auto vload_half3(const size_t offset, AddressSpaceType p) noexcept
 {
   const auto data = VectorData::loadHalf<3>(offset, p);
   return data;
@@ -491,9 +314,8 @@ VectorData::FloatVec<3> vload_half3(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
-VectorData::FloatVec<4> vload_half4(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept
+template <typename AddressSpaceType> inline
+auto vload_half4(const size_t offset, AddressSpaceType p) noexcept
 {
   const auto data = VectorData::loadHalf<4>(offset, p);
   return data;
@@ -501,130 +323,10 @@ VectorData::FloatVec<4> vload_half4(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
-VectorData::FloatVec<1> vload_half(const size_t offset,
-                                   ConstLocalPtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<1>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<2> vload_half2(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<2>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<3> vload_half3(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<3>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<4> vload_half4(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<4>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<1> vload_half(const size_t offset,
-                                   ConstConstantPtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<1>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<2> vload_half2(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<2>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<3> vload_half3(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<3>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<4> vload_half4(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<4>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<1> vload_half(const size_t offset,
-                                   ConstPrivatePtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<1>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<2> vload_half2(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<2>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<3> vload_half3(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<3>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename Type> inline
-VectorData::FloatVec<4> vload_half4(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept
-{
-  const auto data = VectorData::loadHalf<4>(offset, p);
-  return data;
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void vstore2(const VectorType data,
              const size_t offset,
-             GlobalPtr<Type> p) noexcept
+             AddressSpaceType p) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
   constexpr size_t n = VecInfo::size();
@@ -635,10 +337,10 @@ void vstore2(const VectorType data,
 
 /*!
   */
-template <typename VectorType, typename Type> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void vstore3(const VectorType data,
              const size_t offset,
-             GlobalPtr<Type> p) noexcept
+             AddressSpaceType p) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
   constexpr size_t n = VecInfo::size();
@@ -649,10 +351,10 @@ void vstore3(const VectorType data,
 
 /*!
   */
-template <typename VectorType, typename Type> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void vstore4(const VectorType data,
              const size_t offset,
-             GlobalPtr<Type> p) noexcept
+             AddressSpaceType p) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
   constexpr size_t n = VecInfo::size();
@@ -663,94 +365,10 @@ void vstore4(const VectorType data,
 
 /*!
   */
-template <typename VectorType, typename Type> inline
-void vstore2(const VectorType data,
-             const size_t offset,
-             LocalPtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 2, "The size of VectorType is wrong.");
-
-  VectorData::store(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore3(const VectorType data,
-             const size_t offset,
-             LocalPtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 3, "The size of VectorType is wrong.");
-
-  VectorData::store(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore4(const VectorType data,
-             const size_t offset,
-             LocalPtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 4, "The size of VectorType is wrong.");
-
-  VectorData::store(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore2(const VectorType data,
-             const size_t offset,
-             PrivatePtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 2, "The size of VectorType is wrong.");
-
-  VectorData::store(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore3(const VectorType data,
-             const size_t offset,
-             PrivatePtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 3, "The size of VectorType is wrong.");
-
-  VectorData::store(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore4(const VectorType data,
-             const size_t offset,
-             PrivatePtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 4, "The size of VectorType is wrong.");
-
-  VectorData::store(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void vstore_half(const VectorType data,
                  const size_t offset,
-                 GlobalPtr<Type> p) noexcept
+                 AddressSpaceType p) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
   constexpr size_t n = VecInfo::size();
@@ -761,10 +379,10 @@ void vstore_half(const VectorType data,
 
 /*!
   */
-template <typename VectorType, typename Type> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void vstore_half2(const VectorType data,
                   const size_t offset,
-                  GlobalPtr<Type> p) noexcept
+                  AddressSpaceType p) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
   constexpr size_t n = VecInfo::size();
@@ -775,10 +393,10 @@ void vstore_half2(const VectorType data,
 
 /*!
   */
-template <typename VectorType, typename Type> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void vstore_half3(const VectorType data,
                   const size_t offset,
-                  GlobalPtr<Type> p) noexcept
+                  AddressSpaceType p) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
   constexpr size_t n = VecInfo::size();
@@ -789,122 +407,10 @@ void vstore_half3(const VectorType data,
 
 /*!
   */
-template <typename VectorType, typename Type> inline
+template <typename VectorType, typename AddressSpaceType> inline
 void vstore_half4(const VectorType data,
                   const size_t offset,
-                  GlobalPtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 4, "The size of VectorType is wrong.");
-
-  VectorData::storeHalf(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore_half(const VectorType data,
-                 const size_t offset,
-                 LocalPtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 1, "The size of VectorType is wrong.");
-
-  VectorData::storeHalf(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore_half2(const VectorType data,
-                  const size_t offset,
-                  LocalPtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 2, "The size of VectorType is wrong.");
-
-  VectorData::storeHalf(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore_half3(const VectorType data,
-                  const size_t offset,
-                  LocalPtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 3, "The size of VectorType is wrong.");
-
-  VectorData::storeHalf(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore_half4(const VectorType data,
-                  const size_t offset,
-                  LocalPtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 4, "The size of VectorType is wrong.");
-
-  VectorData::storeHalf(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore_half(const VectorType data,
-                 const size_t offset,
-                 PrivatePtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 1, "The size of VectorType is wrong.");
-
-  VectorData::storeHalf(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore_half2(const VectorType data,
-                  const size_t offset,
-                  PrivatePtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 2, "The size of VectorType is wrong.");
-
-  VectorData::storeHalf(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore_half3(const VectorType data,
-                  const size_t offset,
-                  PrivatePtr<Type> p) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  constexpr size_t n = VecInfo::size();
-  static_assert(n == 3, "The size of VectorType is wrong.");
-
-  VectorData::storeHalf(data, offset, p);
-}
-
-/*!
-  */
-template <typename VectorType, typename Type> inline
-void vstore_half4(const VectorType data,
-                  const size_t offset,
-                  PrivatePtr<Type> p) noexcept
+                  AddressSpaceType p) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
   constexpr size_t n = VecInfo::size();

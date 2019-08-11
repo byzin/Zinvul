@@ -21,389 +21,136 @@ namespace zinvul {
   */
 class VectorData
 {
- public:
   template <typename Type, size_t kN>
   using VecType = VectorTypeFromElems<RemoveCvType<Type>, kN>;
 
   template <size_t kN>
   using FloatVec = Float32VecType<kN>;
 
+ public:
+  //! Return a vector data read from the given address p
+  template <size_t kN, typename AddressSpaceType>
+  static auto load(const size_t offset, AddressSpaceType p) noexcept;
 
   //! Return a vector data read from the given address p
-  template <size_t kN, typename Type>
-  static VecType<Type, kN> load(const size_t offset,
-                                ConstGlobalPtr<Type> p) noexcept;
-
-  //! Return a vector data read from the given address p
-  template <size_t kN, typename Type>
-  static VecType<Type, kN> load(const size_t offset,
-                                ConstLocalPtr<Type> p) noexcept;
-
-  //! Return a vector data read from the given address p
-  template <size_t kN, typename Type>
-  static VecType<Type, kN> load(const size_t offset,
-                                ConstConstantPtr<Type> p) noexcept;
-
-  //! Return a vector data read from the given address p
-  template <size_t kN, typename Type>
-  static VecType<Type, kN> load(const size_t offset,
-                                ConstPrivatePtr<Type> p) noexcept;
-
-  //! Return a vector data read from the given address p
-  template <size_t kN, typename Type>
-  static FloatVec<kN> loadHalf(const size_t offset,
-                               ConstGlobalPtr<Type> p) noexcept;
-
-  //! Return a vector data read from the given address p
-  template <size_t kN, typename Type>
-  static FloatVec<kN> loadHalf(const size_t offset,
-                               ConstLocalPtr<Type> p) noexcept;
-
-  //! Return a vector data read from the given address p
-  template <size_t kN, typename Type>
-  static FloatVec<kN> loadHalf(const size_t offset,
-                               ConstConstantPtr<Type> p) noexcept;
-
-  //! Return a vector data read from the given address p
-  template <size_t kN, typename Type>
-  static FloatVec<kN> loadHalf(const size_t offset,
-                               ConstPrivatePtr<Type> p) noexcept;
+  template <size_t kN, typename AddressSpaceType>
+  static auto loadHalf(const size_t offset, AddressSpaceType p) noexcept;
 
   //! Write a vector data to the given address p
-  template <typename VectorType, typename Type>
+  template <typename VectorType, typename AddressSpaceType>
   static void store(const VectorType data,
                     const size_t offset,
-                    GlobalPtr<Type> p) noexcept;
+                    AddressSpaceType p) noexcept;
 
   //! Write a vector data to the given address p
-  template <typename VectorType, typename Type>
-  static void store(const VectorType data,
-                    const size_t offset,
-                    LocalPtr<Type> p) noexcept;
-
-  //! Write a vector data to the given address p
-  template <typename VectorType, typename Type>
-  static void store(const VectorType data,
-                    const size_t offset,
-                    PrivatePtr<Type> p) noexcept;
-
-  //! Write a vector data to the given address p
-  template <typename VectorType, typename Type>
+  template <typename VectorType, typename AddressSpaceType>
   static void storeHalf(const VectorType data,
                         const size_t offset,
-                        GlobalPtr<Type> p) noexcept;
-
-  //! Write a vector data to the given address p
-  template <typename VectorType, typename Type>
-  static void storeHalf(const VectorType data,
-                        const size_t offset,
-                        LocalPtr<Type> p) noexcept;
-
-  //! Write a vector data to the given address p
-  template <typename VectorType, typename Type>
-  static void storeHalf(const VectorType data,
-                        const size_t offset,
-                        PrivatePtr<Type> p) noexcept;
+                        AddressSpaceType p) noexcept;
 
  private:
   //! Return a vector data read from the given address p
-  template <typename Type, size_t kN, typename AddressType>
-  static VecType<Type, kN> loadImpl(const size_t offset, AddressType p) noexcept;
+  template <size_t kN, typename AddressSpaceType>
+  static auto loadImpl(const size_t offset, AddressSpaceType p) noexcept;
 
   //! Return a vector data read from the given address p
-  template <typename Type, size_t kN, typename AddressType>
-  static FloatVec<kN> loadHalfImpl(const size_t offset, AddressType p) noexcept;
+  template <size_t kN, typename AddressSpaceType>
+  static auto loadHalfImpl(const size_t offset, AddressSpaceType p) noexcept;
 
   //! Return a vector data read from the given address p
-  template <typename Type, size_t kN, typename AddressType>
-  static FloatVec<kN> loadHalfUImpl(const size_t offset, AddressType p) noexcept;
+  template <size_t kN, typename AddressSpaceType>
+  static auto loadHalfUImpl(const size_t offset, AddressSpaceType p) noexcept;
 
   //! Write a vector data to the given address p
-  template <typename VectorType, typename AddressType>
+  template <typename VectorType, typename AddressSpaceType>
   static void storeImpl(const VectorType data,
                         const size_t offset,
-                        AddressType p) noexcept;
+                        AddressSpaceType p) noexcept;
 
   //! Write a vector data to the given address p
-  template <typename Type, typename VectorType, typename AddressType>
+  template <typename VectorType, typename AddressSpaceType>
   static void storeHalfImpl(const VectorType data,
                             const size_t offset,
-                            AddressType p) noexcept;
+                            AddressSpaceType p) noexcept;
 
   //! Write a vector data to the given address p
-  template <typename Type, typename VectorType, typename AddressType>
+  template <typename VectorType, typename AddressSpaceType>
   static void storeHalfUImpl(const VectorType fdata,
                              const size_t offset,
-                             AddressType p) noexcept;
+                             AddressSpaceType p) noexcept;
 };
 
 // OpenCL function aliases
 
 //! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 2> vload2(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept;
+template <typename AddressSpaceType>
+auto vload2(const size_t offset, AddressSpaceType p) noexcept;
 
 //! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 3> vload3(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept;
+template <typename AddressSpaceType>
+auto vload3(const size_t offset, AddressSpaceType p) noexcept;
 
 //! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 4> vload4(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept;
-
-//! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 2> vload2(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept;
-
-//! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 3> vload3(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept;
-
-//! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 4> vload4(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept;
-
-//! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 2> vload2(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept;
-
-//! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 3> vload3(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept;
-
-//! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 4> vload4(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept;
-
-//! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 2> vload2(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept;
-
-//! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 3> vload3(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept;
-
-//! Return a vector data read from the given address p
-template <typename Type>
-VectorData::VecType<Type, 4> vload4(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept;
+template <typename AddressSpaceType>
+auto vload4(const size_t offset, AddressSpaceType p) noexcept;
 
 //! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<1> vload_half(const size_t offset,
-                                   ConstGlobalPtr<Type> p) noexcept;
+template <typename AddressSpaceType>
+auto vload_half(const size_t offset, AddressSpaceType p) noexcept;
 
 //! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<2> vload_half2(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept;
+template <typename AddressSpaceType>
+auto vload_half2(const size_t offset, AddressSpaceType p) noexcept;
 
 //! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<3> vload_half3(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept;
+template <typename AddressSpaceType>
+auto vload_half3(const size_t offset, AddressSpaceType p) noexcept;
 
 //! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<4> vload_half4(const size_t offset,
-                                    ConstGlobalPtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<1> vload_half(const size_t offset,
-                                   ConstLocalPtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<2> vload_half2(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<3> vload_half3(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<4> vload_half4(const size_t offset,
-                                    ConstLocalPtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<1> vload_half(const size_t offset,
-                                   ConstConstantPtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<2> vload_half2(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<3> vload_half3(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<4> vload_half4(const size_t offset,
-                                    ConstConstantPtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<1> vload_half(const size_t offset,
-                                   ConstPrivatePtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<2> vload_half2(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<3> vload_half3(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept;
-
-//! Return a data read from p
-template <typename Type>
-VectorData::FloatVec<4> vload_half4(const size_t offset,
-                                    ConstPrivatePtr<Type> p) noexcept;
+template <typename AddressSpaceType>
+auto vload_half4(const size_t offset, AddressSpaceType p) noexcept;
 
 //! Write a vector data to the given address p
-template <typename VectorType, typename Type>
+template <typename VectorType, typename AddressSpaceType>
 void vstore2(const VectorType data,
              const size_t offset,
-             GlobalPtr<Type> p) noexcept;
+             AddressSpaceType p) noexcept;
 
 //! Write a vector data to the given address p
-template <typename VectorType, typename Type>
+template <typename VectorType, typename AddressSpaceType>
 void vstore3(const VectorType data,
              const size_t offset,
-             GlobalPtr<Type> p) noexcept;
+             AddressSpaceType p) noexcept;
 
 //! Write a vector data to the given address p
-template <typename VectorType, typename Type>
+template <typename VectorType, typename AddressSpaceType>
 void vstore4(const VectorType data,
              const size_t offset,
-             GlobalPtr<Type> p) noexcept;
+             AddressSpaceType p) noexcept;
 
 //! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore2(const VectorType data,
-             const size_t offset,
-             LocalPtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore3(const VectorType data,
-             const size_t offset,
-             LocalPtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore4(const VectorType data,
-             const size_t offset,
-             LocalPtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore2(const VectorType data,
-             const size_t offset,
-             PrivatePtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore3(const VectorType data,
-             const size_t offset,
-             PrivatePtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore4(const VectorType data,
-             const size_t offset,
-             PrivatePtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
+template <typename VectorType, typename AddressSpaceType>
 void vstore_half(const VectorType data,
                  const size_t offset,
-                 GlobalPtr<Type> p) noexcept;
+                 AddressSpaceType p) noexcept;
 
 //! Write a vector data to the given address p
-template <typename VectorType, typename Type>
+template <typename VectorType, typename AddressSpaceType>
 void vstore_half2(const VectorType data,
                   const size_t offset,
-                  GlobalPtr<Type> p) noexcept;
+                  AddressSpaceType p) noexcept;
 
 //! Write a vector data to the given address p
-template <typename VectorType, typename Type>
+template <typename VectorType, typename AddressSpaceType>
 void vstore_half3(const VectorType data,
                   const size_t offset,
-                  GlobalPtr<Type> p) noexcept;
+                  AddressSpaceType p) noexcept;
 
 //! Write a vector data to the given address p
-template <typename VectorType, typename Type>
+template <typename VectorType, typename AddressSpaceType>
 void vstore_half4(const VectorType data,
                   const size_t offset,
-                  GlobalPtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore_half(const VectorType data,
-                 const size_t offset,
-                 LocalPtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore_half2(const VectorType data,
-                  const size_t offset,
-                  LocalPtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore_half3(const VectorType data,
-                  const size_t offset,
-                  LocalPtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore_half4(const VectorType data,
-                  const size_t offset,
-                  LocalPtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore_half(const VectorType data,
-                 const size_t offset,
-                 PrivatePtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore_half2(const VectorType data,
-                  const size_t offset,
-                  PrivatePtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore_half3(const VectorType data,
-                  const size_t offset,
-                  PrivatePtr<Type> p) noexcept;
-
-//! Write a vector data to the given address p
-template <typename VectorType, typename Type>
-void vstore_half4(const VectorType data,
-                  const size_t offset,
-                  PrivatePtr<Type> p) noexcept;
+                  AddressSpaceType p) noexcept;
 
 } // namespace zinvul
 
