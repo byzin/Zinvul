@@ -41,7 +41,7 @@ constexpr auto Fnv1aHashEngine<ResultType>::prime() noexcept -> ResultType
     return p;
   }
   else {
-    static_assert(0 <= sizeof(ResultType), "Unsupported result type is specified.");
+    static_assert(sizeof(ResultType) == 0, "Unsupported result type is specified.");
   }
 }
 
@@ -57,7 +57,7 @@ constexpr auto Fnv1aHashEngine<ResultType>::offset() noexcept -> ResultType
     return o;
   }
   else {
-    static_assert(0 <= sizeof(ResultType), "Unsupported result type is specified.");
+    static_assert(sizeof(ResultType) == 0, "Unsupported result type is specified.");
   }
 }
 

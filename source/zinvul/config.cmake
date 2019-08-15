@@ -25,7 +25,7 @@ function(initZinvulOption)
   set(option_description "Use built-in math funcs instead of the Zinvul funcs.")
   setBooleanOption(ZINVUL_MATH_BUILTIN OFF ${option_description})
 
-  set(option_description "Use built-in `select{ instead of the Zinvul func.")
+  set(option_description "Use built-in 'select' instead of the Zinvul func.")
   setBooleanOption(ZINVUL_MATH_BUILTIN_SELECT OFF ${option_description})
 
   set(option_description "Use built-in 'sign' instead of the Zinvul func.")
