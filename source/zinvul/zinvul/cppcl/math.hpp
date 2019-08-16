@@ -15,7 +15,7 @@
 #include <cmath>
 #include <type_traits>
 // Zisc
-#include "zisc/const_math.hpp"
+#include "zisc/math_const.hpp"
 // Zinvul
 #include "vector.hpp"
 #include "zinvul/zinvul_config.hpp"

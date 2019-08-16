@@ -15,8 +15,9 @@
 #include <cstddef>
 #include <type_traits>
 // Zisc
-#include "zisc/unique_memory_pointer.hpp"
+#include "zisc/algorithm.hpp"
 #include "zisc/non_copyable.hpp"
+#include "zisc/unique_memory_pointer.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
@@ -28,7 +29,7 @@ namespace zinvul {
 template <std::size_t kDimension, typename ...BufferArgs>
 class Kernel : private zisc::NonCopyable<Kernel<kDimension, BufferArgs...>>
 {
-  static_assert(zisc::isInBounds(kDimension, 1u, 4u),
+  static_assert(zisc::Algorithm::isInBounds(kDimension, 1u, 4u),
                 "The kDimension should be 1, 2 or 3.");
 
  public:

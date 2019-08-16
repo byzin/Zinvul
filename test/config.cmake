@@ -86,6 +86,11 @@ function(buildUnitTest)
   file(GLOB_RECURSE relational_cl_files ${relational_dir}/*.cl)
   makeKernelSet(relational relational_source_files relational_definitions
       SOURCE_FILES ${relational_cl_files} INCLUDE_DIRS ${relational_dir})
+  # Algorithm functions
+  set(algorithm_dir ${__test_root__}/kernels/algorithm)
+  file(GLOB_RECURSE algorithm_cl_files ${algorithm_dir}/*.cl)
+  makeKernelSet(algorithm algorithm_source_files algorithm_definitions
+      SOURCE_FILES ${algorithm_cl_files} INCLUDE_DIRS ${algorithm_dir})
   # Math
   set(math_dir ${__test_root__}/kernels/math)
   file(GLOB_RECURSE math_cl_files ${math_dir}/*.cl)
@@ -119,6 +124,7 @@ function(buildUnitTest)
                           ${atomic_files}
                           ${vector_data_files}
                           ${relational_source_files}
+                          ${algorithm_source_files}
                           ${math_source_files}
                           ${matrix_source_files}
                           ${rng_source_files}
@@ -159,6 +165,7 @@ function(buildUnitTest)
                                               ${atomic_definitions}
                                               ${vector_data_definitions}
                                               ${relational_definitions}
+                                              ${algorithm_definitions}
                                               ${math_definitions}
                                               ${matrix_definitions}
                                               ${rng_definitions}
@@ -169,6 +176,7 @@ function(buildUnitTest)
                             atomic
                             vector_data
                             relational
+                            algorithm
                             math
                             matrix
                             rng

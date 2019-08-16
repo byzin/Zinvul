@@ -34,45 +34,145 @@ using zinvul::cast;
 using zinvul::treatAs;
 
 // Forward declaration
-__kernel void testConstantValue(GlobalPtr<float> result);
+__kernel void testConstantValue(GlobalPtr<int32b> iresults,
+    GlobalPtr<float> fresults);
 #if !defined(Z_MAC)
-__kernel void testConstantValue64(GlobalPtr<double> result);
+__kernel void testConstantValue64(GlobalPtr<int32b> iresults,
+    GlobalPtr<double> fresults);
 #endif // !Z_MAC
 
-__kernel void testConstantValue(GlobalPtr<float> result)
+__kernel void testConstantValue(GlobalPtr<int32b> iresults,
+    GlobalPtr<float> fresults)
 {
   const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     size_t i = 0;
     {
+      constexpr int32b k = FLT_DIG;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = FLT_MANT_DIG;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = FLT_MAX_10_EXP;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = FLT_MAX_EXP;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = FLT_MIN_10_EXP;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = FLT_MIN_EXP;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = FLT_RADIX;
+      iresults[i++] = k;
+    }
+
+    i = 0;
+    {
+      constexpr float k = FLT_MAX;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = FLT_MIN;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = FLT_EPSILON;
+      fresults[i++] = k;
+    }
+
+    // Math constant values
+    {
+      constexpr float k = M_E_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_LOG2E_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_LOG10E_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_LN2_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_LN10_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_PI_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_PI_2_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_PI_4_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_1_PI_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_2_PI_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_2_SQRTPI_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_SQRT2_F;
+      fresults[i++] = k;
+    }
+    {
+      constexpr float k = M_SQRT1_2_F;
+      fresults[i++] = k;
+    }
+
+    {
       constexpr float pi = zinvul::kPi<float>;
-      result[i++] = pi;
+      fresults[i++] = pi;
     }
     {
       constexpr float pi = zinvul::kPi<float>;
       constexpr float s = zinvul::mathconst::sqrt(pi);
-      result[i++] = s;
+      fresults[i++] = s;
     }
     {
       constexpr float s = zinvul::mathconst::sqrt(2.0f);
-      result[i++] = s;
+      fresults[i++] = s;
     }
     {
       constexpr float s = zinvul::mathconst::sqrt(3.0f);
-      result[i++] = s;
+      fresults[i++] = s;
     }
     {
       constexpr float pi = zinvul::kPi<float>;
       constexpr float c = zinvul::mathconst::cbrt(pi);
-      result[i++] = c;
+      fresults[i++] = c;
     }
     {
       constexpr float c = zinvul::mathconst::cbrt(2.0f);
-      result[i++] = c;
+      fresults[i++] = c;
     }
     {
       constexpr float c = zinvul::mathconst::cbrt(3.0f);
-      result[i++] = c;
+      fresults[i++] = c;
     }
   }
 }
@@ -80,40 +180,134 @@ __kernel void testConstantValue(GlobalPtr<float> result)
 #if !defined(Z_MAC)
 
 // Forward declaration
-__kernel void testConstantValue64(GlobalPtr<double> result)
+__kernel void testConstantValue64(GlobalPtr<int32b> iresults,
+    GlobalPtr<double> fresults)
 {
   const uint32b index = zinvul::getGlobalIdX();
   if (index == 0) {
     size_t i = 0;
     {
+      constexpr int32b k = DBL_DIG;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = DBL_MANT_DIG;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = DBL_MAX_10_EXP;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = DBL_MAX_EXP;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = DBL_MIN_10_EXP;
+      iresults[i++] = k;
+    }
+    {
+      constexpr int32b k = DBL_MIN_EXP;
+      iresults[i++] = k;
+    }
+
+    i = 0;
+    {
+      constexpr double k = DBL_MAX;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = DBL_MIN;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = DBL_EPSILON;
+      fresults[i++] = k;
+    }
+
+    // Math constant values
+    {
+      constexpr double k = M_E;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_LOG2E;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_LOG10E;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_LN2;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_LN10;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_PI;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_PI_2;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_PI_4;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_1_PI;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_2_PI;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_2_SQRTPI;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_SQRT2;
+      fresults[i++] = k;
+    }
+    {
+      constexpr double k = M_SQRT1_2;
+      fresults[i++] = k;
+    }
+
+    {
       constexpr double pi = zinvul::kPi<double>;
-      result[i++] = pi;
+      fresults[i++] = pi;
     }
     {
       constexpr double pi = zinvul::kPi<double>;
       constexpr double s = zinvul::mathconst::sqrt(pi);
-      result[i++] = s;
+      fresults[i++] = s;
     }
     {
       constexpr double s = zinvul::mathconst::sqrt(2.0);
-      result[i++] = s;
+      fresults[i++] = s;
     }
     {
       constexpr double s = zinvul::mathconst::sqrt(3.0);
-      result[i++] = s;
+      fresults[i++] = s;
     }
     {
       constexpr double pi = zinvul::kPi<double>;
       constexpr double c = zinvul::mathconst::cbrt(pi);
-      result[i++] = c;
+      fresults[i++] = c;
     }
     {
       constexpr double c = zinvul::mathconst::cbrt(2.0);
-      result[i++] = c;
+      fresults[i++] = c;
     }
     {
       constexpr double c = zinvul::mathconst::cbrt(3.0);
-      result[i++] = c;
+      fresults[i++] = c;
     }
   }
 }

@@ -39,13 +39,14 @@ void printFloat(const char* message, const Float x)
   using FloatData = zisc::FloatingPointFromBytes<sizeof(Float)>;
   std::cout << std::setfill(' ') << std::setw(24) << message << ": "
             << std::scientific
+            << std::setfill(' ') << std::setw(26)
             << std::setprecision(std::numeric_limits<Float>::max_digits10)
             << x;
   if (sizeof(FloatData) == 4)
     std::cout << "f";
-  std::cout << std::endl;
   const auto data = FloatData::fromFloat(x);
-  std::cout << "                     hex: " << std::hex << data.bits();
+  std::cout << ", hex: " << std::hex
+            << std::setfill(' ') << std::setw(18) << data.bits();
   std::cout << std::endl;
 }
 
@@ -61,70 +62,203 @@ TEST(MathTest, ConstantValueTest)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr std::size_t n = 7;
+    constexpr std::size_t ni = 7;
+    constexpr std::size_t nf = 23;
 
-    auto buffer1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
-    buffer1->setSize(n);
+    auto buffer1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(ni);
+    auto buffer2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    buffer2->setSize(nf);
 
     auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testConstantValue));
-    kernel->run(*buffer1, {1}, 0);
+    kernel->run(*buffer1, *buffer2, {1}, 0);
     device->waitForCompletion();
 
     {
-      std::vector<float> results;
-      results.resize(n);
+      std::vector<int32b> results;
+      results.resize(ni);
       buffer1->read(results.data(), results.size(), 0, 0);
+
       std::size_t i = 0;
+      EXPECT_EQ(6, results[i++]) << "FLT_DIG is wrong.";
+      EXPECT_EQ(24, results[i++]) << "FLT_MANT_DIG is wrong.";
+      EXPECT_EQ(+38, results[i++]) << "FLT_MAX_10_EXP is wrong.";
+      EXPECT_EQ(+128, results[i++]) << "FLT_MAX_EXP is wrong.";
+      EXPECT_EQ(-37, results[i++]) << "FLT_MIN_10_EXP is wrong.";
+      EXPECT_EQ(-125, results[i++]) << "FLT_MIN_EXP is wrong.";
+      EXPECT_EQ(2, results[i++]) << "FLT_RADIX is wrong.";
+    }
+    {
+      std::vector<float> results;
+      results.resize(nf);
+      buffer2->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      {
+        const float expected = std::numeric_limits<float>::max();
+        ::printFloat("expected max", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul max", result);
+        EXPECT_FLOAT_EQ(expected, result) << "FLT_MAX doesn't match.";
+      }
+      {
+        const float expected = std::numeric_limits<float>::min();
+        ::printFloat("expected min", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul min", result);
+        EXPECT_FLOAT_EQ(expected, result) << "FLT_MIN doesn't match.";
+      }
+      {
+        const float expected = std::numeric_limits<float>::epsilon();
+        ::printFloat("expected epsilon", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul epsilon", result);
+        EXPECT_FLOAT_EQ(expected, result) << "FLT_EPSILON doesn't match.";
+      }
+      {
+        const float expected = std::exp(1.0f);
+        ::printFloat("expected e", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul e", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_E_F doesn't match.";
+      }
+      {
+        const float e = std::exp(1.0f);
+        const float expected = std::log2(e);
+        ::printFloat("expected log2(e)", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul log2(e)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_LOG2E_F doesn't match.";
+      }
+      {
+        const float e = std::exp(1.0f);
+        const float expected = std::log10(e);
+        ::printFloat("expected log10(e)", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul log10(e)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_LOG10E_F doesn't match.";
+      }
+      {
+        const float expected = std::log(2.0f);
+        ::printFloat("expected log(2)", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul log(2)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_LN2_F doesn't match.";
+      }
+      {
+        const float expected = std::log(10.0f);
+        ::printFloat("expected log(10)", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul log(10)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_LN10_F doesn't match.";
+      }
       {
         const float expected = 4.0f * std::atan(1.0f);
         ::printFloat("expected pi", expected);
-        const float pi = results[i++];
-        ::printFloat("zinvul pi", pi);
-        EXPECT_FLOAT_EQ(expected, pi) << "pi doesn't match.";
+        const float result = results[i++];
+        ::printFloat("zinvul pi", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_PI_F doesn't match.";
+      }
+      {
+        const float expected = 2.0f * std::atan(1.0f);
+        ::printFloat("expected pi/2", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul pi/2", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_PI_2_F doesn't match.";
+      }
+      {
+        const float expected = std::atan(1.0f);
+        ::printFloat("expected pi/4", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul pi/4", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_PI_4_F doesn't match.";
+      }
+      {
+        const float expected = 0.25f / std::atan(1.0f);
+        ::printFloat("expected 1/pi", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul 1/pi", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_1_PI_F doesn't match.";
+      }
+      {
+        const float expected = 0.5f / std::atan(1.0f);
+        ::printFloat("expected 2/pi", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul 2/pi", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_2_PI_F doesn't match.";
+      }
+      {
+        const float pi = 4.0f * std::atan(1.0f);
+        const float expected = 2.0f / std::sqrt(pi);
+        ::printFloat("expected 2/sqrt(pi)", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul 2/sqrt(pi)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_2_SQRTPI_F doesn't match.";
+      }
+      {
+        const float expected = std::sqrt(2.0f);
+        ::printFloat("expected sqrt(2)", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul sqrt(2)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_SQRT2_F doesn't match.";
+      }
+      {
+        const float expected = 1.0f / std::sqrt(2.0f);
+        ::printFloat("expected 1/sqrt(2)", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul 1/sqrt(2)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "M_SQRT1_2_F doesn't match.";
+      }
+
+      {
+        const float expected = 4.0f * std::atan(1.0f);
+        ::printFloat("expected pi", expected);
+        const float result = results[i++];
+        ::printFloat("zinvul zpi", result);
+        EXPECT_FLOAT_EQ(expected, result) << "pi doesn't match.";
       }
       {
         const float pi = 4.0f * std::atan(1.0f);
         const float expected = std::sqrt(pi);
         ::printFloat("expected sqrt(pi)", expected);
-        const float s = results[i++];
-        ::printFloat("zinvul sqrt(pi)", s);
-        EXPECT_FLOAT_EQ(expected, s) << "sqrt(pi) doesn't match.";
+        const float result = results[i++];
+        ::printFloat("zinvul zsqrt(pi)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "sqrt(pi) doesn't match.";
       }
       {
         const float expected = std::sqrt(2.0f);
         ::printFloat("expected sqrt(2)", expected);
-        const float s = results[i++];
-        ::printFloat("zinvul sqrt(2)", s);
-        EXPECT_FLOAT_EQ(expected, s) << "sqrt(2) doesn't match.";
+        const float result = results[i++];
+        ::printFloat("zinvul zsqrt(2)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "sqrt(2) doesn't match.";
       }
       {
         const float expected = std::sqrt(3.0f);
         ::printFloat("expected sqrt(3)", expected);
-        const float s = results[i++];
-        ::printFloat("zinvul sqrt(3)", s);
-        EXPECT_FLOAT_EQ(expected, s) << "sqrt(3) doesn't match.";
+        const float result = results[i++];
+        ::printFloat("zinvul zsqrt(3)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "sqrt(3) doesn't match.";
       }
       {
         const float pi = 4.0f * std::atan(1.0f);
         const float expected = std::cbrt(pi);
         ::printFloat("expected cbrt(pi)", expected);
-        const float s = results[i++];
-        ::printFloat("zinvul cbrt(pi)", s);
-        EXPECT_FLOAT_EQ(expected, s) << "cbrt(pi) doesn't match.";
+        const float result = results[i++];
+        ::printFloat("zinvul zcbrt(pi)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "cbrt(pi) doesn't match.";
       }
       {
         const float expected = std::cbrt(2.0f);
         ::printFloat("expected cbrt(2)", expected);
-        const float s = results[i++];
-        ::printFloat("zinvul cbrt(2)", s);
-        EXPECT_FLOAT_EQ(expected, s) << "cbrt(2) doesn't match.";
+        const float result = results[i++];
+        ::printFloat("zinvul zcbrt(2)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "cbrt(2) doesn't match.";
       }
       {
         const float expected = std::cbrt(3.0f);
         ::printFloat("expected cbrt(3)", expected);
-        const float s = results[i++];
-        ::printFloat("zinvul cbrt(3)", s);
-        EXPECT_FLOAT_EQ(expected, s) << "cbrt(3) doesn't match.";
+        const float result = results[i++];
+        ::printFloat("zinvul zcbrt(3)", result);
+        EXPECT_FLOAT_EQ(expected, result) << "cbrt(3) doesn't match.";
       }
     }
 
@@ -144,70 +278,202 @@ TEST(MathTest, ConstantValue64Test)
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr std::size_t n = 7;
+    constexpr std::size_t ni = 7;
+    constexpr std::size_t nf = 23;
 
-    auto buffer1 = makeStorageBuffer<double>(device.get(), BufferUsage::kDeviceOnly);
-    buffer1->setSize(n);
+    auto buffer1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    buffer1->setSize(ni);
+    auto buffer2 = makeStorageBuffer<double>(device.get(), BufferUsage::kDeviceOnly);
+    buffer2->setSize(nf);
 
     auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testConstantValue64));
-    kernel->run(*buffer1, {1}, 0);
+    kernel->run(*buffer1, *buffer2, {1}, 0);
     device->waitForCompletion();
 
     {
-      std::vector<double> results;
-      results.resize(n);
+      std::vector<int32b> results;
+      results.resize(ni);
       buffer1->read(results.data(), results.size(), 0, 0);
+
       std::size_t i = 0;
+      EXPECT_EQ(15, results[i++]) << "DBL_DIG is wrong.";
+      EXPECT_EQ(53, results[i++]) << "DBL_MANT_DIG is wrong.";
+      EXPECT_EQ(+308, results[i++]) << "DBL_MAX_10_EXP is wrong.";
+      EXPECT_EQ(+1024, results[i++]) << "DBL_MAX_EXP is wrong.";
+      EXPECT_EQ(-307, results[i++]) << "DBL_MIN_10_EXP is wrong.";
+      EXPECT_EQ(-1021, results[i++]) << "DBL_MIN_EXP is wrong.";
+    }
+    {
+      std::vector<double> results;
+      results.resize(nf);
+      buffer2->read(results.data(), results.size(), 0, 0);
+      std::size_t i = 0;
+      {
+        const double expected = std::numeric_limits<double>::max();
+        ::printFloat("expected max", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul max", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "DBL_MAX doesn't match.";
+      }
+      {
+        const double expected = std::numeric_limits<double>::min();
+        ::printFloat("expected min", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul min", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "DBL_MIN doesn't match.";
+      }
+      {
+        const double expected = std::numeric_limits<double>::epsilon();
+        ::printFloat("expected epsilon", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul epsilon", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "DBL_EPSILON doesn't match.";
+      }
+      {
+        const double expected = std::exp(1.0);
+        ::printFloat("expected e", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul e", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_E doesn't match.";
+      }
+      {
+        const double e = std::exp(1.0);
+        const double expected = std::log2(e);
+        ::printFloat("expected log2(e)", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul log2(e)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_LOG2E doesn't match.";
+      }
+      {
+        const double e = std::exp(1.0);
+        const double expected = std::log10(e);
+        ::printFloat("expected log10(e)", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul log10(e)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_LOG10E doesn't match.";
+      }
+      {
+        const double expected = std::log(2.0);
+        ::printFloat("expected log(2)", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul log(2)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_LN2 doesn't match.";
+      }
+      {
+        const double expected = std::log(10.0);
+        ::printFloat("expected log(10)", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul log(10)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_LN10 doesn't match.";
+      }
       {
         const double expected = 4.0 * std::atan(1.0);
         ::printFloat("expected pi", expected);
-        const double pi = results[i++];
-        ::printFloat("zinvul pi", pi);
-        EXPECT_DOUBLE_EQ(expected, pi) << "pi doesn't match.";
+        const double result = results[i++];
+        ::printFloat("zinvul pi", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_PI doesn't match.";
+      }
+      {
+        const double expected = 2.0 * std::atan(1.0);
+        ::printFloat("expected pi/2", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul pi/2", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_PI_2 doesn't match.";
+      }
+      {
+        const double expected = std::atan(1.0);
+        ::printFloat("expected pi/4", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul pi/4", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_PI_4 doesn't match.";
+      }
+      {
+        const double expected = 0.25 / std::atan(1.0);
+        ::printFloat("expected 1/pi", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul 1/pi", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_1_PI doesn't match.";
+      }
+      {
+        const double expected = 0.5 / std::atan(1.0);
+        ::printFloat("expected 2/pi", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul 2/pi", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_2_PI doesn't match.";
+      }
+      {
+        const double pi = 4.0 * std::atan(1.0);
+        const double expected = 2.0 / std::sqrt(pi);
+        ::printFloat("expected 2/sqrt(pi)", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul 2/sqrt(pi)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_2_SQRTPI doesn't match.";
+      }
+      {
+        const double expected = std::sqrt(2.0);
+        ::printFloat("expected sqrt(2)", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul sqrt(2)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_SQRT2 doesn't match.";
+      }
+      {
+        const double expected = 1.0 / std::sqrt(2.0);
+        ::printFloat("expected 1/sqrt(2)", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul 1/sqrt(2)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "M_SQRT1_2 doesn't match.";
+      }
+
+      {
+        const double expected = 4.0 * std::atan(1.0);
+        ::printFloat("expected pi", expected);
+        const double result = results[i++];
+        ::printFloat("zinvul zpi", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "pi doesn't match.";
       }
       {
         const double pi = 4.0 * std::atan(1.0);
         const double expected = std::sqrt(pi);
         ::printFloat("expected sqrt(pi)", expected);
-        const double s = results[i++];
-        ::printFloat("zinvul sqrt(pi)", s);
-        EXPECT_DOUBLE_EQ(expected, s) << "sqrt(pi) doesn't match.";
+        const double result = results[i++];
+        ::printFloat("zinvul zsqrt(pi)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "sqrt(pi) doesn't match.";
       }
       {
         const double expected = std::sqrt(2.0);
         ::printFloat("expected sqrt(2)", expected);
-        const double s = results[i++];
-        ::printFloat("zinvul sqrt(2)", s);
-        EXPECT_DOUBLE_EQ(expected, s) << "sqrt(2) doesn't match.";
+        const double result = results[i++];
+        ::printFloat("zinvul zsqrt(2)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "sqrt(2) doesn't match.";
       }
       {
         const double expected = std::sqrt(3.0);
         ::printFloat("expected sqrt(3)", expected);
-        const double s = results[i++];
-        ::printFloat("zinvul sqrt(3)", s);
-        EXPECT_DOUBLE_EQ(expected, s) << "sqrt(3) doesn't match.";
+        const double result = results[i++];
+        ::printFloat("zinvul zsqrt(3)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "sqrt(3) doesn't match.";
       }
       {
         const double pi = 4.0 * std::atan(1.0);
         const double expected = std::cbrt(pi);
         ::printFloat("expected cbrt(pi)", expected);
-        const double s = results[i++];
-        ::printFloat("zinvul cbrt(pi)", s);
-        EXPECT_DOUBLE_EQ(expected, s) << "cbrt(pi) doesn't match.";
+        const double result = results[i++];
+        ::printFloat("zinvul zcbrt(pi)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "cbrt(pi) doesn't match.";
       }
       {
         const double expected = std::cbrt(2.0);
         ::printFloat("expected cbrt(2)", expected);
-        const double s = results[i++];
-        ::printFloat("zinvul cbrt(2)", s);
-        EXPECT_DOUBLE_EQ(expected, s) << "cbrt(2) doesn't match.";
+        const double result = results[i++];
+        ::printFloat("zinvul zcbrt(2)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "cbrt(2) doesn't match.";
       }
       {
         const double expected = std::cbrt(3.0);
         ::printFloat("expected cbrt(3)", expected);
-        const double s = results[i++];
-        ::printFloat("zinvul cbrt(3)", s);
-        EXPECT_DOUBLE_EQ(expected, s) << "cbrt(3) doesn't match.";
+        const double result = results[i++];
+        ::printFloat("zinvul zcbrt(3)", result);
+        EXPECT_DOUBLE_EQ(expected, result) << "cbrt(3) doesn't match.";
       }
     }
 

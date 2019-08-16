@@ -18,6 +18,7 @@
 #include <limits>
 #include <type_traits>
 // Zisc
+#include "zisc/algorithm.hpp"
 #include "zisc/math.hpp"
 #include "zisc/type_traits.hpp"
 #include "zisc/utility.hpp"
@@ -244,7 +245,7 @@ IntegerN Algorithm::popcount(const IntegerN& x) noexcept
   constexpr bool is_scalar_type = std::is_integral_v<IntegerN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    const auto result = zisc::cast<IntegerN>(0);
+    const auto result = zisc::Algorithm::popcount(x);
     return result;
   }
   // Vector
