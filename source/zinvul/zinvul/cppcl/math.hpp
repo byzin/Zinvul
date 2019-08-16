@@ -28,19 +28,91 @@ namespace cl {
 #if !defined(MAXFLOAT)
 constexpr float MAXFLOAT = std::numeric_limits<float>::max();
 #endif // MAXFLOAT
+#if !defined(INFINITY)
+constexpr float INFINITY = std::numeric_limits<float>::infinity();
+#endif // INFINITY
+#if !defined(NAN)
+constexpr float NAN = std::numeric_limits<float>::quiet_NaN();
+#endif // NAN 
+#if !defined(M_E_F)
 constexpr float M_E_F = 2.718281746e+00f;
+#endif // M_E_F
+#if !defined(M_LOG2E_F)
 constexpr float M_LOG2E_F = 1.442695022e+00f;
+#endif // M_LOG2E_F
+#if !defined(M_LOG10E_F)
 constexpr float M_LOG10E_F = 4.342944920e-01f;
+#endif // M_LOG10E_F
+#if !defined(M_LN2_F)
 constexpr float M_LN2_F = 6.931471825e-01f;
+#endif // M_LN2_F
+#if !defined(M_LN10_F)
 constexpr float M_LN10_F = 2.302585125e+00f;
+#endif // M_LN10_F
+#if !defined(M_PI_F)
 constexpr float M_PI_F = 3.141592741e+00f;
+#endif // M_PI_F
+#if !defined(M_PI_2_F)
 constexpr float M_PI_2_F = M_PI_F / 2.0f;
+#endif // M_PI_2_F
+#if !defined(M_PI_4_F)
 constexpr float M_PI_4_F = M_PI_F / 4.0f;
+#endif // M_PI_4_F
+#if !defined(M_1_PI_F)
 constexpr float M_1_PI_F = 1.0f / M_PI_F;
+#endif // M_1_PI_F
+#if !defined(M_2_PI_F)
 constexpr float M_2_PI_F = 2.0f / M_PI_F;
+#endif // M_2_PI_F
+#if !defined(M_2_SQRTPI_F)
 constexpr float M_2_SQRTPI_F = 1.128379226e+00f;
+#endif // M_2_SQRTPI_F
+#if !defined(M_SQRT2_F)
 constexpr float M_SQRT2_F = 1.414213538e+00f;
+#endif // M_SQRT2_F
+#if !defined(M_SQRT1_2_F)
 constexpr float M_SQRT1_2_F = 1.0f / M_SQRT2_F;
+#endif // M_SQRT1_2_F
+#if !defined(M_E)
+constexpr double M_E = 2.71828182845904523536;
+#endif // M_E
+#if !defined(M_LOG2E)
+constexpr double M_LOG2E = 1.44269504088896340736;
+#endif // M_LOG2E
+#if !defined(M_LOG10E)
+constexpr double M_LOG10E = 0.434294481903251827651;
+#endif // M_LOG10E
+#if !defined(M_LN2)
+constexpr double M_LN2 = 0.693147180559945309417;
+#endif // M_LN2
+#if !defined(M_LN10)
+constexpr double M_LN10 = 2.30258509299404568402;
+#endif // M_LN10
+#if !defined(M_PI)
+constexpr double M_PI = 3.14159265358979323846;
+#endif // M_PI
+#if !defined(M_PI_2)
+constexpr double M_PI_2 = M_PI / 2.0;
+#endif // M_PI_2
+#if !defined(M_PI_4)
+constexpr double M_PI_4 = M_PI / 4.0;
+#endif // M_PI_4
+#if !defined(M_1_PI)
+constexpr double M_1_PI = 1.0 / M_PI;
+#endif // M_1_PI
+#if !defined(M_2_PI)
+constexpr double M_2_PI = 2.0 / M_PI;
+#endif // M_2_PI
+#if !defined(M_2_SQRTPI)
+constexpr double M_2_SQRTPI = 1.12837916709551257390;
+#endif // M_2_SQRTPI
+#if !defined(M_SQRT2)
+constexpr double M_SQRT2 = 1.41421356237309504880;
+#endif // M_SQRT2
+#if !defined(M_SQRT1_2)
+constexpr double M_SQRT1_2 = 1.0 / M_SQRT2;
+#endif // M_SQRT1_2
+
 
 /*!
   */
