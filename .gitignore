@@ -75,6 +75,8 @@
 !/test/kernels/vector_data/*.cl
 !/test/kernels/relational/
 !/test/kernels/relational/*.cl
+!/test/kernels/geometry/
+!/test/kernels/geometry/*.cl
 !/test/kernels/math/
 !/test/kernels/math/*.cl
 !/test/kernels/matrix/

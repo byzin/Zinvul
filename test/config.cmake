@@ -91,6 +91,11 @@ function(buildUnitTest)
   file(GLOB_RECURSE algorithm_cl_files ${algorithm_dir}/*.cl)
   makeKernelSet(algorithm algorithm_source_files algorithm_definitions
       SOURCE_FILES ${algorithm_cl_files} INCLUDE_DIRS ${algorithm_dir})
+  # Geometry functions
+  set(geometry_dir ${__test_root__}/kernels/geometry)
+  file(GLOB_RECURSE geometry_cl_files ${geometry_dir}/*.cl)
+  makeKernelSet(geometry geometry_source_files geometry_definitions
+      SOURCE_FILES ${geometry_cl_files} INCLUDE_DIRS ${geometry_dir})
   # Math
   set(math_dir ${__test_root__}/kernels/math)
   file(GLOB_RECURSE math_cl_files ${math_dir}/*.cl)
@@ -124,6 +129,7 @@ function(buildUnitTest)
                           ${atomic_files}
                           ${vector_data_files}
                           ${relational_source_files}
+                          ${geometry_source_files}
                           ${algorithm_source_files}
                           ${math_source_files}
                           ${matrix_source_files}
@@ -165,6 +171,7 @@ function(buildUnitTest)
                                               ${atomic_definitions}
                                               ${vector_data_definitions}
                                               ${relational_definitions}
+                                              ${geometry_definitions}
                                               ${algorithm_definitions}
                                               ${math_definitions}
                                               ${matrix_definitions}
@@ -176,6 +183,7 @@ function(buildUnitTest)
                             atomic
                             vector_data
                             relational
+                            geometry
                             algorithm
                             math
                             matrix
