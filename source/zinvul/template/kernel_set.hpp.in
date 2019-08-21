@@ -23,7 +23,7 @@
 #include "zinvul/cppcl/address_space_pointer.hpp"
 #include "zinvul/cppcl/algorithm.hpp"
 #include "zinvul/cppcl/atomic.hpp"
-#include "zinvul/cppcl/geometry.hpp"
+#include "zinvul/cppcl/geometric.hpp"
 #include "zinvul/cppcl/math.hpp"
 #include "zinvul/cppcl/relational.hpp"
 #include "zinvul/cppcl/synchronization.hpp"

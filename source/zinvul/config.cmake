@@ -25,29 +25,41 @@ function(initZinvulOption)
   set(option_description "Use built-in math funcs instead of the Zinvul funcs.")
   setBooleanOption(ZINVUL_MATH_BUILTIN OFF ${option_description})
 
-  set(option_description "Use built-in 'frexp' and 'ldexp' instead of the Zinvul funcs.")
-  setBooleanOption(ZINVUL_MATH_BUILTIN_FRLDEXP OFF ${option_description})
+  set(option_description "Use built-in 'frexp' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_FREXP OFF ${option_description})
+
+  set(option_description "Use built-in 'ldexp' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_LDEXP ON ${option_description})
+
+  set(option_description "Use built-in 'round' and 'rint' instead of the Zinvul funcs.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_ROUND ON ${option_description})
+
+  set(option_description "Use built-in 'fract' instead of the Zinvul func.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_FRACT ON ${option_description})
+
+  set(option_description "Use built-in 'fmod' instead of the Zinvul func.")
+  setBooleanOption(ZINVUL_MATH_BUILTIN_FMOD ON ${option_description})
 
   set(option_description "Use built-in 'exp' instead of the Zinvul funcs.")
-  setBooleanOption(ZINVUL_MATH_BUILTIN_EXP OFF ${option_description})
+  setBooleanOption(ZINVUL_MATH_BUILTIN_EXP ON ${option_description})
 
   set(option_description "Use built-in 'log' and 'log2' instead of the Zinvul funcs.")
-  setBooleanOption(ZINVUL_MATH_BUILTIN_LOG OFF ${option_description})
+  setBooleanOption(ZINVUL_MATH_BUILTIN_LOG ON ${option_description})
 
   set(option_description "Use built-in 'pow' instead of the Zinvul funcs.")
-  setBooleanOption(ZINVUL_MATH_BUILTIN_POW OFF ${option_description})
+  setBooleanOption(ZINVUL_MATH_BUILTIN_POW ON ${option_description})
 
   set(option_description "Use built-in 'sqrt' and 'rsqrt' instead of the Zinvul funcs.")
-  setBooleanOption(ZINVUL_MATH_BUILTIN_SQRT OFF ${option_description})
+  setBooleanOption(ZINVUL_MATH_BUILTIN_SQRT ON ${option_description})
 
   set(option_description "Use built-in 'cbrt' instead of the Zinvul funcs.")
-  setBooleanOption(ZINVUL_MATH_BUILTIN_CBRT OFF ${option_description})
+  setBooleanOption(ZINVUL_MATH_BUILTIN_CBRT ON ${option_description})
 
   set(option_description "Use built-in 'sin', 'cos' and 'tan' instead of the Zinvul funcs.")
-  setBooleanOption(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC OFF ${option_description})
+  setBooleanOption(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC ON ${option_description})
 
   set(option_description "Use built-in 'asin', 'acos' and 'atan' instead of the Zinvul funcs.")
-  setBooleanOption(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC OFF ${option_description})
+  setBooleanOption(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC ON ${option_description})
 endfunction(initZinvulOption)
 
 
@@ -59,8 +71,20 @@ function(getZinvulKernelOption zinvul_compile_flags zinvul_definitions)
   if(ZINVUL_MATH_BUILTIN)
     list(APPEND definitions ZINVUL_MATH_BUILTIN)
   endif()
-  if(ZINVUL_MATH_BUILTIN_FRLDEXP)
-    list(APPEND definitions ZINVUL_MATH_BUILTIN_FRLDEXP)
+  if(ZINVUL_MATH_BUILTIN_FREXP)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_FREXP)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_LDEXP)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_LDEXP)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_ROUND)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_ROUND)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_FRACT)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_FRACT)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_FMOD)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_FMOD)
   endif()
   if(ZINVUL_MATH_BUILTIN_EXP)
     list(APPEND definitions ZINVUL_MATH_BUILTIN_EXP)

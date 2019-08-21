@@ -440,214 +440,214 @@ FloatN Math::copysign(const FloatN& x, const FloatN& y) noexcept
   }
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::ceil(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::ceil(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::floor(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::floor(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::trunc(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::trunc(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::round(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::round(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::fract(const Vector<Float, kN>& x,
                       Vector<Float, kN>* iptr) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::fract(x[i], &(*iptr)[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::fmod(const Vector<Float, kN>& x,
                      const Vector<Float, kN>& y) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::fmod(x[i], y[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::fma(const Vector<Float, kN>& a,
                     const Vector<Float, kN>& b,
                     const Vector<Float, kN>& c) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::fma(a[i], b[i], c[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::exp(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::exp(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::log(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::log(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::log2(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::log2(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::pow(const Vector<Float, kN>& base,
                     const Vector<Float, kN>& e) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::pow(base[i], e[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::rsqrt(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::rsqrt(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::sqrt(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::sqrt(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::sin(const Vector<Float, kN>& theta) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::sin(theta[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::cos(const Vector<Float, kN>& theta) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::cos(theta[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::tan(const Vector<Float, kN>& theta) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::tan(theta[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::asin(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::asin(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::acos(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::acos(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::atan(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::atan(x[i]);
   return result;
 }
 
 /*!
   */
-template <typename Float, typename Integer, std::size_t kN> inline
+template <typename Float, typename Integer, size_t kN> inline
 auto Math::Vec::frexp(const Vector<Float, kN>& x,
                       Vector<Integer, kN>* e) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::frexp(x[i], &(*e)[i]);
   return result;
 }
 
 /*!
   */
-template <typename Float, typename Integer, std::size_t kN> inline
+template <typename Float, typename Integer, size_t kN> inline
 auto Math::Vec::ldexp(const Vector<Float, kN>& x,
                       const Vector<Integer, kN>& e) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::ldexp(x[i], e[i]);
   return result;
 }
 
 /*!
   */
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Math::Vec::copysign(const Vector<Float, kN>& x,
                          const Vector<Float, kN>& y) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Math::copysign(x[i], y[i]);
   return result;
 }
@@ -675,7 +675,7 @@ FloatN floor(const FloatN& x) noexcept
 template <typename FloatN> inline
 FloatN trunc(const FloatN& x) noexcept
 {
-  const auto y = Math::floor(x);
+  const auto y = Math::trunc(x);
   return y;
 }
 

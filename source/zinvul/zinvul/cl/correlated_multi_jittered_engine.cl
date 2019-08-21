@@ -60,8 +60,9 @@ class CorrelatedMultiJitteredEngine
 // Type aliases
 using CmjN16 = CorrelatedMultiJitteredEngine<4>;
 using CmjN64 = CorrelatedMultiJitteredEngine<8>;
-using CmjN81 = CorrelatedMultiJitteredEngine<9>;
 using CmjN256 = CorrelatedMultiJitteredEngine<16>;
+using CmjN1024 = CorrelatedMultiJitteredEngine<32>;
+using CmjN4096 = CorrelatedMultiJitteredEngine<64>;
 
 } // namespace zinvul
 

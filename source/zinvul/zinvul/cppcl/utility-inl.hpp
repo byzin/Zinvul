@@ -153,11 +153,11 @@ namespace clinner {
 
 /*!
   */
-template <typename Type, typename T, std::size_t kN> inline
+template <typename Type, typename T, size_t kN> inline
 auto convertToVector(const Vector<Type, kN>& value)
 {
   Vector<T, kN> result;
-  for (std::size_t index = 0; index < kN; ++index)
+  for (size_t index = 0; index < kN; ++index)
     result[index] = zisc::cast<T>(value[index]);
   return result;
 }

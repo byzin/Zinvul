@@ -1,5 +1,5 @@
 /*!
-  \file geometry.hpp
+  \file geometric.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_CL_GEOMETRY_HPP
-#define ZINVUL_CL_GEOMETRY_HPP
+#ifndef ZINVUL_CL_GEOMETRIC_HPP
+#define ZINVUL_CL_GEOMETRIC_HPP
 
 // Standard C++ library
 #include <type_traits>
@@ -52,17 +52,17 @@ class Geometry
   {
    public:
     //! Return the cross product of p0.xyz and p1.xyz
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto cross(const Vector<Float, kN>& p0,
                       const Vector<Float, kN>& p1) noexcept;
 
     //! Compute dot product
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto dot(const Vector<Float, kN>& p0,
                     const Vector<Float, kN>& p1) noexcept;
 
     //! Return a vector in the same direction as p but with a length of 1
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto normalize(const Vector<Float, kN>& p) noexcept;
   };
 };
@@ -91,6 +91,6 @@ FloatN normalize(const FloatN& p) noexcept;
 
 } // namespace zinvul
 
-#include "geometry-inl.hpp"
+#include "geometric-inl.hpp"
 
-#endif // ZINVUL_CL_GEOMETRY_HPP
+#endif // ZINVUL_CL_GEOMETRIC_HPP

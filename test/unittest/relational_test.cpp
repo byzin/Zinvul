@@ -27,7 +27,7 @@ TEST(RelationalTest, RelationalF1Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -83,7 +83,7 @@ TEST(RelationalTest, RelationalF4Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -211,7 +211,7 @@ TEST(RelationalTest, BitselectUTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -246,7 +246,7 @@ TEST(RelationalTest, BitselectUTest)
 
 //      {
 //        const cl::uchar2 expected{0, 0};
-//        for (std::size_t i = 0; i < expected.size(); ++i)
+//        for (uint32b i = 0; i < expected.size(); ++i)
 //          EXPECT_EQ(expected[i], results[0][i]) << error_message;
 //      }
     }
@@ -256,7 +256,7 @@ TEST(RelationalTest, BitselectUTest)
 
 //      {
 //        const cl::ushort3 expected{0, 0, 0};
-//        for (std::size_t i = 0; i < expected.size(); ++i)
+//        for (uint32b i = 0; i < expected.size(); ++i)
 //          EXPECT_EQ(expected[i], results[0][i]) << error_message;
 //      }
     }
@@ -266,7 +266,7 @@ TEST(RelationalTest, BitselectUTest)
 
 //      {
 //        const cl::uint4 expected{0, 0, 0, 0};
-//        for (std::size_t i = 0; i < expected.size(); ++i)
+//        for (uint32b i = 0; i < expected.size(); ++i)
 //          EXPECT_EQ(expected[i], results[0][i]) << error_message;
 //      }
     }
@@ -281,7 +281,7 @@ TEST(RelationalTest, SelectITest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -320,12 +320,12 @@ TEST(RelationalTest, SelectITest)
 
       {
         const cl::char2 expected{1, -2};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[0][i]) << error_message;
       }
       {
         const cl::char2 expected{-1, 2};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[1][i]) << error_message;
       }
     }
@@ -335,12 +335,12 @@ TEST(RelationalTest, SelectITest)
 
       {
         const cl::short3 expected{1, -2, 3};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[0][i]) << error_message;
       }
       {
         const cl::short3 expected{-1, 2, -3};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[1][i]) << error_message;
       }
     }
@@ -350,12 +350,12 @@ TEST(RelationalTest, SelectITest)
 
       {
         const cl::int4 expected{1, -2, 3, -4};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[0][i]) << error_message;
       }
       {
         const cl::int4 expected{-1, 2, -3, 4};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[1][i]) << error_message;
       }
     }
@@ -370,7 +370,7 @@ TEST(RelationalTest, SelectUTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -409,12 +409,12 @@ TEST(RelationalTest, SelectUTest)
 
       {
         const cl::uchar2 expected{1, 4};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[0][i]) << error_message;
       }
       {
         const cl::uchar2 expected{3, 2};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[1][i]) << error_message;
       }
     }
@@ -424,12 +424,12 @@ TEST(RelationalTest, SelectUTest)
 
       {
         const cl::ushort3 expected{1, 5, 3};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[0][i]) << error_message;
       }
       {
         const cl::ushort3 expected{4, 2, 6};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[1][i]) << error_message;
       }
     }
@@ -439,12 +439,12 @@ TEST(RelationalTest, SelectUTest)
 
       {
         const cl::uint4 expected{1, 6, 3, 8};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[0][i]) << error_message;
       }
       {
         const cl::uint4 expected{5, 2, 7, 4};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[1][i]) << error_message;
       }
     }
@@ -459,7 +459,7 @@ TEST(RelationalTest, SelectFTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -498,12 +498,12 @@ TEST(RelationalTest, SelectFTest)
 
       {
         const cl::float2 expected{1.0f, -2.0f};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_FLOAT_EQ(expected[i], results[0][i]) << error_message;
       }
       {
         const cl::float2 expected{-1.0f, 2.0f};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_FLOAT_EQ(expected[i], results[1][i]) << error_message;
       }
     }
@@ -513,12 +513,12 @@ TEST(RelationalTest, SelectFTest)
 
       {
         const cl::float3 expected{1.0f, -2.0f, 3.0f};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[0][i]) << error_message;
       }
       {
         const cl::float3 expected{-1.0f, 2.0f, -3.0f};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[1][i]) << error_message;
       }
     }
@@ -528,12 +528,12 @@ TEST(RelationalTest, SelectFTest)
 
       {
         const cl::float4 expected{1.0f, -2.0f, 3.0f, -4.0f};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[0][i]) << error_message;
       }
       {
         const cl::float4 expected{-1.0f, 2.0f, -3.0f, 4.0f};
-        for (std::size_t i = 0; i < expected.size(); ++i)
+        for (uint32b i = 0; i < expected.size(); ++i)
           ASSERT_EQ(expected[i], results[1][i]) << error_message;
       }
     }

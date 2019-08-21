@@ -1,14 +1,14 @@
 /*!
-  \file geometry.cl
+  \file geometric.cl
   \author Sho Ikeda
   */
 
-#ifndef ZINVUL_GEOMETRY_TEST_GEOMETRY_CL
-#define ZINVUL_GEOMETRY_TEST_GEOMETRY_CL
+#ifndef ZINVUL_GEOMETRIC_TEST_GEOMETRIC_CL
+#define ZINVUL_GEOMETRIC_TEST_GEOMETRIC_CL
 
 // Zinvul
 #include "zinvul/cl/correlated_multi_jittered_engine.cl"
-#include "zinvul/cl/geometry.cl"
+#include "zinvul/cl/geometric.cl"
 #include "zinvul/cl/limits.cl"
 #include "zinvul/cl/types.cl"
 #include "zinvul/cl/utility.cl"
@@ -63,14 +63,16 @@ __kernel void testNormalize4(GlobalPtr<float4> parameters,
 namespace test {
 
 template <typename Float>
-Float rng(const uint32b s, const uint32b p) noexcept;
+Float rng(const uint32b index) noexcept;
 
 template <typename Float>
-Float rng(const uint32b s, const uint32b p) noexcept
+Float rng(const uint32b index) noexcept
 {
-  using Cmj = zinvul::CmjN256;
+  using Cmj = zinvul::CmjN4096;
+  const uint32b p = 123'456u + index / static_cast<uint32b>(Cmj::getPeriod());
+  const uint32b s = index % static_cast<uint32b>(Cmj::getPeriod());
   constexpr Float t = zinvul::NumericLimits<Float>::epsilon();
-  constexpr Float k = static_cast<Float>(100000.0);
+  constexpr Float k = static_cast<Float>(10000000.0);
   const auto u = Cmj::generate1D<Float>(s, p) - static_cast<Float>(0.5);
   const auto r = t + k * (u * u);
 //  const auto r = t + k * u;
@@ -82,13 +84,12 @@ void testCross3(GlobalPtr<Float3> parameters,
     GlobalPtr<Float3> results,
     const uint32b index) noexcept
 {
-  const uint32b p = 123'456'789u + index;
-  const Float3 a{test::rng<Float>(0, p),
-                 test::rng<Float>(1, p),
-                 test::rng<Float>(2, p)};
-  const Float3 b{test::rng<Float>(3, p),
-                 test::rng<Float>(4, p),
-                 test::rng<Float>(5, p)};
+  const Float3 a{rng<Float>(6u * index),
+                 rng<Float>(6u * index + 1),
+                 rng<Float>(6u * index + 2)};
+  const Float3 b{rng<Float>(6u * index + 3),
+                 rng<Float>(6u * index + 4),
+                 rng<Float>(6u * index + 5)};
   parameters[2 * index    ] = a;
   parameters[2 * index + 1] = b;
   results[2 * index    ] = zinvul::cross(a, b);
@@ -100,15 +101,14 @@ void testCross4(GlobalPtr<Float4> parameters,
     GlobalPtr<Float4> results,
     const uint32b index) noexcept
 {
-  const uint32b p = 123'456'789u + index;
-  const Float4 a{test::rng<Float>(0, p),
-                 test::rng<Float>(1, p),
-                 test::rng<Float>(2, p),
-                 test::rng<Float>(3, p)};
-  const Float4 b{test::rng<Float>(4, p),
-                 test::rng<Float>(5, p),
-                 test::rng<Float>(6, p),
-                 test::rng<Float>(7, p)};
+  const Float4 a{rng<Float>(8u * index),
+                 rng<Float>(8u * index + 1),
+                 rng<Float>(8u * index + 2),
+                 rng<Float>(8u * index + 3)};
+  const Float4 b{rng<Float>(8u * index + 4),
+                 rng<Float>(8u * index + 5),
+                 rng<Float>(8u * index + 6),
+                 rng<Float>(8u * index + 7)};
   parameters[2 * index    ] = a;
   parameters[2 * index + 1] = b;
   results[2 * index    ] = zinvul::cross(a, b);
@@ -120,13 +120,12 @@ void testDot3(GlobalPtr<Float3> parameters,
     GlobalPtr<Float> results,
     const uint32b index) noexcept
 {
-  const uint32b p = 123'456'789u + index;
-  const Float3 a{test::rng<Float>(0, p),
-                 test::rng<Float>(1, p),
-                 test::rng<Float>(2, p)};
-  const Float3 b{test::rng<Float>(3, p),
-                 test::rng<Float>(4, p),
-                 test::rng<Float>(5, p)};
+  const Float3 a{rng<Float>(6u * index),
+                 rng<Float>(6u * index + 1),
+                 rng<Float>(6u * index + 2)};
+  const Float3 b{rng<Float>(6u * index + 3),
+                 rng<Float>(6u * index + 4),
+                 rng<Float>(6u * index + 5)};
   parameters[2 * index    ] = a;
   parameters[2 * index + 1] = b;
   results[2 * index    ] = zinvul::dot(a, b);
@@ -139,15 +138,14 @@ void testDot4(GlobalPtr<Float4> parameters,
     GlobalPtr<Float> results,
     const uint32b index) noexcept
 {
-  const uint32b p = 123'456'789u + index;
-  const Float4 a{test::rng<Float>(0, p),
-                 test::rng<Float>(1, p),
-                 test::rng<Float>(2, p),
-                 test::rng<Float>(3, p)};
-  const Float4 b{test::rng<Float>(4, p),
-                 test::rng<Float>(5, p),
-                 test::rng<Float>(6, p),
-                 test::rng<Float>(7, p)};
+  const Float4 a{rng<Float>(8u * index),
+                 rng<Float>(8u * index + 1),
+                 rng<Float>(8u * index + 2),
+                 rng<Float>(8u * index + 3)};
+  const Float4 b{rng<Float>(8u * index + 4),
+                 rng<Float>(8u * index + 5),
+                 rng<Float>(8u * index + 6),
+                 rng<Float>(8u * index + 7)};
   parameters[2 * index    ] = a;
   parameters[2 * index + 1] = b;
   results[2 * index    ] = zinvul::dot(a, b);
@@ -159,13 +157,12 @@ void testDistance3(GlobalPtr<Float3> parameters,
     GlobalPtr<Float> results,
     const uint32b index) noexcept
 {
-  const uint32b p = 123'456'789u + index;
-  const Float3 a{test::rng<Float>(0, p),
-                 test::rng<Float>(1, p),
-                 test::rng<Float>(2, p)};
-  const Float3 b{test::rng<Float>(3, p),
-                 test::rng<Float>(4, p),
-                 test::rng<Float>(5, p)};
+  const Float3 a{rng<Float>(6u * index),
+                 rng<Float>(6u * index + 1),
+                 rng<Float>(6u * index + 2)};
+  const Float3 b{rng<Float>(6u * index + 3),
+                 rng<Float>(6u * index + 4),
+                 rng<Float>(6u * index + 5)};
   parameters[2 * index    ] = a;
   parameters[2 * index + 1] = b;
   results[2 * index    ] = zinvul::distance(a, b);
@@ -177,15 +174,14 @@ void testDistance4(GlobalPtr<Float4> parameters,
     GlobalPtr<Float> results,
     const uint32b index) noexcept
 {
-  const uint32b p = 123'456'789u + index;
-  const Float4 a{test::rng<Float>(0, p),
-                 test::rng<Float>(1, p),
-                 test::rng<Float>(2, p),
-                 test::rng<Float>(3, p)};
-  const Float4 b{test::rng<Float>(4, p),
-                 test::rng<Float>(5, p),
-                 test::rng<Float>(6, p),
-                 test::rng<Float>(7, p)};
+  const Float4 a{rng<Float>(8u * index),
+                 rng<Float>(8u * index + 1),
+                 rng<Float>(8u * index + 2),
+                 rng<Float>(8u * index + 3)};
+  const Float4 b{rng<Float>(8u * index + 4),
+                 rng<Float>(8u * index + 5),
+                 rng<Float>(8u * index + 6),
+                 rng<Float>(8u * index + 7)};
   parameters[2 * index    ] = a;
   parameters[2 * index + 1] = b;
   results[2 * index    ] = zinvul::distance(a, b);
@@ -197,13 +193,12 @@ void testNormalize3(GlobalPtr<Float3> parameters,
     GlobalPtr<Float3> results,
     const uint32b index) noexcept
 {
-  const uint32b p = 123'456'789u + index;
-  const Float3 a{test::rng<Float>(0, p),
-                 test::rng<Float>(1, p),
-                 test::rng<Float>(2, p)};
-  const Float3 b{test::rng<Float>(3, p),
-                 test::rng<Float>(4, p),
-                 test::rng<Float>(5, p)};
+  const Float3 a{rng<Float>(6u * index),
+                 rng<Float>(6u * index + 1),
+                 rng<Float>(6u * index + 2)};
+  const Float3 b{rng<Float>(6u * index + 3),
+                 rng<Float>(6u * index + 4),
+                 rng<Float>(6u * index + 5)};
   parameters[2 * index    ] = a;
   parameters[2 * index + 1] = b;
   results[2 * index    ] = zinvul::normalize(a);
@@ -215,15 +210,14 @@ void testNormalize4(GlobalPtr<Float4> parameters,
     GlobalPtr<Float4> results,
     const uint32b index) noexcept
 {
-  const uint32b p = 123'456'789u + index;
-  const Float4 a{test::rng<Float>(0, p),
-                 test::rng<Float>(1, p),
-                 test::rng<Float>(2, p),
-                 test::rng<Float>(3, p)};
-  const Float4 b{test::rng<Float>(4, p),
-                 test::rng<Float>(5, p),
-                 test::rng<Float>(6, p),
-                 test::rng<Float>(7, p)};
+  const Float4 a{rng<Float>(8u * index),
+                 rng<Float>(8u * index + 1),
+                 rng<Float>(8u * index + 2),
+                 rng<Float>(8u * index + 3)};
+  const Float4 b{rng<Float>(8u * index + 4),
+                 rng<Float>(8u * index + 5),
+                 rng<Float>(8u * index + 6),
+                 rng<Float>(8u * index + 7)};
   parameters[2 * index    ] = a;
   parameters[2 * index + 1] = b;
   results[2 * index    ] = zinvul::normalize(a);
@@ -386,4 +380,4 @@ __kernel void testNormalize4(GlobalPtr<float4> parameters,
 
 #endif // Z_MAC
 
-#endif /* ZINVUL_GEOMETRY_TEST_GEOMETRY_CL */
+#endif /* ZINVUL_GEOMETRIC_TEST_GEOMETRIC_CL */

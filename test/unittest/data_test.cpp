@@ -29,11 +29,11 @@ TEST(DataTest, PointerTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr std::size_t n = 30;
+    constexpr uint32b n = 30;
 
     auto buffer0 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer0->setSize(5);
@@ -53,7 +53,7 @@ TEST(DataTest, PointerTest)
       std::array<int32b, n> results;
       buffer1->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i++]) << error_message;
       ASSERT_EQ(2, results[i++]) << error_message;
       ASSERT_EQ(3, results[i++]) << error_message;
@@ -102,7 +102,7 @@ TEST(DataTest, MemoryMapTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -123,14 +123,14 @@ TEST(DataTest, MemoryMapTest)
           data.u_++;
         }
       }
-      for (std::size_t i = 0; i < memory.size(); ++i) {
+      for (uint32b i = 0; i < memory.size(); ++i) {
         auto data = memory.get(i);
         data.f_ = zisc::cast<float>(i);
         memory.set(i, data);
       }
       {
         auto data = memory.data();
-        for (std::size_t i = 0; i < memory.size(); ++i) {
+        for (uint32b i = 0; i < memory.size(); ++i) {
           const uint32b uexpected = zisc::cast<uint32b>(i);
           const float fexpected = zisc::cast<float>(i);
           const auto result = data[i];
@@ -154,7 +154,7 @@ TEST(DataTest, MemoryMapTest)
     {
       auto memory = buffer0->mapMemory();
 
-      for (std::size_t i = 0; i < memory.size(); ++i) {
+      for (uint32b i = 0; i < memory.size(); ++i) {
         const uint32b uexpected = 100u - zisc::cast<uint32b>(i);
         const float fexpected = 100.0f - zisc::cast<float>(i);
         const auto result = memory[i];
@@ -174,7 +174,7 @@ TEST(DataTest, LocalInputTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -214,7 +214,7 @@ TEST(DataTest, LocalInputTest)
     {
       std::array<uint32b, resolution> results;
       buffer2->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < resolution; ++i)
+      for (uint32b i = 0; i < resolution; ++i)
       {
         const uint32b expected = resolution - 1;
         const uint32b result = results[i];
@@ -233,7 +233,7 @@ TEST(DataTest, GlobalInstanceTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -276,7 +276,7 @@ TEST(DataTest, LocalInstanceTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -317,7 +317,7 @@ TEST(DataTest, ConstantArgTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -327,7 +327,7 @@ TEST(DataTest, ConstantArgTest)
     buffer0->setSize(resolution);
     {
       std::array<cl::uint4, resolution> inputs;
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const uint32b u = zisc::cast<uint32b>(i);
         const cl::uint4 v{u, u + 1u, u + 2u, u + 3u};
         inputs[i] = v;
@@ -339,7 +339,7 @@ TEST(DataTest, ConstantArgTest)
     buffer1->setSize(resolution);
     {
       std::array<cl::float4, resolution> inputs;
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const float u = zisc::cast<float>(i);
         const cl::float4 v{u, u + 1.0f, u + 2.0f, u + 3.0f};
         inputs[i] = v;
@@ -365,9 +365,9 @@ TEST(DataTest, ConstantArgTest)
     {
       std::array<cl::uint4, resolution> results;
       buffer2->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
+      for (uint32b i = 0; i < results.size(); ++i) {
         const auto result = results[i];
-        for (std::size_t j = 0; j < 4; ++j) {
+        for (uint32b j = 0; j < 4; ++j) {
           const uint32b expected = zisc::cast<uint32b>(i + j);
           ASSERT_EQ(expected, result[j]) << error_message;
         }
@@ -376,9 +376,9 @@ TEST(DataTest, ConstantArgTest)
     {
       std::array<cl::float4, resolution> results;
       buffer3->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < results.size(); ++i) {
+      for (uint32b i = 0; i < results.size(); ++i) {
         const auto result = results[i];
-        for (std::size_t j = 0; j < 4; ++j) {
+        for (uint32b j = 0; j < 4; ++j) {
           const float expected = zisc::cast<float>(i + j);
           ASSERT_FLOAT_EQ(expected, result[j]) << error_message;
         }
@@ -394,15 +394,15 @@ TEST(DataTest, CopyBufferTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr std::size_t n = 16;
+    constexpr uint32b n = 16;
     constexpr uint32b initializer = 100;
 
     std::array<uint32b, n> init;
-    for (std::size_t i = 0; i < init.size(); ++i)
+    for (uint32b i = 0; i < init.size(); ++i)
       init[i] = initializer;
 
     auto buffer0 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kHostOnly);
@@ -410,7 +410,7 @@ TEST(DataTest, CopyBufferTest)
     buffer0->write(init.data(), init.size(), 0, 0);
 
     std::array<uint32b, 12> input;
-    for (std::size_t i = 0; i < input.size(); ++i)
+    for (uint32b i = 0; i < input.size(); ++i)
       input[i] = zisc::cast<uint32b>(i + 1);
 
     auto buffer1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kHostOnly);
@@ -444,7 +444,7 @@ TEST(DataTest, CopyBufferTest)
     {
       std::array<uint32b, 14> result;
       buffer4->read(result.data(), result.size(), 2, 0);
-      for (std::size_t i = 0; i < 12; ++i)
+      for (uint32b i = 0; i < 12; ++i)
         EXPECT_EQ(i + 1, result[i]) << "The copyBuffer func is wrong.";
       EXPECT_EQ(initializer, result[12]) << "The copyBuffer func is wrong.";
       EXPECT_EQ(initializer, result[13]) << "The copyBuffer func is wrong.";
@@ -456,7 +456,7 @@ TEST(DataTest, CopyBufferTest)
     buffer5->setSize(resolution);
     {
       std::array<int32b, resolution> table;
-      for (std::size_t i = 0; i < table.size(); ++i)
+      for (uint32b i = 0; i < table.size(); ++i)
         table[i] = zisc::cast<int>(i);
       buffer5->write(table.data(), table.size(), 0, 0);
     }
@@ -477,7 +477,7 @@ TEST(DataTest, CopyBufferTest)
     {
       std::array<int32b, resolution> table;
       buffer5->read(table.data(), resolution, 0, 0);
-      for (std::size_t i = 0; i < table.size(); ++i) {
+      for (uint32b i = 0; i < table.size(); ++i) {
         const int expected = 2 * zisc::cast<int>(i);
         ASSERT_EQ(expected, table[i]) << "The buffer readwrite is wrong.";
       }
@@ -493,7 +493,7 @@ TEST(DataTest, TypeCastTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -549,12 +549,12 @@ TEST(DataTest, TypeCastTest)
       std::vector<int8b> results;
       results.resize(ibuffer1->size(), 0);
       ibuffer1->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const int8b expected = zisc::cast<int8b>(i + 1);
         const int8b result = results[i];
         ASSERT_EQ(expected, result) << "The func 'cast<int8b>' failed.";
       }
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const int8b expected = -zisc::cast<int8b>(i + 1);
         const int8b result = results[i + 4];
         ASSERT_EQ(expected, result) << "The func 'cast<int8b>' failed.";
@@ -564,12 +564,12 @@ TEST(DataTest, TypeCastTest)
       std::vector<int32b> results;
       results.resize(ibuffer2->size(), 0);
       ibuffer2->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const int32b expected = zisc::cast<int32b>(i + 1);
         const int32b result = results[i];
         ASSERT_EQ(expected, result) << "The func 'cast<int32b>' failed.";
       }
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const int32b expected = -zisc::cast<int32b>(i + 1);
         const int32b result = results[i + 4];
         ASSERT_EQ(expected, result) << "The func 'cast<int32b>' failed.";
@@ -579,12 +579,12 @@ TEST(DataTest, TypeCastTest)
       std::vector<cl::int4> results;
       results.resize(ibuffer3->size());
       ibuffer3->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const int32b expected = zisc::cast<int32b>(i + 1);
         const int32b result = results[0][i];
         ASSERT_EQ(expected, result) << "The func 'cast<int4>' failed.";
       }
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const int32b expected = -zisc::cast<int32b>(i + 1);
         const int32b result = results[1][i];
         ASSERT_EQ(expected, result) << "The func 'cast<int4>' failed.";
@@ -595,7 +595,7 @@ TEST(DataTest, TypeCastTest)
       std::vector<uint8b> results;
       results.resize(ubuffer1->size(), 0);
       ubuffer1->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const uint8b expected = zisc::cast<uint8b>(i + 1);
         const uint8b result = results[i];
         ASSERT_EQ(expected, result) << "The func 'cast<uint8b>' failed.";
@@ -605,7 +605,7 @@ TEST(DataTest, TypeCastTest)
       std::vector<uint32b> results;
       results.resize(ubuffer2->size(), 0);
       ubuffer2->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const uint32b expected = zisc::cast<uint32b>(i + 1);
         const uint32b result = results[i];
         ASSERT_EQ(expected, result) << "The func 'cast<uint32b>' failed.";
@@ -615,12 +615,12 @@ TEST(DataTest, TypeCastTest)
       std::vector<cl::uint4> results;
       results.resize(ubuffer3->size());
       ubuffer3->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const uint32b expected = zisc::cast<uint32b>(i + 1);
         const uint32b result = results[0][i];
         ASSERT_EQ(expected, result) << "The func 'cast<uint4>' failed.";
       }
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const uint32b expected = zisc::cast<uint32b>(i + 1);
         const uint32b result = results[1][i];
         ASSERT_EQ(expected, result) << "The func 'cast<uint4>' failed.";
@@ -631,12 +631,12 @@ TEST(DataTest, TypeCastTest)
       std::vector<float> results;
       results.resize(fbuffer1->size(), 0);
       fbuffer1->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float expected = zisc::cast<float>(i + 1);
         const float result = results[i];
         ASSERT_FLOAT_EQ(expected, result) << "The func 'cast<float>' failed.";
       }
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float expected = -zisc::cast<float>(i + 1);
         const float result = results[i + 4];
         EXPECT_FLOAT_EQ(expected, result) << "The func 'cast<float>' failed.";
@@ -646,12 +646,12 @@ TEST(DataTest, TypeCastTest)
       std::vector<cl::float4> results;
       results.resize(fbuffer2->size());
       fbuffer2->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float expected = zisc::cast<float>(i + 1);
         const float result = results[0][i];
         ASSERT_FLOAT_EQ(expected, result) << "The func 'cast<float4>' failed.";
       }
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float expected = -zisc::cast<float>(i + 1);
         const float result = results[1][i];
         EXPECT_FLOAT_EQ(expected, result) << "The func 'cast<float4>' failed.";
@@ -666,7 +666,7 @@ TEST(DataTest, TypeReinterpretingTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -674,7 +674,7 @@ TEST(DataTest, TypeReinterpretingTest)
     uinputs1->setSize(4);
     {
       std::array<uint32b, 4> inputs;
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float v = zisc::cast<float>(i + 1);
         inputs[i] = *zisc::treatAs<const uint32b*>(&v);
       }
@@ -711,13 +711,13 @@ TEST(DataTest, TypeReinterpretingTest)
       std::vector<uint32b> results;
       results.resize(ubuffer1->size(), 0);
       ubuffer1->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float v = zisc::cast<float>(i + 1);
         const uint32b expected = *zisc::treatAs<const uint32b*>(&v);
         const uint32b result = results[i];
         ASSERT_EQ(expected, result) << "The func 'treatAs<uint32b>' failed.";
       }
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float v = zisc::cast<float>(i + 1);
         const uint32b expected = *zisc::treatAs<const uint32b*>(&v);
         const uint32b result = results[i + 4];
@@ -728,13 +728,13 @@ TEST(DataTest, TypeReinterpretingTest)
       std::vector<cl::uint4> results;
       results.resize(ubuffer2->size(), 0);
       ubuffer2->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float v = zisc::cast<float>(i + 1);
         const uint32b expected = *zisc::treatAs<const uint32b*>(&v);
         const uint32b result = results[0][i];
         ASSERT_EQ(expected, result) << "The func 'treatAs<uint4>' failed.";
       }
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float v = zisc::cast<float>(i + 1);
         const uint32b expected = *zisc::treatAs<const uint32b*>(&v);
         const uint32b result = results[1][i];
@@ -746,12 +746,12 @@ TEST(DataTest, TypeReinterpretingTest)
       std::vector<float> results;
       results.resize(fbuffer1->size(), 0);
       fbuffer1->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float expected = zisc::cast<float>(i + 1);
         const float result = results[i];
         ASSERT_FLOAT_EQ(expected, result) << "The func 'treatAs<float>' failed.";
       }
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float expected = zisc::cast<float>(i + 1);
         const float result = results[i + 4];
         ASSERT_FLOAT_EQ(expected, result) << "The func 'treatAs<float>' failed.";
@@ -761,12 +761,12 @@ TEST(DataTest, TypeReinterpretingTest)
       std::vector<cl::float4> results;
       results.resize(fbuffer2->size(), 0);
       fbuffer2->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float expected = zisc::cast<float>(i + 1);
         const float result = results[0][i];
         ASSERT_FLOAT_EQ(expected, result) << "The func 'treatAs<float4>' failed.";
       }
-      for (std::size_t i = 0; i < 4; ++i) {
+      for (uint32b i = 0; i < 4; ++i) {
         const float expected = zisc::cast<float>(i + 1);
         const float result = results[1][i];
         ASSERT_FLOAT_EQ(expected, result) << "The func 'treatAs<float4>' failed.";
@@ -788,7 +788,7 @@ TEST(DataTest, TypeReinterpretingTest)
 //
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -811,9 +811,9 @@ TEST(DataTest, TypeReinterpretingTest)
 //    {
 //      std::array<::Ray1, 2 * resolution> results;
 //      buffer0->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < results.size(); ++i) {
+//      for (uint32b i = 0; i < results.size(); ++i) {
 //        const auto& result = results[i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          ASSERT_FLOAT_EQ(zisc::cast<float>(j + 1), result.origin_[j])
 //              << "The variable pointer for "
 //              << (zisc::isOdd(j) ? "local" : "global") << " is wrong.";
@@ -826,11 +826,11 @@ TEST(DataTest, TypeReinterpretingTest)
 //    {
 //      std::array<::Ray2, 2 * resolution> results;
 //      buffer1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < results.size(); ++i) {
+//      for (uint32b i = 0; i < results.size(); ++i) {
 //        if (zisc::isOdd(i))
 //          continue;
 //        const auto& result = results[i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          ASSERT_FLOAT_EQ(zisc::cast<float>(j + 1), result.origin_[j])
 //              << "The variable pointer for "
 //              << (zisc::isOdd(j) ? "local" : "global") << " is wrong.";
@@ -851,7 +851,7 @@ TEST(DataTest, Int8bBufferTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -868,7 +868,7 @@ TEST(DataTest, Int8bBufferTest)
       std::vector<int8b> results;
       results.resize(resolution, 0);
       buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const int32b e = zisc::cast<int32b>(std::numeric_limits<int8b>::min()) +
             zisc::cast<int32b>(i);
         const int8b expected = zisc::cast<int8b>(e);
@@ -887,7 +887,7 @@ TEST(DataTest, Uint8bBufferTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -904,7 +904,7 @@ TEST(DataTest, Uint8bBufferTest)
       std::vector<uint8b> results;
       results.resize(resolution, 0);
       buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const uint8b expected = zisc::cast<uint8b>(i);
         const uint8b result = results[i];
         ASSERT_EQ(expected, result) << "Uint8b buffer doesn't work";
@@ -921,7 +921,7 @@ TEST(DataTest, Int16bBufferTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -938,7 +938,7 @@ TEST(DataTest, Int16bBufferTest)
       std::vector<int16b> results;
       results.resize(resolution, 0);
       buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const int32b e = zisc::cast<int32b>(std::numeric_limits<int16b>::min()) +
             zisc::cast<int32b>(i);
         const int16b expected = zisc::cast<int16b>(e);
@@ -957,7 +957,7 @@ TEST(DataTest, Uint16bBufferTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -974,7 +974,7 @@ TEST(DataTest, Uint16bBufferTest)
       std::vector<uint16b> results;
       results.resize(resolution, 0);
       buffer->read(results.data(), results.size(), 0, 0);
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const uint16b expected = zisc::cast<uint16b>(i);
         const uint16b result = results[i];
         ASSERT_EQ(expected, result) << "Uint16b buffer doesn't work";
@@ -991,7 +991,7 @@ TEST(DataTest, Uint16bBufferTest)
 //
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1008,7 +1008,7 @@ TEST(DataTest, Uint16bBufferTest)
 //      std::vector<float> results;
 //      results.resize(resolution / 4, 0);
 //      buffer->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const uint8b expected = zisc::cast<uint8b>(i);
 //        const uint8b* p = zisc::treatAs<const uint8b*>(results.data());
 //        const uint8b result = p[i];
@@ -1026,7 +1026,7 @@ TEST(DataTest, Uint16bBufferTest)
 //
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1043,7 +1043,7 @@ TEST(DataTest, Uint16bBufferTest)
 //      std::vector<float> results;
 //      results.resize(resolution / 2, 0);
 //      buffer->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const uint16b expected = zisc::cast<uint16b>(i);
 //        const uint16b* p = zisc::treatAs<const uint16b*>(results.data());
 //        const uint16b result = p[i];
@@ -1061,7 +1061,7 @@ TEST(DataTest, CastUint8bToFloat)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1075,7 +1075,7 @@ TEST(DataTest, CastUint8bToFloat)
     {
       std::vector<float> inputs;
       inputs.resize(resolution);
-      for (std::size_t i = 0; i < resolution; ++i)
+      for (uint32b i = 0; i < resolution; ++i)
         inputs[i] = zisc::cast<float>(i);
       buffer2->write(inputs.data(), inputs.size(), 0, 0);
     }
@@ -1098,7 +1098,7 @@ TEST(DataTest, CastUint8bToFloat)
       std::vector<float> rresults;
       rresults.resize(resolution);
       buffer3->read(rresults.data(), rresults.size(), 0, 0);
-      for (std::size_t i = 0; i < wresults.size(); ++i) {
+      for (uint32b i = 0; i < wresults.size(); ++i) {
         {
           const float expected = zisc::cast<float>(i);
           const auto result = wresults[i];
@@ -1122,7 +1122,7 @@ TEST(DataTest, CastUint16bToFloat)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1136,7 +1136,7 @@ TEST(DataTest, CastUint16bToFloat)
     {
       std::vector<float> inputs;
       inputs.resize(resolution);
-      for (std::size_t i = 0; i < resolution; ++i)
+      for (uint32b i = 0; i < resolution; ++i)
         inputs[i] = zisc::cast<float>(i);
       buffer2->write(inputs.data(), inputs.size(), 0, 0);
     }
@@ -1159,7 +1159,7 @@ TEST(DataTest, CastUint16bToFloat)
       std::vector<float> rresults;
       rresults.resize(resolution);
       buffer3->read(rresults.data(), rresults.size(), 0, 0);
-      for (std::size_t i = 0; i < wresults.size(); ++i) {
+      for (uint32b i = 0; i < wresults.size(); ++i) {
         {
           const float expected = zisc::cast<float>(i);
           const auto result = wresults[i];
@@ -1183,7 +1183,7 @@ TEST(DataTest, CastUint32bToFloat)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1197,7 +1197,7 @@ TEST(DataTest, CastUint32bToFloat)
     {
       std::vector<float> inputs;
       inputs.resize(resolution);
-      for (std::size_t i = 0; i < resolution; ++i)
+      for (uint32b i = 0; i < resolution; ++i)
         inputs[i] = zisc::cast<float>(i);
       buffer2->write(inputs.data(), inputs.size(), 0, 0);
     }
@@ -1220,7 +1220,7 @@ TEST(DataTest, CastUint32bToFloat)
       std::vector<float> rresults;
       rresults.resize(resolution);
       buffer3->read(rresults.data(), rresults.size(), 0, 0);
-      for (std::size_t i = 0; i < wresults.size(); ++i) {
+      for (uint32b i = 0; i < wresults.size(); ++i) {
         {
           const float expected = zisc::cast<float>(i);
           const auto result = wresults[i];
@@ -1244,7 +1244,7 @@ TEST(DataTest, NumericLimitsTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1275,7 +1275,7 @@ TEST(DataTest, NumericLimitsTest)
       std::vector<int32b> results;
       results.resize(buffer0->size());
       buffer0->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(std::numeric_limits<int8b>::digits, results[i++])
         << "The NumericLimits<int8b> is wrong.";
       ++i;
@@ -1337,7 +1337,7 @@ TEST(DataTest, NumericLimitsTest)
       std::vector<int8b> results;
       results.resize(3);
       buffer1->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(std::numeric_limits<int8b>::min(), results[i++])
         << "The NumericLimits<int8b> is wrong.";
       ASSERT_EQ(std::numeric_limits<int8b>::lowest(), results[i++])
@@ -1350,7 +1350,7 @@ TEST(DataTest, NumericLimitsTest)
       std::vector<uint8b> results;
       results.resize(3);
       buffer2->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(std::numeric_limits<uint8b>::min(), results[i++])
         << "The NumericLimits<uint8b> is wrong.";
       ASSERT_EQ(std::numeric_limits<uint8b>::lowest(), results[i++])
@@ -1363,7 +1363,7 @@ TEST(DataTest, NumericLimitsTest)
       std::vector<int16b> results;
       results.resize(3);
       buffer3->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(std::numeric_limits<int16b>::min(), results[i++])
         << "The NumericLimits<int16b> is wrong.";
       ASSERT_EQ(std::numeric_limits<int16b>::lowest(), results[i++])
@@ -1376,7 +1376,7 @@ TEST(DataTest, NumericLimitsTest)
       std::vector<uint16b> results;
       results.resize(3);
       buffer4->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(std::numeric_limits<uint16b>::min(), results[i++])
         << "The NumericLimits<uint16b> is wrong.";
       ASSERT_EQ(std::numeric_limits<uint16b>::lowest(), results[i++])
@@ -1389,7 +1389,7 @@ TEST(DataTest, NumericLimitsTest)
       std::vector<int32b> results;
       results.resize(3);
       buffer5->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(std::numeric_limits<int32b>::min(), results[i++])
         << "The NumericLimits<int32b> is wrong.";
       ASSERT_EQ(std::numeric_limits<int32b>::lowest(), results[i++])
@@ -1402,7 +1402,7 @@ TEST(DataTest, NumericLimitsTest)
       std::vector<uint32b> results;
       results.resize(3);
       buffer6->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(std::numeric_limits<uint32b>::min(), results[i++])
         << "The NumericLimits<uint32b> is wrong.";
       ASSERT_EQ(std::numeric_limits<uint32b>::lowest(), results[i++])
@@ -1415,7 +1415,7 @@ TEST(DataTest, NumericLimitsTest)
       std::vector<float> results;
       results.resize(6);
       buffer7->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(std::numeric_limits<float>::min(), results[i++])
         << "The NumericLimits<float> is wrong.";
       ASSERT_FLOAT_EQ(std::numeric_limits<float>::lowest(), results[i++])
@@ -1443,7 +1443,7 @@ TEST(DataTest, NumericLimits64Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1465,7 +1465,7 @@ TEST(DataTest, NumericLimits64Test)
       std::vector<int32b> results;
       results.resize(buffer0->size());
       buffer0->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(std::numeric_limits<int64b>::digits, results[i++])
         << "The NumericLimits<int64b> is wrong.";
       ++i;
@@ -1494,7 +1494,7 @@ TEST(DataTest, NumericLimits64Test)
       std::vector<int64b> results;
       results.resize(3);
       buffer1->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(std::numeric_limits<int64b>::min(), results[i++])
         << "The NumericLimits<int64b> is wrong.";
       ASSERT_EQ(std::numeric_limits<int64b>::lowest(), results[i++])
@@ -1507,7 +1507,7 @@ TEST(DataTest, NumericLimits64Test)
       std::vector<uint64b> results;
       results.resize(3);
       buffer2->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(std::numeric_limits<uint64b>::min(), results[i++])
         << "The NumericLimits<uint64b> is wrong.";
       ASSERT_EQ(std::numeric_limits<uint64b>::lowest(), results[i++])
@@ -1520,7 +1520,7 @@ TEST(DataTest, NumericLimits64Test)
       std::vector<double> results;
       results.resize(6);
       buffer3->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_DOUBLE_EQ(std::numeric_limits<double>::min(), results[i++])
         << "The NumericLimits<double> is wrong.";
       ASSERT_DOUBLE_EQ(std::numeric_limits<double>::lowest(), results[i++])
@@ -1547,7 +1547,7 @@ TEST(DataTest, ArrayTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1569,16 +1569,16 @@ TEST(DataTest, ArrayTest)
       std::vector<uint32b> results;
       results.resize(buffer2->size());
       buffer2->read(results.data(), results.size(), 0, 0);
-      std::size_t index = 0;
-      for (std::size_t i = 0; i < 5; ++i) {
+      uint32b index = 0;
+      for (uint32b i = 0; i < 5; ++i) {
         const uint32b expected = zisc::cast<uint32b>(i + 1);
         ASSERT_EQ(expected, results[index++]) << error_message;
       }
-      for (std::size_t i = 0; i < 5; ++i) {
+      for (uint32b i = 0; i < 5; ++i) {
         const uint32b expected = 2;
         ASSERT_EQ(expected, results[index++]) << error_message;
       }
-      for (std::size_t i = 0; i < 5; ++i) {
+      for (uint32b i = 0; i < 5; ++i) {
         const uint32b expected = zisc::cast<uint32b>(i + 6);
         ASSERT_EQ(expected, results[index++]) << error_message;
       }
@@ -1596,7 +1596,7 @@ TEST(DataTest, Fnv1AHash32Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1611,7 +1611,7 @@ TEST(DataTest, Fnv1AHash32Test)
       std::vector<uint32b> results;
       results.resize(11);
       buffer1->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0x811c9dc5, results[i++])
         << "The Fnv1aHash32 is wrong.";
       ASSERT_EQ(0x811c9dc5, results[i++])
@@ -1647,7 +1647,7 @@ TEST(DataTest, Fnv1AHash64Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1662,7 +1662,7 @@ TEST(DataTest, Fnv1AHash64Test)
       std::vector<uint64b> results;
       results.resize(11);
       buffer1->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0xcbf29ce484222325, results[i++])
         << "The Fnv1aHash64 is wrong.";
       ASSERT_EQ(0xcbf29ce484222325, results[i++])

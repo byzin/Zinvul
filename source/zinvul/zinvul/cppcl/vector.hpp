@@ -26,7 +26,7 @@ namespace cl {
 
 /*!
   */
-template <typename Type, std::size_t kN> struct Vector;
+template <typename Type, size_t kN> struct Vector;
 
 /*!
   */
@@ -44,14 +44,14 @@ struct alignas(2 * sizeof(Type)) Vector<Type, 2>
 
 
   //! Return a reference to the element
-  Type& operator[](const std::size_t index) noexcept;
+  Type& operator[](const size_t index) noexcept;
 
   //! Return a reference to the element
-  const Type& operator[](const std::size_t index) const noexcept;
+  const Type& operator[](const size_t index) const noexcept;
 
 
   //! Return the size of the vector
-  static constexpr std::size_t size() noexcept;
+  static constexpr size_t size() noexcept;
 
 
   Type x,
@@ -74,14 +74,14 @@ struct alignas(4 * sizeof(Type)) Vector<Type, 3>
 
 
   //! Return a reference to the element
-  Type& operator[](const std::size_t index) noexcept;
+  Type& operator[](const size_t index) noexcept;
 
   //! Return a reference to the element
-  const Type& operator[](const std::size_t index) const noexcept;
+  const Type& operator[](const size_t index) const noexcept;
 
 
   //! Return the size of the vector
-  static constexpr std::size_t size() noexcept;
+  static constexpr size_t size() noexcept;
 
 
   Type x,
@@ -106,14 +106,14 @@ struct alignas(4 * sizeof(Type)) Vector<Type, 4>
 
 
   //! Return a reference to the element
-  Type& operator[](const std::size_t index) noexcept;
+  Type& operator[](const size_t index) noexcept;
 
   //! Return a reference to the element
-  const Type& operator[](const std::size_t index) const noexcept;
+  const Type& operator[](const size_t index) const noexcept;
 
 
   //! Return the size of the vector
-  static constexpr std::size_t size() noexcept;
+  static constexpr size_t size() noexcept;
 
 
   Type x,
@@ -123,423 +123,423 @@ struct alignas(4 * sizeof(Type)) Vector<Type, 4>
 };
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
                              const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
                              const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
                              const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
                              const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
                              const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
                              const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
                              const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
                              const Type& rhs) noexcept;
 
 //!
-template <typename Type1, typename Type2, std::size_t kN>
+template <typename Type1, typename Type2, size_t kN>
 Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
                                const Vector<Type2, kN>& rhs) noexcept;
 
 //!
-template <typename Type1, typename Type2, std::size_t kN>
+template <typename Type1, typename Type2, size_t kN>
 Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
                                const Type2& rhs) noexcept;
 
 //!
-template <typename Type1, typename Type2, std::size_t kN>
+template <typename Type1, typename Type2, size_t kN>
 Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
                                const Vector<Type2, kN>& rhs) noexcept;
 
 //!
-template <typename Type1, typename Type2, std::size_t kN>
+template <typename Type1, typename Type2, size_t kN>
 Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
                                const Type2& rhs) noexcept;
 
 //! Pre-increment a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept;
 
 //! Pre-decrement a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept;
 
 //! Post-increment a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept;
 
 //! Post-decrement a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator--(Vector<Type, kN>& value, int) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator-(const Vector<Type, kN>& value) noexcept;
 
 //! Compute an addition of two vectors
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute an addition of a scalar and a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator+(const Type& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute an addition of a scalar and a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept;
 
 //! Compute a subtract of two vectors
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a subtract of a scalar and a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator-(const Type& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a subtract of a scalar and a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept;
 
 //! Compute a multiplication of two vectors
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a multiplication of a scalar and a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator*(const Type& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a multiplication of a scalar and a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept;
 
 //! Compute a division of two vectors
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a division of a scalar and a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator/(const Type& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a division of a scalar and a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept;
 
 //! Compute a reminder of two vectors
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a reminder of a scalar and a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator%(const Type& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a reminder of a scalar and a vector
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept;
 
 //! Compute a bitwise NOT
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator~(const Vector<Type, kN>& value) noexcept;
 
 //! Compute a bitwise AND
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a bitwise AND
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator&(const Type& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a bitwise AND
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept;
 
 //! Compute a bitwise OR
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a bitwise OR
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator|(const Type& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a bitwise OR
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept;
 
 //! Compute a bitwise XOR
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a bitwise XOR
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator^(const Type& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a bitwise XOR
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
                            const Type& rhs) noexcept;
 
 //! Compute a left shift
-template <typename Type1, typename Type2, std::size_t kN>
+template <typename Type1, typename Type2, size_t kN>
 Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a left shift
-template <typename Type1, typename Type2, std::size_t kN>
+template <typename Type1, typename Type2, size_t kN>
 Vector<Type1, kN> operator<<(const Type1& lhs,
                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a left shift
-template <typename Type1, typename Type2, std::size_t kN>
+template <typename Type1, typename Type2, size_t kN>
 Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                              const Type2& rhs) noexcept;
 
 //! Compute a right shift
-template <typename Type1, typename Type2, std::size_t kN>
+template <typename Type1, typename Type2, size_t kN>
 Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a right shift
-template <typename Type1, typename Type2, std::size_t kN>
+template <typename Type1, typename Type2, size_t kN>
 Vector<Type1, kN> operator>>(const Type1& lhs,
                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a right shift
-template <typename Type1, typename Type2, std::size_t kN>
+template <typename Type1, typename Type2, size_t kN>
 Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
                              const Type2& rhs) noexcept;
 
 //! Check if two values are equal in value
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator==(
     const Vector<Type, kN>& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator==(
     const Type& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator==(
     const Vector<Type, kN>& lhs,
     const Type& rhs) noexcept;
 
 //! Check if two values are equal in value
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator!=(
     const Vector<Type, kN>& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator!=(
     const Type& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator!=(
     const Vector<Type, kN>& lhs,
     const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator<(
     const Vector<Type, kN>& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator<(
     const Type& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator<(
     const Vector<Type, kN>& lhs,
     const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator<=(
     const Vector<Type, kN>& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator<=(
     const Type& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator<=(
     const Vector<Type, kN>& lhs,
     const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator>(
     const Vector<Type, kN>& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator>(
     const Type& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator>(
     const Vector<Type, kN>& lhs,
     const Type& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator>=(
     const Vector<Type, kN>& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator>=(
     const Type& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator>=(
     const Vector<Type, kN>& lhs,
     const Type& rhs) noexcept;
 
 //! Return the result of boolean negation operations
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator!(
     const Vector<Type, kN>& value) noexcept;
 
 //! Return the result of boolean AND operations
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator&&(
     const Vector<Type, kN>& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //! Return the result of boolean AND operations
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator&&(
     const Type& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //! Return the result of boolean AND operations
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator&&(
     const Vector<Type, kN>& lhs,
     const Type& rhs) noexcept;
 
 //! Return the result of boolean OR operations
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator||(
     const Vector<Type, kN>& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //! Return the result of boolean OR operations
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator||(
     const Type& lhs,
     const Vector<Type, kN>& rhs) noexcept;
 
 //! Return the result of boolean OR operations
-template <typename Type, std::size_t kN>
+template <typename Type, size_t kN>
 Vector<Config::ComparisonResultType<Type>, kN> operator||(
     const Vector<Type, kN>& lhs,
     const Type& rhs) noexcept;
@@ -584,6 +584,236 @@ using double4 = Vector<double, 4>;
 
 // Load and store functions
 
+/*!
+  */
+class VectorData
+{
+ public:
+  //! Read a data from address (p + offset * 2)
+  template <typename Type>
+  static auto vload2(
+      const size_t offset,
+      const Type p,
+      zisc::EnableIf<std::is_pointer_v<Type>> = zisc::kEnabler) noexcept;
+
+  //! Read a data from address (p + offset * 2)
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static auto vload2(
+      const size_t offset,
+      const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
+
+  //! Read a data from address (p + offset * 3)
+  template <typename Type>
+  static auto vload3(
+      const size_t offset,
+      const Type p,
+      zisc::EnableIf<std::is_pointer_v<Type>> = zisc::kEnabler) noexcept;
+
+  //! Read a data from address (p + offset * 3)
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static auto vload3(
+      const size_t offset,
+      const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
+
+  //! Read a data from address (p + offset * 4)
+  template <typename Type>
+  static auto vload4(
+      const size_t offset,
+      const Type p,
+      zisc::EnableIf<std::is_pointer_v<Type>> = zisc::kEnabler) noexcept;
+
+  //! Read a data from address (p + offset * 4)
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static auto vload4(
+      const size_t offset,
+      const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
+
+  //! Read half data from address (p + offset). The address must be 16bit aligned
+  template <typename Type>
+  static float vload_half(
+      const size_t offset,
+      const Type p,
+      zisc::EnableIf<std::is_pointer_v<Type> &&
+                     std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>> = zisc::kEnabler) noexcept;
+
+  //! Read half data from address (p + offset). The address must be 16bit aligned
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static float vload_half(
+      const size_t offset,
+      const AddressSpacePointer<kAddressSpaceType, Type>& p,
+      zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! Read half data from address (p + offset * 2). The address must be 16bit aligned
+  template <typename Type>
+  static float2 vload_half2(
+      const size_t offset,
+      const Type p,
+      zisc::EnableIf<std::is_pointer_v<Type> &&
+                     std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>> = zisc::kEnabler) noexcept;
+  
+  //! Read half data from address (p + offset * 2). The address must be 16bit aligned
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static float2 vload_half2(
+      const size_t offset,
+      const AddressSpacePointer<kAddressSpaceType, Type>& p,
+      zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! Read half data from address (p + offset * 3). The address must be 16bit aligned
+  template <typename Type>
+  static float3 vload_half3(
+      const size_t offset,
+      const Type p,
+      zisc::EnableIf<std::is_pointer_v<Type> &&
+                     std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>> = zisc::kEnabler) noexcept;
+
+  //! Read half data from address (p + offset * 3). The address must be 16bit aligned
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static float3 vload_half3(
+      const size_t offset,
+      const AddressSpacePointer<kAddressSpaceType, Type>& p,
+      zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! Read half data from address (p + offset * 4). The address must be 16bit aligned
+  template <typename Type>
+  static float4 vload_half4(
+      const size_t offset,
+      const Type p,
+      zisc::EnableIf<std::is_pointer_v<Type> &&
+                     std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>> = zisc::kEnabler) noexcept;
+
+  //! Read half data from address (p + offset * 4). The address must be 16bit aligned
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static float4 vload_half4(
+      const size_t offset,
+      const AddressSpacePointer<kAddressSpaceType, Type>& p,
+      zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! Write to the address (p + offset * 2)
+  template <typename Type>
+  static void vstore2(const Vector<Type, 2>& data,
+               const size_t offset,
+               const std::add_pointer_t<Type> p) noexcept;
+
+  //! Write to the address (p + offset * 2)
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static void vstore2(const Vector<Type, 2>& data,
+               const size_t offset,
+               AddressSpacePointer<kAddressSpaceType, Type> p) noexcept;
+
+  //! Write to the address (p + offset * 3)
+  template <typename Type>
+  static void vstore3(const Vector<Type, 3>& data,
+               const size_t offset,
+               const std::add_pointer_t<Type> p) noexcept;
+
+  //! Write to the address (p + offset * 3)
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static void vstore3(const Vector<Type, 3>& data,
+               const size_t offset,
+               AddressSpacePointer<kAddressSpaceType, Type> p) noexcept;
+
+  //! Write to the address (p + offset * 4)
+  template <typename Type>
+  static void vstore4(const Vector<Type, 4>& data,
+               const size_t offset,
+               const std::add_pointer_t<Type> p) noexcept;
+
+  //! Write to the address (p + offset * 4)
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static void vstore4(const Vector<Type, 4>& data,
+               const size_t offset,
+               AddressSpacePointer<kAddressSpaceType, Type> p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset)
+  template <typename Type>
+  static void vstore_half(
+      const float data,
+      const size_t offset,
+      Type p,
+      zisc::EnableIfSame<half*, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset)
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static void vstore_half(
+      const float data,
+      const size_t offset,
+      AddressSpacePointer<kAddressSpaceType, Type> p,
+      zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 2)
+  template <typename Type>
+  static void vstore_half2(
+      const float2& data,
+      const size_t offset,
+      Type p,
+      zisc::EnableIfSame<half*, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 2)
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static void vstore_half2(
+      const float2& data,
+      const size_t offset,
+      AddressSpacePointer<kAddressSpaceType, Type> p,
+      zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 3)
+  template <typename Type>
+  static void vstore_half3(
+      const float3& data,
+      const size_t offset,
+      Type p,
+      zisc::EnableIfSame<half*, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 3)
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static void vstore_half3(
+      const float3& data,
+      const size_t offset,
+      AddressSpacePointer<kAddressSpaceType, Type> p,
+      zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 4)
+  template <typename Type>
+  static void vstore_half4(
+      const float4& data,
+      const size_t offset,
+      Type p,
+      zisc::EnableIfSame<half*, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 4)
+  template <AddressSpaceType kAddressSpaceType, typename Type>
+  static void vstore_half4(
+      const float4& data,
+      const size_t offset,
+      AddressSpacePointer<kAddressSpaceType, Type> p,
+      zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
+
+ private:
+  /*!
+    */
+  class Vec
+  {
+   public:
+    template <typename Type, size_t kN>
+    static Vector<Type, kN> vloadn(const size_t offset,
+                                   const Type* p) noexcept;
+
+    template <size_t kN>
+    static Vector<float, kN> vload_halfn(const size_t offset,
+                                         const half* p) noexcept;
+
+    template <typename Type, size_t kN>
+    static void vstoren(const Vector<Type, kN>& data,
+                        const size_t offset,
+                        Type* p) noexcept;
+
+    template <size_t kN>
+    static void vstore_halfn(const Vector<float, kN>& data,
+                             const size_t offset,
+                             half* p) noexcept;
+  };
+};
+
 //! Read a data from address (p + offset * 2)
 template <typename Type>
 auto vload2(const size_t offset,
@@ -593,7 +823,7 @@ auto vload2(const size_t offset,
 //! Read a data from address (p + offset * 2)
 template <AddressSpaceType kAddressSpaceType, typename Type>
 auto vload2(const size_t offset,
-            const AddressSpacePointer<kAddressSpaceType, Type> p) noexcept;
+            const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
 
 //! Read a data from address (p + offset * 3)
 template <typename Type>
@@ -604,7 +834,7 @@ auto vload3(const size_t offset,
 //! Read a data from address (p + offset * 3)
 template <AddressSpaceType kAddressSpaceType, typename Type>
 auto vload3(const size_t offset,
-            const AddressSpacePointer<kAddressSpaceType, Type> p) noexcept;
+            const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
 
 //! Read a data from address (p + offset * 4)
 template <typename Type>
@@ -615,7 +845,7 @@ auto vload4(const size_t offset,
 //! Read a data from address (p + offset * 4)
 template <AddressSpaceType kAddressSpaceType, typename Type>
 auto vload4(const size_t offset,
-            const AddressSpacePointer<kAddressSpaceType, Type> p) noexcept;
+            const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
 
 //! Read half data from address (p + offset). The address must be 16bit aligned
 template <typename Type>
@@ -629,7 +859,7 @@ float vload_half(
 template <AddressSpaceType kAddressSpaceType, typename Type>
 float vload_half(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p,
+    const AddressSpacePointer<kAddressSpaceType, Type>& p,
     zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
 
 //! Read half data from address (p + offset * 2). The address must be 16bit aligned
@@ -644,7 +874,7 @@ float2 vload_half2(
 template <AddressSpaceType kAddressSpaceType, typename Type>
 float2 vload_half2(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p,
+    const AddressSpacePointer<kAddressSpaceType, Type>& p,
     zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
 
 //! Read half data from address (p + offset * 3). The address must be 16bit aligned
@@ -659,7 +889,7 @@ float3 vload_half3(
 template <AddressSpaceType kAddressSpaceType, typename Type>
 float3 vload_half3(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p,
+    const AddressSpacePointer<kAddressSpaceType, Type>& p,
     zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
 
 //! Read half data from address (p + offset * 4). The address must be 16bit aligned
@@ -674,7 +904,7 @@ float4 vload_half4(
 template <AddressSpaceType kAddressSpaceType, typename Type>
 float4 vload_half4(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type> p,
+    const AddressSpacePointer<kAddressSpaceType, Type>& p,
     zisc::EnableIfSame<half, std::remove_cv_t<Type>> = zisc::kEnabler) noexcept;
 
 //! Write to the address (p + offset * 2)

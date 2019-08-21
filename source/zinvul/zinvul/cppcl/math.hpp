@@ -179,7 +179,7 @@ class Math
   template <typename FloatN>
   static FloatN sqrt(const FloatN& x) noexcept;
 
-  //! Trigonometric functions
+  // Trigonometric functions
 
   //! Compute sine
   template <typename FloatN>
@@ -232,35 +232,35 @@ class Math
     // Nearest integer floating point operations
 
     //! Return the nearest integer not less than the given value
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto ceil(const Vector<Float, kN>& x) noexcept;
 
     //! Return the nearest integer not greater than the given value
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto floor(const Vector<Float, kN>& x) noexcept;
 
     //! Return the nearest integer not greater in magnitude than the given value
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto trunc(const Vector<Float, kN>& x) noexcept;
 
     //! Return the nearest integer, rounding away from zero in halfway cases
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto round(const Vector<Float, kN>& x) noexcept;
 
     // Basic operations
 
     //! Return the remainder of the floating point division operation by 1
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto fract(const Vector<Float, kN>& x,
                       Vector<Float, kN>* iptr) noexcept;
 
     //! Return the remainder of the floating point division operation
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto fmod(const Vector<Float, kN>& x,
                      const Vector<Float, kN>& y) noexcept;
 
     //! Fused multiply-add operation
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto fma(const Vector<Float, kN>& a,
                     const Vector<Float, kN>& b,
                     const Vector<Float, kN>& c) noexcept;
@@ -268,72 +268,72 @@ class Math
     // Exponential functions
 
     //! Return e raised to the given power
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto exp(const Vector<Float, kN>& x) noexcept;
 
     //! Compute natural logarithm of the given number
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto log(const Vector<Float, kN>& x) noexcept;
 
     //! Compute base2 logarithm of the given number
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto log2(const Vector<Float, kN>& x) noexcept;
 
     // Power functions
 
     //! Raise a number to the given power
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto pow(const Vector<Float, kN>& base,
                     const Vector<Float, kN>& e) noexcept;
 
     //! Compute inverse square root
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto rsqrt(const Vector<Float, kN>& x) noexcept;
 
     //! Compute square root
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto sqrt(const Vector<Float, kN>& x) noexcept;
 
     //! Trigonometric functions
 
     //! Compute sine
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto sin(const Vector<Float, kN>& theta) noexcept;
 
     //! Compute cosine
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto cos(const Vector<Float, kN>& theta) noexcept;
 
     //! Compute tangent
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto tan(const Vector<Float, kN>& theta) noexcept;
 
     //! Compute arc sine
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto asin(const Vector<Float, kN>& x) noexcept;
 
     //! Compute arc cosine
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto acos(const Vector<Float, kN>& x) noexcept;
 
     //! Compute arc tangent
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto atan(const Vector<Float, kN>& x) noexcept;
 
     // Floating point manipulation functions
 
     //! Decompose a number into significand and power of 2
-    template <typename Float, typename Integer, std::size_t kN>
+    template <typename Float, typename Integer, size_t kN>
     static auto frexp(const Vector<Float, kN>& x,
                       Vector<Integer, kN>* e) noexcept;
 
-    //! Multiplie a number by 2 raised to a power 
-    template <typename Float, typename Integer, std::size_t kN>
+    //! Multiply a number by 2 raised to a power 
+    template <typename Float, typename Integer, size_t kN>
     static auto ldexp(const Vector<Float, kN>& x,
                       const Vector<Integer, kN>& e) noexcept;
 
     //! Copy the sign of a floating point value
-    template <typename Float, std::size_t kN>
+    template <typename Float, size_t kN>
     static auto copysign(const Vector<Float, kN>& x,
                          const Vector<Float, kN>& y) noexcept;
   };

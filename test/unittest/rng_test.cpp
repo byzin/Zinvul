@@ -32,7 +32,7 @@ TEST(RngTest, Cmj64Test)
   using namespace zinvul;
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -76,7 +76,7 @@ TEST(RngTest, Cmj64Test)
         const uint32b s = sample / n;
         const uint32b p = seed + sample % n;
         const auto expected = CmjEngine::template generate2D<float>(s, p);
-        for (std::size_t i = 0; i < 2; ++i) {
+        for (uint32b i = 0; i < 2; ++i) {
           EXPECT_FLOAT_EQ(expected[i], results[sample][i])
               << "[" << sample << "] zCmjGenerate2D(" << s << "," << p << ") is wrong.";
         }
@@ -94,7 +94,7 @@ TEST(RngTest, Cmj64DTest)
   using namespace zinvul;
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -138,7 +138,7 @@ TEST(RngTest, Cmj64DTest)
         const uint32b s = sample / n;
         const uint32b p = seed + sample % n;
         const auto expected = CmjEngine::template generate2D<double>(s, p);
-        for (std::size_t i = 0; i < 2; ++i) {
+        for (uint32b i = 0; i < 2; ++i) {
           EXPECT_DOUBLE_EQ(expected[i], results[sample][i])
               << "[" << sample << "] zCmjGenerate2D(" << s << "," << p << ") is wrong.";
         }
@@ -156,7 +156,7 @@ TEST(RngTest, Cmj64ImageTest)
   using namespace zinvul;
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -236,7 +236,7 @@ TEST(RngTest, Cmj256PerformanceTest)
   using namespace zinvul;
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -282,7 +282,7 @@ TEST(RngTest, Cmj256PerformanceTest)
     stopwatch.start();
 
     std::cout << "  [" << std::flush;
-    for (std::size_t i = 0; i < iterations; ++i) {
+    for (uint32b i = 0; i < iterations; ++i) {
       std::cout << "-" << std::flush;
       kernel1->run(*color_buffer, *color_comp_buffer, *sample_buff, *block_buff, *res_buff, {resolution}, 0);
       device->waitForCompletion();
@@ -316,9 +316,9 @@ TEST(RngTest, Cmj256PerformanceTest)
       colors.resize(resolution);
       color_buffer->read(colors.data(), colors.size(), 0, 0);
 
-      for (std::size_t i = 0; i < colors.size(); ++i) {
+      for (uint32b i = 0; i < colors.size(); ++i) {
         const cl::float4 color = 256.0f * colors[i];
-        for (std::size_t c = 0; c < 3; ++c) {
+        for (uint32b c = 0; c < 3; ++c) {
           const uint32b v = zisc::cast<uint32b>(color[c]);
           if (256 <= v)
             std::cerr << "256 is happened: " << c << std::endl;

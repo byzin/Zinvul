@@ -1,5 +1,5 @@
 /*!
-  \file geometry_test.cpp
+  \file geometric_test.cpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -10,6 +10,7 @@
 // Standard C++ library
 #include <array>
 #include <bitset>
+#include <cmath>
 #include <iomanip>
 #include <limits>
 #include <vector>
@@ -17,17 +18,17 @@
 #include "gtest/gtest.h"
 // Zinvul
 #include "zinvul/zinvul.hpp"
-#include "zinvul/kernel_set/geometry.hpp"
+#include "zinvul/kernel_set/geometric.hpp"
 // Test
 #include "test.hpp"
 
-TEST(GeometryTest, Cross3Test)
+TEST(GeometricTest, Cross3Test)
 {
   using namespace zinvul;
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -43,7 +44,7 @@ TEST(GeometryTest, Cross3Test)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometry, testCross3));
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometric, testCross3));
     kernel->run(*parameter_buff, *result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -56,7 +57,7 @@ TEST(GeometryTest, Cross3Test)
       results.resize(result_buff->size());
       result_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const auto& a = parameters[2 * i + 0];
         ASSERT_NE(0.0f, a.x);
         const auto& b = parameters[2 * i + 1];
@@ -64,7 +65,7 @@ TEST(GeometryTest, Cross3Test)
         {
           const auto expected = cl::cross(a, b);
           const auto& result = results[2 * i + 0];
-          for (std::size_t j = 0; j < 3; ++j) {
+          for (uint32b j = 0; j < 3; ++j) {
             ASSERT_FLOAT_EQ(expected[j], result[j]) << j << " th: " << error_message
                 << " [" << i << "] " << std::scientific
                 << "a=(" << a.x << ", " << a.y << ", " << a.z << "), "
@@ -74,7 +75,7 @@ TEST(GeometryTest, Cross3Test)
         {
           const auto expected = cl::cross(b, a);
           const auto& result = results[2 * i + 1];
-          for (std::size_t j = 0; j < 3; ++j) {
+          for (uint32b j = 0; j < 3; ++j) {
             ASSERT_FLOAT_EQ(expected[j], result[j]) << j << " th: " << error_message
                 << " [" << i << "] " << std::scientific
                 << "a=(" << a.x << ", " << a.y << ", " << a.z << "), "
@@ -88,13 +89,13 @@ TEST(GeometryTest, Cross3Test)
   }
 }
 
-TEST(GeometryTest, Cross4Test)
+TEST(GeometricTest, Cross4Test)
 {
   using namespace zinvul;
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -110,7 +111,7 @@ TEST(GeometryTest, Cross4Test)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometry, testCross4));
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometric, testCross4));
     kernel->run(*parameter_buff, *result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -123,7 +124,7 @@ TEST(GeometryTest, Cross4Test)
       results.resize(result_buff->size());
       result_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const auto& a = parameters[2 * i + 0];
         ASSERT_NE(0.0f, a.x);
         const auto& b = parameters[2 * i + 1];
@@ -131,7 +132,7 @@ TEST(GeometryTest, Cross4Test)
         {
           const auto expected = cl::cross(a, b);
           const auto& result = results[2 * i + 0];
-          for (std::size_t j = 0; j < 4; ++j) {
+          for (uint32b j = 0; j < 4; ++j) {
             ASSERT_FLOAT_EQ(expected[j], result[j]) << j << " th: " << error_message
               << " [" << i << "] " << std::scientific
               << "a=(" << a.x << ", " << a.y << ", " << a.z << ", " << a.w << "), "
@@ -141,7 +142,7 @@ TEST(GeometryTest, Cross4Test)
         {
           const auto expected = cl::cross(b, a);
           const auto& result = results[2 * i + 1];
-          for (std::size_t j = 0; j < 4; ++j) {
+          for (uint32b j = 0; j < 4; ++j) {
             ASSERT_FLOAT_EQ(expected[j], result[j]) << j << " th: " << error_message
               << " [" << i << "] " << std::scientific
               << "a=(" << a.x << ", " << a.y << ", " << a.z << ", " << a.w << "), "
@@ -155,13 +156,13 @@ TEST(GeometryTest, Cross4Test)
   }
 }
 
-TEST(GeometryTest, Dot3Test)
+TEST(GeometricTest, Dot3Test)
 {
   using namespace zinvul;
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -177,7 +178,7 @@ TEST(GeometryTest, Dot3Test)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometry, testDot3));
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometric, testDot3));
     kernel->run(*parameter_buff, *result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -190,13 +191,13 @@ TEST(GeometryTest, Dot3Test)
       results.resize(result_buff->size());
       result_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         auto a = parameters[2 * i + 0];
         ASSERT_NE(0.0f, a.x);
         auto b = parameters[2 * i + 1];
         ASSERT_NE(0.0f, b.x);
+        const auto expected = std::fma(a.x, b.x, std::fma(a.y, b.y, a.z * b.z));
         {
-          const auto expected = (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
           const auto result = results[2 * i + 0];
           ASSERT_FLOAT_EQ(expected, result) << error_message
                 << " [" << i << "] " << std::scientific
@@ -204,7 +205,6 @@ TEST(GeometryTest, Dot3Test)
                 << "b=(" << b.x << ", " << b.y << ", " << b.z << ").";
         }
         {
-          const auto expected = (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
           const auto result = results[2 * i + 1];
           ASSERT_FLOAT_EQ(expected, result) << error_message
               << " [" << i << "] " << std::scientific
@@ -218,13 +218,13 @@ TEST(GeometryTest, Dot3Test)
   }
 }
 
-TEST(GeometryTest, Dot4Test)
+TEST(GeometricTest, Dot4Test)
 {
   using namespace zinvul;
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -240,7 +240,7 @@ TEST(GeometryTest, Dot4Test)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometry, testDot4));
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometric, testDot4));
     kernel->run(*parameter_buff, *result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -253,13 +253,13 @@ TEST(GeometryTest, Dot4Test)
       results.resize(result_buff->size());
       result_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         auto a = parameters[2 * i + 0];
         ASSERT_NE(0.0f, a.x);
         auto b = parameters[2 * i + 1];
         ASSERT_NE(0.0f, b.x);
         {
-          const auto expected = (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w);
+          const auto expected = std::fma(a.x, b.x, std::fma(a.y, b.y, std::fma(a.z, b.z, a.w * b.w)));
           const auto result = results[2 * i + 0];
           ASSERT_FLOAT_EQ(expected, result) << error_message
             << " [" << i << "] " << std::scientific
@@ -269,7 +269,7 @@ TEST(GeometryTest, Dot4Test)
         {
           a.w = 0.0f;
           b.w = 0.0f;
-          const auto expected = (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+          const auto expected = std::fma(a.x, b.x, std::fma(a.y, b.y, a.z * b.z));
           const auto result = results[2 * i + 1];
           ASSERT_FLOAT_EQ(expected, result) << error_message
             << " [" << i << "] " << std::scientific
@@ -283,13 +283,13 @@ TEST(GeometryTest, Dot4Test)
   }
 }
 
-TEST(GeometryTest, Distance3Test)
+TEST(GeometricTest, Distance3Test)
 {
   using namespace zinvul;
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -305,7 +305,7 @@ TEST(GeometryTest, Distance3Test)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometry, testDistance3));
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometric, testDistance3));
     kernel->run(*parameter_buff, *result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -318,7 +318,7 @@ TEST(GeometryTest, Distance3Test)
       results.resize(result_buff->size());
       result_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const auto& a = parameters[2 * i + 0];
         ASSERT_NE(0.0f, a.x);
         const auto& b = parameters[2 * i + 1];
@@ -347,13 +347,13 @@ TEST(GeometryTest, Distance3Test)
   }
 }
 
-TEST(GeometryTest, Distance4Test)
+TEST(GeometricTest, Distance4Test)
 {
   using namespace zinvul;
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -369,7 +369,7 @@ TEST(GeometryTest, Distance4Test)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometry, testDistance4));
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometric, testDistance4));
     kernel->run(*parameter_buff, *result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -382,7 +382,7 @@ TEST(GeometryTest, Distance4Test)
       results.resize(result_buff->size());
       result_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const auto& a = parameters[2 * i + 0];
         ASSERT_NE(0.0f, a.x);
         const auto& b = parameters[2 * i + 1];
@@ -411,13 +411,13 @@ TEST(GeometryTest, Distance4Test)
   }
 }
 
-TEST(GeometryTest, Normalize3Test)
+TEST(GeometricTest, Normalize3Test)
 {
   using namespace zinvul;
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -433,7 +433,7 @@ TEST(GeometryTest, Normalize3Test)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometry, testNormalize3));
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometric, testNormalize3));
     kernel->run(*parameter_buff, *result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -446,7 +446,7 @@ TEST(GeometryTest, Normalize3Test)
       results.resize(result_buff->size());
       result_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const auto& a = parameters[2 * i + 0];
         ASSERT_NE(0.0f, a.x);
         const auto& b = parameters[2 * i + 1];
@@ -454,7 +454,7 @@ TEST(GeometryTest, Normalize3Test)
         {
           const auto expected = a * (1.0f / std::sqrt(cl::dot(a, a)));
           const auto& result = results[2 * i + 0];
-          for (std::size_t j = 0; j < 3; ++j) {
+          for (uint32b j = 0; j < 3; ++j) {
             ASSERT_FLOAT_EQ(expected[j], result[j]) << j << " th: " << error_message
                 << " [" << i << "] " << std::scientific
                 << "a=(" << a.x << ", " << a.y << ", " << a.z << ").";
@@ -463,7 +463,7 @@ TEST(GeometryTest, Normalize3Test)
         {
           const auto expected = b * (1.0f / std::sqrt(cl::dot(b, b)));
           const auto& result = results[2 * i + 1];
-          for (std::size_t j = 0; j < 3; ++j) {
+          for (uint32b j = 0; j < 3; ++j) {
             ASSERT_FLOAT_EQ(expected[j], result[j]) << j << " th: " << error_message
               << " [" << i << "] " << std::scientific
               << "b=(" << b.x << ", " << b.y << ", " << b.z << ").";
@@ -476,13 +476,13 @@ TEST(GeometryTest, Normalize3Test)
   }
 }
 
-TEST(GeometryTest, Normalize4Test)
+TEST(GeometricTest, Normalize4Test)
 {
   using namespace zinvul;
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -498,7 +498,7 @@ TEST(GeometryTest, Normalize4Test)
     res_buff->setSize(1);
     res_buff->write(&resolution, 1, 0, 0);
 
-    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometry, testNormalize4));
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(geometric, testNormalize4));
     kernel->run(*parameter_buff, *result_buff, *res_buff, {resolution}, 0);
     device->waitForCompletion();
 
@@ -511,7 +511,7 @@ TEST(GeometryTest, Normalize4Test)
       results.resize(result_buff->size());
       result_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < resolution; ++i) {
+      for (uint32b i = 0; i < resolution; ++i) {
         const auto& a = parameters[2 * i + 0];
         ASSERT_NE(0.0f, a.x);
         auto b = parameters[2 * i + 1];
@@ -519,7 +519,7 @@ TEST(GeometryTest, Normalize4Test)
         {
           const auto expected = a * (1.0f / std::sqrt(cl::dot(a, a)));
           const auto& result = results[2 * i + 0];
-          for (std::size_t j = 0; j < 3; ++j) {
+          for (uint32b j = 0; j < 3; ++j) {
             ASSERT_FLOAT_EQ(expected[j], result[j]) << j << " th: " << error_message
                 << " [" << i << "] " << std::scientific
                 << "a=(" << a.x << ", " << a.y << ", " << a.z << ", " << a.w << ").";
@@ -529,7 +529,7 @@ TEST(GeometryTest, Normalize4Test)
           b.w = 0.0f;
           const auto expected = b * (1.0f / std::sqrt(cl::dot(b, b)));
           const auto& result = results[2 * i + 1];
-          for (std::size_t j = 0; j < 3; ++j) {
+          for (uint32b j = 0; j < 3; ++j) {
             ASSERT_FLOAT_EQ(expected[j], result[j]) << j << " th: " << error_message
               << " [" << i << "] " << std::scientific
               << "b=(" << b.x << ", " << b.y << ", " << b.z << ", " << b.w << ").";

@@ -179,6 +179,16 @@ constexpr size_t FloatingPoint<kFormat>::exponentBitSize() noexcept
 /*!
   */
 template <FloatingPointFormat kFormat> inline
+constexpr auto FloatingPoint<kFormat>::halfBit() noexcept -> BitType
+{
+  const auto exp_bit = static_cast<BitType>((exponentBias() - 1) <<
+                                            significandBitSize());
+  return exp_bit;
+}
+
+/*!
+  */
+template <FloatingPointFormat kFormat> inline
 constexpr auto FloatingPoint<kFormat>::infinityBit() noexcept -> BitType
 {
   const BitType value = exponentBitMask();
@@ -227,41 +237,37 @@ auto FloatingPoint<kFormat>::isZeroBit(const BitVec<kN> x) noexcept
 /*!
   */
 template <FloatingPointFormat kFormat> inline
-void FloatingPoint<kFormat>::mapTo01(const BitType x,
-                                     GenericPtr<FloatType> result) noexcept
+auto FloatingPoint<kFormat>::mapTo01(const BitType x) noexcept
 {
-  if constexpr (kFormat != FloatingPointFormat::kHalf)
-    *result = mapTo01Impl<1>(x);
+  const auto result = mapTo01Impl<1>(x);
+  return result;
 }
 
 /*!
   */
 template <FloatingPointFormat kFormat> inline
-void FloatingPoint<kFormat>::mapTo01(const BitVec<2> x,
-                                     GenericPtr<FloatVec<2>> result) noexcept
+auto FloatingPoint<kFormat>::mapTo01(const BitVec<2> x) noexcept
 {
-  if constexpr (kFormat != FloatingPointFormat::kHalf)
-    *result = mapTo01Impl<2>(x);
+  const auto result = mapTo01Impl<2>(x);
+  return result;
 }
 
 /*!
   */
 template <FloatingPointFormat kFormat> inline
-void FloatingPoint<kFormat>::mapTo01(const BitVec<3> x,
-                                     GenericPtr<FloatVec<3>> result) noexcept
+auto FloatingPoint<kFormat>::mapTo01(const BitVec<3> x) noexcept
 {
-  if constexpr (kFormat != FloatingPointFormat::kHalf)
-    *result = mapTo01Impl<3>(x);
+  const auto result = mapTo01Impl<3>(x);
+  return result;
 }
 
 /*!
   */
 template <FloatingPointFormat kFormat> inline
-void FloatingPoint<kFormat>::mapTo01(const BitVec<4> x,
-                                     GenericPtr<FloatVec<4>> result) noexcept
+auto FloatingPoint<kFormat>::mapTo01(const BitVec<4> x) noexcept
 {
-  if constexpr (kFormat != FloatingPointFormat::kHalf)
-    *result = mapTo01Impl<4>(x);
+  const auto result = mapTo01Impl<4>(x);
+  return result;
 }
 
 /*!
@@ -416,12 +422,16 @@ FloatingPoint<kFormat>::upscale(const BitVec<kN> x) noexcept
   */
 template <FloatingPointFormat kFormat> template <size_t kN> inline
 auto FloatingPoint<kFormat>::mapTo01Impl(const BitVec<kN> x) noexcept
-    -> FloatVec<kN>
 {
-  constexpr auto k =
-      static_cast<FloatType>(1.0) /
-      static_cast<FloatType>(static_cast<BitType>(1) << (significandBitSize() + 1));
-  return k * cast<FloatVec<kN>>(x >> exponentBitSize());
+  if constexpr (kFormat == FloatingPointFormat::kHalf) {
+    return 0.0f;
+  }
+  else {
+    constexpr auto k =
+        static_cast<FloatType>(1.0) /
+        static_cast<FloatType>(static_cast<BitType>(1) << (significandBitSize() + 1));
+    return k * cast<FloatVec<kN>>(x >> exponentBitSize());
+  }
 }
 
 } // namespace zinvul

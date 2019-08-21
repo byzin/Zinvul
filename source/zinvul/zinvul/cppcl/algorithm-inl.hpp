@@ -255,134 +255,134 @@ IntegerN Algorithm::popcount(const IntegerN& x) noexcept
   }
 }
 
-template <typename Integer, std::size_t kN> inline
+template <typename Integer, size_t kN> inline
 auto Algorithm::Vec::abs(const Vector<Integer, kN>& x) noexcept
 {
   using UnsignedI = std::make_unsigned_t<Integer>;
   Vector<UnsignedI, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::abs(x[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Algorithm::Vec::fabs(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::fabs(x[i]);
   return result;
 }
 
-template <typename Type1, typename Type2, std::size_t kN> inline
+template <typename Type1, typename Type2, size_t kN> inline
 auto Algorithm::Vec::clamp(const Vector<Type1, kN>& x,
                            const Type2 minval,
                            const Type2 maxval) noexcept
 {
   Vector<Type1, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::clamp(x[i], minval, maxval);
   return result;
 }
 
-template <typename Type1, typename Type2, std::size_t kN> inline
+template <typename Type1, typename Type2, size_t kN> inline
 auto Algorithm::Vec::clamp(const Vector<Type1, kN>& x,
                            const Vector<Type2, kN>& minval,
                            const Vector<Type2, kN>& maxval) noexcept
 {
   Vector<Type1, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::clamp(x[i], minval[i], maxval[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Algorithm::Vec::degrees(const Vector<Float, kN>& r) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::degrees(r[i]);
   return result;
 }
 
-template <typename Type, std::size_t kN> inline
+template <typename Type, size_t kN> inline
 auto Algorithm::Vec::max(const Vector<Type, kN>& x,
                          const Vector<Type, kN>& y) noexcept
 {
   Vector<Type, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::max(x[i], y[i]);
   return result;
 }
 
-template <typename Type, std::size_t kN> inline
+template <typename Type, size_t kN> inline
 auto Algorithm::Vec::min(const Vector<Type, kN>& x,
                          const Vector<Type, kN>& y) noexcept
 {
   Vector<Type, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = cl::min(x[i], y[i]);
   return result;
 }
 
-template <typename Float1, typename Float2, std::size_t kN> inline
+template <typename Float1, typename Float2, size_t kN> inline
 auto Algorithm::Vec::mix(const Vector<Float1, kN>& x,
                          const Vector<Float1, kN>& y,
                          const Float2 a) noexcept
 {
   Vector<Float1, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::mix(x[i], y[i], a);
   return result;
 }
 
-template <typename Float1, typename Float2, std::size_t kN> inline
+template <typename Float1, typename Float2, size_t kN> inline
 auto Algorithm::Vec::mix(const Vector<Float1, kN>& x,
                          const Vector<Float1, kN>& y,
                          const Vector<Float2, kN>& a) noexcept
 {
   Vector<Float1, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::mix(x[i], y[i], a[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Algorithm::Vec::radians(const Vector<Float, kN>& d) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::radians(d[i]);
   return result;
 }
 
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Algorithm::Vec::sign(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::sign(x[i]);
   return result;
 }
 
 /*!
   */
-template <typename Integer, std::size_t kN> inline
+template <typename Integer, size_t kN> inline
 auto Algorithm::Vec::clz(const Vector<Integer, kN>& x) noexcept
 {
   Vector<Integer, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::clz(x[i]);
   return result;
 }
 
 /*!
   */
-template <typename Integer, std::size_t kN> inline
+template <typename Integer, size_t kN> inline
 auto Algorithm::Vec::popcount(const Vector<Integer, kN>& x) noexcept
 {
   Vector<Integer, kN> result;
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result[i] = Algorithm::popcount(x[i]);
   return result;
 }

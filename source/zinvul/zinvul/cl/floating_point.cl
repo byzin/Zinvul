@@ -64,6 +64,9 @@ class FloatingPoint
   //! Return the exponent bit size
   static constexpr size_t exponentBitSize() noexcept;
 
+  //! Return the positive 1/2 bit value
+  static constexpr BitType halfBit() noexcept;
+
   //! Return the positive infinity value
   static constexpr BitType infinityBit() noexcept;
 
@@ -80,16 +83,16 @@ class FloatingPoint
   static ComparisonResultType<BitVec<kN>> isZeroBit(const BitVec<kN> x) noexcept;
 
   //! Map an unsigned integer into a [0, 1) float
-  static void mapTo01(const BitType x, GenericPtr<FloatType> result) noexcept;
+  static auto mapTo01(const BitType x) noexcept;
 
   //! Map an unsigned integer into a [0, 1) float
-  static void mapTo01(const BitVec<2> x, GenericPtr<FloatVec<2>> result) noexcept;
+  static auto mapTo01(const BitVec<2> x) noexcept;
 
   //! Map an unsigned integer into a [0, 1) float
-  static void mapTo01(const BitVec<3> x, GenericPtr<FloatVec<3>> result) noexcept;
+  static auto mapTo01(const BitVec<3> x) noexcept;
 
   //! Map an unsigned integer into a [0, 1) float
-  static void mapTo01(const BitVec<4> x, GenericPtr<FloatVec<4>> result) noexcept;
+  static auto mapTo01(const BitVec<4> x) noexcept;
 
   //! Return the positive one value
   static constexpr BitType oneBit() noexcept;
@@ -122,7 +125,7 @@ class FloatingPoint
  private:
   //! Map an unsigned integer into a [0, 1) float
   template <size_t kN>
-  static FloatVec<kN> mapTo01Impl(const BitVec<kN> x) noexcept;
+  static auto mapTo01Impl(const BitVec<kN> x) noexcept;
 };
 
 // Type alias

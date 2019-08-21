@@ -17,6 +17,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <string_view>
 #include <vector>
 // GoogleTest
 #include "gtest/gtest.h"
@@ -50,6 +51,87 @@ void printFloat(const char* message, const Float x)
   std::cout << std::endl;
 }
 
+template <zinvul::uint32b kAllowableUlps = 2,
+          zinvul::uint32b kCautionedUlps = 8192,
+          typename Float> 
+void testFloat(const char* func_name,
+    const Float x,
+    const Float* y,
+    const Float expected,
+    const Float result,
+    zinvul::uint32b& num_of_trials,
+    zinvul::uint32b& num_of_failures,
+    zinvul::uint32b& num_of_inf_failures,
+    zinvul::uint32b& num_of_nan_failures,
+    zisc::CompensatedSummation<Float>& sum_ulps,
+    Float& max_ulps,
+    Float& max_diff,
+    const bool print_failure_values = true)
+{
+  using namespace zinvul;
+  using namespace zisc;
+
+  char result_str[256];
+  auto get_result_str = [func_name, x, y, expected, result, &result_str]()
+  {
+    char expression[64];
+    if (y != nullptr) {
+      std::sprintf(expression, "%s(%g, %g)", func_name, cast<double>(x),
+                                                        cast<double>(*y));
+    }
+    else {
+      std::sprintf(expression, "%s(%g)", func_name, cast<double>(x));
+    }
+    std::string_view expression_str{expression};
+
+    std::sprintf(result_str,
+                 "- %s = %g, hex = %x\n  %*s = %g, hex = %x",
+                 expression_str.data(),
+                 cast<double>(result),
+                 *treatAs<const int*>(&result),
+                 cast<int>(expression_str.size()),
+                 "expected",
+                 cast<double>(expected),
+                 *treatAs<const int*>(&expected));
+  };
+
+  ++num_of_trials;
+  if (std::isfinite(result)) {
+    if (!constant::Math::isAlmostEqual<kAllowableUlps>(expected, result)) {
+      ++num_of_failures;
+      const auto diff = std::abs(expected - result);
+      const auto ulps = diff / constant::Math::getUlps<1>(expected + result);
+      if (std::isfinite(ulps)) {
+        sum_ulps.add(ulps);
+        max_ulps = std::max(max_ulps, ulps);
+      }
+      if (!std::isnan(diff)) {
+        max_diff = std::max(max_diff, diff);
+      }
+//      if (print_failure_values &&
+//          (std::numeric_limits<Float>::min() <= diff) &&
+//          !constant::Math::isAlmostEqual<kCautionedUlps>(expected, result)) {
+//        get_result_str();
+//        std::cout << result_str << std::endl;
+//      }
+    }
+  }
+  else if (std::isinf(result) && !std::isinf(expected)) {
+    ++num_of_inf_failures;
+    if (print_failure_values) {
+      get_result_str();
+      std::cout << result_str << std::endl;
+    }
+  }
+  else if (std::isnan(result) && !std::isnan(expected)) {
+    ++num_of_nan_failures;
+    if (print_failure_values) {
+      get_result_str();
+      std::cout << result_str << std::endl;
+    }
+  }
+}
+
 } // namespace 
 
 TEST(MathTest, ConstantValueTest)
@@ -58,12 +140,12 @@ TEST(MathTest, ConstantValueTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr std::size_t ni = 7;
-    constexpr std::size_t nf = 23;
+    constexpr uint32b ni = 7;
+    constexpr uint32b nf = 23;
 
     auto buffer1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(ni);
@@ -79,7 +161,7 @@ TEST(MathTest, ConstantValueTest)
       results.resize(ni);
       buffer1->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       EXPECT_EQ(6, results[i++]) << "FLT_DIG is wrong.";
       EXPECT_EQ(24, results[i++]) << "FLT_MANT_DIG is wrong.";
       EXPECT_EQ(+38, results[i++]) << "FLT_MAX_10_EXP is wrong.";
@@ -92,7 +174,7 @@ TEST(MathTest, ConstantValueTest)
       std::vector<float> results;
       results.resize(nf);
       buffer2->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       {
         const float expected = std::numeric_limits<float>::max();
         ::printFloat("expected max", expected);
@@ -274,12 +356,12 @@ TEST(MathTest, ConstantValue64Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr std::size_t ni = 7;
-    constexpr std::size_t nf = 23;
+    constexpr uint32b ni = 7;
+    constexpr uint32b nf = 23;
 
     auto buffer1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
     buffer1->setSize(ni);
@@ -295,7 +377,7 @@ TEST(MathTest, ConstantValue64Test)
       results.resize(ni);
       buffer1->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       EXPECT_EQ(15, results[i++]) << "DBL_DIG is wrong.";
       EXPECT_EQ(53, results[i++]) << "DBL_MANT_DIG is wrong.";
       EXPECT_EQ(+308, results[i++]) << "DBL_MAX_10_EXP is wrong.";
@@ -307,7 +389,7 @@ TEST(MathTest, ConstantValue64Test)
       std::vector<double> results;
       results.resize(nf);
       buffer2->read(results.data(), results.size(), 0, 0);
-      std::size_t i = 0;
+      uint32b i = 0;
       {
         const double expected = std::numeric_limits<double>::max();
         ::printFloat("expected max", expected);
@@ -483,17 +565,4456 @@ TEST(MathTest, ConstantValue64Test)
 
 #endif // !defined(Z_MAC)
 
+TEST(MathTest, MakeNormalTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 1024;
+
+    auto pinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    pinput_buff->setSize(resolution);
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(resolution);
+    auto yinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    yinput_buff->setSize(resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testMakeNormal));
+    kernel->run(*pinput_buff, *input_buff, *yinput_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> presults;
+      presults.resize(pinput_buff->size());
+      pinput_buff->read(presults.data(), presults.size(), 0, 0);
+
+      for (uint32b i = 0; i < presults.size(); ++i) {
+        const auto expected = cl::math::test::makeNormalP<float>(i, resolution);
+        const auto result = presults[i];
+        ASSERT_FLOAT_EQ(expected, result)
+          << "'makeNormalP(" << i << ", " << resolution << ")' failed.";
+      }
+    }
+    {
+      std::vector<float> results;
+      results.resize(input_buff->size());
+      input_buff->read(results.data(), results.size(), 0, 0);
+
+      for (uint32b i = 0; i < results.size(); ++i) {
+        const auto expected = cl::math::test::makeNormal<float>(i, resolution);
+        const auto result = results[i];
+        ASSERT_FLOAT_EQ(expected, result) << std::scientific
+          << "'makeNormal(" << i << ", " << resolution << ")' failed.";
+      }
+    }
+    {
+      std::vector<float> results;
+      results.resize(yinput_buff->size());
+      yinput_buff->read(results.data(), results.size(), 0, 0);
+
+      for (uint32b i = 0; i < results.size(); ++i) {
+        const auto expected = cl::math::test::makeNormalY<float>(i);
+        const auto result = results[i];
+        ASSERT_FLOAT_EQ(expected, result) << std::scientific
+          << "'makeNormalY(" << i << ", " << resolution << ")' failed.";
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CeilTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCeil));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::ceil(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("ceil", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'ceil' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FloorTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testFloor));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::floor(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("floor", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'floor' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, TruncTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testTrunc));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::trunc(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("trunc", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'trunc' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, RoundTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testRound));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::round(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("round", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'round' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, RoundBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testRoundBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::round(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::round", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::round' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, RoundZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testRoundZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::round(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::round", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::round' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, RintTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testRint));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+//        const auto expected = std::rint(x);
+        const auto expected = std::round(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("rint", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'rint' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, RintBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testRintBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+//        const auto expected = std::rint(x);
+        const auto expected = std::round(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::rint", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::rint' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, RintZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testRintZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+//        const auto expected = std::rint(x);
+        const auto expected = std::round(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::rint", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::rint' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ExpTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testExp));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::exp(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("exp", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'exp' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ExpBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testExpBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::exp(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::exp", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::exp' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, ExpZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testExpZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::exp(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::exp", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::exp' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, LogTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testLog));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::log(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("log", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'log' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, LogBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testLogBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::log(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::log", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::log' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, LogZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testLogZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::log(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::log", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::log' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, Log2Test)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testLog2));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::log2(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("log2", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'log2' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, Log2BuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testLog2Builtin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::log2(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::log2", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::log2' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, Log2ZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testLog2Zinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::log2(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::log2", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::log2' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, PowTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto xinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    xinput_buff->setSize(n * resolution);
+    auto yinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    yinput_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testPow));
+    kernel->run(*xinput_buff, *yinput_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> xinputs;
+      xinputs.resize(xinput_buff->size());
+      xinput_buff->read(xinputs.data(), xinputs.size(), 0, 0);
+
+      std::vector<float> yinputs;
+      yinputs.resize(yinput_buff->size());
+      yinput_buff->read(yinputs.data(), yinputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < xinputs.size(); ++i) {
+        const auto x = xinputs[i];
+        const auto y = yinputs[i];
+        const auto expected = std::pow(x, y);
+        const auto result = results[i];
+        ::testFloat("pow", x, &y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'pow' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, PowBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto xinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    xinput_buff->setSize(n * resolution);
+    auto yinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    yinput_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testPowBuiltin));
+    kernel->run(*xinput_buff, *yinput_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> xinputs;
+      xinputs.resize(xinput_buff->size());
+      xinput_buff->read(xinputs.data(), xinputs.size(), 0, 0);
+
+      std::vector<float> yinputs;
+      yinputs.resize(yinput_buff->size());
+      yinput_buff->read(yinputs.data(), yinputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < xinputs.size(); ++i) {
+        const auto x = xinputs[i];
+        const auto y = yinputs[i];
+        const auto expected = std::pow(x, y);
+        const auto result = results[i];
+        ::testFloat("builtin::pow", x, &y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::pow' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, PowZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto xinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    xinput_buff->setSize(n * resolution);
+    auto yinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    yinput_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testPowZinvul));
+    kernel->run(*xinput_buff, *yinput_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> xinputs;
+      xinputs.resize(xinput_buff->size());
+      xinput_buff->read(xinputs.data(), xinputs.size(), 0, 0);
+
+      std::vector<float> yinputs;
+      yinputs.resize(yinput_buff->size());
+      yinput_buff->read(yinputs.data(), yinputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < xinputs.size(); ++i) {
+        const auto x = xinputs[i];
+        const auto y = yinputs[i];
+        const auto expected = std::pow(x, y);
+        const auto result = results[i];
+        ::testFloat("zinvul::pow", x, &y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::pow' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, RsqrtTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testRsqrt));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = zisc::Algorithm::invert(std::sqrt(x));
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("rsqrt", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'rsqrt' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, RsqrtBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testRsqrtBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = zisc::Algorithm::invert(std::sqrt(x));
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::rsqrt", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::rsqrt' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, RsqrtZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testRsqrtZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = zisc::Algorithm::invert(std::sqrt(x));
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::rsqrt", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::rsqrt' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, SqrtTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testSqrt));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::sqrt(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("sqrt", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'sqrt' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, SqrtBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testSqrtBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::sqrt(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::sqrt", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::sqrt' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, SqrtZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testSqrtZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::sqrt(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::sqrt", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::sqrt' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, SinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testSin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::sin(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("sin", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'sin' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, SinBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testSinBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::sin(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::sin", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::sin' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, SinZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testSinZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::sin(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::sin", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::sin' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CosTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCos));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::cos(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("cos", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'cos' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CosBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCosBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::cos(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::cos", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::cos' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CosZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCosZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::cos(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::cos", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::cos' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, TanTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testTan));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::tan(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("tan", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'tan' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, TanBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testTanBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::tan(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::tan", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::tan' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, TanZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testTanZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::tan(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::tan", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::tan' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, SinPiTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testSinPi));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::sin(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("sin", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'sin' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, SinPiBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testSinPiBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::sin(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::sin", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::sin' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, SinPiZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testSinPiZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::sin(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::sin", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::sin' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CosPiTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCosPi));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::cos(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("cos", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'cos' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CosPiBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCosPiBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::cos(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::cos", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::cos' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CosPiZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCosPiZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::cos(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::cos", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::cos' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, TanPiTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testTanPi));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::tan(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("tan", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'tan' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, TanPiBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testTanPiBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::tan(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::tan", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::tan' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, TanPiZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testTanPiZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::tan(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::tan", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::tan' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, AsinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testAsin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::asin(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("asin", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'asin' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, AsinBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testAsinBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::asin(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::asin", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::asin' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, AsinZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testAsinZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::asin(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::asin", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::asin' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, AcosTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testAcos));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::acos(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("acos", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'acos' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, AcosBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testAcosBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::acos(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::acos", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::acos' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, AcosZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testAcosZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::acos(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::acos", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::acos' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, AtanTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testAtan));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::atan(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("atan", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'atan' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, AtanBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testAtanBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::atan(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::atan", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::atan' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, AtanZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testAtanZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::atan(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::atan", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::atan' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FractTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto fresult_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    fresult_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testFract));
+    kernel->run(*input_buff, *result_buff, *fresult_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      std::vector<float> fresults;
+      fresults.resize(fresult_buff->size());
+      fresult_buff->read(fresults.data(), fresults.size(), 0, 0);
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        float fexpected = 0.0f;
+        const auto expected = cl::fract(x, &fexpected);
+        const auto result = results[i];
+        if (i < (inputs.size() - 1)) {
+          ASSERT_FLOAT_EQ(expected, result)
+              << "[" << i << "]: fract(" << x << ") failed.";
+        }
+        else {
+          ASSERT_TRUE(std::isnan(result))
+              << "[" << i << "]: fract(" << x << ") failed.";
+        }
+        const auto fresult = fresults[i];
+        ASSERT_FLOAT_EQ(fexpected, fresult)
+              << "[" << i << "]: fract(" << x << ") failed.";
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FractBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto fresult_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    fresult_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testFractBuiltin));
+    kernel->run(*input_buff, *result_buff, *fresult_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      std::vector<float> fresults;
+      fresults.resize(fresult_buff->size());
+      fresult_buff->read(fresults.data(), fresults.size(), 0, 0);
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        float fexpected = 0.0f;
+        const auto expected = cl::fract(x, &fexpected);
+        const auto result = results[i];
+        if (i < (inputs.size() - 1)) {
+          ASSERT_FLOAT_EQ(expected, result)
+              << "[" << i << "]: fract(" << x << ") failed.";
+        }
+        else {
+          ASSERT_TRUE(std::isnan(result))
+              << "[" << i << "]: fract(" << x << ") failed.";
+        }
+        const auto fresult = fresults[i];
+        ASSERT_FLOAT_EQ(fexpected, fresult)
+              << "[" << i << "]: fract(" << x << ") failed.";
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FractZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto fresult_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    fresult_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testFractZinvul));
+    kernel->run(*input_buff, *result_buff, *fresult_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      std::vector<float> fresults;
+      fresults.resize(fresult_buff->size());
+      fresult_buff->read(fresults.data(), fresults.size(), 0, 0);
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        float fexpected = 0.0f;
+        const auto expected = cl::fract(x, &fexpected);
+        const auto result = results[i];
+        if (i < (inputs.size() - 1)) {
+          ASSERT_FLOAT_EQ(expected, result)
+              << "[" << i << "]: fract(" << x << ") failed.";
+        }
+        else {
+          ASSERT_TRUE(std::isnan(result))
+              << "[" << i << "]: fract(" << x << ") failed.";
+        }
+        const auto fresult = fresults[i];
+        ASSERT_FLOAT_EQ(fexpected, fresult)
+              << "[" << i << "]: fract(" << x << ") failed.";
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FmodTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto xinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    xinput_buff->setSize(n * resolution);
+    auto yinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    yinput_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testFmod));
+    kernel->run(*xinput_buff, *yinput_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> xinputs;
+      xinputs.resize(xinput_buff->size());
+      xinput_buff->read(xinputs.data(), xinputs.size(), 0, 0);
+
+      std::vector<float> yinputs;
+      yinputs.resize(yinput_buff->size());
+      yinput_buff->read(yinputs.data(), yinputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < xinputs.size(); ++i) {
+        const auto x = xinputs[i];
+        const auto y = yinputs[i];
+        const auto expected = std::fmod(x, y);
+        const auto result = results[i];
+        ::testFloat("fmod", x, &y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'fmod' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FmodBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto xinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    xinput_buff->setSize(n * resolution);
+    auto yinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    yinput_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testFmodBuiltin));
+    kernel->run(*xinput_buff, *yinput_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> xinputs;
+      xinputs.resize(xinput_buff->size());
+      xinput_buff->read(xinputs.data(), xinputs.size(), 0, 0);
+
+      std::vector<float> yinputs;
+      yinputs.resize(yinput_buff->size());
+      yinput_buff->read(yinputs.data(), yinputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < xinputs.size(); ++i) {
+        const auto x = xinputs[i];
+        const auto y = yinputs[i];
+        const auto expected = std::fmod(x, y);
+        const auto result = results[i];
+        ::testFloat("builtin::fmod", x, &y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::fmod' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FmodZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto xinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    xinput_buff->setSize(n * resolution);
+    auto yinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    yinput_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testFmodZinvul));
+    kernel->run(*xinput_buff, *yinput_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> xinputs;
+      xinputs.resize(xinput_buff->size());
+      xinput_buff->read(xinputs.data(), xinputs.size(), 0, 0);
+
+      std::vector<float> yinputs;
+      yinputs.resize(yinput_buff->size());
+      yinput_buff->read(yinputs.data(), yinputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < xinputs.size(); ++i) {
+        const auto x = xinputs[i];
+        const auto y = yinputs[i];
+        const auto expected = std::fmod(x, y);
+        const auto result = results[i];
+        ::testFloat("zinvul::fmod", x, &y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::fmod' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FrLdexpTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto fresult_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    fresult_buff->setSize(n * resolution);
+    auto eresult_buff = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    eresult_buff->setSize(n * resolution);
+    auto lresult_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    lresult_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testFrLdexp));
+    kernel->run(*input_buff, *fresult_buff, *eresult_buff, *lresult_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> fresults;
+      fresults.resize(fresult_buff->size());
+      fresult_buff->read(fresults.data(), fresults.size(), 0, 0);
+
+      std::vector<int32b> eresults;
+      eresults.resize(eresult_buff->size());
+      eresult_buff->read(eresults.data(), eresults.size(), 0, 0);
+
+      std::vector<float> lresults;
+      lresults.resize(lresult_buff->size());
+      lresult_buff->read(lresults.data(), lresults.size(), 0, 0);
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        int eexpected = 0;
+        const auto fexpected = std::frexp(x, &eexpected);
+        const auto fresult = fresults[i];
+        const auto eresult = eresults[i];
+        if (i < (inputs.size() - 1)) {
+          ASSERT_FLOAT_EQ(fexpected, fresult)
+              << "[" << i << "]: frexp(" << x << ") failed.";
+        }
+        else {
+          ASSERT_TRUE(std::isnan(fresult))
+              << "[" << i << "]: frexp(" << x << ") failed.";
+        }
+        ASSERT_EQ(eexpected, eresult)
+            << "[" << i << "]: frexp(" << x << ") failed.";
+        const auto lexpected = std::ldexp(fexpected, eexpected);
+        const auto lresult = lresults[i];
+        if (i < (inputs.size() - 1)) {
+          ASSERT_FLOAT_EQ(lexpected, lresult)
+              << "[" << i << "]: ldexp(" << fexpected << ", " << eexpected << ") failed.";
+        }
+        else {
+          ASSERT_TRUE(std::isnan(lresult))
+              << "[" << i << "]: ldexp(" << fexpected << ", " << eexpected << ") failed.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FrLdexpBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto fresult_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    fresult_buff->setSize(n * resolution);
+    auto eresult_buff = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    eresult_buff->setSize(n * resolution);
+    auto lresult_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    lresult_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testFrLdexpBuiltin));
+    kernel->run(*input_buff, *fresult_buff, *eresult_buff, *lresult_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> fresults;
+      fresults.resize(fresult_buff->size());
+      fresult_buff->read(fresults.data(), fresults.size(), 0, 0);
+
+      std::vector<int32b> eresults;
+      eresults.resize(eresult_buff->size());
+      eresult_buff->read(eresults.data(), eresults.size(), 0, 0);
+
+      std::vector<float> lresults;
+      lresults.resize(lresult_buff->size());
+      lresult_buff->read(lresults.data(), lresults.size(), 0, 0);
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        int eexpected = 0;
+        const auto fexpected = std::frexp(x, &eexpected);
+        const auto fresult = fresults[i];
+        const auto eresult = eresults[i];
+        if (i < (inputs.size() - 1)) {
+          ASSERT_FLOAT_EQ(fexpected, fresult)
+              << "[" << i << "]: frexp(" << x << ") failed.";
+        }
+        else {
+          ASSERT_TRUE(std::isnan(fresult))
+              << "[" << i << "]: frexp(" << x << ") failed.";
+        }
+        ASSERT_EQ(eexpected, eresult)
+            << "[" << i << "]: frexp(" << x << ") failed.";
+        const auto lexpected = std::ldexp(fexpected, eexpected);
+        const auto lresult = lresults[i];
+        if (i < (inputs.size() - 1)) {
+          ASSERT_FLOAT_EQ(lexpected, lresult)
+              << "[" << i << "]: ldexp(" << fexpected << ", " << eexpected << ") failed.";
+        }
+        else {
+          ASSERT_TRUE(std::isnan(lresult))
+              << "[" << i << "]: ldexp(" << fexpected << ", " << eexpected << ") failed.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, FrLdexpZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto fresult_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    fresult_buff->setSize(n * resolution);
+    auto eresult_buff = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceOnly);
+    eresult_buff->setSize(n * resolution);
+    auto lresult_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    lresult_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testFrLdexpZinvul));
+    kernel->run(*input_buff, *fresult_buff, *eresult_buff, *lresult_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> fresults;
+      fresults.resize(fresult_buff->size());
+      fresult_buff->read(fresults.data(), fresults.size(), 0, 0);
+
+      std::vector<int32b> eresults;
+      eresults.resize(eresult_buff->size());
+      eresult_buff->read(eresults.data(), eresults.size(), 0, 0);
+
+      std::vector<float> lresults;
+      lresults.resize(lresult_buff->size());
+      lresult_buff->read(lresults.data(), lresults.size(), 0, 0);
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        int eexpected = 0;
+        const auto fexpected = std::frexp(x, &eexpected);
+        const auto fresult = fresults[i];
+        const auto eresult = eresults[i];
+        if (i < (inputs.size() - 1)) {
+          ASSERT_FLOAT_EQ(fexpected, fresult)
+              << "[" << i << "]: frexp(" << x << ") failed.";
+        }
+        else {
+          ASSERT_TRUE(std::isnan(fresult))
+              << "[" << i << "]: frexp(" << x << ") failed.";
+        }
+        ASSERT_EQ(eexpected, eresult)
+            << "[" << i << "]: frexp(" << x << ") failed.";
+        const auto lexpected = std::ldexp(fexpected, eexpected);
+        const auto lresult = lresults[i];
+        if (i < (inputs.size() - 1)) {
+          ASSERT_FLOAT_EQ(lexpected, lresult)
+              << "[" << i << "]: ldexp(" << fexpected << ", " << eexpected << ") failed.";
+        }
+        else {
+          ASSERT_TRUE(std::isnan(lresult))
+              << "[" << i << "]: ldexp(" << fexpected << ", " << eexpected << ") failed.";
+        }
+      }
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CopysignTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto xinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    xinput_buff->setSize(n * resolution);
+    auto yinput_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    yinput_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCopysign));
+    kernel->run(*xinput_buff, *yinput_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> xinputs;
+      xinputs.resize(xinput_buff->size());
+      xinput_buff->read(xinputs.data(), xinputs.size(), 0, 0);
+
+      std::vector<float> yinputs;
+      yinputs.resize(yinput_buff->size());
+      yinput_buff->read(yinputs.data(), yinputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < xinputs.size(); ++i) {
+        const auto x = xinputs[i];
+        const auto y = yinputs[i];
+        const auto expected = std::copysign(x, y);
+        const auto result = results[i];
+        ::testFloat("copysign", x, &y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      ASSERT_FALSE(num_of_failures) << std::scientific
+          << "'copysign' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 //TEST(MathTest, ConstantValueTest)
 //{
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n_int = 16;
-//    constexpr std::size_t n_float = 44;
+//    constexpr uint32b n_int = 16;
+//    constexpr uint32b n_float = 44;
 //    auto int_values = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    int_values->setSize(n_int);
 //    auto max_values = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
@@ -510,7 +5031,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, n_int> results;
 //      int_values->read(results.data(), n_int, 0, 0);
-//      std::size_t index = 0;
+//      uint32b index = 0;
 //      EXPECT_EQ(FLT_DIG, results[index++])
 //          << "The constant 'FLT_DIG' is wrong.";
 //      EXPECT_EQ(FLT_MANT_DIG, results[index++])
@@ -618,7 +5139,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, n_float> results;
 //      float_values->read(results.data(), n_float, 0, 0);
-//      std::size_t index = 0;
+//      uint32b index = 0;
 //
 //      const float e = std::exp(1.0f);
 //      const float log2e = std::log2(e);
@@ -727,7 +5248,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -748,7 +5269,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::ceil(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -758,9 +5279,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::ceil(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -769,9 +5290,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::ceil(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -780,9 +5301,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::ceil(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -798,7 +5319,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -819,7 +5340,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::ceil(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -829,9 +5350,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::ceil(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -840,9 +5361,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::ceil(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -851,9 +5372,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::ceil(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -869,7 +5390,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -890,7 +5411,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::ceil(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -900,9 +5421,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::ceil(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -911,9 +5432,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::ceil(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -922,9 +5443,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::ceil(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -940,7 +5461,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -961,7 +5482,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::floor(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -971,9 +5492,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::floor(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -982,9 +5503,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::floor(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -993,9 +5514,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::floor(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1011,7 +5532,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1032,7 +5553,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::floor(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -1042,9 +5563,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::floor(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1053,9 +5574,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::floor(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1064,9 +5585,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::floor(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1082,7 +5603,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1103,7 +5624,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::floor(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -1113,9 +5634,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::floor(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1124,9 +5645,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::floor(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1135,9 +5656,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::floor(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1153,7 +5674,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1174,7 +5695,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::trunc(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -1184,9 +5705,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::trunc(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1195,9 +5716,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::trunc(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1206,9 +5727,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::trunc(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1224,7 +5745,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1245,7 +5766,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::trunc(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -1255,9 +5776,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::trunc(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1266,9 +5787,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::trunc(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1277,9 +5798,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::trunc(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1295,7 +5816,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1316,7 +5837,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::trunc(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -1326,9 +5847,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::trunc(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1337,9 +5858,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::trunc(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1348,9 +5869,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::trunc(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1366,7 +5887,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1387,7 +5908,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::round(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -1397,9 +5918,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::round(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1408,9 +5929,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::round(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1419,9 +5940,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::round(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1437,7 +5958,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1458,7 +5979,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::round(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -1468,9 +5989,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::round(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1479,9 +6000,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::round(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1490,9 +6011,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::round(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1508,7 +6029,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1529,7 +6050,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 1; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 1; ++i) {
 //        const float x = result[2 * i];
 //        const float expected = std::round(x);
 //        ASSERT_FLOAT_EQ(expected, result[2 * i + 1]) << error_message;
@@ -1539,9 +6060,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = std::round(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1550,9 +6071,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = std::round(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1561,9 +6082,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = std::round(x[j]);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
 //        }
@@ -1579,7 +6100,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1634,7 +6155,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1689,7 +6210,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1744,7 +6265,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1799,7 +6320,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1854,7 +6375,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1909,7 +6430,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -1968,7 +6489,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -2026,7 +6547,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -2082,11 +6603,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 30;
+//    constexpr uint32b n = 30;
 //    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2104,7 +6625,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const int32b lhs = result[3 * i];
 //        const int32b rhs = result[3 * i + 1];
 //        const int32b expected = std::max(lhs, rhs);
@@ -2115,10 +6636,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = std::max(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2128,10 +6649,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = std::max(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2141,10 +6662,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = std::max(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2161,11 +6682,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 30;
+//    constexpr uint32b n = 30;
 //    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2183,7 +6704,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const int32b lhs = result[3 * i];
 //        const int32b rhs = result[3 * i + 1];
 //        const int32b expected = std::max(lhs, rhs);
@@ -2194,10 +6715,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = std::max(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2207,10 +6728,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = std::max(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2220,10 +6741,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = std::max(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2240,11 +6761,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 30;
+//    constexpr uint32b n = 30;
 //    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2262,7 +6783,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const int32b lhs = result[3 * i];
 //        const int32b rhs = result[3 * i + 1];
 //        const int32b expected = std::max(lhs, rhs);
@@ -2273,10 +6794,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = std::max(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2286,10 +6807,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = std::max(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2299,10 +6820,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = std::max(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2319,11 +6840,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 18;
+//    constexpr uint32b n = 18;
 //    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2341,7 +6862,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::max(lhs, rhs);
@@ -2352,10 +6873,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2365,10 +6886,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2378,10 +6899,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2398,11 +6919,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 18;
+//    constexpr uint32b n = 18;
 //    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2420,7 +6941,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::max(lhs, rhs);
@@ -2431,10 +6952,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2444,10 +6965,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2457,10 +6978,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2477,11 +6998,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 18;
+//    constexpr uint32b n = 18;
 //    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2499,7 +7020,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::max(lhs, rhs);
@@ -2510,10 +7031,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2523,10 +7044,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2536,10 +7057,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2556,11 +7077,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 30;
+//    constexpr uint32b n = 30;
 //    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2578,7 +7099,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const int32b lhs = result[3 * i];
 //        const int32b rhs = result[3 * i + 1];
 //        const int32b expected = std::min(lhs, rhs);
@@ -2589,10 +7110,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = std::min(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2602,10 +7123,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = std::min(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2615,10 +7136,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = std::min(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2635,11 +7156,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 30;
+//    constexpr uint32b n = 30;
 //    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2657,7 +7178,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const int32b lhs = result[3 * i];
 //        const int32b rhs = result[3 * i + 1];
 //        const int32b expected = std::min(lhs, rhs);
@@ -2668,10 +7189,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = std::min(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2681,10 +7202,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = std::min(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2694,10 +7215,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = std::min(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2714,11 +7235,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 30;
+//    constexpr uint32b n = 30;
 //    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2736,7 +7257,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const int32b lhs = result[3 * i];
 //        const int32b rhs = result[3 * i + 1];
 //        const int32b expected = std::min(lhs, rhs);
@@ -2747,10 +7268,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = std::min(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2760,10 +7281,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = std::min(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2773,10 +7294,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = std::min(lhs[j], rhs[j]);
 //          const int32b m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2793,11 +7314,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 18;
+//    constexpr uint32b n = 18;
 //    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2815,7 +7336,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::min(lhs, rhs);
@@ -2826,10 +7347,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2839,10 +7360,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2852,10 +7373,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2872,11 +7393,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 18;
+//    constexpr uint32b n = 18;
 //    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2894,7 +7415,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::min(lhs, rhs);
@@ -2905,10 +7426,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2918,10 +7439,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2931,10 +7452,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2951,11 +7472,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 18;
+//    constexpr uint32b n = 18;
 //    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -2973,7 +7494,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::min(lhs, rhs);
@@ -2984,10 +7505,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -2997,10 +7518,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3010,10 +7531,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3030,11 +7551,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 48;
+//    constexpr uint32b n = 48;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -3052,7 +7573,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::max(lhs, rhs);
@@ -3063,10 +7584,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3076,10 +7597,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3089,10 +7610,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3109,11 +7630,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 48;
+//    constexpr uint32b n = 48;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -3131,7 +7652,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::max(lhs, rhs);
@@ -3142,10 +7663,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3155,10 +7676,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3168,10 +7689,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3188,11 +7709,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 48;
+//    constexpr uint32b n = 48;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -3210,7 +7731,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::max(lhs, rhs);
@@ -3221,10 +7742,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3234,10 +7755,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3247,10 +7768,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::max(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3267,11 +7788,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 48;
+//    constexpr uint32b n = 48;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -3289,7 +7810,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::min(lhs, rhs);
@@ -3300,10 +7821,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3313,10 +7834,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3326,10 +7847,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3346,11 +7867,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 48;
+//    constexpr uint32b n = 48;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -3368,7 +7889,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::min(lhs, rhs);
@@ -3379,10 +7900,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3392,10 +7913,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3405,10 +7926,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3425,11 +7946,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t n = 48;
+//    constexpr uint32b n = 48;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -3447,7 +7968,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
 //        const auto expected = std::min(lhs, rhs);
@@ -3458,10 +7979,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 3> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3471,10 +7992,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 3> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3484,10 +8005,10 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 3> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 3; ++i) {
+//      for (uint32b i = 0; i < result.size() / 3; ++i) {
 //        const auto lhs = result[3 * i];
 //        const auto rhs = result[3 * i + 1];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::min(lhs[j], rhs[j]);
 //          const auto m = result[3 * i + 2][j];
 //          ASSERT_EQ(expected, m) << error_message;
@@ -3504,7 +8025,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -3605,7 +8126,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -3706,7 +8227,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -3807,11 +8328,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    const std::size_t n = 15 * 4;
+//    const uint32b n = 15 * 4;
 //    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -3829,7 +8350,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
@@ -3841,11 +8362,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 8> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -3855,11 +8376,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 8> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -3869,11 +8390,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 8> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -3890,11 +8411,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    const std::size_t n = 15 * 4;
+//    const uint32b n = 15 * 4;
 //    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -3912,7 +8433,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
@@ -3924,11 +8445,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 8> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -3938,11 +8459,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 8> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -3952,11 +8473,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 8> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -3973,11 +8494,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    const std::size_t n = 15 * 4;
+//    const uint32b n = 15 * 4;
 //    auto results1 = makeStorageBuffer<int32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::int2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -3995,7 +8516,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
@@ -4007,11 +8528,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 8> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4021,11 +8542,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 8> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4035,11 +8556,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 8> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4056,11 +8577,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    const std::size_t n = 12 * 4;
+//    const uint32b n = 12 * 4;
 //    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -4078,7 +8599,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
@@ -4090,11 +8611,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 8> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4104,11 +8625,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 8> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4118,11 +8639,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 8> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4139,11 +8660,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    const std::size_t n = 12 * 4;
+//    const uint32b n = 12 * 4;
 //    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -4161,7 +8682,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
@@ -4173,11 +8694,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 8> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4187,11 +8708,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 8> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4201,11 +8722,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 8> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4222,11 +8743,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    const std::size_t n = 12 * 4;
+//    const uint32b n = 12 * 4;
 //    auto results1 = makeStorageBuffer<uint32b>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::uint2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -4244,7 +8765,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
@@ -4256,11 +8777,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 8> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4270,11 +8791,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 8> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4284,11 +8805,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 8> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4305,11 +8826,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    const std::size_t n = 21 * 4;
+//    const uint32b n = 21 * 4;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -4327,7 +8848,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
@@ -4339,11 +8860,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4353,11 +8874,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4367,11 +8888,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4388,11 +8909,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    const std::size_t n = 21 * 4;
+//    const uint32b n = 21 * 4;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -4410,7 +8931,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
@@ -4422,11 +8943,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4436,11 +8957,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4450,11 +8971,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4471,11 +8992,11 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    const std::size_t n = 21 * 4;
+//    const uint32b n = 21 * 4;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n);
 //    auto results2 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
@@ -4493,7 +9014,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, n> result;
 //      results1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
@@ -4505,11 +9026,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      results2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4519,11 +9040,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      results3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4533,11 +9054,11 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      results4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 4; ++i) {
+//      for (uint32b i = 0; i < result.size() / 4; ++i) {
 //        const auto x = result[4 * i];
 //        const auto minval = result[4 * i + 1];
 //        const auto maxval = result[4 * i + 2];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const auto expected = std::clamp(x[j], minval[j], maxval[j]);
 //          const auto c = result[4 * i + 3][j];
 //          ASSERT_EQ(expected, c) << error_message;
@@ -4554,7 +9075,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -4575,9 +9096,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const int32b expected = cl::clz(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -4586,12 +9107,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4600,12 +9121,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4614,12 +9135,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4635,7 +9156,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -4656,9 +9177,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const int32b expected = cl::clz(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -4667,12 +9188,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4681,12 +9202,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4695,12 +9216,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4716,7 +9237,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -4737,9 +9258,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const int32b expected = cl::clz(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -4748,12 +9269,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4762,12 +9283,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4776,12 +9297,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4797,7 +9318,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -4818,9 +9339,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const uint32b expected = cl::clz(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -4829,12 +9350,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const uint32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4843,12 +9364,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const uint32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4857,12 +9378,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const uint32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4878,7 +9399,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -4899,9 +9420,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const uint32b expected = cl::clz(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -4910,12 +9431,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const uint32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4924,12 +9445,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const uint32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4938,12 +9459,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const uint32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -4959,7 +9480,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -4980,9 +9501,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const uint32b expected = cl::clz(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -4991,12 +9512,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const uint32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5005,12 +9526,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const uint32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5019,12 +9540,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const uint32b expected = cl::clz(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5040,7 +9561,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5061,9 +9582,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const int32b expected = cl::popcount(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -5072,12 +9593,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5086,12 +9607,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5100,12 +9621,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5121,7 +9642,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5142,9 +9663,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const int32b expected = cl::popcount(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -5153,12 +9674,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5167,12 +9688,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5181,12 +9702,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5202,7 +9723,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5223,9 +9744,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<int32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const int32b expected = cl::popcount(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -5234,12 +9755,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const int32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5248,12 +9769,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const int32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5262,12 +9783,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::int4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        int32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr int32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const int32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5283,7 +9804,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5304,9 +9825,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const uint32b expected = cl::popcount(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -5315,12 +9836,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const uint32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5329,12 +9850,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const uint32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5343,12 +9864,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const uint32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5364,7 +9885,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5385,9 +9906,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const uint32b expected = cl::popcount(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -5396,12 +9917,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const uint32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5410,12 +9931,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const uint32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5424,12 +9945,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const uint32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5445,7 +9966,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5466,9 +9987,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<uint32b, 32> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        const uint32b expected = cl::popcount(x);
 //        ASSERT_EQ(expected, result[i]) << error_message;
@@ -5477,12 +9998,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint2, 32> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const uint32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5491,12 +10012,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint3, 32> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const uint32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5505,12 +10026,12 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::uint4, 32> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size(); ++i) {
+//      for (uint32b i = 0; i < result.size(); ++i) {
 //        uint32b x = 0;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          x = (x << 1) | 0b1;
 //        constexpr uint32b k[] = {1, 2, 3, 5};
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const uint32b expected = cl::popcount(x / k[j]);
 //          ASSERT_EQ(expected, result[i][j]) << error_message;
 //        }
@@ -5525,7 +10046,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5557,7 +10078,7 @@ TEST(MathTest, ConstantValue64Test)
 //      result1->read(result.data(), result.size(), 0, 0);
 //      std::array<float, 18> resulti;
 //      result1i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 3; ++i) {
 //        const float x = result[2 * i];
 //        float expectedi = 0.0f;
 //        const float expected = cl::fract(x, &expectedi);
@@ -5573,9 +10094,9 @@ TEST(MathTest, ConstantValue64Test)
 //      result2->read(result.data(), result.size(), 0, 0);
 //      std::array<cl::float2, 8> resulti;
 //      result2i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          float expectedi = 0.0f;
 //          const float expected = cl::fract(x[j], &expectedi);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5588,9 +10109,9 @@ TEST(MathTest, ConstantValue64Test)
 //      result3->read(result.data(), result.size(), 0, 0);
 //      std::array<cl::float3, 8> resulti;
 //      result3i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          float expectedi = 0.0f;
 //          const float expected = cl::fract(x[j], &expectedi);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5603,9 +10124,9 @@ TEST(MathTest, ConstantValue64Test)
 //      result4->read(result.data(), result.size(), 0, 0);
 //      std::array<cl::float4, 8> resulti;
 //      result4i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          float expectedi = 0.0f;
 //          const float expected = cl::fract(x[j], &expectedi);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5623,7 +10144,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5655,7 +10176,7 @@ TEST(MathTest, ConstantValue64Test)
 //      result1->read(result.data(), result.size(), 0, 0);
 //      std::array<float, 18> resulti;
 //      result1i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 3; ++i) {
 //        const float x = result[2 * i];
 //        float expectedi = 0.0f;
 //        const float expected = cl::fract(x, &expectedi);
@@ -5671,9 +10192,9 @@ TEST(MathTest, ConstantValue64Test)
 //      result2->read(result.data(), result.size(), 0, 0);
 //      std::array<cl::float2, 8> resulti;
 //      result2i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          float expectedi = 0.0f;
 //          const float expected = cl::fract(x[j], &expectedi);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5686,9 +10207,9 @@ TEST(MathTest, ConstantValue64Test)
 //      result3->read(result.data(), result.size(), 0, 0);
 //      std::array<cl::float3, 8> resulti;
 //      result3i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          float expectedi = 0.0f;
 //          const float expected = cl::fract(x[j], &expectedi);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5701,9 +10222,9 @@ TEST(MathTest, ConstantValue64Test)
 //      result4->read(result.data(), result.size(), 0, 0);
 //      std::array<cl::float4, 8> resulti;
 //      result4i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          float expectedi = 0.0f;
 //          const float expected = cl::fract(x[j], &expectedi);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5721,7 +10242,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5753,7 +10274,7 @@ TEST(MathTest, ConstantValue64Test)
 //      result1->read(result.data(), result.size(), 0, 0);
 //      std::array<float, 18> resulti;
 //      result1i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 3; ++i) {
 //        const float x = result[2 * i];
 //        float expectedi = 0.0f;
 //        const float expected = cl::fract(x, &expectedi);
@@ -5769,9 +10290,9 @@ TEST(MathTest, ConstantValue64Test)
 //      result2->read(result.data(), result.size(), 0, 0);
 //      std::array<cl::float2, 8> resulti;
 //      result2i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          float expectedi = 0.0f;
 //          const float expected = cl::fract(x[j], &expectedi);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5784,9 +10305,9 @@ TEST(MathTest, ConstantValue64Test)
 //      result3->read(result.data(), result.size(), 0, 0);
 //      std::array<cl::float3, 8> resulti;
 //      result3i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          float expectedi = 0.0f;
 //          const float expected = cl::fract(x[j], &expectedi);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5799,9 +10320,9 @@ TEST(MathTest, ConstantValue64Test)
 //      result4->read(result.data(), result.size(), 0, 0);
 //      std::array<cl::float4, 8> resulti;
 //      result4i->read(resulti.data(), resulti.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          float expectedi = 0.0f;
 //          const float expected = cl::fract(x[j], &expectedi);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5819,7 +10340,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5840,7 +10361,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 3; ++i) {
 //        const float x = result[2 * i];
 //        const float y = 1.0f;
 //        const float expected = std::fmod(x, y);
@@ -5853,9 +10374,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float y = zisc::cast<float>(j + 1);
 //          const float expected = std::fmod(x[j], y);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5865,9 +10386,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float y = zisc::cast<float>(j + 1);
 //          const float expected = std::fmod(x[j], y);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5877,9 +10398,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float y = zisc::cast<float>(j + 1);
 //          const float expected = std::fmod(x[j], y);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5896,7 +10417,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5917,7 +10438,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 3; ++i) {
 //        const float x = result[2 * i];
 //        const float y = 1.0f;
 //        const float expected = std::fmod(x, y);
@@ -5930,9 +10451,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float y = zisc::cast<float>(j + 1);
 //          const float expected = std::fmod(x[j], y);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5942,9 +10463,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float y = zisc::cast<float>(j + 1);
 //          const float expected = std::fmod(x[j], y);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5954,9 +10475,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float y = zisc::cast<float>(j + 1);
 //          const float expected = std::fmod(x[j], y);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -5973,7 +10494,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -5994,7 +10515,7 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<float, 36> result;
 //      result1->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < (result.size() / 2) - 3; ++i) {
+//      for (uint32b i = 0; i < (result.size() / 2) - 3; ++i) {
 //        const float x = result[2 * i];
 //        const float y = 1.0f;
 //        const float expected = std::fmod(x, y);
@@ -6007,9 +10528,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float2, 16> result;
 //      result2->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float y = zisc::cast<float>(j + 1);
 //          const float expected = std::fmod(x[j], y);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -6019,9 +10540,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float3, 16> result;
 //      result3->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float y = zisc::cast<float>(j + 1);
 //          const float expected = std::fmod(x[j], y);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -6031,9 +10552,9 @@ TEST(MathTest, ConstantValue64Test)
 //    {
 //      std::array<cl::float4, 16> result;
 //      result4->read(result.data(), result.size(), 0, 0);
-//      for (std::size_t i = 0; i < result.size() / 2; ++i) {
+//      for (uint32b i = 0; i < result.size() / 2; ++i) {
 //        const auto x = result[2 * i];
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float y = zisc::cast<float>(j + 1);
 //          const float expected = std::fmod(x[j], y);
 //          ASSERT_FLOAT_EQ(expected, result[2 * i + 1][j]) << error_message;
@@ -6050,7 +10571,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -6116,7 +10637,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -6182,7 +10703,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -6249,7 +10770,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -6293,7 +10814,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution + 2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //      results_exp1->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const float n = results[3 * i];
 //        int e = 0;
 //        float expected = std::frexp(n, &e);
@@ -6322,12 +10843,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
 //      results_exp2->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float2 n = results[3 * i];
 //        int e = 0;
 //        cl::float2 result1 = results[3 * i + 1];
 //        cl::float2 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
@@ -6346,12 +10867,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
 //      results_exp3->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float3 n = results[3 * i];
 //        int e = 0;
 //        cl::float3 result1 = results[3 * i + 1];
 //        cl::float3 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
@@ -6370,12 +10891,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
 //      results_exp4->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float4 n = results[3 * i];
 //        int e = 0;
 //        cl::float4 result1 = results[3 * i + 1];
 //        cl::float4 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
@@ -6396,7 +10917,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -6440,7 +10961,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution + 2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //      results_exp1->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const float n = results[3 * i];
 //        int e = 0;
 //        float expected = std::frexp(n, &e);
@@ -6469,12 +10990,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
 //      results_exp2->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float2 n = results[3 * i];
 //        int e = 0;
 //        cl::float2 result1 = results[3 * i + 1];
 //        cl::float2 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
@@ -6493,12 +11014,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
 //      results_exp3->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float3 n = results[3 * i];
 //        int e = 0;
 //        cl::float3 result1 = results[3 * i + 1];
 //        cl::float3 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
@@ -6517,12 +11038,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
 //      results_exp4->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float4 n = results[3 * i];
 //        int e = 0;
 //        cl::float4 result1 = results[3 * i + 1];
 //        cl::float4 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
@@ -6543,7 +11064,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -6587,7 +11108,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution + 2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //      results_exp1->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const float n = results[3 * i];
 //        int e = 0;
 //        float expected = std::frexp(n, &e);
@@ -6617,12 +11138,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
 //      results_exp2->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float2 n = results[3 * i];
 //        int e = 0;
 //        cl::float2 result1 = results[3 * i + 1];
 //        cl::float2 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
@@ -6641,12 +11162,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
 //      results_exp3->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float3 n = results[3 * i];
 //        int e = 0;
 //        cl::float3 result1 = results[3 * i + 1];
 //        cl::float3 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
@@ -6665,12 +11186,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
 //      results_exp4->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float4 n = results[3 * i];
 //        int e = 0;
 //        cl::float4 result1 = results[3 * i + 1];
 //        cl::float4 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          ASSERT_EQ(e, results_exp[i][j]) << error_message1;
@@ -6691,7 +11212,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -6735,7 +11256,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution + 2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //      results_exp1->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const float n = results[3 * i];
 //        int e = 0;
 //        float expected = std::frexp(n, &e);
@@ -6766,12 +11287,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
 //      results_exp2->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float2 n = results[3 * i];
 //        int e = 0;
 //        cl::float2 result1 = results[3 * i + 1];
 //        cl::float2 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
@@ -6791,12 +11312,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
 //      results_exp3->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float3 n = results[3 * i];
 //        int e = 0;
 //        cl::float3 result1 = results[3 * i + 1];
 //        cl::float3 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
@@ -6816,12 +11337,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
 //      results_exp4->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float4 n = results[3 * i];
 //        int e = 0;
 //        cl::float4 result1 = results[3 * i + 1];
 //        cl::float4 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
@@ -6843,7 +11364,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -6887,7 +11408,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution + 2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //      results_exp1->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const float n = results[3 * i];
 //        int e = 0;
 //        float expected = std::frexp(n, &e);
@@ -6918,12 +11439,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
 //      results_exp2->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float2 n = results[3 * i];
 //        int e = 0;
 //        cl::float2 result1 = results[3 * i + 1];
 //        cl::float2 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
@@ -6943,12 +11464,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
 //      results_exp3->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float3 n = results[3 * i];
 //        int e = 0;
 //        cl::float3 result1 = results[3 * i + 1];
 //        cl::float3 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
@@ -6968,12 +11489,12 @@ TEST(MathTest, ConstantValue64Test)
 //      results_exp.resize(resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
 //      results_exp4->read(results_exp.data(), results_exp.size(), 0, 0);
-//      for (std::size_t i = 0; i < results_exp.size(); ++i) {
+//      for (uint32b i = 0; i < results_exp.size(); ++i) {
 //        const cl::float4 n = results[3 * i];
 //        int e = 0;
 //        cl::float4 result1 = results[3 * i + 1];
 //        cl::float4 result2 = results[3 * i + 2];
-//        for (std::size_t j = 0; j < result1.size(); ++j) {
+//        for (uint32b j = 0; j < result1.size(); ++j) {
 //          float expected = std::frexp(n[j], &e);
 //          ASSERT_FLOAT_EQ(expected, result1[j]) << error_message1;
 //          const int expt = (n[j] == 0.0f) ? cast<int>(results_exp[i][j]) : cast<int>(results_exp[i][j]) - 127;
@@ -6992,13 +11513,13 @@ TEST(MathTest, ConstantValue64Test)
 //
 //namespace  {
 //
-//template <std::size_t kAllowableUlps = 2, std::size_t kCautionedUlps = 5> 
+//template <uint32b kAllowableUlps = 2, uint32b kCautionedUlps = 5> 
 //void testFloat(const char* func_name,
 //    const float x,
 //    const float expected,
 //    const float result,
-//    std::size_t& num_of_trials,
-//    std::size_t& num_of_failures,
+//    uint32b& num_of_trials,
+//    uint32b& num_of_failures,
 //    zisc::CompensatedSummation<float>& sum_ulps,
 //    float& max_ulps,
 //    const bool print_inf_value = true,
@@ -7054,7 +11575,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -7075,8 +11596,8 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'makeNormal' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
@@ -7084,7 +11605,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(4 * resolution);
 //      results1->read(results.data(), results.size(), 0, 0);
 //      zinvul::math::KernelGroup k;
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 ////        {
 ////          const float x = cast<float>(2 * i) / cast<float>(resolution) - 1.0f;
 ////          const float expected = x;
@@ -7135,7 +11656,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -7163,15 +11684,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'exp' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 3));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::exp(z);
 //        const float result = results[2 * i + 1];
@@ -7188,18 +11709,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::exp(z[j]);
 //          char func_name[256] = "exp(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7215,18 +11736,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::exp(z[j]);
 //          char func_name[256] = "exp(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7242,18 +11763,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::exp(z[j]);
 //          char func_name[256] = "exp(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7277,7 +11798,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -7305,15 +11826,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zExpImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 3));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::exp(z);
 //        const float result = results[2 * i + 1];
@@ -7330,18 +11851,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::exp(z[j]);
 //          char func_name[256] = "zExpImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7357,18 +11878,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::exp(z[j]);
 //          char func_name[256] = "zExpImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7384,18 +11905,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::exp(z[j]);
 //          char func_name[256] = "zExpImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7419,7 +11940,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -7447,15 +11968,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zExp' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 3));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::exp(z);
 //        const float result = results[2 * i + 1];
@@ -7472,18 +11993,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::exp(z[j]);
 //          char func_name[256] = "zExp(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7499,18 +12020,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::exp(z[j]);
 //          char func_name[256] = "zExp(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7526,18 +12047,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::exp(z[j]);
 //          char func_name[256] = "zExp(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7561,7 +12082,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -7589,15 +12110,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'log' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::log(z);
 //        const float result = results[2 * i + 1];
@@ -7614,18 +12135,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log(z[j]);
 //          char func_name[256] = "log(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7641,18 +12162,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log(z[j]);
 //          char func_name[256] = "log(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7668,18 +12189,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log(z[j]);
 //          char func_name[256] = "log(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7703,7 +12224,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -7731,15 +12252,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zLogImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::log(z);
 //        const float result = results[2 * i + 1];
@@ -7756,18 +12277,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log(z[j]);
 //          char func_name[256] = "zLogImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7783,18 +12304,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log(z[j]);
 //          char func_name[256] = "zLogImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7810,18 +12331,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log(z[j]);
 //          char func_name[256] = "zLogImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7845,7 +12366,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -7873,15 +12394,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zLog' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::log(z);
 //        const float result = results[2 * i + 1];
@@ -7898,18 +12419,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log(z[j]);
 //          char func_name[256] = "zLog(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7925,18 +12446,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log(z[j]);
 //          char func_name[256] = "zLog(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7952,18 +12473,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log(z[j]);
 //          char func_name[256] = "zLog(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -7987,7 +12508,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -8015,15 +12536,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'log2' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::log2(z);
 //        const float result = results[2 * i + 1];
@@ -8040,18 +12561,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log2(z[j]);
 //          char func_name[256] = "log2(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8067,18 +12588,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log2(z[j]);
 //          char func_name[256] = "log2(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8094,18 +12615,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log2(z[j]);
 //          char func_name[256] = "log2(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8129,7 +12650,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -8157,15 +12678,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zLo2Impl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::log2(z);
 //        const float result = results[2 * i + 1];
@@ -8182,18 +12703,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log2(z[j]);
 //          char func_name[256] = "zLog2Impl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8209,18 +12730,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log2(z[j]);
 //          char func_name[256] = "zLog2Impl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8236,18 +12757,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log2(z[j]);
 //          char func_name[256] = "zLog2Impl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8271,7 +12792,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -8299,15 +12820,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zLo2' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::log2(z);
 //        const float result = results[2 * i + 1];
@@ -8324,18 +12845,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log2(z[j]);
 //          char func_name[256] = "zLog2(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8351,18 +12872,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log2(z[j]);
 //          char func_name[256] = "zLog2(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8378,18 +12899,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::log2(z[j]);
 //          char func_name[256] = "zLog2(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8413,7 +12934,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -8440,15 +12961,15 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(9 * (resolution + 3));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(0.0f, z);
 //        const float result = results[9 * i + 1];
@@ -8467,7 +12988,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(1.0f, z);
 //        const float result = results[9 * i + 2];
@@ -8487,7 +13008,7 @@ TEST(MathTest, ConstantValue64Test)
 //      max_ulps = 0.0f;
 //
 //      //! \todo pow(-1, exp) should be checked.
-////      for (std::size_t i = 0; i < resolution + 3; ++i) {
+////      for (uint32b i = 0; i < resolution + 3; ++i) {
 ////        const float z = results[9 * i];
 ////        const float expected = std::pow(-1.0f, z);
 ////        const float result = results[9 * i + 3];
@@ -8506,7 +13027,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(2.0f, z);
 //        const float result = results[9 * i + 4];
@@ -8525,7 +13046,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(0.5f, z);
 //        const float result = results[9 * i + 5];
@@ -8544,7 +13065,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(std::numeric_limits<float>::infinity(), z);
 //        const float result = results[9 * i + 6];
@@ -8563,7 +13084,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-////      for (std::size_t i = 0; i < resolution + 3; ++i) {
+////      for (uint32b i = 0; i < resolution + 3; ++i) {
 ////        const float z = results[9 * i];
 ////        const float expected = std::pow(-std::numeric_limits<float>::infinity(), z);
 ////        const float result = results[9 * i + 7];
@@ -8582,7 +13103,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(std::numeric_limits<float>::quiet_NaN(), z);
 //        const float result = results[9 * i + 8];
@@ -8599,18 +13120,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "pow(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8626,18 +13147,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "pow(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8653,18 +13174,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "pow(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8688,7 +13209,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -8715,15 +13236,15 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(9 * (resolution + 3));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(0.0f, z);
 //        const float result = results[9 * i + 1];
@@ -8742,7 +13263,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(1.0f, z);
 //        const float result = results[9 * i + 2];
@@ -8762,7 +13283,7 @@ TEST(MathTest, ConstantValue64Test)
 //      max_ulps = 0.0f;
 //
 //      //! \todo zPowImpl(-1, exp) should be checked.
-////      for (std::size_t i = 0; i < resolution + 3; ++i) {
+////      for (uint32b i = 0; i < resolution + 3; ++i) {
 ////        const float z = results[9 * i];
 ////        const float expected = std::pow(-1.0f, z);
 ////        const float result = results[9 * i + 3];
@@ -8781,7 +13302,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(2.0f, z);
 //        const float result = results[9 * i + 4];
@@ -8800,7 +13321,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(0.5f, z);
 //        const float result = results[9 * i + 5];
@@ -8819,7 +13340,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(std::numeric_limits<float>::infinity(), z);
 //        const float result = results[9 * i + 6];
@@ -8838,7 +13359,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-////      for (std::size_t i = 0; i < resolution + 3; ++i) {
+////      for (uint32b i = 0; i < resolution + 3; ++i) {
 ////        const float z = results[9 * i];
 ////        const float expected = std::pow(-std::numeric_limits<float>::infinity(), z);
 ////        const float result = results[9 * i + 7];
@@ -8857,7 +13378,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(std::numeric_limits<float>::quiet_NaN(), z);
 //        const float result = results[9 * i + 8];
@@ -8874,18 +13395,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "zPowImpl(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8901,18 +13422,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "zPowImpl(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8928,18 +13449,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "zPowImpl(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -8964,7 +13485,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -8991,15 +13512,15 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(9 * (resolution + 3));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(0.0f, z);
 //        const float result = results[9 * i + 1];
@@ -9018,7 +13539,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(1.0f, z);
 //        const float result = results[9 * i + 2];
@@ -9038,7 +13559,7 @@ TEST(MathTest, ConstantValue64Test)
 //      max_ulps = 0.0f;
 //
 //      //! \todo zPow(-1, exp) should be checked.
-////      for (std::size_t i = 0; i < resolution + 3; ++i) {
+////      for (uint32b i = 0; i < resolution + 3; ++i) {
 ////        const float z = results[9 * i];
 ////        const float expected = std::pow(-1.0f, z);
 ////        const float result = results[9 * i + 3];
@@ -9057,7 +13578,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(2.0f, z);
 //        const float result = results[9 * i + 4];
@@ -9076,7 +13597,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(0.5f, z);
 //        const float result = results[9 * i + 5];
@@ -9095,7 +13616,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(std::numeric_limits<float>::infinity(), z);
 //        const float result = results[9 * i + 6];
@@ -9114,7 +13635,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-////      for (std::size_t i = 0; i < resolution + 3; ++i) {
+////      for (uint32b i = 0; i < resolution + 3; ++i) {
 ////        const float z = results[9 * i];
 ////        const float expected = std::pow(-std::numeric_limits<float>::infinity(), z);
 ////        const float result = results[9 * i + 7];
@@ -9133,7 +13654,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(std::numeric_limits<float>::quiet_NaN(), z);
 //        const float result = results[9 * i + 8];
@@ -9150,18 +13671,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "zPow(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9177,18 +13698,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "zPow(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9204,18 +13725,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "zPow(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9240,7 +13761,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -9267,15 +13788,15 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(9 * resolution);
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(0.0f, z);
 //        const float result = results[9 * i + 1];
@@ -9294,7 +13815,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(1.0f, z);
 //        const float result = results[9 * i + 2];
@@ -9313,7 +13834,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(-1.0f, z);
 //        const float result = results[9 * i + 3];
@@ -9332,7 +13853,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(2.0f, z);
 //        const float result = results[9 * i + 4];
@@ -9351,7 +13872,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(0.5f, z);
 //        const float result = results[9 * i + 5];
@@ -9370,7 +13891,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(std::numeric_limits<float>::infinity(), z);
 //        const float result = results[9 * i + 6];
@@ -9390,7 +13911,7 @@ TEST(MathTest, ConstantValue64Test)
 //      max_ulps = 0.0f;
 //
 //      //! \todo zPow(-inf, exp) should be checked.
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(-std::numeric_limits<float>::infinity(), z);
 //        const float result = results[9 * i + 7];
@@ -9409,7 +13930,7 @@ TEST(MathTest, ConstantValue64Test)
 //      sum_ulps.set(0.0f);
 //      max_ulps = 0.0f;
 //
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[9 * i];
 //        const float expected = std::pow(std::numeric_limits<float>::quiet_NaN(), z);
 //        const float result = results[9 * i + 8];
@@ -9426,18 +13947,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "zPown(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9453,18 +13974,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "zPown(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9480,18 +14001,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::pow(2.0f, z[j]);
 //          char func_name[256] = "zPown(2, %g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9515,7 +14036,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -9543,15 +14064,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'rsqrt' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * resolution);
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = 1.0f / std::sqrt(z);
 //        const float result = results[2 * i + 1];
@@ -9568,18 +14089,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = 1.0f / std::sqrt(z[j]);
 //          char func_name[256] = "rsqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9595,18 +14116,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = 1.0f / std::sqrt(z[j]);
 //          char func_name[256] = "rsqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9622,18 +14143,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = 1.0f / std::sqrt(z[j]);
 //          char func_name[256] = "rsqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9657,7 +14178,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -9685,15 +14206,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zRsqrtImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * resolution);
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = 1.0f / std::sqrt(z);
 //        const float result = results[2 * i + 1];
@@ -9710,18 +14231,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = 1.0f / std::sqrt(z[j]);
 //          char func_name[256] = "zRsqrtImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9737,18 +14258,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = 1.0f / std::sqrt(z[j]);
 //          char func_name[256] = "zRsqrtImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9764,18 +14285,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = 1.0f / std::sqrt(z[j]);
 //          char func_name[256] = "zRsqrtImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9799,7 +14320,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -9827,15 +14348,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zRsqrt' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * resolution);
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = 1.0f / std::sqrt(z);
 //        const float result = results[2 * i + 1];
@@ -9852,18 +14373,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = 1.0f / std::sqrt(z[j]);
 //          char func_name[256] = "zRsqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9879,18 +14400,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = 1.0f / std::sqrt(z[j]);
 //          char func_name[256] = "zRsqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9906,18 +14427,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = 1.0f / std::sqrt(z[j]);
 //          char func_name[256] = "zRsqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -9941,7 +14462,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -9969,15 +14490,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'sqrt' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::sqrt(z);
 //        const float result = results[2 * i + 1];
@@ -9994,18 +14515,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sqrt(z[j]);
 //          char func_name[256] = "sqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10021,18 +14542,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sqrt(z[j]);
 //          char func_name[256] = "sqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10048,18 +14569,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sqrt(z[j]);
 //          char func_name[256] = "sqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10083,7 +14604,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -10111,15 +14632,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zSqrtImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::sqrt(z);
 //        const float result = results[2 * i + 1];
@@ -10136,18 +14657,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sqrt(z[j]);
 //          char func_name[256] = "zSqrtImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10163,18 +14684,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sqrt(z[j]);
 //          char func_name[256] = "zSqrtImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10190,18 +14711,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sqrt(z[j]);
 //          char func_name[256] = "zSqrtImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10225,7 +14746,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -10253,15 +14774,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zSqrt' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::sqrt(z);
 //        const float result = results[2 * i + 1];
@@ -10278,18 +14799,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sqrt(z[j]);
 //          char func_name[256] = "zSqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10305,18 +14826,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sqrt(z[j]);
 //          char func_name[256] = "zSqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10332,18 +14853,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sqrt(z[j]);
 //          char func_name[256] = "zSqrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10367,7 +14888,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -10393,15 +14914,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zCbrt' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::cbrt(z);
 //        const float result = results[2 * i + 1];
@@ -10418,18 +14939,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cbrt(z[j]);
 //          char func_name[256] = "zCbrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10445,18 +14966,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cbrt(z[j]);
 //          char func_name[256] = "zCbrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10472,18 +14993,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cbrt(z[j]);
 //          char func_name[256] = "zCbrt(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10507,7 +15028,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -10535,15 +15056,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'sin' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::sin(z);
 //        const float result = results[2 * i + 1];
@@ -10560,18 +15081,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sin(z[j]);
 //          char func_name[256] = "sin(%g)=%g";
 //          ::testFloat<2, 100000>(func_name, z[j], expected, result[j],
@@ -10587,18 +15108,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sin(z[j]);
 //          char func_name[256] = "sin(%g)=%g";
 //          ::testFloat<2, 100000>(func_name, z[j], expected, result[j],
@@ -10614,18 +15135,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sin(z[j]);
 //          char func_name[256] = "sin(%g)=%g";
 //          ::testFloat<2, 100000>(func_name, z[j], expected, result[j],
@@ -10649,7 +15170,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -10677,15 +15198,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zSinImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::sin(z);
 //        const float result = results[2 * i + 1];
@@ -10702,18 +15223,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sin(z[j]);
 //          char func_name[256] = "zSinImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10729,18 +15250,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sin(z[j]);
 //          char func_name[256] = "zSinImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10756,18 +15277,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sin(z[j]);
 //          char func_name[256] = "zSinImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10791,7 +15312,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -10819,15 +15340,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zSin' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::sin(z);
 //        const float result = results[2 * i + 1];
@@ -10844,18 +15365,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sin(z[j]);
 //          char func_name[256] = "zSin(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10871,18 +15392,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sin(z[j]);
 //          char func_name[256] = "zSin(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10898,18 +15419,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::sin(z[j]);
 //          char func_name[256] = "zSin(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -10933,7 +15454,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -10961,15 +15482,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'cos' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::cos(z);
 //        const float result = results[2 * i + 1];
@@ -10986,18 +15507,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cos(z[j]);
 //          char func_name[256] = "cos(%g)=%g";
 //          ::testFloat<2, 100000>(func_name, z[j], expected, result[j],
@@ -11013,18 +15534,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cos(z[j]);
 //          char func_name[256] = "cos(%g)=%g";
 //          ::testFloat<2, 100000>(func_name, z[j], expected, result[j],
@@ -11040,18 +15561,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cos(z[j]);
 //          char func_name[256] = "cos(%g)=%g";
 //          ::testFloat<2, 100000>(func_name, z[j], expected, result[j],
@@ -11075,7 +15596,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -11103,15 +15624,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zCosImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::cos(z);
 //        const float result = results[2 * i + 1];
@@ -11128,18 +15649,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cos(z[j]);
 //          char func_name[256] = "zCosImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -11155,18 +15676,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cos(z[j]);
 //          char func_name[256] = "zCosImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -11182,18 +15703,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cos(z[j]);
 //          char func_name[256] = "zCosImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -11217,7 +15738,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -11245,15 +15766,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zCos' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::cos(z);
 //        const float result = results[2 * i + 1];
@@ -11270,18 +15791,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cos(z[j]);
 //          char func_name[256] = "zCos(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -11297,18 +15818,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cos(z[j]);
 //          char func_name[256] = "zCos(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -11324,18 +15845,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::cos(z[j]);
 //          char func_name[256] = "zCos(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -11359,7 +15880,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -11385,15 +15906,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zSincosImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(3 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[3 * i];
 //        {
 //          const float expected = std::sin(z);
@@ -11419,19 +15940,19 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(3 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[3 * i];
 //        {
 //          const auto& result = results[3 * i + 1];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::sin(z[j]);
 //            char func_name[256] = "zSincosImpl(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11440,7 +15961,7 @@ TEST(MathTest, ConstantValue64Test)
 //        }
 //        {
 //          const auto& result = results[3 * i + 2];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::cos(z[j]);
 //            char func_name[256] = "zSincosImpl(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11457,19 +15978,19 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(3 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[3 * i];
 //        {
 //          const auto& result = results[3 * i + 1];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::sin(z[j]);
 //            char func_name[256] = "zSincosImpl(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11478,7 +15999,7 @@ TEST(MathTest, ConstantValue64Test)
 //        }
 //        {
 //          const auto& result = results[3 * i + 2];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::cos(z[j]);
 //            char func_name[256] = "zSincosImpl(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11495,19 +16016,19 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(3 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[3 * i];
 //        {
 //          const auto& result = results[3 * i + 1];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::sin(z[j]);
 //            char func_name[256] = "zSincosImpl(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11516,7 +16037,7 @@ TEST(MathTest, ConstantValue64Test)
 //        }
 //        {
 //          const auto& result = results[3 * i + 2];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::cos(z[j]);
 //            char func_name[256] = "zSincosImpl(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11541,7 +16062,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -11569,15 +16090,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zSincos' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(3 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[3 * i];
 //        {
 //          const float expected = std::sin(z);
@@ -11603,19 +16124,19 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(3 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[3 * i];
 //        {
 //          const auto& result = results[3 * i + 1];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::sin(z[j]);
 //            char func_name[256] = "zSincos(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11624,7 +16145,7 @@ TEST(MathTest, ConstantValue64Test)
 //        }
 //        {
 //          const auto& result = results[3 * i + 2];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::cos(z[j]);
 //            char func_name[256] = "zSincos(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11641,19 +16162,19 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(3 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[3 * i];
 //        {
 //          const auto& result = results[3 * i + 1];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::sin(z[j]);
 //            char func_name[256] = "zSincos(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11662,7 +16183,7 @@ TEST(MathTest, ConstantValue64Test)
 //        }
 //        {
 //          const auto& result = results[3 * i + 2];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::cos(z[j]);
 //            char func_name[256] = "zSincos(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11679,19 +16200,19 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(3 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[3 * i];
 //        {
 //          const auto& result = results[3 * i + 1];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::sin(z[j]);
 //            char func_name[256] = "zSincos(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11700,7 +16221,7 @@ TEST(MathTest, ConstantValue64Test)
 //        }
 //        {
 //          const auto& result = results[3 * i + 2];
-//          for (std::size_t j = 0; j < result.size(); ++j) {
+//          for (uint32b j = 0; j < result.size(); ++j) {
 //            float expected = std::cos(z[j]);
 //            char func_name[256] = "zSincos(%g)=%g";
 //            ::testFloat(func_name, z[j], expected, result[j],
@@ -11725,7 +16246,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -11753,15 +16274,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'tan' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::tan(z);
 //        const float result = results[2 * i + 1];
@@ -11778,18 +16299,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::tan(z[j]);
 //          char func_name[256] = "tan(%g)=%g";
 //          ::testFloat<2, 100000>(func_name, z[j], expected, result[j],
@@ -11805,18 +16326,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::tan(z[j]);
 //          char func_name[256] = "tan(%g)=%g";
 //          ::testFloat<2, 100000>(func_name, z[j], expected, result[j],
@@ -11832,18 +16353,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::tan(z[j]);
 //          char func_name[256] = "tan(%g)=%g";
 //          ::testFloat<2, 100000>(func_name, z[j], expected, result[j],
@@ -11867,7 +16388,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -11895,15 +16416,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zTanImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::tan(z);
 //        const float result = results[2 * i + 1];
@@ -11920,18 +16441,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::tan(z[j]);
 //          char func_name[256] = "zTanImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -11947,18 +16468,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::tan(z[j]);
 //          char func_name[256] = "zTanImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -11974,18 +16495,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::tan(z[j]);
 //          char func_name[256] = "zTanImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -12009,7 +16530,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -12037,15 +16558,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zTan' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::tan(z);
 //        const float result = results[2 * i + 1];
@@ -12062,18 +16583,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::tan(z[j]);
 //          char func_name[256] = "zTan(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -12089,18 +16610,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::tan(z[j]);
 //          char func_name[256] = "zTan(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -12116,18 +16637,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::tan(z[j]);
 //          char func_name[256] = "zTan(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -12151,7 +16672,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -12179,15 +16700,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'asin' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::asin(z);
 //        const float result = results[2 * i + 1];
@@ -12204,18 +16725,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::asin(z[j]);
 //          char func_name[256] = "asin(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12231,18 +16752,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::asin(z[j]);
 //          char func_name[256] = "asin(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12258,18 +16779,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::asin(z[j]);
 //          char func_name[256] = "asin(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12293,7 +16814,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -12321,15 +16842,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zAsinImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::asin(z);
 //        const float result = results[2 * i + 1];
@@ -12346,18 +16867,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::asin(z[j]);
 //          char func_name[256] = "zAsinImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -12373,18 +16894,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::asin(z[j]);
 //          char func_name[256] = "zAsinImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -12400,18 +16921,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::asin(z[j]);
 //          char func_name[256] = "zAsinImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -12435,7 +16956,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -12463,15 +16984,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zAsin' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::asin(z);
 //        const float result = results[2 * i + 1];
@@ -12488,18 +17009,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::asin(z[j]);
 //          char func_name[256] = "zAsin(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -12515,18 +17036,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::asin(z[j]);
 //          char func_name[256] = "zAsin(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -12542,18 +17063,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::asin(z[j]);
 //          char func_name[256] = "zAsin(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -12577,7 +17098,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -12605,15 +17126,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'acos' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::acos(z);
 //        const float result = results[2 * i + 1];
@@ -12630,18 +17151,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::acos(z[j]);
 //          char func_name[256] = "acos(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12657,18 +17178,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::acos(z[j]);
 //          char func_name[256] = "acos(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12684,18 +17205,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::acos(z[j]);
 //          char func_name[256] = "acos(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12719,7 +17240,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -12747,15 +17268,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zAcosImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::acos(z);
 //        const float result = results[2 * i + 1];
@@ -12772,18 +17293,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::acos(z[j]);
 //          char func_name[256] = "zAcosImpl(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12799,18 +17320,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::acos(z[j]);
 //          char func_name[256] = "zAcosImpl(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12826,18 +17347,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::acos(z[j]);
 //          char func_name[256] = "zAcosImpl(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12861,7 +17382,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -12889,15 +17410,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zAcos' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 2));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 2; ++i) {
+//      for (uint32b i = 0; i < resolution + 2; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::acos(z);
 //        const float result = results[2 * i + 1];
@@ -12914,18 +17435,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::acos(z[j]);
 //          char func_name[256] = "zAcos(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12941,18 +17462,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::acos(z[j]);
 //          char func_name[256] = "zAcos(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -12968,18 +17489,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::acos(z[j]);
 //          char func_name[256] = "zAcos(%g)=%g";
 //          ::testFloat<2, 10000>(func_name, z[j], expected, result[j],
@@ -13003,7 +17524,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -13031,15 +17552,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'atan' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 3));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::atan(z);
 //        const float result = results[2 * i + 1];
@@ -13056,18 +17577,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::atan(z[j]);
 //          char func_name[256] = "atan(%g)=%g";
 //          ::testFloat<2, 100>(func_name, z[j], expected, result[j],
@@ -13083,18 +17604,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::atan(z[j]);
 //          char func_name[256] = "atan(%g)=%g";
 //          ::testFloat<2, 100>(func_name, z[j], expected, result[j],
@@ -13110,18 +17631,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::atan(z[j]);
 //          char func_name[256] = "atan(%g)=%g";
 //          ::testFloat<2, 100>(func_name, z[j], expected, result[j],
@@ -13145,7 +17666,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -13173,15 +17694,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zAtanImpl' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 3));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::atan(z);
 //        const float result = results[2 * i + 1];
@@ -13198,18 +17719,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::atan(z[j]);
 //          char func_name[256] = "zAtanImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -13225,18 +17746,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::atan(z[j]);
 //          char func_name[256] = "zAtanImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -13252,18 +17773,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::atan(z[j]);
 //          char func_name[256] = "zAtanImpl(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -13287,7 +17808,7 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
@@ -13315,15 +17836,15 @@ TEST(MathTest, ConstantValue64Test)
 //    const char* error_message = "The 'zAtan' func is wrong.";
 //    // Scalar
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<float> results;
 //      results.resize(2 * (resolution + 3));
 //      results1->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution + 3; ++i) {
+//      for (uint32b i = 0; i < resolution + 3; ++i) {
 //        const float z = results[2 * i];
 //        const float expected = std::atan(z);
 //        const float result = results[2 * i + 1];
@@ -13340,18 +17861,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector2
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float2> results;
 //      results.resize(2 * resolution);
 //      results2->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::atan(z[j]);
 //          char func_name[256] = "zAtan(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -13367,18 +17888,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector3
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float3> results;
 //      results.resize(2 * resolution);
 //      results3->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::atan(z[j]);
 //          char func_name[256] = "zAtan(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -13394,18 +17915,18 @@ TEST(MathTest, ConstantValue64Test)
 //
 //    // Vector4
 //    {
-//      std::size_t num_of_trials = 0;
-//      std::size_t num_of_failures = 0;
+//      uint32b num_of_trials = 0;
+//      uint32b num_of_failures = 0;
 //      zisc::CompensatedSummation<float> sum_ulps{0.0f};
 //      float max_ulps = 0.0f;
 //
 //      std::vector<cl::float4> results;
 //      results.resize(2 * resolution);
 //      results4->read(results.data(), results.size(), 0, 0);
-//      for (std::size_t i = 0; i < resolution; ++i) {
+//      for (uint32b i = 0; i < resolution; ++i) {
 //        const auto& z = results[2 * i];
 //        const auto& result = results[2 * i + 1];
-//        for (std::size_t j = 0; j < result.size(); ++j) {
+//        for (uint32b j = 0; j < result.size(); ++j) {
 //          float expected = std::atan(z[j]);
 //          char func_name[256] = "zAtan(%g)=%g";
 //          ::testFloat(func_name, z[j], expected, result[j],
@@ -13429,16 +17950,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 3;
-//    const std::size_t n3 = 3;
-//    const std::size_t n3f4 = 3;
-//    const std::size_t n4 = 2;
+//    const uint32b n2 = 3;
+//    const uint32b n3 = 3;
+//    const uint32b n3f4 = 3;
+//    const uint32b n4 = 2;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
@@ -13461,7 +17982,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(-14.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(10.0f, results[i++]) << error_message;
@@ -13473,7 +17994,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
@@ -13485,7 +18006,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
@@ -13497,7 +18018,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(11.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(-6.0f, results[i++]) << error_message;
 //    }
@@ -13512,16 +18033,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 3;
-//    const std::size_t n3 = 3;
-//    const std::size_t n3f4 = 3;
-//    const std::size_t n4 = 2;
+//    const uint32b n2 = 3;
+//    const uint32b n3 = 3;
+//    const uint32b n3f4 = 3;
+//    const uint32b n4 = 2;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
@@ -13544,7 +18065,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(-14.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(10.0f, results[i++]) << error_message;
@@ -13556,7 +18077,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
@@ -13568,7 +18089,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
@@ -13580,7 +18101,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(11.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(-6.0f, results[i++]) << error_message;
 //    }
@@ -13595,16 +18116,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 3;
-//    const std::size_t n3 = 3;
-//    const std::size_t n3f4 = 3;
-//    const std::size_t n4 = 2;
+//    const uint32b n2 = 3;
+//    const uint32b n3 = 3;
+//    const uint32b n3f4 = 3;
+//    const uint32b n4 = 2;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
@@ -13627,7 +18148,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(-14.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(10.0f, results[i++]) << error_message;
@@ -13639,7 +18160,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
@@ -13651,7 +18172,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(12.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(24.0f, results[i++]) << error_message;
@@ -13663,7 +18184,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(11.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(-6.0f, results[i++]) << error_message;
 //    }
@@ -13678,14 +18199,14 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n3 = 4;
-//    const std::size_t n4 = 4;
+//    const uint32b n3 = 4;
+//    const uint32b n4 = 4;
 //    auto results3 = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
 //    results3->setSize(n3);
 //    auto results4 = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
@@ -13708,7 +18229,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
 //      ASSERT_FLOAT_EQ(1.0f, results[i++].z) << error_message;
@@ -13729,7 +18250,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
 //      ASSERT_FLOAT_EQ(1.0f, results[i].z) << error_message;
@@ -13758,14 +18279,14 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n3 = 4;
-//    const std::size_t n4 = 4;
+//    const uint32b n3 = 4;
+//    const uint32b n4 = 4;
 //    auto results3 = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
 //    results3->setSize(n3);
 //    auto results4 = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
@@ -13784,7 +18305,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
 //      ASSERT_FLOAT_EQ(1.0f, results[i++].z) << error_message;
@@ -13805,7 +18326,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
 //      ASSERT_FLOAT_EQ(1.0f, results[i].z) << error_message;
@@ -13834,14 +18355,14 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n3 = 4;
-//    const std::size_t n4 = 4;
+//    const uint32b n3 = 4;
+//    const uint32b n4 = 4;
 //    auto results3 = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
 //    results3->setSize(n3);
 //    auto results4 = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceTSrc);
@@ -13860,7 +18381,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
 //      ASSERT_FLOAT_EQ(1.0f, results[i++].z) << error_message;
@@ -13881,7 +18402,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message;
 //      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message;
 //      ASSERT_FLOAT_EQ(1.0f, results[i].z) << error_message;
@@ -13910,16 +18431,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 3;
-//    const std::size_t n3 = 3;
-//    const std::size_t n3f4 = 3;
-//    const std::size_t n4 = 2;
+//    const uint32b n2 = 3;
+//    const uint32b n3 = 3;
+//    const uint32b n3f4 = 3;
+//    const uint32b n4 = 2;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
@@ -13942,7 +18463,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
 //    }
 //
@@ -13952,7 +18473,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -13964,7 +18485,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -13976,7 +18497,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //    }
 //
@@ -13990,16 +18511,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 3;
-//    const std::size_t n3 = 3;
-//    const std::size_t n3f4 = 3;
-//    const std::size_t n4 = 2;
+//    const uint32b n2 = 3;
+//    const uint32b n3 = 3;
+//    const uint32b n3f4 = 3;
+//    const uint32b n4 = 2;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
@@ -14022,7 +18543,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
 //    }
 //
@@ -14032,7 +18553,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -14044,7 +18565,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -14056,7 +18577,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //    }
 //
@@ -14070,16 +18591,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 3;
-//    const std::size_t n3 = 3;
-//    const std::size_t n3f4 = 3;
-//    const std::size_t n4 = 2;
+//    const uint32b n2 = 3;
+//    const uint32b n3 = 3;
+//    const uint32b n3f4 = 3;
+//    const uint32b n4 = 2;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
@@ -14102,7 +18623,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
 //    }
 //
@@ -14112,7 +18633,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -14124,7 +18645,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -14136,7 +18657,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //    }
 //
@@ -14150,16 +18671,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 3;
-//    const std::size_t n3 = 3;
-//    const std::size_t n3f4 = 3;
-//    const std::size_t n4 = 2;
+//    const uint32b n2 = 3;
+//    const uint32b n3 = 3;
+//    const uint32b n3f4 = 3;
+//    const uint32b n4 = 2;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
@@ -14182,7 +18703,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
 //    }
 //
@@ -14192,7 +18713,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -14204,7 +18725,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -14216,7 +18737,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //    }
 //
@@ -14230,16 +18751,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 3;
-//    const std::size_t n3 = 3;
-//    const std::size_t n3f4 = 3;
-//    const std::size_t n4 = 2;
+//    const uint32b n2 = 3;
+//    const uint32b n3 = 3;
+//    const uint32b n3f4 = 3;
+//    const uint32b n4 = 2;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
@@ -14262,7 +18783,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
 //    }
 //
@@ -14272,7 +18793,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -14284,7 +18805,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -14296,7 +18817,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //    }
 //
@@ -14310,16 +18831,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 3;
-//    const std::size_t n3 = 3;
-//    const std::size_t n3f4 = 3;
-//    const std::size_t n4 = 2;
+//    const uint32b n2 = 3;
+//    const uint32b n3 = 3;
+//    const uint32b n3f4 = 3;
+//    const uint32b n4 = 2;
 //    auto results1 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceTSrc);
@@ -14342,7 +18863,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(2.0f, results[i++]) << error_message;
 //    }
 //
@@ -14352,7 +18873,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -14364,7 +18885,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //      ASSERT_FLOAT_EQ(5.0f, results[i++]) << error_message;
@@ -14376,7 +18897,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      ASSERT_FLOAT_EQ(6.0f, results[i++]) << error_message;
 //    }
 //
@@ -14390,16 +18911,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 4;
-//    const std::size_t n3 = 4;
-//    const std::size_t n3f4 = 4;
-//    const std::size_t n4 = 4;
+//    const uint32b n2 = 4;
+//    const uint32b n3 = 4;
+//    const uint32b n3f4 = 4;
+//    const uint32b n4 = 4;
 //    auto results1 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
@@ -14422,14 +18943,14 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        const auto& p = results[i++];
 //        const auto& n = results[i++];
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14443,14 +18964,14 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        const auto& p = results[i++];
 //        const auto& n = results[i++];
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14464,14 +18985,14 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        const auto& p = results[i++];
 //        const auto& n = results[i++];
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14485,14 +19006,14 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        const auto& p = results[i++];
 //        const auto& n = results[i++];
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14510,16 +19031,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 4;
-//    const std::size_t n3 = 4;
-//    const std::size_t n3f4 = 4;
-//    const std::size_t n4 = 4;
+//    const uint32b n2 = 4;
+//    const uint32b n3 = 4;
+//    const uint32b n3f4 = 4;
+//    const uint32b n4 = 4;
 //    auto results1 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
@@ -14542,14 +19063,14 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        const auto& p = results[i++];
 //        const auto& n = results[i++];
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14563,14 +19084,14 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        const auto& p = results[i++];
 //        const auto& n = results[i++];
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14584,7 +19105,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        auto p = results[i++];
 //        p.w = 0.0f;
@@ -14592,7 +19113,7 @@ TEST(MathTest, ConstantValue64Test)
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14606,14 +19127,14 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        const auto& p = results[i++];
 //        const auto& n = results[i++];
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14631,16 +19152,16 @@ TEST(MathTest, ConstantValue64Test)
 //  using namespace zinvul;
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
 //    constexpr uint32b resolution = 1;
 //
-//    const std::size_t n2 = 4;
-//    const std::size_t n3 = 4;
-//    const std::size_t n3f4 = 4;
-//    const std::size_t n4 = 4;
+//    const uint32b n2 = 4;
+//    const uint32b n3 = 4;
+//    const uint32b n3f4 = 4;
+//    const uint32b n4 = 4;
 //    auto results1 = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceTSrc);
 //    results1->setSize(n2);
 //    auto results2 = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceTSrc);
@@ -14663,14 +19184,14 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n2);
 //      results1->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        const auto& p = results[i++];
 //        const auto& n = results[i++];
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 2; ++j) {
+//        for (uint32b j = 0; j < 2; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14684,14 +19205,14 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3);
 //      results2->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        const auto& p = results[i++];
 //        const auto& n = results[i++];
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 3; ++j) {
+//        for (uint32b j = 0; j < 3; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14705,7 +19226,7 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n3f4);
 //      results3->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        auto p = results[i++];
 //        p.w = 0.0f;
@@ -14713,7 +19234,7 @@ TEST(MathTest, ConstantValue64Test)
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;
@@ -14727,14 +19248,14 @@ TEST(MathTest, ConstantValue64Test)
 //      results.resize(n4);
 //      results4->read(results.data(), results.size(), 0, 0);
 //
-//      std::size_t i = 0;
+//      uint32b i = 0;
 //      {
 //        const auto& p = results[i++];
 //        const auto& n = results[i++];
 //        const auto pl = cl::length(p);
 //        const auto pn = cl::length(n);
 //        ASSERT_FLOAT_EQ(1.0f, pn) << error_message;
-//        for (std::size_t j = 0; j < 4; ++j) {
+//        for (uint32b j = 0; j < 4; ++j) {
 //          const float expected = p[j];
 //          const float result = pl * n[j];
 //          ASSERT_FLOAT_EQ(expected, result) << error_message;

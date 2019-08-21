@@ -1,5 +1,5 @@
 /*!
-  \file geometry-inl.hpp
+  \file geometric-inl.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -7,10 +7,10 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_CL_GEOMETRY_INL_HPP
-#define ZINVUL_CL_GEOMETRY_INL_HPP
+#ifndef ZINVUL_CL_GEOMETRIC_INL_HPP
+#define ZINVUL_CL_GEOMETRIC_INL_HPP
 
-#include "geometry.hpp"
+#include "geometric.hpp"
 // Standard C++ library
 #include <cstddef>
 #include <type_traits>
@@ -103,7 +103,7 @@ FloatN Geometry::normalize(const FloatN& p) noexcept
 
 /*!
   */
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Geometry::Vec::cross(const Vector<Float, kN>& p0,
                           const Vector<Float, kN>& p1) noexcept
 {
@@ -117,19 +117,19 @@ auto Geometry::Vec::cross(const Vector<Float, kN>& p0,
 
 /*!
   */
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Geometry::Vec::dot(const Vector<Float, kN>& p0,
                         const Vector<Float, kN>& p1) noexcept
 {
   Float result = zisc::cast<Float>(0);
-  for (std::size_t i = 0; i < kN; ++i)
+  for (size_t i = 0; i < kN; ++i)
     result += Geometry::dot(p0[i], p1[i]);
   return result;
 }
 
 /*!
   */
-template <typename Float, std::size_t kN> inline
+template <typename Float, size_t kN> inline
 auto Geometry::Vec::normalize(const Vector<Float, kN>& p) noexcept
 {
   const auto d2 = Geometry::dot(p, p);
@@ -186,4 +186,4 @@ FloatN normalize(const FloatN& p) noexcept
 
 } // namespace zinvul
 
-#endif // ZINVUL_CL_GEOMETRY_INL_HPP
+#endif // ZINVUL_CL_GEOMETRIC_INL_HPP

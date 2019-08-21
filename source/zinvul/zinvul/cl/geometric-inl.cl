@@ -1,5 +1,5 @@
 /*!
-  \file geometry-inl.cl
+  \file geometric-inl.cl
   \author Sho Ikeda
 
   Copyright (c) 2015-2019 Sho Ikeda
@@ -7,10 +7,10 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_GEOMETRY_INL_CL
-#define ZINVUL_GEOMETRY_INL_CL
+#ifndef ZINVUL_GEOMETRIC_INL_CL
+#define ZINVUL_GEOMETRIC_INL_CL
 
-#include "geometry.cl"
+#include "geometric.cl"
 // Zinvul
 #include "types.cl"
 #include "type_traits.cl"
@@ -231,4 +231,4 @@ FloatN normalize(const FloatN p) noexcept
 
 } // namespace zinvul
 
-#endif /* ZINVUL_GEOMETRY_INL_CL */
+#endif /* ZINVUL_GEOMETRIC_INL_CL */

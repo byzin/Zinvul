@@ -27,7 +27,7 @@ TEST(AlgorithmTest, AbsInt8Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -53,7 +53,7 @@ TEST(AlgorithmTest, AbsInt8Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i++]) << error_message; 
       ASSERT_EQ(1u, results[i++]) << error_message; 
       ASSERT_EQ(1u, results[i++]) << error_message; 
@@ -65,7 +65,7 @@ TEST(AlgorithmTest, AbsInt8Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i++].y) << error_message; 
       ASSERT_EQ(1u, results[i].x) << error_message; 
@@ -78,7 +78,7 @@ TEST(AlgorithmTest, AbsInt8Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i].y) << error_message; 
       ASSERT_EQ(0u, results[i++].z) << error_message; 
@@ -94,7 +94,7 @@ TEST(AlgorithmTest, AbsInt8Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i].y) << error_message; 
       ASSERT_EQ(0u, results[i].z) << error_message; 
@@ -119,7 +119,7 @@ TEST(AlgorithmTest, AbsInt16Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -145,7 +145,7 @@ TEST(AlgorithmTest, AbsInt16Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i++]) << error_message; 
       ASSERT_EQ(1u, results[i++]) << error_message; 
       ASSERT_EQ(1u, results[i++]) << error_message; 
@@ -157,7 +157,7 @@ TEST(AlgorithmTest, AbsInt16Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i++].y) << error_message; 
       ASSERT_EQ(1u, results[i].x) << error_message; 
@@ -170,7 +170,7 @@ TEST(AlgorithmTest, AbsInt16Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i].y) << error_message; 
       ASSERT_EQ(0u, results[i++].z) << error_message; 
@@ -186,7 +186,7 @@ TEST(AlgorithmTest, AbsInt16Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i].y) << error_message; 
       ASSERT_EQ(0u, results[i].z) << error_message; 
@@ -211,7 +211,7 @@ TEST(AlgorithmTest, AbsInt32Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -237,7 +237,7 @@ TEST(AlgorithmTest, AbsInt32Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i++]) << error_message; 
       ASSERT_EQ(1u, results[i++]) << error_message; 
       ASSERT_EQ(1u, results[i++]) << error_message; 
@@ -249,7 +249,7 @@ TEST(AlgorithmTest, AbsInt32Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i++].y) << error_message; 
       ASSERT_EQ(1u, results[i].x) << error_message; 
@@ -262,7 +262,7 @@ TEST(AlgorithmTest, AbsInt32Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i].y) << error_message; 
       ASSERT_EQ(0u, results[i++].z) << error_message; 
@@ -278,7 +278,7 @@ TEST(AlgorithmTest, AbsInt32Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i].y) << error_message; 
       ASSERT_EQ(0u, results[i].z) << error_message; 
@@ -303,7 +303,7 @@ TEST(AlgorithmTest, AbsUInt32Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -328,7 +328,7 @@ TEST(AlgorithmTest, AbsUInt32Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i++]) << error_message; 
       ASSERT_EQ(1u, results[i++]) << error_message; 
       ASSERT_EQ(maxu, results[i++]) << error_message; 
@@ -339,7 +339,7 @@ TEST(AlgorithmTest, AbsUInt32Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i++].y) << error_message; 
       ASSERT_EQ(1u, results[i].x) << error_message; 
@@ -352,7 +352,7 @@ TEST(AlgorithmTest, AbsUInt32Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i].y) << error_message; 
       ASSERT_EQ(0u, results[i++].z) << error_message; 
@@ -368,7 +368,7 @@ TEST(AlgorithmTest, AbsUInt32Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1u, results[i].x) << error_message; 
       ASSERT_EQ(1u, results[i].y) << error_message; 
       ASSERT_EQ(0u, results[i].z) << error_message; 
@@ -389,7 +389,7 @@ TEST(AlgorithmTest, AbsFloatTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -417,7 +417,7 @@ TEST(AlgorithmTest, AbsFloatTest)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i++]) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i++]) << error_message; 
@@ -433,7 +433,7 @@ TEST(AlgorithmTest, AbsFloatTest)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(0.0f, results[i++].y) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i].x) << error_message; 
@@ -446,7 +446,7 @@ TEST(AlgorithmTest, AbsFloatTest)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message; 
       ASSERT_FLOAT_EQ(0.0f, results[i++].z) << error_message; 
@@ -462,7 +462,7 @@ TEST(AlgorithmTest, AbsFloatTest)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i].z) << error_message; 
@@ -487,7 +487,7 @@ TEST(AlgorithmTest, ClampInt8Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -511,7 +511,7 @@ TEST(AlgorithmTest, ClampInt8Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i++]) << error_message; 
       ASSERT_EQ(-1, results[i++]) << error_message; 
       ASSERT_EQ(1, results[i++]) << error_message; 
@@ -530,7 +530,7 @@ TEST(AlgorithmTest, ClampInt8Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i++].y) << error_message; 
       ASSERT_EQ(20, results[i].x) << error_message; 
@@ -545,7 +545,7 @@ TEST(AlgorithmTest, ClampInt8Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i].x) << error_message; 
       ASSERT_EQ(1, results[i].y) << error_message; 
       ASSERT_EQ(-1, results[i++].z) << error_message; 
@@ -564,7 +564,7 @@ TEST(AlgorithmTest, ClampInt8Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i].x) << error_message; 
       ASSERT_EQ(1, results[i].y) << error_message; 
       ASSERT_EQ(-1, results[i].z) << error_message; 
@@ -593,7 +593,7 @@ TEST(AlgorithmTest, ClampInt16Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -617,7 +617,7 @@ TEST(AlgorithmTest, ClampInt16Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i++]) << error_message; 
       ASSERT_EQ(-1, results[i++]) << error_message; 
       ASSERT_EQ(1, results[i++]) << error_message; 
@@ -636,7 +636,7 @@ TEST(AlgorithmTest, ClampInt16Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i++].y) << error_message; 
       ASSERT_EQ(20, results[i].x) << error_message; 
@@ -651,7 +651,7 @@ TEST(AlgorithmTest, ClampInt16Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i].x) << error_message; 
       ASSERT_EQ(1, results[i].y) << error_message; 
       ASSERT_EQ(-1, results[i++].z) << error_message; 
@@ -670,7 +670,7 @@ TEST(AlgorithmTest, ClampInt16Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i].x) << error_message; 
       ASSERT_EQ(1, results[i].y) << error_message; 
       ASSERT_EQ(-1, results[i].z) << error_message; 
@@ -699,7 +699,7 @@ TEST(AlgorithmTest, ClampInt32Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -723,7 +723,7 @@ TEST(AlgorithmTest, ClampInt32Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i++]) << error_message; 
       ASSERT_EQ(-1, results[i++]) << error_message; 
       ASSERT_EQ(1, results[i++]) << error_message; 
@@ -742,7 +742,7 @@ TEST(AlgorithmTest, ClampInt32Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i++].y) << error_message; 
       ASSERT_EQ(20, results[i].x) << error_message; 
@@ -757,7 +757,7 @@ TEST(AlgorithmTest, ClampInt32Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i].x) << error_message; 
       ASSERT_EQ(1, results[i].y) << error_message; 
       ASSERT_EQ(-1, results[i++].z) << error_message; 
@@ -776,7 +776,7 @@ TEST(AlgorithmTest, ClampInt32Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0, results[i].x) << error_message; 
       ASSERT_EQ(1, results[i].y) << error_message; 
       ASSERT_EQ(-1, results[i].z) << error_message; 
@@ -805,7 +805,7 @@ TEST(AlgorithmTest, ClampUInt32Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -829,7 +829,7 @@ TEST(AlgorithmTest, ClampUInt32Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i++]) << error_message; 
       ASSERT_EQ(1u, results[i++]) << error_message; 
       ASSERT_EQ(20u, results[i++]) << error_message; 
@@ -842,7 +842,7 @@ TEST(AlgorithmTest, ClampUInt32Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(1u, results[i++].y) << error_message; 
       ASSERT_EQ(20u, results[i].x) << error_message; 
@@ -855,7 +855,7 @@ TEST(AlgorithmTest, ClampUInt32Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(10u, results[i].y) << error_message; 
       ASSERT_EQ(10u, results[i++].z) << error_message; 
@@ -871,7 +871,7 @@ TEST(AlgorithmTest, ClampUInt32Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(1u, results[i].y) << error_message; 
       ASSERT_EQ(1u, results[i].z) << error_message; 
@@ -896,7 +896,7 @@ TEST(AlgorithmTest, ClampFloatTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -920,7 +920,7 @@ TEST(AlgorithmTest, ClampFloatTest)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message; 
       ASSERT_FLOAT_EQ(-1.0f, results[i++]) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i++]) << error_message; 
@@ -939,7 +939,7 @@ TEST(AlgorithmTest, ClampFloatTest)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(-1.0f, results[i++].y) << error_message; 
       ASSERT_FLOAT_EQ(20.0f, results[i].x) << error_message; 
@@ -954,7 +954,7 @@ TEST(AlgorithmTest, ClampFloatTest)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i].y) << error_message; 
       ASSERT_FLOAT_EQ(-1.0f, results[i++].z) << error_message; 
@@ -973,7 +973,7 @@ TEST(AlgorithmTest, ClampFloatTest)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i].y) << error_message; 
       ASSERT_FLOAT_EQ(-1.0f, results[i].z) << error_message; 
@@ -1006,7 +1006,7 @@ TEST(AlgorithmTest, MaxInt8Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1031,7 +1031,7 @@ TEST(AlgorithmTest, MaxInt8Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i++]) << error_message; 
       ASSERT_EQ(-1, results[i++]) << error_message; 
       ASSERT_EQ(maxi, results[i++]) << error_message; 
@@ -1042,7 +1042,7 @@ TEST(AlgorithmTest, MaxInt8Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i].x) << error_message; 
       ASSERT_EQ(1, results[i++].y) << error_message; 
       ASSERT_EQ(maxi, results[i].x) << error_message; 
@@ -1053,7 +1053,7 @@ TEST(AlgorithmTest, MaxInt8Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i].x) << error_message; 
       ASSERT_EQ(0, results[i].y) << error_message; 
       ASSERT_EQ(1, results[i++].z) << error_message; 
@@ -1066,7 +1066,7 @@ TEST(AlgorithmTest, MaxInt8Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i].x) << error_message; 
       ASSERT_EQ(0, results[i].y) << error_message; 
       ASSERT_EQ(1, results[i].z) << error_message; 
@@ -1087,7 +1087,7 @@ TEST(AlgorithmTest, MaxInt16Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1112,7 +1112,7 @@ TEST(AlgorithmTest, MaxInt16Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i++]) << error_message; 
       ASSERT_EQ(-1, results[i++]) << error_message; 
       ASSERT_EQ(maxi, results[i++]) << error_message; 
@@ -1123,7 +1123,7 @@ TEST(AlgorithmTest, MaxInt16Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i].x) << error_message; 
       ASSERT_EQ(1, results[i++].y) << error_message; 
       ASSERT_EQ(maxi, results[i].x) << error_message; 
@@ -1134,7 +1134,7 @@ TEST(AlgorithmTest, MaxInt16Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i].x) << error_message; 
       ASSERT_EQ(0, results[i].y) << error_message; 
       ASSERT_EQ(1, results[i++].z) << error_message; 
@@ -1147,7 +1147,7 @@ TEST(AlgorithmTest, MaxInt16Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i].x) << error_message; 
       ASSERT_EQ(0, results[i].y) << error_message; 
       ASSERT_EQ(1, results[i].z) << error_message; 
@@ -1168,7 +1168,7 @@ TEST(AlgorithmTest, MaxInt32Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1193,7 +1193,7 @@ TEST(AlgorithmTest, MaxInt32Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i++]) << error_message; 
       ASSERT_EQ(-1, results[i++]) << error_message; 
       ASSERT_EQ(maxi, results[i++]) << error_message; 
@@ -1204,7 +1204,7 @@ TEST(AlgorithmTest, MaxInt32Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i].x) << error_message; 
       ASSERT_EQ(1, results[i++].y) << error_message; 
       ASSERT_EQ(maxi, results[i].x) << error_message; 
@@ -1215,7 +1215,7 @@ TEST(AlgorithmTest, MaxInt32Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i].x) << error_message; 
       ASSERT_EQ(0, results[i].y) << error_message; 
       ASSERT_EQ(1, results[i++].z) << error_message; 
@@ -1228,7 +1228,7 @@ TEST(AlgorithmTest, MaxInt32Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1, results[i].x) << error_message; 
       ASSERT_EQ(0, results[i].y) << error_message; 
       ASSERT_EQ(1, results[i].z) << error_message; 
@@ -1249,7 +1249,7 @@ TEST(AlgorithmTest, MaxUInt32Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1274,7 +1274,7 @@ TEST(AlgorithmTest, MaxUInt32Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1u, results[i++]) << error_message; 
       ASSERT_EQ(0u, results[i++]) << error_message; 
       ASSERT_EQ(maxi, results[i++]) << error_message; 
@@ -1285,7 +1285,7 @@ TEST(AlgorithmTest, MaxUInt32Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1u, results[i].x) << error_message; 
       ASSERT_EQ(1u, results[i++].y) << error_message; 
       ASSERT_EQ(maxi, results[i].x) << error_message; 
@@ -1296,7 +1296,7 @@ TEST(AlgorithmTest, MaxUInt32Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1u, results[i].x) << error_message; 
       ASSERT_EQ(1u, results[i].y) << error_message; 
       ASSERT_EQ(1u, results[i++].z) << error_message; 
@@ -1309,7 +1309,7 @@ TEST(AlgorithmTest, MaxUInt32Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(1u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i].y) << error_message; 
       ASSERT_EQ(1u, results[i].z) << error_message; 
@@ -1330,7 +1330,7 @@ TEST(AlgorithmTest, MaxFloatTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1355,7 +1355,7 @@ TEST(AlgorithmTest, MaxFloatTest)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(1.0f, results[i++]) << error_message; 
       ASSERT_FLOAT_EQ(-1.0f, results[i++]) << error_message; 
       ASSERT_FLOAT_EQ(maxi, results[i++]) << error_message; 
@@ -1366,7 +1366,7 @@ TEST(AlgorithmTest, MaxFloatTest)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(1.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i++].y) << error_message; 
       ASSERT_FLOAT_EQ(maxi, results[i].x) << error_message; 
@@ -1377,7 +1377,7 @@ TEST(AlgorithmTest, MaxFloatTest)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(1.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i++].z) << error_message; 
@@ -1390,7 +1390,7 @@ TEST(AlgorithmTest, MaxFloatTest)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(1.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i].z) << error_message; 
@@ -1411,7 +1411,7 @@ TEST(AlgorithmTest, MinInt8Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1436,7 +1436,7 @@ TEST(AlgorithmTest, MinInt8Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i++]) << error_message; 
       ASSERT_EQ(mini, results[i++]) << error_message; 
       ASSERT_EQ(1, results[i++]) << error_message; 
@@ -1447,7 +1447,7 @@ TEST(AlgorithmTest, MinInt8Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i++].y) << error_message; 
       ASSERT_EQ(mini, results[i].x) << error_message; 
@@ -1458,7 +1458,7 @@ TEST(AlgorithmTest, MinInt8Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i].y) << error_message; 
       ASSERT_EQ(0, results[i++].z) << error_message; 
@@ -1471,7 +1471,7 @@ TEST(AlgorithmTest, MinInt8Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i].y) << error_message; 
       ASSERT_EQ(0, results[i].z) << error_message; 
@@ -1492,7 +1492,7 @@ TEST(AlgorithmTest, MinInt16Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1517,7 +1517,7 @@ TEST(AlgorithmTest, MinInt16Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i++]) << error_message; 
       ASSERT_EQ(mini, results[i++]) << error_message; 
       ASSERT_EQ(1, results[i++]) << error_message; 
@@ -1528,7 +1528,7 @@ TEST(AlgorithmTest, MinInt16Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i++].y) << error_message; 
       ASSERT_EQ(mini, results[i].x) << error_message; 
@@ -1539,7 +1539,7 @@ TEST(AlgorithmTest, MinInt16Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i].y) << error_message; 
       ASSERT_EQ(0, results[i++].z) << error_message; 
@@ -1552,7 +1552,7 @@ TEST(AlgorithmTest, MinInt16Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i].y) << error_message; 
       ASSERT_EQ(0, results[i].z) << error_message; 
@@ -1573,7 +1573,7 @@ TEST(AlgorithmTest, MinInt32Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1598,7 +1598,7 @@ TEST(AlgorithmTest, MinInt32Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i++]) << error_message; 
       ASSERT_EQ(mini, results[i++]) << error_message; 
       ASSERT_EQ(1, results[i++]) << error_message; 
@@ -1609,7 +1609,7 @@ TEST(AlgorithmTest, MinInt32Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i++].y) << error_message; 
       ASSERT_EQ(mini, results[i].x) << error_message; 
@@ -1620,7 +1620,7 @@ TEST(AlgorithmTest, MinInt32Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i].y) << error_message; 
       ASSERT_EQ(0, results[i++].z) << error_message; 
@@ -1633,7 +1633,7 @@ TEST(AlgorithmTest, MinInt32Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(-1, results[i].x) << error_message; 
       ASSERT_EQ(-1, results[i].y) << error_message; 
       ASSERT_EQ(0, results[i].z) << error_message; 
@@ -1654,7 +1654,7 @@ TEST(AlgorithmTest, MinUInt32Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1679,7 +1679,7 @@ TEST(AlgorithmTest, MinUInt32Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i++]) << error_message; 
       ASSERT_EQ(0u, results[i++]) << error_message; 
       ASSERT_EQ(1u, results[i++]) << error_message; 
@@ -1690,7 +1690,7 @@ TEST(AlgorithmTest, MinUInt32Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i++].y) << error_message; 
       ASSERT_EQ(mini, results[i].x) << error_message; 
@@ -1701,7 +1701,7 @@ TEST(AlgorithmTest, MinUInt32Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i].y) << error_message; 
       ASSERT_EQ(0u, results[i++].z) << error_message; 
@@ -1714,7 +1714,7 @@ TEST(AlgorithmTest, MinUInt32Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_EQ(0u, results[i].x) << error_message; 
       ASSERT_EQ(0u, results[i].y) << error_message; 
       ASSERT_EQ(0u, results[i].z) << error_message; 
@@ -1735,7 +1735,7 @@ TEST(AlgorithmTest, MinFloatTest)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
@@ -1760,7 +1760,7 @@ TEST(AlgorithmTest, MinFloatTest)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(-1.0f, results[i++]) << error_message; 
       ASSERT_FLOAT_EQ(mini, results[i++]) << error_message; 
       ASSERT_FLOAT_EQ(1.0f, results[i++]) << error_message; 
@@ -1771,7 +1771,7 @@ TEST(AlgorithmTest, MinFloatTest)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(-1.0f, results[i++].y) << error_message; 
       ASSERT_FLOAT_EQ(mini, results[i].x) << error_message; 
@@ -1782,7 +1782,7 @@ TEST(AlgorithmTest, MinFloatTest)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(-1.0f, results[i].y) << error_message; 
       ASSERT_FLOAT_EQ(0.0f, results[i++].z) << error_message; 
@@ -1795,7 +1795,7 @@ TEST(AlgorithmTest, MinFloatTest)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      std::size_t i = 0;
+      uint32b i = 0;
       ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
       ASSERT_FLOAT_EQ(-1.0f, results[i].y) << error_message; 
       ASSERT_FLOAT_EQ(0.0f, results[i].z) << error_message; 
@@ -1816,31 +1816,31 @@ TEST(AlgorithmTest, MinFloatTest)
 //
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t bit_size = 8 * sizeof(uint8b);
+//    constexpr uint32b bit_size = 8 * sizeof(uint8b);
 //    constexpr uint32b resolution = 2 * bit_size + bit_size / 2; 
 //
 //    std::vector<uint8b> inputs;
 //    inputs.resize(resolution);
-//    for (std::size_t i = 0; i < inputs.size(); ++i) {
+//    for (uint32b i = 0; i < inputs.size(); ++i) {
 //      if (i < bit_size) {
 //        uint8b input = 0b1;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          input = (input << 1) | input;
 //        inputs[i] = input;
 //      }
 //      else if (i < 2 * bit_size) {
 //        uint8b input = 0b1u << (bit_size - 1);
-//        for (std::size_t j = 0; j < (i - bit_size); ++j)
+//        for (uint32b j = 0; j < (i - bit_size); ++j)
 //          input = (input >> 1) | input;
 //        inputs[i] = input;
 //      }
 //      else {
 //        uint8b input = 0b1u;
-//        for (std::size_t j = 0; j < (i - (2 * bit_size)); ++j)
+//        for (uint32b j = 0; j < (i - (2 * bit_size)); ++j)
 //          input = (input << 2) | input;
 //        inputs[i] = input;
 //      }
@@ -1872,7 +1872,7 @@ TEST(AlgorithmTest, MinFloatTest)
 //      results.resize(result1_buff->size());
 //      result1_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint8b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
@@ -1884,11 +1884,11 @@ TEST(AlgorithmTest, MinFloatTest)
 //      results.resize(result2_buff->size());
 //      result2_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint8b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
-//        for (std::size_t j = 0; j < 2; ++j)
+//        for (uint32b j = 0; j < 2; ++j)
 //          ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
 //      }
 //    }
@@ -1897,11 +1897,11 @@ TEST(AlgorithmTest, MinFloatTest)
 //      results.resize(result3_buff->size());
 //      result3_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint8b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
-//        for (std::size_t j = 0; j < 3; ++j)
+//        for (uint32b j = 0; j < 3; ++j)
 //          ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
 //      }
 //    }
@@ -1910,11 +1910,11 @@ TEST(AlgorithmTest, MinFloatTest)
 //      results.resize(result4_buff->size());
 //      result4_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint8b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
-//        for (std::size_t j = 0; j < 4; ++j)
+//        for (uint32b j = 0; j < 4; ++j)
 //          ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
 //      }
 //    }
@@ -1929,31 +1929,31 @@ TEST(AlgorithmTest, MinFloatTest)
 //
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t bit_size = 8 * sizeof(uint16b);
+//    constexpr uint32b bit_size = 8 * sizeof(uint16b);
 //    constexpr uint32b resolution = 2 * bit_size + bit_size / 2; 
 //
 //    std::vector<uint16b> inputs;
 //    inputs.resize(resolution);
-//    for (std::size_t i = 0; i < inputs.size(); ++i) {
+//    for (uint32b i = 0; i < inputs.size(); ++i) {
 //      if (i < bit_size) {
 //        uint16b input = 0b1;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          input = (input << 1) | input;
 //        inputs[i] = input;
 //      }
 //      else if (i < 2 * bit_size) {
 //        uint16b input = 0b1u << (bit_size - 1);
-//        for (std::size_t j = 0; j < (i - bit_size); ++j)
+//        for (uint32b j = 0; j < (i - bit_size); ++j)
 //          input = (input >> 1) | input;
 //        inputs[i] = input;
 //      }
 //      else {
 //        uint16b input = 0b1u;
-//        for (std::size_t j = 0; j < (i - (2 * bit_size)); ++j)
+//        for (uint32b j = 0; j < (i - (2 * bit_size)); ++j)
 //          input = (input << 2) | input;
 //        inputs[i] = input;
 //      }
@@ -1985,7 +1985,7 @@ TEST(AlgorithmTest, MinFloatTest)
 //      results.resize(result1_buff->size());
 //      result1_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint16b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
@@ -1997,11 +1997,11 @@ TEST(AlgorithmTest, MinFloatTest)
 //      results.resize(result2_buff->size());
 //      result2_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint16b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
-//        for (std::size_t j = 0; j < 2; ++j)
+//        for (uint32b j = 0; j < 2; ++j)
 //          ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
 //      }
 //    }
@@ -2010,11 +2010,11 @@ TEST(AlgorithmTest, MinFloatTest)
 //      results.resize(result3_buff->size());
 //      result3_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint16b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
-//        for (std::size_t j = 0; j < 3; ++j)
+//        for (uint32b j = 0; j < 3; ++j)
 //          ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
 //      }
 //    }
@@ -2023,11 +2023,11 @@ TEST(AlgorithmTest, MinFloatTest)
 //      results.resize(result4_buff->size());
 //      result4_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint16b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
-//        for (std::size_t j = 0; j < 4; ++j)
+//        for (uint32b j = 0; j < 4; ++j)
 //          ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
 //      }
 //    }
@@ -2042,31 +2042,31 @@ TEST(AlgorithmTest, Popcount32Test)
 
   auto options = makeTestOptions();
   auto device_list = makeTestDeviceList(options);
-  for (std::size_t number = 0; number < device_list.size(); ++number) {
+  for (uint32b number = 0; number < device_list.size(); ++number) {
     auto& device = device_list[number];
     std::cout << getTestDeviceInfo(*device);
 
-    constexpr std::size_t bit_size = 8 * sizeof(uint32b);
+    constexpr uint32b bit_size = 8 * sizeof(uint32b);
     constexpr uint32b resolution = 2 * bit_size + bit_size / 2; 
 
     std::vector<uint32b> inputs;
     inputs.resize(resolution);
-    for (std::size_t i = 0; i < inputs.size(); ++i) {
+    for (uint32b i = 0; i < inputs.size(); ++i) {
       if (i < bit_size) {
         uint32b input = 0b1;
-        for (std::size_t j = 0; j < i; ++j)
+        for (uint32b j = 0; j < i; ++j)
           input = (input << 1) | input;
         inputs[i] = input;
       }
       else if (i < 2 * bit_size) {
         uint32b input = 0b1u << (bit_size - 1);
-        for (std::size_t j = 0; j < (i - bit_size); ++j)
+        for (uint32b j = 0; j < (i - bit_size); ++j)
           input = (input >> 1) | input;
         inputs[i] = input;
       }
       else {
         uint32b input = 0b1u;
-        for (std::size_t j = 0; j < (i - (2 * bit_size)); ++j)
+        for (uint32b j = 0; j < (i - (2 * bit_size)); ++j)
           input = (input << 2) | input;
         inputs[i] = input;
       }
@@ -2098,7 +2098,7 @@ TEST(AlgorithmTest, Popcount32Test)
       results.resize(result1_buff->size());
       result1_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < inputs.size(); ++i) {
+      for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto input = inputs[i];
         const auto expected = zisc::cast<uint32b>(std::bitset<bit_size>{input}.count());
         const auto result = results[i];
@@ -2110,11 +2110,11 @@ TEST(AlgorithmTest, Popcount32Test)
       results.resize(result2_buff->size());
       result2_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < inputs.size(); ++i) {
+      for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto input = inputs[i];
         const auto expected = zisc::cast<uint32b>(std::bitset<bit_size>{input}.count());
         const auto result = results[i];
-        for (std::size_t j = 0; j < 2; ++j)
+        for (uint32b j = 0; j < 2; ++j)
           ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
       }
     }
@@ -2123,11 +2123,11 @@ TEST(AlgorithmTest, Popcount32Test)
       results.resize(result3_buff->size());
       result3_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < inputs.size(); ++i) {
+      for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto input = inputs[i];
         const auto expected = zisc::cast<uint32b>(std::bitset<bit_size>{input}.count());
         const auto result = results[i];
-        for (std::size_t j = 0; j < 3; ++j)
+        for (uint32b j = 0; j < 3; ++j)
           ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
       }
     }
@@ -2136,11 +2136,11 @@ TEST(AlgorithmTest, Popcount32Test)
       results.resize(result4_buff->size());
       result4_buff->read(results.data(), results.size(), 0, 0);
 
-      for (std::size_t i = 0; i < inputs.size(); ++i) {
+      for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto input = inputs[i];
         const auto expected = zisc::cast<uint32b>(std::bitset<bit_size>{input}.count());
         const auto result = results[i];
-        for (std::size_t j = 0; j < 4; ++j)
+        for (uint32b j = 0; j < 4; ++j)
           ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
       }
     }
@@ -2157,31 +2157,31 @@ TEST(AlgorithmTest, Popcount32Test)
 //
 //  auto options = makeTestOptions();
 //  auto device_list = makeTestDeviceList(options);
-//  for (std::size_t number = 0; number < device_list.size(); ++number) {
+//  for (uint32b number = 0; number < device_list.size(); ++number) {
 //    auto& device = device_list[number];
 //    std::cout << getTestDeviceInfo(*device);
 //
-//    constexpr std::size_t bit_size = 8 * sizeof(uint64b);
+//    constexpr uint32b bit_size = 8 * sizeof(uint64b);
 //    constexpr uint32b resolution = 2 * bit_size + bit_size / 2; 
 //
 //    std::vector<uint64b> inputs;
 //    inputs.resize(resolution);
-//    for (std::size_t i = 0; i < inputs.size(); ++i) {
+//    for (uint32b i = 0; i < inputs.size(); ++i) {
 //      if (i < bit_size) {
 //        uint64b input = 0b1;
-//        for (std::size_t j = 0; j < i; ++j)
+//        for (uint32b j = 0; j < i; ++j)
 //          input = (input << 1) | input;
 //        inputs[i] = input;
 //      }
 //      else if (i < 2 * bit_size) {
 //        uint64b input = zisc::cast<uint64b>(0b1u) << (bit_size - 1);
-//        for (std::size_t j = 0; j < (i - bit_size); ++j)
+//        for (uint32b j = 0; j < (i - bit_size); ++j)
 //          input = (input >> 1) | input;
 //        inputs[i] = input;
 //      }
 //      else {
 //        uint64b input = 0b1u;
-//        for (std::size_t j = 0; j < (i - (2 * bit_size)); ++j)
+//        for (uint32b j = 0; j < (i - (2 * bit_size)); ++j)
 //          input = (input << 2) | input;
 //        inputs[i] = input;
 //      }
@@ -2213,7 +2213,7 @@ TEST(AlgorithmTest, Popcount32Test)
 //      results.resize(result1_buff->size());
 //      result1_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint64b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
@@ -2225,11 +2225,11 @@ TEST(AlgorithmTest, Popcount32Test)
 //      results.resize(result2_buff->size());
 //      result2_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint64b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
-//        for (std::size_t j = 0; j < 2; ++j)
+//        for (uint32b j = 0; j < 2; ++j)
 //          ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
 //      }
 //    }
@@ -2238,11 +2238,11 @@ TEST(AlgorithmTest, Popcount32Test)
 //      results.resize(result3_buff->size());
 //      result3_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint64b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
-//        for (std::size_t j = 0; j < 3; ++j)
+//        for (uint32b j = 0; j < 3; ++j)
 //          ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
 //      }
 //    }
@@ -2251,11 +2251,11 @@ TEST(AlgorithmTest, Popcount32Test)
 //      results.resize(result4_buff->size());
 //      result4_buff->read(results.data(), results.size(), 0, 0);
 //
-//      for (std::size_t i = 0; i < inputs.size(); ++i) {
+//      for (uint32b i = 0; i < inputs.size(); ++i) {
 //        const auto input = inputs[i];
 //        const auto expected = zisc::cast<uint64b>(std::bitset<bit_size>{input}.count());
 //        const auto result = results[i];
-//        for (std::size_t j = 0; j < 4; ++j)
+//        for (uint32b j = 0; j < 4; ++j)
 //          ASSERT_EQ(expected, result[j]) << error_message << ": " << std::hex << input;
 //      }
 //    }
