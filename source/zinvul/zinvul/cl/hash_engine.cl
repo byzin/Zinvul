@@ -22,18 +22,12 @@ class HashEngine
 {
  public:
   //! Compute a hash value
-  template <size_t kN>
-  static ResultType hash(const char(&seed)[kN]) noexcept;
+  template <typename Integer>
+  static ResultType  hash(const Integer seed) noexcept;
 
   //! Compute a hash value
-  static ResultType hash(ConstGenericPtr<int8b> seed, const size_t n) noexcept;
-
-  //! Compute a hash value
-  static ResultType hash(ConstGenericPtr<uint8b> seed, const size_t n) noexcept;
-
-  //! Compute a hash value
-  template <typename UInteger>
-  static ResultType hash(const UInteger seed) noexcept;
+  template <typename IntegerPtr>
+  static ResultType  hash(const IntegerPtr seed, const size_t n) noexcept;
 };
 
 } // namespace zinvul

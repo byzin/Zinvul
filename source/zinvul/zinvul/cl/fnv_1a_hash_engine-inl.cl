@@ -14,18 +14,29 @@
 // Zinvul
 #include "hash_engine.cl"
 #include "types.cl"
+#include "type_traits.cl"
+#include "utility.cl"
 
 namespace zinvul {
 
 /*!
   */
-template <typename ResultType> template <typename Int8> inline
-ResultType Fnv1aHashEngine<ResultType>::hashValue(ConstGenericPtr<Int8> inputs,
+template <typename ResultType> template <typename Integer8Ptr> inline
+ResultType Fnv1aHashEngine<ResultType>::hashValue(const Integer8Ptr seed,
                                                   const size_t n) noexcept
 {
+  using ASpaceInfo = AddressSpaceInfo<Integer8Ptr>;
+  static_assert(ASpaceInfo::isPointer(), "The Integer8Ptr isn't pointer.");
+  using IType = typename ASpaceInfo::DataType;
+  static_assert(sizeof(IType) == 1, "The Integer8Ptr isn't 8bit integer pointer.");
+
   auto x = offset();
-  for (size_t i = 0; i < n; ++i)
-    x = (x ^ static_cast<ResultType>(inputs[i])) * prime();
+  for (size_t i = 0; i < n; ++i) {
+    const uint8b s = kIsSignedInteger<IType>
+      ? treatAs<uint8b>(seed[i])
+      : static_cast<uint8b>(seed[i]);
+    x = (x ^ static_cast<ResultType>(s)) * prime();
+  }
   return x;
 }
 

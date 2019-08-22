@@ -1133,25 +1133,25 @@ __kernel void testFnv1AHash32(GlobalPtr<uint32b> hash32_buffer)
     {
       const char seed[] = "";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed, n);
       hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "a";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed, n);
       hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "b";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed, n);
       hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "foobar";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed);
+      hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(seed, n);
       hash32_buffer[i++] = zinvul::Fnv1aHash32::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
@@ -1181,25 +1181,25 @@ __kernel void testFnv1AHash64(GlobalPtr<uint64b> hash64_buffer)
     {
       const char seed[] = "";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed, n);
       hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "a";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed, n);
       hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "b";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed, n);
       hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {
       const char seed[] = "foobar";
       constexpr size_t n = sizeof(seed) / sizeof(seed[0]) - 1;
-      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed);
+      hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(seed, n);
       hash64_buffer[i++] = zinvul::Fnv1aHash64::hash(treatAs<const int8b*>(&seed[0]), n);
     }
     {

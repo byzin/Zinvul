@@ -25,8 +25,8 @@ class Fnv1aHashEngine : public HashEngine<Fnv1aHashEngine<ResultType>, ResultTyp
   template <typename, typename> friend class HashEngine;
 
   //! Implementation of the hash function
-  template <typename Int8>
-  static ResultType hashValue(ConstGenericPtr<Int8> seed, const size_t n) noexcept;
+  template <typename Integer8Ptr>
+  static ResultType hashValue(const Integer8Ptr seed, const size_t n) noexcept;
 
   //!
   static constexpr ResultType prime() noexcept;
