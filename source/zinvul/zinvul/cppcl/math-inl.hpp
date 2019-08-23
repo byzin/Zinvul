@@ -179,6 +179,24 @@ FloatN Math::exp(const FloatN& x) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN Math::exp2(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    const auto y = std::exp2(x);
+    return y;
+  }
+  // Vector
+  else {
+    const auto y = Vec::exp2(x);
+    return y;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN Math::log(const FloatN& x) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
@@ -262,6 +280,24 @@ FloatN Math::sqrt(const FloatN& x) noexcept
   // Vector
   else {
     const auto y = Vec::sqrt(x);
+    return y;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::cbrt(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    const auto y = std::cbrt(x);
+    return y;
+  }
+  // Vector
+  else {
+    const auto y = Vec::cbrt(x);
     return y;
   }
 }
@@ -517,6 +553,15 @@ auto Math::Vec::exp(const Vector<Float, kN>& x) noexcept
 }
 
 template <typename Float, size_t kN> inline
+auto Math::Vec::exp2(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (size_t i = 0; i < kN; ++i)
+    result[i] = Math::exp2(x[i]);
+  return result;
+}
+
+template <typename Float, size_t kN> inline
 auto Math::Vec::log(const Vector<Float, kN>& x) noexcept
 {
   Vector<Float, kN> result;
@@ -559,6 +604,15 @@ auto Math::Vec::sqrt(const Vector<Float, kN>& x) noexcept
   Vector<Float, kN> result;
   for (size_t i = 0; i < kN; ++i)
     result[i] = Math::sqrt(x[i]);
+  return result;
+}
+
+template <typename Float, size_t kN> inline
+auto Math::Vec::cbrt(const Vector<Float, kN>& x) noexcept
+{
+  Vector<Float, kN> result;
+  for (size_t i = 0; i < kN; ++i)
+    result[i] = Math::cbrt(x[i]);
   return result;
 }
 
@@ -727,6 +781,15 @@ FloatN exp(const FloatN& x) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN exp2(const FloatN& x) noexcept
+{
+  const auto y = Math::exp2(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN log(const FloatN& x) noexcept
 {
   const auto y = Math::log(x);
@@ -766,6 +829,15 @@ template <typename FloatN> inline
 FloatN sqrt(const FloatN& x) noexcept
 {
   const auto y = Math::sqrt(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN cbrt(const FloatN& x) noexcept
+{
+  const auto y = Math::cbrt(x);
   return y;
 }
 

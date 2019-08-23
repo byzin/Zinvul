@@ -157,6 +157,10 @@ class Math
   template <typename FloatN>
   static FloatN exp(const FloatN& x) noexcept;
 
+  //! Return 2 raised to the given power
+  template <typename FloatN>
+  static FloatN exp2(const FloatN& x) noexcept;
+
   //! Compute natural logarithm of the given number
   template <typename FloatN>
   static FloatN log(const FloatN& x) noexcept;
@@ -178,6 +182,10 @@ class Math
   //! Compute square root
   template <typename FloatN>
   static FloatN sqrt(const FloatN& x) noexcept;
+
+  //! Compute cubic root
+  template <typename FloatN>
+  static FloatN cbrt(const FloatN& x) noexcept;
 
   // Trigonometric functions
 
@@ -271,6 +279,10 @@ class Math
     template <typename Float, size_t kN>
     static auto exp(const Vector<Float, kN>& x) noexcept;
 
+    //! Return 2 raised to the given power
+    template <typename Float, size_t kN>
+    static auto exp2(const Vector<Float, kN>& x) noexcept;
+
     //! Compute natural logarithm of the given number
     template <typename Float, size_t kN>
     static auto log(const Vector<Float, kN>& x) noexcept;
@@ -293,6 +305,10 @@ class Math
     //! Compute square root
     template <typename Float, size_t kN>
     static auto sqrt(const Vector<Float, kN>& x) noexcept;
+
+    //! Compute cubic root
+    template <typename Float, size_t kN>
+    static auto cbrt(const Vector<Float, kN>& x) noexcept;
 
     //! Trigonometric functions
 
@@ -379,6 +395,10 @@ FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept;
 template <typename FloatN>
 FloatN exp(const FloatN& x) noexcept;
 
+//! Return 2 raised to the given power
+template <typename FloatN>
+FloatN exp2(const FloatN& x) noexcept;
+
 //! Compute natural logarithm of the given number
 template <typename FloatN>
 FloatN log(const FloatN& x) noexcept;
@@ -400,6 +420,10 @@ FloatN rsqrt(const FloatN& x) noexcept;
 //! Compute square root
 template <typename FloatN>
 FloatN sqrt(const FloatN& x) noexcept;
+
+//! Compute cubic root
+template <typename FloatN>
+FloatN cbrt(const FloatN& x) noexcept;
 
 //! Trigonometric functions
 

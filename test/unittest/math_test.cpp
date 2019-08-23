@@ -1447,6 +1447,207 @@ TEST(MathTest, ExpZinvulTest)
   }
 }
 
+TEST(MathTest, Exp2Test)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testExp2));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::exp2(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("exp2", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      EXPECT_FALSE(num_of_failures) << std::scientific
+          << "'exp2' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, Exp2BuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testExp2Builtin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::exp2(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::exp2", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      EXPECT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::exp2' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, Exp2ZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testExp2Zinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::exp2(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::exp2", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      EXPECT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::exp2' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 TEST(MathTest, LogTest)
 {
   using namespace zinvul;
@@ -2460,6 +2661,207 @@ TEST(MathTest, SqrtZinvulTest)
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::sqrt' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CbrtTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCbrt));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::cbrt(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("cbrt", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      EXPECT_FALSE(num_of_failures) << std::scientific
+          << "'cbrt' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CbrtBuiltinTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCbrtBuiltin));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::cbrt(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("builtin::cbrt", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      EXPECT_FALSE(num_of_failures) << std::scientific
+          << "'builtin::cbrt' func failed." << std::endl
+          << "  Num of failures: " << num_of_failures << std::endl
+          << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
+          << std::endl
+          << "  Max ulps: " << max_ulps << std::endl
+          << "  Max diff: " << max_diff << std::endl
+          << "  Num of inf failures: " << num_of_inf_failures << std::endl
+          << "  Num of NaN failures: " << num_of_nan_failures << std::endl;
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(MathTest, CbrtZinvulTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    constexpr uint32b resolution = 2'097'152u;
+    constexpr uint32b n = 10;
+
+    auto input_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    input_buff->setSize(n * resolution);
+    auto result_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result_buff->setSize(n * resolution);
+    auto res_buff = makeUniformBuffer<uint32b>(device.get(), BufferUsage::kDeviceOnly);
+    res_buff->setSize(1);
+    res_buff->write(&resolution, 1, 0, 0);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(math, testCbrtZinvul));
+    kernel->run(*input_buff, *result_buff, *res_buff, {resolution}, 0);
+    device->waitForCompletion();
+
+    {
+      std::vector<float> inputs;
+      inputs.resize(input_buff->size());
+      input_buff->read(inputs.data(), inputs.size(), 0, 0);
+
+      std::vector<float> results;
+      results.resize(result_buff->size());
+      result_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b num_of_trials = 0;
+      uint32b num_of_failures = 0;
+      uint32b num_of_inf_failures = 0;
+      uint32b num_of_nan_failures = 0;
+      zisc::CompensatedSummation<float> sum_ulps;
+      float max_ulps = 0.0f;
+      float max_diff = 0.0f;
+
+      for (uint32b i = 0; i < inputs.size(); ++i) {
+        const auto x = inputs[i];
+        const auto expected = std::cbrt(x);
+        const auto result = results[i];
+        float* y = nullptr;
+        ::testFloat("zinvul::cbrt", x, y, expected, result,
+                    num_of_trials, num_of_failures,
+                    num_of_inf_failures, num_of_nan_failures,
+                    sum_ulps, max_ulps, max_diff);
+      }
+      EXPECT_FALSE(num_of_failures) << std::scientific
+          << "'zinvul::cbrt' func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl

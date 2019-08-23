@@ -129,6 +129,18 @@ FloatN Math::exp(const FloatN x) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN Math::exp2(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  const auto y = Config::isBuiltinMathExpUsed()
+    ? Builtin::exp2(x)
+    : Zinvul::exp2(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN Math::log(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
@@ -183,6 +195,18 @@ FloatN Math::sqrt(const FloatN x) noexcept
   const auto y = Config::isBuiltinMathSqrtUsed()
     ? Builtin::sqrt(x)
     : Zinvul::sqrt(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::cbrt(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  const auto y = Config::isBuiltinMathCbrtUsed()
+    ? Builtin::cbrt(x)
+    : Zinvul::cbrt(x);
   return y;
 }
 
@@ -397,6 +421,16 @@ FloatN Math::Builtin::exp(const FloatN x) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN Math::Builtin::exp2(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  const auto y = ZINVUL_GLOBAL_NAMESPACE::exp2(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN Math::Builtin::log(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
@@ -441,6 +475,18 @@ FloatN Math::Builtin::sqrt(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   const auto y = ZINVUL_GLOBAL_NAMESPACE::sqrt(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Builtin::cbrt(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  static_assert(!Config::isBuiltinMathCbrtUsed(),
+                "Builtin 'cbrt' isn't implemented yet.");
+  const auto y = ZINVUL_GLOBAL_NAMESPACE::cbrt(x);
   return y;
 }
 
@@ -602,6 +648,18 @@ FloatN Math::Zinvul::exp(const FloatN x) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN Math::Zinvul::exp2(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  static_assert(Config::isBuiltinMathExpUsed(),
+                "Zinvul 'exp2' isn't implemented yet.");
+  const auto y = ZINVUL_GLOBAL_NAMESPACE::exp2(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN Math::Zinvul::log(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
@@ -656,6 +714,16 @@ FloatN Math::Zinvul::sqrt(const FloatN x) noexcept
   static_assert(Config::isBuiltinMathSqrtUsed(),
                 "Zinvul 'sqrt' isn't implemented yet.");
   const auto y = ZINVUL_GLOBAL_NAMESPACE::sqrt(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::cbrt(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  const auto y = ZINVUL_GLOBAL_NAMESPACE::cbrt(x);
   return y;
 }
 
@@ -863,6 +931,15 @@ FloatN exp(const FloatN x) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN exp2(const FloatN x) noexcept
+{
+  const auto y = Math::exp2(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN log(const FloatN x) noexcept
 {
   const auto y = Math::log(x);
@@ -902,6 +979,15 @@ template <typename FloatN> inline
 FloatN sqrt(const FloatN x) noexcept
 {
   const auto y = Math::sqrt(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN cbrt(const FloatN x) noexcept
+{
+  const auto y = Math::cbrt(x);
   return y;
 }
 
