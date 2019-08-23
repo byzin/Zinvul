@@ -304,8 +304,7 @@ template <typename Float> inline
 Float makeNormal01(const uint32b index, const uint32b resolution) noexcept
 {
   const auto k = zinvul::Algorithm::invert(static_cast<Float>(resolution));
-  const int32b i = static_cast<int32b>(2 * index) -
-                   static_cast<int32b>(resolution);
+  const auto i = static_cast<Float>(2 * index) - static_cast<Float>(resolution);
   const auto x = k * static_cast<Float>(i);
   return x;
 }
@@ -347,14 +346,14 @@ Float makeNormalF(const Float x, const Float scale) noexcept
 {
   using FloatInfo = zinvul::FloatingPointFromBytes<sizeof(Float)>;
   using BitType = typename FloatInfo::BitType;
-  constexpr auto bias = static_cast<int32b>(FloatInfo::exponentBias());
+  constexpr auto bias = static_cast<Float>(FloatInfo::exponentBias());
   constexpr Float zero = static_cast<Float>(0.0);
   constexpr Float two = static_cast<Float>(2.0);
   const Float k = two * zinvul::abs(x) - static_cast<Float>(1.0);
   // Sign
   const Float signb = (x < zero) ? -scale : scale;
   // Exponent
-  int32b exponent = static_cast<int32b>(k * static_cast<Float>(bias));
+  auto exponent = static_cast<Float>(k * static_cast<Float>(bias));
   exponent = zinvul::clamp(exponent, -bias + 1, bias);
   // Significand
   BitType h = zinvul::NumericLimits<BitType>::max();
@@ -362,7 +361,7 @@ Float makeNormalF(const Float x, const Float scale) noexcept
   h = zinvul::Fnv1aHashEngine<BitType>::hash(h);
   const Float s = FloatInfo::mapTo01(h);
 
-  Float normal = s * zinvul::pow(two, static_cast<Float>(exponent));
+  Float normal = s * zinvul::pow(two, exponent);
   normal = signb * zinvul::clamp(normal,
                                  zinvul::NumericLimits<Float>::min(),
                                  zinvul::NumericLimits<Float>::max());
