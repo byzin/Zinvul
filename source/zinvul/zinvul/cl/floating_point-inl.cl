@@ -12,6 +12,7 @@
 
 #include "floating_point.cl"
 // Zinvul
+#include "algorithm.cl"
 #include "math.cl"
 #include "relational.cl"
 #include "types.cl"
@@ -300,8 +301,9 @@ auto FloatingPoint<kFormat>::round(
   using CmpResult = ComparisonResultType<BitVec<kN>>;
   constexpr BitType one = BitType{0b01};
   constexpr BitType middle = one << (significandBitSize() - 1);
-  const CmpResult flag = (cast<CmpResult>(truncated_bit == middle) & isOdd(bit)) |
-                         cast<CmpResult>(middle < truncated_bit);
+  const CmpResult flag =
+      (cast<CmpResult>(truncated_bit == middle) & Algorithm::isOdd(bit)) |
+       cast<CmpResult>(middle < truncated_bit);
   const BitVec<kN> next = bit + one;
   const BitVec<kN> result = zinvul::select(bit, next, flag);
   return result;

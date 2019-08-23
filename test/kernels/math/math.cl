@@ -75,18 +75,6 @@ __kernel void testRintBuiltin(GlobalPtr<float> inputs,
 __kernel void testRintZinvul(GlobalPtr<float> inputs,
     GlobalPtr<float> results,
     const uint32b resolution);
-__kernel void testFract(GlobalPtr<float> inputs,
-    GlobalPtr<float> results,
-    GlobalPtr<float> fresults,
-    const uint32b resolution);
-__kernel void testFractBuiltin(GlobalPtr<float> inputs,
-    GlobalPtr<float> results,
-    GlobalPtr<float> fresults,
-    const uint32b resolution);
-__kernel void testFractZinvul(GlobalPtr<float> inputs,
-    GlobalPtr<float> results,
-    GlobalPtr<float> fresults,
-    const uint32b resolution);
 __kernel void testFmod(GlobalPtr<float> xinputs,
     GlobalPtr<float> yinputs,
     GlobalPtr<float> results,
@@ -269,6 +257,18 @@ __kernel void testFrLdexpZinvul(GlobalPtr<float> inputs,
     GlobalPtr<float> fresults,
     GlobalPtr<int32b> eresults,
     GlobalPtr<float> lresults,
+    const uint32b resolution);
+__kernel void testModf(GlobalPtr<float> inputs,
+    GlobalPtr<float> results,
+    GlobalPtr<float> fresults,
+    const uint32b resolution);
+__kernel void testModfBuiltin(GlobalPtr<float> inputs,
+    GlobalPtr<float> results,
+    GlobalPtr<float> fresults,
+    const uint32b resolution);
+__kernel void testModfZinvul(GlobalPtr<float> inputs,
+    GlobalPtr<float> results,
+    GlobalPtr<float> fresults,
     const uint32b resolution);
 __kernel void testCopysign(GlobalPtr<float> xinputs,
     GlobalPtr<float> yinputs,
@@ -1230,234 +1230,6 @@ __kernel void testRintZinvul(GlobalPtr<float> inputs,
   }
 }
 
-__kernel void testFract(GlobalPtr<float> inputs,
-    GlobalPtr<float> results,
-    GlobalPtr<float> fresults,
-    const uint32b resolution)
-{
-  const uint32b index = zinvul::getGlobalIdX();
-  if (index < resolution) {
-    constexpr uint32b n = 10u;
-    const uint32b gresolution = n * resolution;
-    const uint32b gindex = n * index;
-
-    {
-      const float x = test::makeNormal<float>(gindex, gresolution);
-      inputs[gindex] = x;
-      float i = 0.0f;
-      const auto y = zinvul::fract(x, &i);
-      results[gindex] = y;
-      fresults[gindex] = i;
-    }
-    {
-      const float2 x{test::makeNormal<float>(gindex + 1, gresolution),
-                     test::makeNormal<float>(gindex + 2, gresolution)};
-      inputs[gindex + 1] = x.x;
-      inputs[gindex + 2] = x.y;
-      float2 i{0.0f, 0.0f};
-      const auto y = zinvul::fract(x, &i);
-      results[gindex + 1] = y.x;
-      results[gindex + 2] = y.y;
-      fresults[gindex + 1] = i.x;
-      fresults[gindex + 2] = i.y;
-    }
-    {
-      const float3 x{test::makeNormal<float>(gindex + 3, gresolution),
-                     test::makeNormal<float>(gindex + 4, gresolution),
-                     test::makeNormal<float>(gindex + 5, gresolution)};
-      inputs[gindex + 3] = x.x;
-      inputs[gindex + 4] = x.y;
-      inputs[gindex + 5] = x.z;
-      float3 i{0.0f, 0.0f, 0.0f};
-      const auto y = zinvul::fract(x, &i);
-      results[gindex + 3] = y.x;
-      results[gindex + 4] = y.y;
-      results[gindex + 5] = y.z;
-      fresults[gindex + 3] = i.x;
-      fresults[gindex + 4] = i.y;
-      fresults[gindex + 5] = i.z;
-    }
-    {
-      float4 x{test::makeNormal<float>(gindex + 6, gresolution),
-               test::makeNormal<float>(gindex + 7, gresolution),
-               test::makeNormal<float>(gindex + 8, gresolution),
-               test::makeNormal<float>(gindex + 9, gresolution)};
-      if (index == (resolution - 1)) {
-        x = float4{0.0f,
-                   zinvul::NumericLimits<float>::infinity(),
-                   -zinvul::NumericLimits<float>::infinity(),
-                   zinvul::NumericLimits<float>::quietNan()};
-      }
-      inputs[gindex + 6] = x.x;
-      inputs[gindex + 7] = x.y;
-      inputs[gindex + 8] = x.z;
-      inputs[gindex + 9] = x.w;
-      float4 i{0.0f, 0.0f, 0.0f, 0.0f};
-      const auto y = zinvul::fract(x, &i);
-      results[gindex + 6] = y.x;
-      results[gindex + 7] = y.y;
-      results[gindex + 8] = y.z;
-      results[gindex + 9] = y.w;
-      fresults[gindex + 6] = i.x;
-      fresults[gindex + 7] = i.y;
-      fresults[gindex + 8] = i.z;
-      fresults[gindex + 9] = i.w;
-    }
-  }
-}
-
-__kernel void testFractBuiltin(GlobalPtr<float> inputs,
-    GlobalPtr<float> results,
-    GlobalPtr<float> fresults,
-    const uint32b resolution)
-{
-  const uint32b index = zinvul::getGlobalIdX();
-  if (index < resolution) {
-    constexpr uint32b n = 10u;
-    const uint32b gresolution = n * resolution;
-    const uint32b gindex = n * index;
-
-    {
-      const float x = test::makeNormal<float>(gindex, gresolution);
-      inputs[gindex] = x;
-      float i = 0.0f;
-      const auto y = zinvul::Math::Builtin::fract(x, &i);
-      results[gindex] = y;
-      fresults[gindex] = i;
-    }
-    {
-      const float2 x{test::makeNormal<float>(gindex + 1, gresolution),
-                     test::makeNormal<float>(gindex + 2, gresolution)};
-      inputs[gindex + 1] = x.x;
-      inputs[gindex + 2] = x.y;
-      float2 i{0.0f, 0.0f};
-      const auto y = zinvul::Math::Builtin::fract(x, &i);
-      results[gindex + 1] = y.x;
-      results[gindex + 2] = y.y;
-      fresults[gindex + 1] = i.x;
-      fresults[gindex + 2] = i.y;
-    }
-    {
-      const float3 x{test::makeNormal<float>(gindex + 3, gresolution),
-                     test::makeNormal<float>(gindex + 4, gresolution),
-                     test::makeNormal<float>(gindex + 5, gresolution)};
-      inputs[gindex + 3] = x.x;
-      inputs[gindex + 4] = x.y;
-      inputs[gindex + 5] = x.z;
-      float3 i{0.0f, 0.0f, 0.0f};
-      const auto y = zinvul::Math::Builtin::fract(x, &i);
-      results[gindex + 3] = y.x;
-      results[gindex + 4] = y.y;
-      results[gindex + 5] = y.z;
-      fresults[gindex + 3] = i.x;
-      fresults[gindex + 4] = i.y;
-      fresults[gindex + 5] = i.z;
-    }
-    {
-      float4 x{test::makeNormal<float>(gindex + 6, gresolution),
-               test::makeNormal<float>(gindex + 7, gresolution),
-               test::makeNormal<float>(gindex + 8, gresolution),
-               test::makeNormal<float>(gindex + 9, gresolution)};
-      if (index == (resolution - 1)) {
-        x = float4{0.0f,
-                   zinvul::NumericLimits<float>::infinity(),
-                   -zinvul::NumericLimits<float>::infinity(),
-                   zinvul::NumericLimits<float>::quietNan()};
-      }
-      inputs[gindex + 6] = x.x;
-      inputs[gindex + 7] = x.y;
-      inputs[gindex + 8] = x.z;
-      inputs[gindex + 9] = x.w;
-      float4 i{0.0f, 0.0f, 0.0f, 0.0f};
-      const auto y = zinvul::Math::Builtin::fract(x, &i);
-      results[gindex + 6] = y.x;
-      results[gindex + 7] = y.y;
-      results[gindex + 8] = y.z;
-      results[gindex + 9] = y.w;
-      fresults[gindex + 6] = i.x;
-      fresults[gindex + 7] = i.y;
-      fresults[gindex + 8] = i.z;
-      fresults[gindex + 9] = i.w;
-    }
-  }
-}
-
-__kernel void testFractZinvul(GlobalPtr<float> inputs,
-    GlobalPtr<float> results,
-    GlobalPtr<float> fresults,
-    const uint32b resolution)
-{
-  const uint32b index = zinvul::getGlobalIdX();
-  if (index < resolution) {
-    constexpr uint32b n = 10u;
-    const uint32b gresolution = n * resolution;
-    const uint32b gindex = n * index;
-
-    {
-      const float x = test::makeNormal<float>(gindex, gresolution);
-      inputs[gindex] = x;
-      float i = 0.0f;
-      const auto y = zinvul::Math::Zinvul::fract(x, &i);
-      results[gindex] = y;
-      fresults[gindex] = i;
-    }
-    {
-      const float2 x{test::makeNormal<float>(gindex + 1, gresolution),
-                     test::makeNormal<float>(gindex + 2, gresolution)};
-      inputs[gindex + 1] = x.x;
-      inputs[gindex + 2] = x.y;
-      float2 i{0.0f, 0.0f};
-      const auto y = zinvul::Math::Zinvul::fract(x, &i);
-      results[gindex + 1] = y.x;
-      results[gindex + 2] = y.y;
-      fresults[gindex + 1] = i.x;
-      fresults[gindex + 2] = i.y;
-    }
-    {
-      const float3 x{test::makeNormal<float>(gindex + 3, gresolution),
-                     test::makeNormal<float>(gindex + 4, gresolution),
-                     test::makeNormal<float>(gindex + 5, gresolution)};
-      inputs[gindex + 3] = x.x;
-      inputs[gindex + 4] = x.y;
-      inputs[gindex + 5] = x.z;
-      float3 i{0.0f, 0.0f, 0.0f};
-      const auto y = zinvul::Math::Zinvul::fract(x, &i);
-      results[gindex + 3] = y.x;
-      results[gindex + 4] = y.y;
-      results[gindex + 5] = y.z;
-      fresults[gindex + 3] = i.x;
-      fresults[gindex + 4] = i.y;
-      fresults[gindex + 5] = i.z;
-    }
-    {
-      float4 x{test::makeNormal<float>(gindex + 6, gresolution),
-               test::makeNormal<float>(gindex + 7, gresolution),
-               test::makeNormal<float>(gindex + 8, gresolution),
-               test::makeNormal<float>(gindex + 9, gresolution)};
-      if (index == (resolution - 1)) {
-        x = float4{0.0f,
-                   zinvul::NumericLimits<float>::infinity(),
-                   -zinvul::NumericLimits<float>::infinity(),
-                   zinvul::NumericLimits<float>::quietNan()};
-      }
-      inputs[gindex + 6] = x.x;
-      inputs[gindex + 7] = x.y;
-      inputs[gindex + 8] = x.z;
-      inputs[gindex + 9] = x.w;
-      float4 i{0.0f, 0.0f, 0.0f, 0.0f};
-      const auto y = zinvul::Math::Zinvul::fract(x, &i);
-      results[gindex + 6] = y.x;
-      results[gindex + 7] = y.y;
-      results[gindex + 8] = y.z;
-      results[gindex + 9] = y.w;
-      fresults[gindex + 6] = i.x;
-      fresults[gindex + 7] = i.y;
-      fresults[gindex + 8] = i.z;
-      fresults[gindex + 9] = i.w;
-    }
-  }
-}
-
 __kernel void testFmod(GlobalPtr<float> xinputs,
     GlobalPtr<float> yinputs,
     GlobalPtr<float> results,
@@ -5163,6 +4935,234 @@ __kernel void testFrLdexpZinvul(GlobalPtr<float> inputs,
       lresults[gindex + 7] = x.y;
       lresults[gindex + 8] = x.z;
       lresults[gindex + 9] = x.w;
+    }
+  }
+}
+
+__kernel void testModf(GlobalPtr<float> inputs,
+    GlobalPtr<float> results,
+    GlobalPtr<float> fresults,
+    const uint32b resolution)
+{
+  const uint32b index = zinvul::getGlobalIdX();
+  if (index < resolution) {
+    constexpr uint32b n = 10u;
+    const uint32b gresolution = n * resolution;
+    const uint32b gindex = n * index;
+
+    {
+      const float x = test::makeNormal<float>(gindex, gresolution);
+      inputs[gindex] = x;
+      float i = 0.0f;
+      const auto y = zinvul::modf(x, &i);
+      results[gindex] = y;
+      fresults[gindex] = i;
+    }
+    {
+      const float2 x{test::makeNormal<float>(gindex + 1, gresolution),
+                     test::makeNormal<float>(gindex + 2, gresolution)};
+      inputs[gindex + 1] = x.x;
+      inputs[gindex + 2] = x.y;
+      float2 i{0.0f, 0.0f};
+      const auto y = zinvul::modf(x, &i);
+      results[gindex + 1] = y.x;
+      results[gindex + 2] = y.y;
+      fresults[gindex + 1] = i.x;
+      fresults[gindex + 2] = i.y;
+    }
+    {
+      const float3 x{test::makeNormal<float>(gindex + 3, gresolution),
+                     test::makeNormal<float>(gindex + 4, gresolution),
+                     test::makeNormal<float>(gindex + 5, gresolution)};
+      inputs[gindex + 3] = x.x;
+      inputs[gindex + 4] = x.y;
+      inputs[gindex + 5] = x.z;
+      float3 i{0.0f, 0.0f, 0.0f};
+      const auto y = zinvul::modf(x, &i);
+      results[gindex + 3] = y.x;
+      results[gindex + 4] = y.y;
+      results[gindex + 5] = y.z;
+      fresults[gindex + 3] = i.x;
+      fresults[gindex + 4] = i.y;
+      fresults[gindex + 5] = i.z;
+    }
+    {
+      float4 x{test::makeNormal<float>(gindex + 6, gresolution),
+               test::makeNormal<float>(gindex + 7, gresolution),
+               test::makeNormal<float>(gindex + 8, gresolution),
+               test::makeNormal<float>(gindex + 9, gresolution)};
+      if (index == (resolution - 1)) {
+        x = float4{0.0f,
+                   zinvul::NumericLimits<float>::infinity(),
+                   -zinvul::NumericLimits<float>::infinity(),
+                   zinvul::NumericLimits<float>::quietNan()};
+      }
+      inputs[gindex + 6] = x.x;
+      inputs[gindex + 7] = x.y;
+      inputs[gindex + 8] = x.z;
+      inputs[gindex + 9] = x.w;
+      float4 i{0.0f, 0.0f, 0.0f, 0.0f};
+      const auto y = zinvul::modf(x, &i);
+      results[gindex + 6] = y.x;
+      results[gindex + 7] = y.y;
+      results[gindex + 8] = y.z;
+      results[gindex + 9] = y.w;
+      fresults[gindex + 6] = i.x;
+      fresults[gindex + 7] = i.y;
+      fresults[gindex + 8] = i.z;
+      fresults[gindex + 9] = i.w;
+    }
+  }
+}
+
+__kernel void testModfBuiltin(GlobalPtr<float> inputs,
+    GlobalPtr<float> results,
+    GlobalPtr<float> fresults,
+    const uint32b resolution)
+{
+  const uint32b index = zinvul::getGlobalIdX();
+  if (index < resolution) {
+    constexpr uint32b n = 10u;
+    const uint32b gresolution = n * resolution;
+    const uint32b gindex = n * index;
+
+    {
+      const float x = test::makeNormal<float>(gindex, gresolution);
+      inputs[gindex] = x;
+      float i = 0.0f;
+      const auto y = zinvul::Math::Builtin::modf(x, &i);
+      results[gindex] = y;
+      fresults[gindex] = i;
+    }
+    {
+      const float2 x{test::makeNormal<float>(gindex + 1, gresolution),
+                     test::makeNormal<float>(gindex + 2, gresolution)};
+      inputs[gindex + 1] = x.x;
+      inputs[gindex + 2] = x.y;
+      float2 i{0.0f, 0.0f};
+      const auto y = zinvul::Math::Builtin::modf(x, &i);
+      results[gindex + 1] = y.x;
+      results[gindex + 2] = y.y;
+      fresults[gindex + 1] = i.x;
+      fresults[gindex + 2] = i.y;
+    }
+    {
+      const float3 x{test::makeNormal<float>(gindex + 3, gresolution),
+                     test::makeNormal<float>(gindex + 4, gresolution),
+                     test::makeNormal<float>(gindex + 5, gresolution)};
+      inputs[gindex + 3] = x.x;
+      inputs[gindex + 4] = x.y;
+      inputs[gindex + 5] = x.z;
+      float3 i{0.0f, 0.0f, 0.0f};
+      const auto y = zinvul::Math::Builtin::modf(x, &i);
+      results[gindex + 3] = y.x;
+      results[gindex + 4] = y.y;
+      results[gindex + 5] = y.z;
+      fresults[gindex + 3] = i.x;
+      fresults[gindex + 4] = i.y;
+      fresults[gindex + 5] = i.z;
+    }
+    {
+      float4 x{test::makeNormal<float>(gindex + 6, gresolution),
+               test::makeNormal<float>(gindex + 7, gresolution),
+               test::makeNormal<float>(gindex + 8, gresolution),
+               test::makeNormal<float>(gindex + 9, gresolution)};
+      if (index == (resolution - 1)) {
+        x = float4{0.0f,
+                   zinvul::NumericLimits<float>::infinity(),
+                   -zinvul::NumericLimits<float>::infinity(),
+                   zinvul::NumericLimits<float>::quietNan()};
+      }
+      inputs[gindex + 6] = x.x;
+      inputs[gindex + 7] = x.y;
+      inputs[gindex + 8] = x.z;
+      inputs[gindex + 9] = x.w;
+      float4 i{0.0f, 0.0f, 0.0f, 0.0f};
+      const auto y = zinvul::Math::Builtin::modf(x, &i);
+      results[gindex + 6] = y.x;
+      results[gindex + 7] = y.y;
+      results[gindex + 8] = y.z;
+      results[gindex + 9] = y.w;
+      fresults[gindex + 6] = i.x;
+      fresults[gindex + 7] = i.y;
+      fresults[gindex + 8] = i.z;
+      fresults[gindex + 9] = i.w;
+    }
+  }
+}
+
+__kernel void testModfZinvul(GlobalPtr<float> inputs,
+    GlobalPtr<float> results,
+    GlobalPtr<float> fresults,
+    const uint32b resolution)
+{
+  const uint32b index = zinvul::getGlobalIdX();
+  if (index < resolution) {
+    constexpr uint32b n = 10u;
+    const uint32b gresolution = n * resolution;
+    const uint32b gindex = n * index;
+
+    {
+      const float x = test::makeNormal<float>(gindex, gresolution);
+      inputs[gindex] = x;
+      float i = 0.0f;
+      const auto y = zinvul::Math::Zinvul::modf(x, &i);
+      results[gindex] = y;
+      fresults[gindex] = i;
+    }
+    {
+      const float2 x{test::makeNormal<float>(gindex + 1, gresolution),
+                     test::makeNormal<float>(gindex + 2, gresolution)};
+      inputs[gindex + 1] = x.x;
+      inputs[gindex + 2] = x.y;
+      float2 i{0.0f, 0.0f};
+      const auto y = zinvul::Math::Zinvul::modf(x, &i);
+      results[gindex + 1] = y.x;
+      results[gindex + 2] = y.y;
+      fresults[gindex + 1] = i.x;
+      fresults[gindex + 2] = i.y;
+    }
+    {
+      const float3 x{test::makeNormal<float>(gindex + 3, gresolution),
+                     test::makeNormal<float>(gindex + 4, gresolution),
+                     test::makeNormal<float>(gindex + 5, gresolution)};
+      inputs[gindex + 3] = x.x;
+      inputs[gindex + 4] = x.y;
+      inputs[gindex + 5] = x.z;
+      float3 i{0.0f, 0.0f, 0.0f};
+      const auto y = zinvul::Math::Zinvul::modf(x, &i);
+      results[gindex + 3] = y.x;
+      results[gindex + 4] = y.y;
+      results[gindex + 5] = y.z;
+      fresults[gindex + 3] = i.x;
+      fresults[gindex + 4] = i.y;
+      fresults[gindex + 5] = i.z;
+    }
+    {
+      float4 x{test::makeNormal<float>(gindex + 6, gresolution),
+               test::makeNormal<float>(gindex + 7, gresolution),
+               test::makeNormal<float>(gindex + 8, gresolution),
+               test::makeNormal<float>(gindex + 9, gresolution)};
+      if (index == (resolution - 1)) {
+        x = float4{0.0f,
+                   zinvul::NumericLimits<float>::infinity(),
+                   -zinvul::NumericLimits<float>::infinity(),
+                   zinvul::NumericLimits<float>::quietNan()};
+      }
+      inputs[gindex + 6] = x.x;
+      inputs[gindex + 7] = x.y;
+      inputs[gindex + 8] = x.z;
+      inputs[gindex + 9] = x.w;
+      float4 i{0.0f, 0.0f, 0.0f, 0.0f};
+      const auto y = zinvul::Math::Zinvul::modf(x, &i);
+      results[gindex + 6] = y.x;
+      results[gindex + 7] = y.y;
+      results[gindex + 8] = y.z;
+      results[gindex + 9] = y.w;
+      fresults[gindex + 6] = i.x;
+      fresults[gindex + 7] = i.y;
+      fresults[gindex + 8] = i.z;
+      fresults[gindex + 9] = i.w;
     }
   }
 }

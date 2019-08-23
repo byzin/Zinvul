@@ -29,11 +29,11 @@ class Config
   //! Check if built-in 'ldexp' is used
   static constexpr bool isBuiltinMathLdexpUsed() noexcept;
 
+  //! Check if built-in 'modf' is used
+  static constexpr bool isBuiltinMathModfUsed() noexcept;
+
   //! Check if built-in 'round' is used
   static constexpr bool isBuiltinMathRoundUsed() noexcept;
-
-  //! Check if built-in 'fract' is used
-  static constexpr bool isBuiltinMathFractUsed() noexcept;
 
   //! Check if built-in 'fmod' is used
   static constexpr bool isBuiltinMathFmodUsed() noexcept;

@@ -104,27 +104,6 @@ FloatN Math::round(const FloatN& x) noexcept
 /*!
   */
 template <typename FloatN> inline
-FloatN Math::fract(const FloatN& x, FloatN* iptr) noexcept
-{
-  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-  // Scalar
-  if constexpr (is_scalar_type) {
-    constexpr FloatN k = zisc::cast<FloatN>(0x1.fffffep-1f);
-    const FloatN i = floor(x);
-    const FloatN y = min(x - i, k);
-    *iptr = i;
-    return y;
-  }
-  // Vector
-  else {
-    const auto y = Vec::fract(x, iptr);
-    return y;
-  }
-}
-
-/*!
-  */
-template <typename FloatN> inline
 FloatN Math::fmod(const FloatN& x, const FloatN& y) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
@@ -461,6 +440,24 @@ FloatN Math::ldexp(const FloatN& x, const IntegerN& e) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN Math::modf(const FloatN& x, FloatN* iptr) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    const auto y = std::modf(x, iptr);
+    return y;
+  }
+  // Vector
+  else {
+    const auto y = Vec::modf(x, iptr);
+    return y;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN Math::copysign(const FloatN& x, const FloatN& y) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
@@ -509,16 +506,6 @@ auto Math::Vec::round(const Vector<Float, kN>& x) noexcept
   Vector<Float, kN> result;
   for (size_t i = 0; i < kN; ++i)
     result[i] = Math::round(x[i]);
-  return result;
-}
-
-template <typename Float, size_t kN> inline
-auto Math::Vec::fract(const Vector<Float, kN>& x,
-                      Vector<Float, kN>* iptr) noexcept
-{
-  Vector<Float, kN> result;
-  for (size_t i = 0; i < kN; ++i)
-    result[i] = Math::fract(x[i], &(*iptr)[i]);
   return result;
 }
 
@@ -694,6 +681,16 @@ auto Math::Vec::ldexp(const Vector<Float, kN>& x,
   return result;
 }
 
+template <typename Float, size_t kN> inline
+auto Math::Vec::modf(const Vector<Float, kN>& x,
+                     Vector<Float, kN>* iptr) noexcept
+{
+  Vector<Float, kN> result;
+  for (size_t i = 0; i < kN; ++i)
+    result[i] = Math::modf(x[i], &(*iptr)[i]);
+  return result;
+}
+
 /*!
   */
 template <typename Float, size_t kN> inline
@@ -739,15 +736,6 @@ template <typename FloatN> inline
 FloatN round(const FloatN& x) noexcept
 {
   const auto y = Math::round(x);
-  return y;
-}
-
-/*!
-  */
-template <typename FloatN> inline
-FloatN fract(const FloatN& x, FloatN* iptr) noexcept
-{
-  const auto y = Math::fract(x, iptr);
   return y;
 }
 
@@ -919,6 +907,15 @@ template <typename FloatN, typename IntegerN> inline
 FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept
 {
   const auto y = Math::ldexp(x, e);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN modf(const FloatN& x, FloatN* iptr) noexcept
+{
+  const auto y = Math::modf(x, iptr);
   return y;
 }
 

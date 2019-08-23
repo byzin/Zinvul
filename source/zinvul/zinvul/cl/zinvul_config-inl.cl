@@ -55,24 +55,24 @@ constexpr bool Config::isBuiltinMathLdexpUsed() noexcept
 /*!
   */
 inline
-constexpr bool Config::isBuiltinMathRoundUsed() noexcept
+constexpr bool Config::isBuiltinMathModfUsed() noexcept
 {
   bool flag = isBuiltinMathUsed();
-#if defined(ZINVUL_MATH_BUILTIN_ROUND)
+#if defined(ZINVUL_MATH_BUILTIN_MODF)
   flag = true;
-#endif // ZINVUL_MATH_BUILTIN_ROUND
+#endif // ZINVUL_MATH_BUILTIN_MODF
   return flag;
 }
 
 /*!
   */
 inline
-constexpr bool Config::isBuiltinMathFractUsed() noexcept
+constexpr bool Config::isBuiltinMathRoundUsed() noexcept
 {
   bool flag = isBuiltinMathUsed();
-#if defined(ZINVUL_MATH_BUILTIN_FRACT)
+#if defined(ZINVUL_MATH_BUILTIN_ROUND)
   flag = true;
-#endif // ZINVUL_MATH_BUILTIN_FRACT
+#endif // ZINVUL_MATH_BUILTIN_ROUND
   return flag;
 }
 

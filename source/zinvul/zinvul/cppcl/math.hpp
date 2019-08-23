@@ -139,10 +139,6 @@ class Math
 
   // Basic operations
 
-  //! Return the remainder of the floating point division operation by 1
-  template <typename FloatN>
-  static FloatN fract(const FloatN& x, FloatN* iptr) noexcept;
-
   //! Return the remainder of the floating point division operation
   template <typename FloatN>
   static FloatN fmod(const FloatN& x, const FloatN& y) noexcept;
@@ -227,6 +223,10 @@ class Math
   template <typename FloatN, typename IntegerN>
   static FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
 
+  //! Decompose a number into integer and fractional parts
+  template <typename FloatN>
+  static FloatN modf(const FloatN& x, FloatN* iptr) noexcept;
+
   //! Copy the sign of a floating point value
   template <typename FloatN>
   static FloatN copysign(const FloatN& x, const FloatN& y) noexcept;
@@ -256,11 +256,6 @@ class Math
     static auto round(const Vector<Float, kN>& x) noexcept;
 
     // Basic operations
-
-    //! Return the remainder of the floating point division operation by 1
-    template <typename Float, size_t kN>
-    static auto fract(const Vector<Float, kN>& x,
-                      Vector<Float, kN>* iptr) noexcept;
 
     //! Return the remainder of the floating point division operation
     template <typename Float, size_t kN>
@@ -348,6 +343,11 @@ class Math
     static auto ldexp(const Vector<Float, kN>& x,
                       const Vector<Integer, kN>& e) noexcept;
 
+    //! Decompose a number into integer and fractional parts
+    template <typename Float, size_t kN>
+    static auto modf(const Vector<Float, kN>& x,
+                     Vector<Float, kN>* iptr) noexcept;
+
     //! Copy the sign of a floating point value
     template <typename Float, size_t kN>
     static auto copysign(const Vector<Float, kN>& x,
@@ -376,10 +376,6 @@ template <typename FloatN>
 FloatN round(const FloatN& x) noexcept;
 
 // Basic operations
-
-//! Return the remainder of the floating point division operation by 1
-template <typename FloatN>
-FloatN fract(const FloatN& x, FloatN* iptr) noexcept;
 
 //! Return the remainder of the floating point division operation
 template <typename FloatN>
@@ -464,6 +460,10 @@ FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
 //! Multiplie a number by 2 raised to a power 
 template <typename FloatN, typename IntegerN>
 FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
+
+//! Decompose a number into integer and fractional parts
+template <typename FloatN>
+FloatN modf(const FloatN& x, FloatN* iptr) noexcept;
 
 //! Copy the sign of a floating point value
 template <typename FloatN>
