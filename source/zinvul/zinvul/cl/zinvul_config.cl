@@ -29,6 +29,9 @@ class Config
   //! Check if built-in 'ldexp' is used
   static constexpr bool isBuiltinMathLdexpUsed() noexcept;
 
+  //! Check if built-in 'ilogb' is used
+  static constexpr bool isBuiltinMathIlogbUsed() noexcept;
+
   //! Check if built-in 'modf' is used
   static constexpr bool isBuiltinMathModfUsed() noexcept;
 

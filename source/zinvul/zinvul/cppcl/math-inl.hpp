@@ -440,6 +440,24 @@ FloatN Math::ldexp(const FloatN& x, const IntegerN& e) noexcept
 /*!
   */
 template <typename FloatN> inline
+auto Math::ilogb(const FloatN& x) noexcept
+{
+  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
+  // Scalar
+  if constexpr (is_scalar_type) {
+    const int32b y = std::ilogb(x);
+    return y;
+  }
+  // Vector
+  else {
+    const auto y = Vec::ilogb(x);
+    return y;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN Math::modf(const FloatN& x, FloatN* iptr) noexcept
 {
   constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
@@ -682,6 +700,15 @@ auto Math::Vec::ldexp(const Vector<Float, kN>& x,
 }
 
 template <typename Float, size_t kN> inline
+auto Math::Vec::ilogb(const Vector<Float, kN>& x) noexcept
+{
+  Vector<int32b, kN> result;
+  for (size_t i = 0; i < kN; ++i)
+    result[i] = Math::ilogb(x[i]);
+  return result;
+}
+
+template <typename Float, size_t kN> inline
 auto Math::Vec::modf(const Vector<Float, kN>& x,
                      Vector<Float, kN>* iptr) noexcept
 {
@@ -907,6 +934,15 @@ template <typename FloatN, typename IntegerN> inline
 FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept
 {
   const auto y = Math::ldexp(x, e);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+auto ilogb(const FloatN& x) noexcept
+{
+  const auto y = Math::ilogb(x);
   return y;
 }
 

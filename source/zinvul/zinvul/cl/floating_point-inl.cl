@@ -182,8 +182,8 @@ constexpr size_t FloatingPoint<kFormat>::exponentBitSize() noexcept
 template <FloatingPointFormat kFormat> inline
 constexpr auto FloatingPoint<kFormat>::halfBit() noexcept -> BitType
 {
-  const auto exp_bit = static_cast<BitType>((exponentBias() - 1) <<
-                                            significandBitSize());
+  constexpr auto exp_bias = static_cast<BitType>(exponentBias());
+  const auto exp_bit = static_cast<BitType>((exp_bias - 1) << significandBitSize());
   return exp_bit;
 }
 
@@ -276,7 +276,8 @@ auto FloatingPoint<kFormat>::mapTo01(const BitVec<4> x) noexcept
 template <FloatingPointFormat kFormat> inline
 constexpr auto FloatingPoint<kFormat>::oneBit() noexcept -> BitType
 {
-  const auto exp_bit = static_cast<BitType>(exponentBias() << significandBitSize());
+  constexpr auto exp_bias = static_cast<BitType>(exponentBias());
+  const auto exp_bit = static_cast<BitType>(exp_bias << significandBitSize());
   return exp_bit;
 }
 

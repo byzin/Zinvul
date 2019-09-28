@@ -14,6 +14,8 @@
 #pragma clang diagnostic ignored "-Wc++98-compat"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc++98-c++11-compat-pedantic"
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wc++98-c++11-c++14-compat-pedantic"
 
 // Definitions
 #define ZINVUL_GLOBAL_NAMESPACE
@@ -28,5 +30,6 @@ static_assert(false, "The ZINVUL_GLOBAL_NAMESPACE macro isn't defined.");
 
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
+//#pragma clang diagnostic pop
 
 #endif /* ZINVUL_@kernel_set_name@_CL */

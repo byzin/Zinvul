@@ -55,6 +55,18 @@ constexpr bool Config::isBuiltinMathLdexpUsed() noexcept
 /*!
   */
 inline
+constexpr bool Config::isBuiltinMathIlogbUsed() noexcept
+{
+  bool flag = isBuiltinMathUsed();
+#if defined(ZINVUL_MATH_BUILTIN_ILOGB)
+  flag = true;
+#endif // ZINVUL_MATH_BUILTIN_ILOGB
+  return flag;
+}
+
+/*!
+  */
+inline
 constexpr bool Config::isBuiltinMathModfUsed() noexcept
 {
   bool flag = isBuiltinMathUsed();

@@ -223,6 +223,10 @@ class Math
   template <typename FloatN, typename IntegerN>
   static FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
 
+  //! Extract exponent of the given number
+  template <typename FloatN>
+  static auto ilogb(const FloatN& x) noexcept;
+
   //! Decompose a number into integer and fractional parts
   template <typename FloatN>
   static FloatN modf(const FloatN& x, FloatN* iptr) noexcept;
@@ -343,6 +347,10 @@ class Math
     static auto ldexp(const Vector<Float, kN>& x,
                       const Vector<Integer, kN>& e) noexcept;
 
+    //! Extract exponent of the given number
+    template <typename Float, size_t kN>
+    static auto ilogb(const Vector<Float, kN>& x) noexcept;
+
     //! Decompose a number into integer and fractional parts
     template <typename Float, size_t kN>
     static auto modf(const Vector<Float, kN>& x,
@@ -460,6 +468,10 @@ FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
 //! Multiplie a number by 2 raised to a power 
 template <typename FloatN, typename IntegerN>
 FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
+
+//! Extract exponent of the given number
+template <typename FloatN>
+auto ilogb(const FloatN& x) noexcept;
 
 //! Decompose a number into integer and fractional parts
 template <typename FloatN>

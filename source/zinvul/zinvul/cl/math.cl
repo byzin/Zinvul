@@ -125,6 +125,10 @@ class Math
   template <typename FloatN, typename IntegerN>
   static FloatN ldexp(const FloatN x, const IntegerN e) noexcept;
 
+  //! Extracts exponent of the given number
+  template <typename FloatN>
+  static auto ilogb(const FloatN x) noexcept;
+
   //! Decompose a number into integer and fractional parts
   template <typename FloatN, typename FloatNPtr>
   static FloatN modf(const FloatN x, FloatNPtr iptr) noexcept;
@@ -242,6 +246,10 @@ class Math
     template <typename FloatN, typename IntegerN>
     static FloatN ldexp(const FloatN x, const IntegerN e) noexcept;
 
+    //! Extracts exponent of the given number
+    template <typename FloatN>
+    static auto ilogb(const FloatN x) noexcept;
+
     //! Decompose a number into integer and fractional parts
     template <typename FloatN, typename FloatNPtr>
     static FloatN modf(const FloatN x, FloatNPtr iptr) noexcept;
@@ -342,9 +350,121 @@ class Math
     template <typename FloatN, typename IntegerN>
     static FloatN ldexp(const FloatN x, const IntegerN e) noexcept;
 
+    //! Extracts exponent of the given number
+    template <typename FloatN>
+    static auto ilogb(const FloatN x) noexcept;
+
     //! Decompose a number into integer and fractional parts
     template <typename FloatN, typename FloatNPtr>
     static FloatN modf(const FloatN x, FloatNPtr iptr) noexcept;
+
+   private:
+    struct CbrtPolyConstants
+    {
+      template <size_t kIndex, typename Float>
+      static constexpr Float get() noexcept;
+    };
+
+    struct SinCosPolyConstants
+    {
+      template <size_t kIndex, typename Float>
+      static constexpr Float get() noexcept;
+    };
+
+    struct TanPolyConstants
+    {
+      template <size_t kIndex, typename Float>
+      static constexpr Float get() noexcept;
+    };
+
+    //! Evaluate polygomials using Estrin's method
+    template <typename Constants, size_t kIndex, typename FloatN>
+    static FloatN evalPoly2(const FloatN x) noexcept;
+
+    //! Evaluate polygomials using Estrin's method
+    template <typename Constants, size_t kIndex, typename FloatN>
+    static FloatN evalPoly4(const FloatN x1, const FloatN x2) noexcept;
+
+    //! Evaluate polygomials using Estrin's method
+    template <typename Constants, size_t kIndex, typename FloatN>
+    static FloatN evalPoly6(const FloatN x1,
+                            const FloatN x2,
+                            const FloatN x3) noexcept;
+
+    //! Evaluate polygomials using Estrin's method
+    template <typename Constant, size_t kIndex, typename FloatN>
+    static FloatN evalPoly8(const FloatN x1,
+                            const FloatN x2,
+                            const FloatN x3) noexcept;
+
+    //! Decompose a number into significand and power of 2
+    template <typename FloatN, typename IntegerNPtr>
+    static FloatN frexpImpl(const FloatN x, IntegerNPtr e) noexcept;
+
+    template <size_t kIndex, typename Float>
+    static constexpr auto getCbrtCoeff() noexcept;
+
+    template <typename Float>
+    static constexpr int32b getFrexpCoeff() noexcept;
+
+    template <int32b kTo, typename Float>
+    static constexpr Float getHalfNextafter() noexcept;
+
+    template <typename Float>
+    static constexpr int32b getIlogb0() noexcept;
+
+    template <typename Float>
+    static constexpr int32b getIlogbNan() noexcept;
+
+    template <size_t kIndex, typename Float>
+    static constexpr auto getIlogbCoeff() noexcept;
+
+    template <size_t kIndex, typename Float>
+    static constexpr Float getPi() noexcept;
+
+    template <size_t kIndex, typename Float>
+    static constexpr Float getPi2() noexcept;
+
+    template <size_t kIndex, typename Float>
+    static constexpr Float getTrigRangeMax() noexcept;
+
+    //! Extracts exponent of the given number
+    template <typename FloatN>
+    static auto ilogbImpl(FloatN x) noexcept;
+
+    template <typename FloatN>
+    static FloatN initFraction(const FloatN x) noexcept;
+
+    //! Multiply a number by 2 raised to a power
+    template <typename FloatN, typename IntegerN>
+    static FloatN ldexpImpl(const FloatN x, const IntegerN e) noexcept;
+
+    template <typename FloatN>
+    static FloatN mulsign(const FloatN x, const FloatN y) noexcept;
+
+    template <typename FloatN, typename IntegerN>
+    static FloatN pow2i(const IntegerN q) noexcept;
+
+    template <typename FloatN>
+    static FloatN rintImpl(const FloatN x) noexcept;
+
+    template <typename FloatN>
+    static FloatN sinImplF(const FloatN theta) noexcept;
+
+    template <typename FloatN>
+    static FloatN sinImplD(const FloatN theta) noexcept;
+
+    template <typename FloatN>
+    static FloatN cosImplF(const FloatN theta) noexcept;
+
+    template <typename FloatN>
+    static FloatN cosImplD(const FloatN theta) noexcept;
+
+    template <typename FloatN>
+    static FloatN tanImplF(const FloatN theta) noexcept;
+
+    template <typename FloatN>
+    static FloatN tanImplD(const FloatN theta) noexcept;
   };
 
  private:
@@ -461,6 +581,10 @@ FloatN frexp(const FloatN x, IntegerNPtr e) noexcept;
 //! Multiply a number by 2 raised to a power
 template <typename FloatN, typename IntegerN>
 FloatN ldexp(const FloatN x, const IntegerN e) noexcept;
+
+//! Extracts exponent of the given number
+template <typename FloatN>
+auto ilogb(const FloatN x) noexcept;
 
 //! Decompose a number into integer and fractional parts
 template <typename FloatN, typename FloatNPtr>
