@@ -127,6 +127,27 @@ ArithN Algorithm::min(const ArithN x, const ArithN y) noexcept
 
 /*!
   */
+template <typename Float1N, typename Float2N> inline
+Float1N Algorithm::mix(const Float1N x, const Float1N y, const Float2N a) noexcept
+{
+  static_assert(kIsFloatingPoint<Float1N>, "The Float1N isn't floating point.");
+  static_assert(kIsFloatingPoint<Float2N>, "The Float1N isn't floating point.");
+  const auto result = ZINVUL_GLOBAL_NAMESPACE::mix(x, y, a);
+  return result;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Algorithm::sign(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The Float1N isn't floating point.");
+  const auto result = ZINVUL_GLOBAL_NAMESPACE::sign(x);
+  return result;
+}
+
+/*!
+  */
 template <typename IntegerN> inline
 IntegerN Algorithm::popcount(const IntegerN x) noexcept
 {
@@ -176,6 +197,26 @@ ArithN min(const ArithN x, const ArithN y) noexcept
   return result;
 }
 
+/*!
+  */
+template <typename Float1N, typename Float2N> inline
+Float1N mix(const Float1N x, const Float1N y, const Float2N a) noexcept
+{
+  static_assert(kIsFloatingPoint<Float1N>, "The Float1N isn't floating point.");
+  static_assert(kIsFloatingPoint<Float2N>, "The Float1N isn't floating point.");
+  const auto result = Algorithm::mix(x, y, a);
+  return result;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN sign(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The Float1N isn't floating point.");
+  const auto result = Algorithm::sign(x);
+  return result;
+}
 /*!
   */
 template <typename IntegerN> inline

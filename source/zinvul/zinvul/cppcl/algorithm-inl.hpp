@@ -446,7 +446,7 @@ TypeN min(const TypeN& x, const TypeN& y) noexcept
 template <typename TypeN1, typename TypeN2> inline
 TypeN1 mix(const TypeN1& x, const TypeN1& y, const TypeN2& a) noexcept
 {
-  const auto result = Algorithm::min(x, y, a);
+  const auto result = Algorithm::mix(x, y, a);
   return result;
 }
 

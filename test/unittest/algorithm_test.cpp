@@ -1810,6 +1810,267 @@ TEST(AlgorithmTest, MinFloatTest)
   }
 }
 
+TEST(AlgorithmTest, MixScalarTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result1_buff->setSize(8);
+
+    auto result2_buff = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceOnly);
+    result2_buff->setSize(4);
+    auto result3_buff = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceOnly);
+    result3_buff->setSize(4);
+    auto result4_buff = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
+    result4_buff->setSize(4);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(algorithm, testMixScalar));
+    kernel->run(*result1_buff, *result2_buff, *result3_buff, *result4_buff, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'mix' func is wrong.";
+    {
+      std::vector<float> results;
+      results.resize(result1_buff->size());
+      result1_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(-1.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(0.4f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(-0.4f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i++]) << error_message; 
+    }
+    {
+      std::vector<cl::float2> results;
+      results.resize(result2_buff->size());
+      result2_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i++].y) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++].y) << error_message; 
+      ASSERT_FLOAT_EQ(0.4f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(-0.4f, results[i++].y) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i++].y) << error_message; 
+    }
+    {
+      std::vector<cl::float3> results;
+      results.resize(result3_buff->size());
+      result3_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(-100.0f, results[i++].z) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++].z) << error_message; 
+      ASSERT_FLOAT_EQ(0.4f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(-0.4f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(40.0f, results[i++].z) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(100.0f, results[i++].z) << error_message; 
+    }
+    {
+      std::vector<cl::float4> results;
+      results.resize(result4_buff->size());
+      result4_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(-100.0f, results[i].z) << error_message; 
+      ASSERT_FLOAT_EQ(100.0f, results[i++].w) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i].z) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message; 
+      ASSERT_FLOAT_EQ(0.4f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(-0.4f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(40.0f, results[i].z) << error_message; 
+      ASSERT_FLOAT_EQ(-40.0f, results[i++].w) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(100.0f, results[i].z) << error_message; 
+      ASSERT_FLOAT_EQ(-100.0f, results[i++].w) << error_message; 
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(AlgorithmTest, MixTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result1_buff->setSize(2);
+
+    auto result2_buff = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceOnly);
+    result2_buff->setSize(1);
+    auto result3_buff = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceOnly);
+    result3_buff->setSize(1);
+    auto result4_buff = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
+    result4_buff->setSize(1);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(algorithm, testMix));
+    kernel->run(*result1_buff, *result2_buff, *result3_buff, *result4_buff, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'mix' func is wrong.";
+    {
+      std::vector<float> results;
+      results.resize(result1_buff->size());
+      result1_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message; 
+    }
+    {
+      std::vector<cl::float2> results;
+      results.resize(result2_buff->size());
+      result2_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(-0.4f, results[i++].y) << error_message; 
+    }
+    {
+      std::vector<cl::float3> results;
+      results.resize(result3_buff->size());
+      result3_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(-0.4f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(100.0f, results[i++].z) << error_message; 
+    }
+    {
+      std::vector<cl::float4> results;
+      results.resize(result4_buff->size());
+      result4_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(40.0f, results[i].z) << error_message; 
+      ASSERT_FLOAT_EQ(-100.0f, results[i++].w) << error_message; 
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
+TEST(AlgorithmTest, SignTest)
+{
+  using namespace zinvul;
+
+  auto options = makeTestOptions();
+  auto device_list = makeTestDeviceList(options);
+  for (uint32b number = 0; number < device_list.size(); ++number) {
+    auto& device = device_list[number];
+    std::cout << getTestDeviceInfo(*device);
+
+    auto result1_buff = makeStorageBuffer<float>(device.get(), BufferUsage::kDeviceOnly);
+    result1_buff->setSize(7);
+
+    auto result2_buff = makeStorageBuffer<cl::float2>(device.get(), BufferUsage::kDeviceOnly);
+    result2_buff->setSize(4);
+    auto result3_buff = makeStorageBuffer<cl::float3>(device.get(), BufferUsage::kDeviceOnly);
+    result3_buff->setSize(3);
+    auto result4_buff = makeStorageBuffer<cl::float4>(device.get(), BufferUsage::kDeviceOnly);
+    result4_buff->setSize(2);
+
+    auto kernel = makeKernel<1>(device.get(), ZINVUL_MAKE_KERNEL_ARGS(algorithm, testSign));
+    kernel->run(*result1_buff, *result2_buff, *result3_buff, *result4_buff, {1}, 0);
+    device->waitForCompletion();
+
+    const char* error_message = "The 'sign' func is wrong.";
+    {
+      std::vector<float> results;
+      results.resize(result1_buff->size());
+      result1_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(-1.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i++]) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++]) << error_message; 
+    }
+    {
+      std::vector<cl::float2> results;
+      results.resize(result2_buff->size());
+      result2_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i++].y) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i++].y) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i++].y) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++].y) << error_message; 
+    }
+    {
+      std::vector<cl::float3> results;
+      results.resize(result3_buff->size());
+      result3_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++].z) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++].z) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++].z) << error_message; 
+    }
+    {
+      std::vector<cl::float4> results;
+      results.resize(result4_buff->size());
+      result4_buff->read(results.data(), results.size(), 0, 0);
+
+      uint32b i = 0;
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i].z) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i++].w) << error_message; 
+      ASSERT_FLOAT_EQ(-1.0f, results[i].x) << error_message; 
+      ASSERT_FLOAT_EQ(1.0f, results[i].y) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i].z) << error_message; 
+      ASSERT_FLOAT_EQ(0.0f, results[i++].w) << error_message; 
+    }
+
+    std::cout << getTestDeviceUsedMemory(*device) << std::endl;
+  }
+}
+
 //TEST(AlgorithmTest, Popcount8Test)
 //{
 //  using namespace zinvul;

@@ -114,6 +114,18 @@ __kernel void testMinFloat(GlobalPtr<float> results1,
     GlobalPtr<float2> results2,
     GlobalPtr<float3> results3,
     GlobalPtr<float4> results4);
+__kernel void testMixScalar(GlobalPtr<float> results1,
+    GlobalPtr<float2> results2,
+    GlobalPtr<float3> results3,
+    GlobalPtr<float4> results4);
+__kernel void testMix(GlobalPtr<float> results1,
+    GlobalPtr<float2> results2,
+    GlobalPtr<float3> results3,
+    GlobalPtr<float4> results4);
+__kernel void testSign(GlobalPtr<float> results1,
+    GlobalPtr<float2> results2,
+    GlobalPtr<float3> results3,
+    GlobalPtr<float4> results4);
 __kernel void testPopcount8(ConstGlobalPtr<uint8b> inputs,
     GlobalPtr<uint8b> results1,
     GlobalPtr<uchar2> results2,
@@ -1850,6 +1862,182 @@ __kernel void testMinFloat(GlobalPtr<float> results1,
       const float4 lhs = zinvul::makeFloat4(mini, 0.0f, maxi, maxi);
       const float4 rhs = zinvul::makeFloat4(maxi, mini, 0.0f, mini);
       results4[i++] = zinvul::min(lhs, rhs);
+    }
+  }
+}
+
+__kernel void testMixScalar(GlobalPtr<float> results1,
+    GlobalPtr<float2> results2,
+    GlobalPtr<float3> results3,
+    GlobalPtr<float4> results4)
+{
+  const uint32b index = zinvul::getGlobalIdX();
+  constexpr size_t a_size = 4;
+  constexpr float a_list[a_size] = {0.0f, 0.5f, 0.7f, 1.0f};
+  if (index == 0) {
+    size_t i = 0;
+    for (size_t j = 0; j < a_size; ++j) {
+      {
+        const float lhs = -1.0f;
+        const float rhs = 1.0f;
+        results1[i++] = zinvul::mix(lhs, rhs, a_list[j]);
+      }
+      {
+        const float lhs = 1.0f;
+        const float rhs = -1.0f;
+        results1[i++] = zinvul::mix(lhs, rhs, a_list[j]);
+      }
+    }
+
+    i = 0;
+    for (size_t j = 0; j < a_size; ++j) {
+      {
+        const float2 lhs = zinvul::makeFloat2(-1.0f, 1.0f);
+        const float2 rhs = zinvul::makeFloat2(1.0f, -1.0f);
+        results2[i++] = zinvul::mix(lhs, rhs, a_list[j]);
+      }
+    }
+
+    i = 0;
+    for (size_t j = 0; j < a_size; ++j) {
+      {
+        const float3 lhs = zinvul::makeFloat3(-1.0f, 1.0f, -100.0f);
+        const float3 rhs = zinvul::makeFloat3(1.0f, -1.0f, 100.0f);
+        results3[i++] = zinvul::mix(lhs, rhs, a_list[j]);
+      }
+    }
+
+    i = 0;
+    for (size_t j = 0; j < a_size; ++j) {
+      {
+        const float4 lhs = zinvul::makeFloat4(-1.0f, 1.0f, -100.0f, 100.0f);
+        const float4 rhs = zinvul::makeFloat4(1.0f, -1.0f, 100.0f, -100.0f);
+        results4[i++] = zinvul::mix(lhs, rhs, a_list[j]);
+      }
+    }
+  }
+}
+
+__kernel void testMix(GlobalPtr<float> results1,
+    GlobalPtr<float2> results2,
+    GlobalPtr<float3> results3,
+    GlobalPtr<float4> results4)
+{
+  const uint32b index = zinvul::getGlobalIdX();
+  if (index == 0) {
+    size_t i = 0;
+    {
+      const float lhs = -1.0f;
+      const float rhs = 1.0f;
+      const float a = 0.5f;
+      results1[i++] = zinvul::mix(lhs, rhs, a);
+    }
+    {
+      const float lhs = 1.0f;
+      const float rhs = -1.0f;
+      const float a = 0.5f;
+      results1[i++] = zinvul::mix(lhs, rhs, a);
+    }
+
+    i = 0;
+    {
+      const float2 lhs = zinvul::makeFloat2(-1.0f, 1.0f);
+      const float2 rhs = zinvul::makeFloat2(1.0f, -1.0f);
+      const float2 a = zinvul::makeFloat2(0.5f, 0.7f);
+      results2[i++] = zinvul::mix(lhs, rhs, a);
+    }
+
+    i = 0;
+    {
+      const float3 lhs = zinvul::makeFloat3(-1.0f, 1.0f, -100.0f);
+      const float3 rhs = zinvul::makeFloat3(1.0f, -1.0f, 100.0f);
+      const float3 a = zinvul::makeFloat3(0.5f, 0.7f, 1.0f);
+      results3[i++] = zinvul::mix(lhs, rhs, a);
+    }
+
+    i = 0;
+    {
+      const float4 lhs = zinvul::makeFloat4(-1.0f, 1.0f, -100.0f, 100.0f);
+      const float4 rhs = zinvul::makeFloat4(1.0f, -1.0f, 100.0f, -100.0f);
+      const float4 a = zinvul::makeFloat4(0.0f, 0.5f, 0.7f, 1.0f);
+      results4[i++] = zinvul::mix(lhs, rhs, a);
+    }
+  }
+}
+
+__kernel void testSign(GlobalPtr<float> results1,
+    GlobalPtr<float2> results2,
+    GlobalPtr<float3> results3,
+    GlobalPtr<float4> results4)
+{
+  const uint32b index = zinvul::getGlobalIdX();
+  if (index == 0) {
+    constexpr float maxi = zinvul::NumericLimits<float>::max();
+    constexpr float mini = zinvul::NumericLimits<float>::lowest();
+    constexpr float m = zinvul::NumericLimits<float>::min();
+    size_t i = 0;
+    {
+      results1[i++] = zinvul::sign(mini);
+    }
+    {
+      results1[i++] = zinvul::sign(maxi);
+    }
+    {
+      results1[i++] = zinvul::sign(-1.0f);
+    }
+    {
+      results1[i++] = zinvul::sign(1.0f);
+    }
+    {
+      results1[i++] = zinvul::sign(-m);
+    }
+    {
+      results1[i++] = zinvul::sign(m);
+    }
+    {
+      results1[i++] = zinvul::sign(0.0f);
+    }
+
+    i = 0;
+    {
+      const auto x = zinvul::makeFloat2(mini, maxi);
+      results2[i++] = zinvul::sign(x);
+    }
+    {
+      const auto x = zinvul::makeFloat2(-1.0f, 1.0f);
+      results2[i++] = zinvul::sign(x);
+    }
+    {
+      const auto x = zinvul::makeFloat2(-m, m);
+      results2[i++] = zinvul::sign(x);
+    }
+    {
+      const auto x = zinvul::makeFloat2(0.0f);
+      results2[i++] = zinvul::sign(x);
+    }
+
+    i = 0;
+    {
+      const auto x = zinvul::makeFloat3(mini, maxi, 0.0f);
+      results3[i++] = zinvul::sign(x);
+    }
+    {
+      const auto x = zinvul::makeFloat3(-1.0f, 1.0f, 0.0f);
+      results3[i++] = zinvul::sign(x);
+    }
+    {
+      const auto x = zinvul::makeFloat3(-m, m, 0.0f);
+      results3[i++] = zinvul::sign(x);
+    }
+
+    i = 0;
+    {
+      const auto x = zinvul::makeFloat4(mini, maxi, -1.0f, 1.0f);
+      results4[i++] = zinvul::sign(x);
+    }
+    {
+      const auto x = zinvul::makeFloat4(-m, m, 0.0f, 0.0f);
+      results4[i++] = zinvul::sign(x);
     }
   }
 }

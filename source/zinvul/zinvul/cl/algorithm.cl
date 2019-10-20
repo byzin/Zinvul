@@ -55,6 +55,14 @@ class Algorithm
   template <typename ArithN>
   static ArithN min(const ArithN x, const ArithN y) noexcept;
 
+  //! Return the linear blend of x & y implemented as: x + (y - x) * a
+  template <typename Float1N, typename Float2N>
+  static Float1N mix(const Float1N x, const Float1N y, const Float2N a) noexcept;
+
+  //! Return 1 if x > 0, -1 if x < 0, otherwise 0
+  template <typename FloatN>
+  static FloatN sign(const FloatN x) noexcept;
+
   // Integer
   //! Return the number of non-zero bits in the given x
   template <typename IntegerN>
@@ -79,9 +87,17 @@ ArithN max(const ArithN x, const ArithN y) noexcept;
 template <typename ArithN>
 ArithN min(const ArithN x, const ArithN y) noexcept;
 
+//! Return the linear blend of x & y implemented as: x + (y - x) * a
+template <typename Float1N, typename Float2N>
+Float1N mix(const Float1N x, const Float1N y, const Float2N a) noexcept;
+
 //! Return the smaller of the given values
 template <typename IntegerN>
 IntegerN popcount(const IntegerN x) noexcept;
+
+//! Return 1 if x > 0, -1 if x < 0, otherwise 0
+template <typename FloatN>
+FloatN sign(const FloatN x) noexcept;
 
 } // namespace zinvul
 
