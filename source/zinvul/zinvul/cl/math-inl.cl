@@ -677,7 +677,9 @@ FloatN Math::Zinvul::fmod(const FloatN x, const FloatN y) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
 //  using Float = typename VectorTypeInfo<FloatN>::ElementType;
 //  using FloatInfo = FloatingPointFromBytes<sizeof(Float)>;
-//
+
+  //! \todo subnormal case
+
 //  auto nu = zinvul::abs(x);
 //  auto de = zinvul::abs(y);
 //  constexpr auto one = static_cast<Float>(1.0);
@@ -836,15 +838,8 @@ template <typename FloatN> inline
 FloatN Math::Zinvul::sin(const FloatN theta) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  using Float = typename VectorTypeInfo<FloatN>::ElementType;
-  if constexpr (sizeof(Float) == 4) {
-    const auto y = sinImplF(theta);
-    return y;
-  }
-  else if constexpr (sizeof(Float) == 8) {
-    const auto y = sinImplD(theta);
-    return y;
-  }
+  const auto y = sinImpl(theta);
+  return y;
 }
 
 /*!
@@ -853,15 +848,8 @@ template <typename FloatN> inline
 FloatN Math::Zinvul::cos(const FloatN theta) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  using Float = typename VectorTypeInfo<FloatN>::ElementType;
-  if constexpr (sizeof(Float) == 4) {
-    const auto y = cosImplF(theta);
-    return y;
-  }
-  else if constexpr (sizeof(Float) == 8) {
-    const auto y = cosImplD(theta);
-    return y;
-  }
+  const auto y = cosImpl(theta);
+  return y;
 }
 
 /*!
@@ -870,15 +858,8 @@ template <typename FloatN> inline
 FloatN Math::Zinvul::tan(const FloatN theta) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  using Float = typename VectorTypeInfo<FloatN>::ElementType;
-  if constexpr (sizeof(Float) == 4) {
-    const auto y = tanImplF(theta);
-    return y;
-  }
-  else if constexpr (sizeof(Float) == 8) {
-    const auto y = tanImplD(theta);
-    return y;
-  }
+  const auto y = tanImpl(theta);
+  return y;
 }
 
 /*!
@@ -887,9 +868,21 @@ template <typename FloatN> inline
 FloatN Math::Zinvul::asin(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  static_assert(Config::isBuiltinMathTrigonometricUsed(),
-                "Zinvul 'asin' isn't implemented yet.");
-  const auto y = ZINVUL_GLOBAL_NAMESPACE::asin(x);
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+
+  constexpr Float h = static_cast<Float>(0.5);
+  constexpr Float one = static_cast<Float>(1.0);
+  constexpr Float two = static_cast<Float>(2.0);
+  const auto flag = zinvul::isless(zinvul::abs(x), make<FloatN>(h));
+  const auto t2 = zinvul::select(h * (one - zinvul::abs(x)), x * x, flag);
+  const auto t = zinvul::select(zinvul::sqrt(t2), zinvul::abs(x), flag);
+
+  auto y = asinImpl(t2);
+  y = zinvul::fma(y, t * t2, t);
+
+  constexpr auto half_pi = h * kPi<Float>;
+  y = zinvul::select(half_pi - two * y, y, flag);
+  y = mulsign(y, x);
   return y;
 }
 
@@ -899,9 +892,39 @@ template <typename FloatN> inline
 FloatN Math::Zinvul::acos(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  static_assert(Config::isBuiltinMathTrigonometricUsed(),
-                "Zinvul 'acos' isn't implemented yet.");
-  const auto y = ZINVUL_GLOBAL_NAMESPACE::acos(x);
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+
+  constexpr Float zero = static_cast<Float>(0.0);
+  constexpr Float h = static_cast<Float>(0.5);
+  constexpr Float one = static_cast<Float>(1.0);
+  constexpr Float two = static_cast<Float>(2.0);
+  auto flag = zinvul::isless(zinvul::abs(x), make<FloatN>(h));
+  const auto t2 = zinvul::select(h * (one - zinvul::abs(x)), x * x, flag);
+  auto t = zinvul::select(zinvul::sqrt(t2), zinvul::abs(x), flag);
+  {
+    const auto flag2 = zinvul::isequal(zinvul::abs(x), make<FloatN>(one));
+    t = zinvul::select(t, make<FloatN>(zero), flag2);
+  }
+
+  auto y = acosImpl(t2);
+  y = y * (t * t2);
+
+  constexpr Float c0 = getAcosCoeff<0, Float>();
+  constexpr Float c1 = getAcosCoeff<1, Float>();
+  constexpr Float c2 = getAcosCoeff<2, Float>();
+  {
+    const auto u = y;
+    y = h * c0 - (mulsign(t, x) + mulsign(y, x));
+    t = t + u;
+  }
+  y = zinvul::select(two * t, y, flag);
+  {
+    const F2<FloatN> a{make<FloatN>(c1), make<FloatN>(c2)};
+    const auto r = addF2F<FloatN>(a, -y);
+    flag = !flag && zinvul::isless(x, make<FloatN>(zero));
+    y = zinvul::select(y, r.x_, flag);
+  }
+
   return y;
 }
 
@@ -1085,18 +1108,7 @@ constexpr Float Math::Zinvul::SinCosPolyConstants::get() noexcept
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
   Float c = static_cast<Float>(0.0);
   if constexpr (sizeof(Float) == 4) {
-    if constexpr (kIndex == 0)
-      c = 0.0f;
-    else if constexpr (kIndex == 1)
-      c = 0.0f;
-    else if constexpr (kIndex == 2)
-      c = 0.0f;
-    else if constexpr (kIndex == 3)
-      c = 0.0f;
-    else if constexpr (kIndex == 4)
-      c = 0.0f;
-    else if constexpr (kIndex == 5)
-      c = 0.0f;
+    c = 0.0f;
   }
   else if constexpr (sizeof(Float) == 8) {
     if constexpr (kIndex == 0)
@@ -1169,6 +1181,59 @@ constexpr Float Math::Zinvul::TanPolyConstants::get() noexcept
 
 /*!
   */
+template <size_t kIndex, typename Float> inline
+constexpr Float Math::Zinvul::AsinPolyConstants::get() noexcept
+{
+  static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
+  Float c = static_cast<Float>(0.0);
+  if constexpr (sizeof(Float) == 4) {
+    c = 0.0f;
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    if constexpr (kIndex == 0)
+      c = 0.1666666666666497543e+0;
+    else if constexpr (kIndex == 1)
+      c = 0.7500000000378581611e-1;
+    else if constexpr (kIndex == 2)
+      c = 0.4464285681377102438e-1;
+    else if constexpr (kIndex == 3)
+      c = 0.3038195928038132237e-1;
+    else if constexpr (kIndex == 4)
+      c = 0.2237176181932048341e-1;
+    else if constexpr (kIndex == 5)
+      c = 0.1735956991223614604e-1;
+    else if constexpr (kIndex == 6)
+      c = 0.1388715184501609218e-1;
+    else if constexpr (kIndex == 7)
+      c = 0.1215360525577377331e-1;
+    else if constexpr (kIndex == 8)
+      c = 0.6606077476277170610e-2;
+    else if constexpr (kIndex == 9)
+      c = 0.1929045477267910674e-1;
+    else if constexpr (kIndex == 10)
+      c = -0.1581918243329996643e-1;
+    else if constexpr (kIndex == 11)
+      c = 0.3161587650653934628e-1;
+  }
+  else {
+    static_assert(sizeof(Float) == 0, "Unsupported floating point is specified.");
+  }
+  return c;
+}
+
+template <typename FloatN> inline
+auto Math::Zinvul::addF2F(const F2<FloatN> lhs, const FloatN rhs) noexcept
+    -> F2<FloatN>
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  auto result = lhs;
+  result.x_ = lhs.x_ + rhs;
+  result.y_ = lhs.x_ - result.x_ + rhs + lhs.y_;
+  return result;
+}
+
+/*!
+  */
 template <typename Constants, size_t kIndex, typename FloatN> inline
 FloatN Math::Zinvul::evalPoly2(const FloatN x) noexcept
 {
@@ -1179,6 +1244,21 @@ FloatN Math::Zinvul::evalPoly2(const FloatN x) noexcept
   const auto a = make<FloatN>(c1);
   const auto b = make<FloatN>(c0);
   const auto y = zinvul::fma(x, a, b);
+  return y;
+}
+
+/*!
+  */
+template <typename Constants, size_t kIndex, typename FloatN> inline
+FloatN Math::Zinvul::evalPoly3(const FloatN x1,
+                               const FloatN x2) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  constexpr auto c2 = Constants::template get<kIndex + 2, Float>();
+  const auto a = make<FloatN>(c2);
+  const auto b = evalPoly2<Constants, kIndex + 0>(x1);
+  const auto y = zinvul::fma(x2, a, b);
   return y;
 }
 
@@ -1220,6 +1300,52 @@ FloatN Math::Zinvul::evalPoly8(const FloatN x1,
   const auto a = evalPoly4<Constants, kIndex + 4>(x1, x2);
   const auto b = evalPoly4<Constants, kIndex + 0>(x1, x2);
   const auto y = zinvul::fma(x3, a, b);
+  return y;
+}
+
+/*!
+  */
+template <typename Constants, size_t kIndex, typename FloatN> inline
+FloatN Math::Zinvul::evalPoly12(const FloatN x1,
+                                const FloatN x2,
+                                const FloatN x3,
+                                const FloatN x4) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  const auto a = evalPoly4<Constants, kIndex + 8>(x1, x2);
+  const auto b = evalPoly8<Constants, kIndex + 0>(x1, x2, x3);
+  const auto y = zinvul::fma(x4, a, b);
+  return y;
+}
+
+/*!
+  */
+template <typename Constants, size_t kIndex, typename FloatN> inline
+FloatN Math::Zinvul::evalPoly16(const FloatN x1,
+                                const FloatN x2,
+                                const FloatN x3,
+                                const FloatN x4) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  const auto a = evalPoly8<Constants, kIndex + 8>(x1, x2, x3);
+  const auto b = evalPoly8<Constants, kIndex + 0>(x1, x2, x3);
+  const auto y = zinvul::fma(x4, a, b);
+  return y;
+}
+
+/*!
+  */
+template <typename Constants, size_t kIndex, typename FloatN> inline
+FloatN Math::Zinvul::evalPoly19(const FloatN x1,
+                                const FloatN x2,
+                                const FloatN x3,
+                                const FloatN x4,
+                                const FloatN x5) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  const auto a = evalPoly3<Constants, kIndex + 16>(x1, x2);
+  const auto b = evalPoly16<Constants, kIndex + 0>(x1, x2, x3, x4);
+  const auto y = zinvul::fma(x5, a, b);
   return y;
 }
 
@@ -1512,6 +1638,47 @@ constexpr Float Math::Zinvul::getTrigRangeMax() noexcept
 
 /*!
   */
+template <size_t kIndex, typename Float> inline
+constexpr auto Math::Zinvul::getAcosCoeff() noexcept
+{
+  static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
+  if constexpr (sizeof(Float) == 4) {
+    if constexpr (kIndex == 0) {
+      const auto c = 3.1415926535897932f;
+      return c;
+    }
+    else if constexpr (kIndex == 1) {
+      const auto c = 3.1415927410125732422f;
+      return c;
+    }
+    else if constexpr (kIndex == 2) {
+      const auto c = -8.7422776573475857731e-08f;
+      return c;
+    }
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    if constexpr (kIndex == 0) {
+      const auto c = 3.1415926535897932;
+      return c;
+    }
+    else if constexpr (kIndex == 1) {
+      const auto c = 3.141592653589793116;
+      return c;
+    }
+    else if constexpr (kIndex == 2) {
+      const auto c = 1.2246467991473532072e-16;
+      return c;
+    }
+  }
+  else {
+    static_assert(sizeof(Float) == 0, "Unsupported floating point is specified.");
+    const auto c = static_cast<Float>(0);
+    return c;
+  }
+}
+
+/*!
+  */
 template <typename FloatN> inline
 auto Math::Zinvul::ilogbImpl(FloatN x) noexcept
 {
@@ -1628,6 +1795,23 @@ FloatN Math::Zinvul::rintImpl(const FloatN x) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN Math::Zinvul::sinImpl(const FloatN theta) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  if constexpr (sizeof(Float) == 4) {
+    const auto y = sinImplF(theta);
+    return y;
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    const auto y = sinImplD(theta);
+    return y;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN Math::Zinvul::sinImplF(const FloatN theta) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
@@ -1654,13 +1838,13 @@ FloatN Math::Zinvul::sinImplF(const FloatN theta) noexcept
   const auto s = x * x;
   const auto is_odd = Algorithm::isOdd(q);
   x = zinvul::select(x, -x, is_odd);
-  constexpr float c1 = 2.6083159809786593541503e-06f;
-  constexpr float c2 = -0.0001981069071916863322258f;
-  constexpr float c3 = 0.00833307858556509017944336f;
-  constexpr float c4 = -0.166666597127914428710938f;
-  auto y = zinvul::fma(make<FloatN>(c1), s, make<FloatN>(c2));
+  constexpr float c0 = 2.6083159809786593541503e-06f;
+  constexpr float c1 = -0.0001981069071916863322258f;
+  constexpr float c2 = 0.00833307858556509017944336f;
+  constexpr float c3 = -0.166666597127914428710938f;
+  auto y = zinvul::fma(make<FloatN>(c0), s, make<FloatN>(c1));
+  y = zinvul::fma(y, s, make<FloatN>(c2));
   y = zinvul::fma(y, s, make<FloatN>(c3));
-  y = zinvul::fma(y, s, make<FloatN>(c4));
   y = zinvul::fma(s, y * x, x);
   return y;
 }
@@ -1712,6 +1896,23 @@ FloatN Math::Zinvul::sinImplD(const FloatN theta) noexcept
 /*!
   */
 template <typename FloatN> inline
+FloatN Math::Zinvul::cosImpl(const FloatN theta) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  if constexpr (sizeof(Float) == 4) {
+    const auto y = cosImplF(theta);
+    return y;
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    const auto y = cosImplD(theta);
+    return y;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
 FloatN Math::Zinvul::cosImplF(const FloatN theta) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
@@ -1738,13 +1939,13 @@ FloatN Math::Zinvul::cosImplF(const FloatN theta) noexcept
   const auto s = x * x;
   const auto is_flag = cast<IntegerN>((q & 2) == 0);
   x = zinvul::select(x, -x, is_flag);
-  constexpr float c1 = 2.6083159809786593541503e-06f;
-  constexpr float c2 = -0.0001981069071916863322258f;
-  constexpr float c3 = 0.00833307858556509017944336f;
-  constexpr float c4 = -0.166666597127914428710938f;
-  auto y = zinvul::fma(make<FloatN>(c1), s, make<FloatN>(c2));
+  constexpr float c0 = 2.6083159809786593541503e-06f;
+  constexpr float c1 = -0.0001981069071916863322258f;
+  constexpr float c2 = 0.00833307858556509017944336f;
+  constexpr float c3 = -0.166666597127914428710938f;
+  auto y = zinvul::fma(make<FloatN>(c0), s, make<FloatN>(c1));
+  y = zinvul::fma(y, s, make<FloatN>(c2));
   y = zinvul::fma(y, s, make<FloatN>(c3));
-  y = zinvul::fma(y, s, make<FloatN>(c4));
   y = zinvul::fma(s, y * x, x);
   return y;
 }
@@ -1793,6 +1994,23 @@ FloatN Math::Zinvul::cosImplD(const FloatN theta) noexcept
   y = zinvul::fma(y, s, make<FloatN>(-0.166666666666666657414808));
   y = zinvul::fma(s, y * x, x);
   return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::tanImpl(const FloatN theta) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  if constexpr (sizeof(Float) == 4) {
+    const auto y = tanImplF(theta);
+    return y;
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    const auto y = tanImplD(theta);
+    return y;
+  }
 }
 
 /*!
@@ -1888,6 +2106,69 @@ FloatN Math::Zinvul::tanImplD(const FloatN theta) noexcept
     const auto is_zero = zinvul::isequal(theta, make<FloatN>(0.0));
     y = zinvul::select(u, theta, is_zero);
   }
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::asinImpl(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  if constexpr (sizeof(Float) == 4) {
+    const auto y = asinImplF(x);
+    return y;
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    const auto y = asinImplD(x);
+    return y;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::asinImplF(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+
+  constexpr float c0 = 0.4197454825e-1f;
+  constexpr float c1 = 0.2424046025e-1f;
+  constexpr float c2 = 0.4547423869e-1f;
+  constexpr float c3 = 0.7495029271e-1f;
+  constexpr float c4 = 0.1666677296e+0f;
+
+  auto y = zinvul::fma(make<FloatN>(c0), x, make<FloatN>(c1));
+  y = zinvul::fma(y, x, make<FloatN>(c2));
+  y = zinvul::fma(y, x, make<FloatN>(c3));
+  y = zinvul::fma(y, x, make<FloatN>(c4));
+
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::asinImplD(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+
+  const auto x2 = x * x;
+  const auto x4 = x2 * x2;
+  const auto x8 = x4 * x4;
+  const auto y = evalPoly12<AsinPolyConstants, 0>(x, x2, x4, x8);
+
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::acosImpl(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  const auto y = asinImpl(x);
   return y;
 }
 

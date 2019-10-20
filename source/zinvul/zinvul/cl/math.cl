@@ -377,9 +377,29 @@ class Math
       static constexpr Float get() noexcept;
     };
 
+    struct AsinPolyConstants
+    {
+      template <size_t kIndex, typename Float>
+      static constexpr Float get() noexcept;
+    };
+
+    template <typename FloatN>
+    struct F2
+    {
+      FloatN x_;
+      FloatN y_;
+    };
+
+    template <typename FloatN>
+    static F2<FloatN> addF2F(const F2<FloatN> lhs, const FloatN rhs) noexcept;
+
     //! Evaluate polygomials using Estrin's method
     template <typename Constants, size_t kIndex, typename FloatN>
     static FloatN evalPoly2(const FloatN x) noexcept;
+
+    //! Evaluate polygomials using Estrin's method
+    template <typename Constants, size_t kIndex, typename FloatN>
+    static FloatN evalPoly3(const FloatN x, const FloatN x3) noexcept;
 
     //! Evaluate polygomials using Estrin's method
     template <typename Constants, size_t kIndex, typename FloatN>
@@ -396,6 +416,29 @@ class Math
     static FloatN evalPoly8(const FloatN x1,
                             const FloatN x2,
                             const FloatN x3) noexcept;
+
+    //! Evaluate polygomials using Estrin's method
+    template <typename Constant, size_t kIndex, typename FloatN>
+    static FloatN evalPoly12(const FloatN x1,
+                             const FloatN x2,
+                             const FloatN x3,
+                             const FloatN x4) noexcept;
+
+    //! Evaluate polygomials using Estrin's method
+    template <typename Constant, size_t kIndex, typename FloatN>
+    static FloatN evalPoly16(const FloatN x1,
+                             const FloatN x2,
+                             const FloatN x3,
+                             const FloatN x4) noexcept;
+
+    //! Evaluate polygomials using Estrin's method
+    template <typename Constant, size_t kIndex, typename FloatN>
+    static FloatN evalPoly19(const FloatN x1,
+                             const FloatN x2,
+                             const FloatN x3,
+                             const FloatN x4,
+                             const FloatN x5) noexcept;
+
 
     //! Decompose a number into significand and power of 2
     template <typename FloatN, typename IntegerNPtr>
@@ -428,6 +471,9 @@ class Math
     template <size_t kIndex, typename Float>
     static constexpr Float getTrigRangeMax() noexcept;
 
+    template <size_t kIndex, typename Float>
+    static constexpr auto getAcosCoeff() noexcept;
+
     //! Extracts exponent of the given number
     template <typename FloatN>
     static auto ilogbImpl(FloatN x) noexcept;
@@ -449,10 +495,16 @@ class Math
     static FloatN rintImpl(const FloatN x) noexcept;
 
     template <typename FloatN>
+    static FloatN sinImpl(const FloatN theta) noexcept;
+
+    template <typename FloatN>
     static FloatN sinImplF(const FloatN theta) noexcept;
 
     template <typename FloatN>
     static FloatN sinImplD(const FloatN theta) noexcept;
+
+    template <typename FloatN>
+    static FloatN cosImpl(const FloatN theta) noexcept;
 
     template <typename FloatN>
     static FloatN cosImplF(const FloatN theta) noexcept;
@@ -461,10 +513,25 @@ class Math
     static FloatN cosImplD(const FloatN theta) noexcept;
 
     template <typename FloatN>
+    static FloatN tanImpl(const FloatN theta) noexcept;
+
+    template <typename FloatN>
     static FloatN tanImplF(const FloatN theta) noexcept;
 
     template <typename FloatN>
     static FloatN tanImplD(const FloatN theta) noexcept;
+
+    template <typename FloatN>
+    static FloatN asinImpl(const FloatN x) noexcept;
+
+    template <typename FloatN>
+    static FloatN asinImplF(const FloatN x) noexcept;
+
+    template <typename FloatN>
+    static FloatN asinImplD(const FloatN x) noexcept;
+
+    template <typename FloatN>
+    static FloatN acosImpl(const FloatN x) noexcept;
   };
 
  private:
