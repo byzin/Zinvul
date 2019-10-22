@@ -361,25 +361,31 @@ class Math
    private:
     struct CbrtPolyConstants
     {
-      template <size_t kIndex, typename Float>
+      template <typename Float, size_t kIndex>
       static constexpr Float get() noexcept;
     };
 
     struct SinCosPolyConstants
     {
-      template <size_t kIndex, typename Float>
+      template <typename Float, size_t kIndex>
       static constexpr Float get() noexcept;
     };
 
     struct TanPolyConstants
     {
-      template <size_t kIndex, typename Float>
+      template <typename Float, size_t kIndex>
       static constexpr Float get() noexcept;
     };
 
     struct AsinPolyConstants
     {
-      template <size_t kIndex, typename Float>
+      template <typename Float, size_t kIndex>
+      static constexpr Float get() noexcept;
+    };
+
+    struct AtanPolyConstants
+    {
+      template <typename Float, size_t kIndex>
       static constexpr Float get() noexcept;
     };
 
@@ -391,7 +397,31 @@ class Math
     };
 
     template <typename FloatN>
+    static FloatN upper(const FloatN x) noexcept;
+
+    template <typename FloatN>
     static F2<FloatN> addF2F(const F2<FloatN> lhs, const FloatN rhs) noexcept;
+
+    template <typename FloatN>
+    static F2<FloatN> add2F2F2(const F2<FloatN> lhs, const F2<FloatN> rhs) noexcept;
+
+    template <typename FloatN>
+    static F2<FloatN> mulFF(const FloatN lhs, const FloatN rhs) noexcept;
+
+    template <typename FloatN>
+    static F2<FloatN> normalizeF2(const F2<FloatN> x) noexcept;
+
+    template <typename FloatN>
+    static FloatN toward0(const FloatN x) noexcept;
+
+    template <typename FloatN>
+    static FloatN removeLsb(const FloatN x) noexcept;
+
+    template <typename FloatN>
+    static FloatN mulsign(const FloatN x, const FloatN y) noexcept;
+
+    template <typename FloatN, typename IntegerN>
+    static FloatN pow2i(const IntegerN q) noexcept;
 
     //! Evaluate polygomials using Estrin's method
     template <typename Constants, size_t kIndex, typename FloatN>
@@ -444,13 +474,16 @@ class Math
     template <typename FloatN, typename IntegerNPtr>
     static FloatN frexpImpl(const FloatN x, IntegerNPtr e) noexcept;
 
-    template <size_t kIndex, typename Float>
+    template <typename Float, size_t kIndex>
+    static constexpr auto getUpperCoeff() noexcept;
+
+    template <typename Float, size_t kIndex>
     static constexpr auto getCbrtCoeff() noexcept;
 
     template <typename Float>
     static constexpr int32b getFrexpCoeff() noexcept;
 
-    template <int32b kTo, typename Float>
+    template <typename Float, int32b kTo>
     static constexpr Float getHalfNextafter() noexcept;
 
     template <typename Float>
@@ -459,20 +492,23 @@ class Math
     template <typename Float>
     static constexpr int32b getIlogbNan() noexcept;
 
-    template <size_t kIndex, typename Float>
+    template <typename Float, size_t kIndex>
     static constexpr auto getIlogbCoeff() noexcept;
 
-    template <size_t kIndex, typename Float>
+    template <typename Float, size_t kIndex>
     static constexpr Float getPi() noexcept;
 
-    template <size_t kIndex, typename Float>
+    template <typename Float, size_t kIndex>
     static constexpr Float getPi2() noexcept;
 
-    template <size_t kIndex, typename Float>
+    template <typename Float, size_t kIndex>
     static constexpr Float getTrigRangeMax() noexcept;
 
-    template <size_t kIndex, typename Float>
+    template <typename Float, size_t kIndex>
     static constexpr auto getAcosCoeff() noexcept;
+
+    template <typename Float, size_t kIndex>
+    static constexpr auto getAtanCoeff() noexcept;
 
     //! Extracts exponent of the given number
     template <typename FloatN>
@@ -486,13 +522,16 @@ class Math
     static FloatN ldexpImpl(const FloatN x, const IntegerN e) noexcept;
 
     template <typename FloatN>
-    static FloatN mulsign(const FloatN x, const FloatN y) noexcept;
-
-    template <typename FloatN, typename IntegerN>
-    static FloatN pow2i(const IntegerN q) noexcept;
+    static FloatN rintImpl(const FloatN x) noexcept;
 
     template <typename FloatN>
-    static FloatN rintImpl(const FloatN x) noexcept;
+    static FloatN fmodImpl(const FloatN x, const FloatN y) noexcept;
+
+    template <typename FloatN>
+    static FloatN fmodImplF(const FloatN x, const FloatN y) noexcept;
+
+    template <typename FloatN>
+    static FloatN fmodImplD(const FloatN x, const FloatN y) noexcept;
 
     template <typename FloatN>
     static FloatN sinImpl(const FloatN theta) noexcept;
@@ -532,6 +571,15 @@ class Math
 
     template <typename FloatN>
     static FloatN acosImpl(const FloatN x) noexcept;
+
+    template <typename FloatN>
+    static FloatN atanImpl(const FloatN x) noexcept;
+
+    template <typename FloatN>
+    static FloatN atanImplF(const FloatN x) noexcept;
+
+    template <typename FloatN>
+    static FloatN atanImplD(const FloatN x) noexcept;
   };
 
  private:

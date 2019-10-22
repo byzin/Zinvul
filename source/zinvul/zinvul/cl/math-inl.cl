@@ -643,7 +643,7 @@ FloatN Math::Zinvul::round(const FloatN x) noexcept
     flag = zinvul::isless(fr, zerov);
     fr = zinvul::select(fr, fr + one, flag);
 
-    constexpr auto half_nextafter = getHalfNextafter<0, Float>();
+    constexpr auto half_nextafter = getHalfNextafter<Float, 0>();
     const auto k = make<FloatN>(half_nextafter);
     flag = zinvul::isequal(x, k);
     y = zinvul::select(y, zerov, flag);
@@ -675,27 +675,26 @@ template <typename FloatN> inline
 FloatN Math::Zinvul::fmod(const FloatN x, const FloatN y) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-//  using Float = typename VectorTypeInfo<FloatN>::ElementType;
-//  using FloatInfo = FloatingPointFromBytes<sizeof(Float)>;
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  using FLimits = NumericLimits<Float>;
+
+  const auto nu = zinvul::abs(x);
+  const auto de = zinvul::abs(y);
 
   //! \todo subnormal case
+  {
+  }
 
-//  auto nu = zinvul::abs(x);
-//  auto de = zinvul::abs(y);
-//  constexpr auto one = static_cast<Float>(1.0);
-//  auto s = make<FloatN>(one);
-//  {
-//    const auto minval = NumericLimits<Float>::min();
-//    const auto flag = zinvul::isless(de, make<FloatN>(minval));
-//    constexpr size_t sig_size = FloatInfp::significandBitSize();
-//    constexpr auto k = static_cast<Float>(0b1ull << (sig_size + 2));
-//    constexpr auto inv_k = one / k;
-//    nu = zinvul::select(nu, k * nu, flag);
-//    de = zinvul::select(de, k * de, flag);
-//    s = zinvul::select(s, make<FloatN>(inv_k), flag);
-//  }
+  auto z = fmodImpl(nu, de);
 
-  const auto z = ZINVUL_GLOBAL_NAMESPACE::fmod(x, y);
+  z = mulsign(z, x);
+  auto flag = zinvul::isless(nu, de);
+  z = zinvul::select(z, x, flag);
+
+  constexpr auto zero = static_cast<Float>(0.0);
+  flag = zinvul::isequal(de, make<FloatN>(zero));
+  z = zinvul::select(z, make<FloatN>(FLimits::quietNan()), flag);
+
   return z;
 }
 
@@ -790,19 +789,19 @@ FloatN Math::Zinvul::cbrt(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   using Float = typename VectorTypeInfo<FloatN>::ElementType;
-  using IntegerN = IntegerTypeFromVec<FloatN>;
+  using CmpType = ComparisonResultType<FloatN>;
 
   constexpr auto one = static_cast<Float>(1.0);
   auto q = make<FloatN>(one);
   const auto e = ilogbImpl(zinvul::abs(x)) + 1;
   {
     const auto r = (e + 6144) % 3;
-    constexpr auto c0 = getCbrtCoeff<0, Float>();
-    auto flag = cast<IntegerN>(r == 1);
+    constexpr auto c0 = getCbrtCoeff<Float, 0>();
+    auto flag = cast<CmpType>(r == 1);
     q = zinvul::select(q, make<FloatN>(c0), flag);
 
-    constexpr auto c1 = getCbrtCoeff<1, Float>();
-    flag = cast<IntegerN>(r == 2);
+    constexpr auto c1 = getCbrtCoeff<Float, 1>();
+    flag = cast<CmpType>(r == 2);
     q = zinvul::select(q, make<FloatN>(c1), flag);
   }
   q = ldexpImpl(q, ((e + 6144) / 3) - 2048);
@@ -810,12 +809,12 @@ FloatN Math::Zinvul::cbrt(const FloatN x) noexcept
   q = mulsign(q, d);
   d = zinvul::abs(d);
 
-  auto t = make<FloatN>(CbrtPolyConstants::template get<0, Float>());
-  t = zinvul::fma(t, d, make<FloatN>(CbrtPolyConstants::template get<1, Float>()));
-  t = zinvul::fma(t, d, make<FloatN>(CbrtPolyConstants::template get<2, Float>()));
-  t = zinvul::fma(t, d, make<FloatN>(CbrtPolyConstants::template get<3, Float>()));
-  t = zinvul::fma(t, d, make<FloatN>(CbrtPolyConstants::template get<4, Float>()));
-  t = zinvul::fma(t, d, make<FloatN>(CbrtPolyConstants::template get<5, Float>()));
+  auto t = make<FloatN>(CbrtPolyConstants::template get<Float, 0>());
+  t = zinvul::fma(t, d, make<FloatN>(CbrtPolyConstants::template get<Float, 1>()));
+  t = zinvul::fma(t, d, make<FloatN>(CbrtPolyConstants::template get<Float, 2>()));
+  t = zinvul::fma(t, d, make<FloatN>(CbrtPolyConstants::template get<Float, 3>()));
+  t = zinvul::fma(t, d, make<FloatN>(CbrtPolyConstants::template get<Float, 4>()));
+  t = zinvul::fma(t, d, make<FloatN>(CbrtPolyConstants::template get<Float, 5>()));
 
   constexpr auto zero = static_cast<Float>(0.0);
   auto y = make<FloatN>(zero);
@@ -873,6 +872,7 @@ FloatN Math::Zinvul::asin(const FloatN x) noexcept
   constexpr Float h = static_cast<Float>(0.5);
   constexpr Float one = static_cast<Float>(1.0);
   constexpr Float two = static_cast<Float>(2.0);
+
   const auto flag = zinvul::isless(zinvul::abs(x), make<FloatN>(h));
   const auto t2 = zinvul::select(h * (one - zinvul::abs(x)), x * x, flag);
   const auto t = zinvul::select(zinvul::sqrt(t2), zinvul::abs(x), flag);
@@ -898,6 +898,7 @@ FloatN Math::Zinvul::acos(const FloatN x) noexcept
   constexpr Float h = static_cast<Float>(0.5);
   constexpr Float one = static_cast<Float>(1.0);
   constexpr Float two = static_cast<Float>(2.0);
+
   auto flag = zinvul::isless(zinvul::abs(x), make<FloatN>(h));
   const auto t2 = zinvul::select(h * (one - zinvul::abs(x)), x * x, flag);
   auto t = zinvul::select(zinvul::sqrt(t2), zinvul::abs(x), flag);
@@ -909,9 +910,9 @@ FloatN Math::Zinvul::acos(const FloatN x) noexcept
   auto y = acosImpl(t2);
   y = y * (t * t2);
 
-  constexpr Float c0 = getAcosCoeff<0, Float>();
-  constexpr Float c1 = getAcosCoeff<1, Float>();
-  constexpr Float c2 = getAcosCoeff<2, Float>();
+  constexpr Float c0 = getAcosCoeff<Float, 0>();
+  constexpr Float c1 = getAcosCoeff<Float, 1>();
+  constexpr Float c2 = getAcosCoeff<Float, 2>();
   {
     const auto u = y;
     y = h * c0 - (mulsign(t, x) + mulsign(y, x));
@@ -934,9 +935,30 @@ template <typename FloatN> inline
 FloatN Math::Zinvul::atan(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  static_assert(Config::isBuiltinMathTrigonometricUsed(),
-                "Zinvul 'atan' isn't implemented yet.");
-  const auto y = ZINVUL_GLOBAL_NAMESPACE::atan(x);
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  constexpr size_t n = VectorTypeInfo<FloatN>::size();
+  using IntegerN = Integer32VecType<n>;
+
+  constexpr Float one = static_cast<Float>(1.0);
+
+  auto s = zinvul::abs(x);
+  auto flag = zinvul::isequal(zinvul::sign(x), make<FloatN>(-one));
+  auto q = zinvul::select(make<IntegerN>(0), make<IntegerN>(2), flag);
+  flag = zinvul::isgreater(s, make<FloatN>(one));
+  s = zinvul::select(s, Algorithm::invert(s), flag);
+  q = zinvul::select(q, q | 1, flag);
+
+  auto t = s * s;
+  auto y = atanImpl(t);
+  t = s + s * (t * y);
+
+  using FlagType = decltype(flag);
+  constexpr Float c0 = getAtanCoeff<Float, 0>();
+  flag = cast<FlagType>((q & 1) != 0);
+  t = zinvul::select(t, c0 - t, flag);
+  flag = cast<FlagType>((q & 2) != 0);
+  y = zinvul::select(t, -t, flag);
+
   return y;
 }
 
@@ -1061,7 +1083,7 @@ FloatN Math::Zinvul::modf(const FloatN x, FloatNPtr iptr) noexcept
 
 /*!
   */
-template <size_t kIndex, typename Float> inline
+template <typename Float, size_t kIndex> inline
 constexpr Float Math::Zinvul::CbrtPolyConstants::get() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1102,7 +1124,7 @@ constexpr Float Math::Zinvul::CbrtPolyConstants::get() noexcept
 
 /*!
   */
-template <size_t kIndex, typename Float> inline
+template <typename Float, size_t kIndex> inline
 constexpr Float Math::Zinvul::SinCosPolyConstants::get() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1136,7 +1158,7 @@ constexpr Float Math::Zinvul::SinCosPolyConstants::get() noexcept
 
 /*!
   */
-template <size_t kIndex, typename Float> inline
+template <typename Float, size_t kIndex> inline
 constexpr Float Math::Zinvul::TanPolyConstants::get() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1181,7 +1203,7 @@ constexpr Float Math::Zinvul::TanPolyConstants::get() noexcept
 
 /*!
   */
-template <size_t kIndex, typename Float> inline
+template <typename Float, size_t kIndex> inline
 constexpr Float Math::Zinvul::AsinPolyConstants::get() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1221,6 +1243,90 @@ constexpr Float Math::Zinvul::AsinPolyConstants::get() noexcept
   return c;
 }
 
+/*!
+  */
+template <typename Float, size_t kIndex> inline
+constexpr Float Math::Zinvul::AtanPolyConstants::get() noexcept
+{
+  static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
+  Float c = static_cast<Float>(0.0);
+  if constexpr (sizeof(Float) == 4) {
+    if constexpr (kIndex == 0)
+      c = -0.333331018686294555664062f;
+    else if constexpr (kIndex == 1)
+      c = 0.199926957488059997558594f;
+    else if constexpr (kIndex == 2)
+      c = -0.142027363181114196777344f;
+    else if constexpr (kIndex == 3)
+      c = 0.106347933411598205566406f;
+    else if constexpr (kIndex == 4)
+      c = -0.0748900920152664184570312f;
+    else if constexpr (kIndex == 5)
+      c = 0.0425049886107444763183594f;
+    else if constexpr (kIndex == 6)
+      c = -0.0159569028764963150024414f;
+    else if constexpr (kIndex == 7)
+      c = 0.00282363896258175373077393f;
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    if constexpr (kIndex == 0)
+      c = -0.333333333333311110369124;
+    else if constexpr (kIndex == 1)
+      c = 0.199999999996591265594148;
+    else if constexpr (kIndex == 2)
+      c = -0.14285714266771329383765;
+    else if constexpr (kIndex == 3)
+      c = 0.111111105648261418443745;
+    else if constexpr (kIndex == 4)
+      c = -0.090908995008245008229153;
+    else if constexpr (kIndex == 5)
+      c = 0.0769219538311769618355029;
+    else if constexpr (kIndex == 6)
+      c = -0.0666573579361080525984562;
+    else if constexpr (kIndex == 7)
+      c = 0.0587666392926673580854313;
+    else if constexpr (kIndex == 8)
+      c = -0.0523674852303482457616113;
+    else if constexpr (kIndex == 9)
+      c = 0.0466667150077840625632675;
+    else if constexpr (kIndex == 10)
+      c = -0.0407629191276836500001934;
+    else if constexpr (kIndex == 11)
+      c = 0.0337852580001353069993897;
+    else if constexpr (kIndex == 12)
+      c = -0.0254517624932312641616861;
+    else if constexpr (kIndex == 13)
+      c = 0.016599329773529201970117;
+    else if constexpr (kIndex == 14)
+      c = -0.00889896195887655491740809;
+    else if constexpr (kIndex == 15)
+      c = 0.00370026744188713119232403;
+    else if constexpr (kIndex == 16)
+      c = -0.00110611831486672482563471;
+    else if constexpr (kIndex == 17)
+      c = 0.000209850076645816976906797;
+    else if constexpr (kIndex == 18)
+      c = -1.88796008463073496563746e-05;
+  }
+  else {
+    static_assert(sizeof(Float) == 0, "Unsupported floating point is specified.");
+  }
+  return c;
+}
+
+template <typename FloatN> inline
+FloatN Math::Zinvul::upper(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  using BitVec = UIntegerTypeFromVec<FloatN>;
+
+  constexpr auto mask = getUpperCoeff<Float, 0>();
+  const auto u = treatAs<BitVec>(x);
+  const auto result = treatAs<FloatN>(u & mask);
+  return result;
+}
+
 template <typename FloatN> inline
 auto Math::Zinvul::addF2F(const F2<FloatN> lhs, const FloatN rhs) noexcept
     -> F2<FloatN>
@@ -1232,6 +1338,112 @@ auto Math::Zinvul::addF2F(const F2<FloatN> lhs, const FloatN rhs) noexcept
   return result;
 }
 
+template <typename FloatN> inline
+auto Math::Zinvul::add2F2F2(const F2<FloatN> lhs, const F2<FloatN> rhs) noexcept
+    -> F2<FloatN>
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  auto result = lhs;
+  result.x_ = lhs.x_ + rhs.x_;
+  const auto v = result.x_ - lhs.x_;
+  result.y_ = (lhs.x_ - (result.x_ - v)) + (rhs.x_ - v);
+  result.y_ = result.y_ + (lhs.y_ + rhs.y_);
+  return result;
+}
+
+template <typename FloatN> inline
+auto Math::Zinvul::mulFF(const FloatN lhs, const FloatN rhs) noexcept -> F2<FloatN>
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  const auto xh = upper(lhs);
+  const auto yh = upper(rhs);
+  const auto xl = lhs - xh;
+  const auto yl = rhs - yh;
+
+  F2<FloatN> result{lhs, rhs};
+  result.x_ = lhs * rhs;
+  result.y_ = xh * yh - result.x_ + xl * yh + xh * yl + xl * yl;
+  return result;
+}
+
+template <typename FloatN> inline
+auto Math::Zinvul::normalizeF2(const F2<FloatN> x) noexcept -> F2<FloatN>
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  auto result = x;
+  result.x_ = x.x_ + x.y_;
+  result.y_ = x.x_ - result.x_ + x.y_;
+  return result;
+}
+
+template <typename FloatN> inline
+FloatN Math::Zinvul::toward0(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  using BitVec = UIntegerTypeFromVec<FloatN>;
+  using BitType = typename VectorTypeInfo<BitVec>::ElementType;
+
+  constexpr auto one = static_cast<BitType>(1u);
+  const auto u = treatAs<BitVec>(x);
+  auto result = treatAs<FloatN>(u - one);
+
+  constexpr auto zero = static_cast<Float>(0.0);
+  const auto flag = zinvul::isequal(x, make<FloatN>(zero));
+  result = zinvul::select(result, x, flag);
+
+  return result;
+}
+
+template <typename FloatN> inline
+FloatN Math::Zinvul::removeLsb(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  using FloatInfo = FloatingPointFromBytes<sizeof(Float)>;
+  using BitVec = UIntegerTypeFromVec<FloatN>;
+
+  constexpr auto mask = FloatInfo::exponentBitMask() |
+                        FloatInfo::significandBitMask();
+  const auto u = treatAs<BitVec>(x);
+  const auto result = treatAs<FloatN>(u & mask);
+  return result;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::mulsign(const FloatN x, const FloatN y) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  using FloatInfo = FloatingPointFromBytes<sizeof(Float)>;
+  using BitType = typename FloatInfo::BitType;
+  using BitVec = UIntegerTypeFromVec<FloatN>;
+
+  constexpr size_t bits = 8 * sizeof(Float);
+  constexpr BitType k = BitType{1u} << (bits - 1);
+  const auto zi = treatAs<BitVec>(x) ^ (treatAs<BitVec>(y) & k);
+  const auto z = treatAs<FloatN>(zi);
+  return z;
+}
+
+/*!
+  */
+template <typename FloatN, typename IntegerN> inline
+FloatN Math::Zinvul::pow2i(const IntegerN q) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  using Integer = typename VectorTypeInfo<IntegerN>::ElementType;
+  using FloatInfo = FloatingPointFromBytes<sizeof(Float)>;
+  constexpr auto exp_bias = static_cast<Integer>(FloatInfo::exponentBias());
+  constexpr auto sig_size = static_cast<Integer>(FloatInfo::significandBitSize());
+  const IntegerN result = (q + exp_bias) << sig_size;;
+  return treatAs<FloatN>(result);
+}
+
 /*!
   */
 template <typename Constants, size_t kIndex, typename FloatN> inline
@@ -1239,8 +1451,8 @@ FloatN Math::Zinvul::evalPoly2(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   using Float = typename VectorTypeInfo<FloatN>::ElementType;
-  constexpr auto c0 = Constants::template get<kIndex + 0, Float>();
-  constexpr auto c1 = Constants::template get<kIndex + 1, Float>();
+  constexpr auto c0 = Constants::template get<Float, kIndex + 0>();
+  constexpr auto c1 = Constants::template get<Float, kIndex + 1>();
   const auto a = make<FloatN>(c1);
   const auto b = make<FloatN>(c0);
   const auto y = zinvul::fma(x, a, b);
@@ -1255,7 +1467,7 @@ FloatN Math::Zinvul::evalPoly3(const FloatN x1,
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   using Float = typename VectorTypeInfo<FloatN>::ElementType;
-  constexpr auto c2 = Constants::template get<kIndex + 2, Float>();
+  constexpr auto c2 = Constants::template get<Float, kIndex + 2>();
   const auto a = make<FloatN>(c2);
   const auto b = evalPoly2<Constants, kIndex + 0>(x1);
   const auto y = zinvul::fma(x2, a, b);
@@ -1392,7 +1604,32 @@ FloatN Math::Zinvul::frexpImpl(const FloatN x, IntegerNPtr e) noexcept
 
 /*!
   */
-template <size_t kIndex, typename Float> inline
+template <typename Float, size_t kIndex> inline
+constexpr auto Math::Zinvul::getUpperCoeff() noexcept
+{
+  static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
+  if constexpr (sizeof(Float) == 4) {
+    if constexpr (kIndex == 0) {
+      const uint32b c = 0xfffff000u;
+      return c;
+    }
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    if constexpr (kIndex == 0) {
+      const uint64b c = 0xfffffffff8000000ull;
+      return c;
+    }
+  }
+  else {
+    static_assert(sizeof(Float) == 0, "Unsupported floating point is specified.");
+    const auto c = static_cast<Float>(0);
+    return c;
+  }
+}
+
+/*!
+  */
+template <typename Float, size_t kIndex> inline
 constexpr auto Math::Zinvul::getCbrtCoeff() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1446,7 +1683,7 @@ constexpr int32b Math::Zinvul::getFrexpCoeff() noexcept
 
 /*!
   */
-template <int32b kTo, typename Float> inline
+template <typename Float, int32b kTo> inline
 constexpr Float Math::Zinvul::getHalfNextafter() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1488,7 +1725,7 @@ constexpr int32b Math::Zinvul::getIlogbNan() noexcept
 
 /*!
   */
-template <size_t kIndex, typename Float> inline
+template <typename Float, size_t kIndex> inline
 constexpr auto Math::Zinvul::getIlogbCoeff() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1529,7 +1766,7 @@ constexpr auto Math::Zinvul::getIlogbCoeff() noexcept
 
 /*!
   */
-template <size_t kIndex, typename Float> inline
+template <typename Float, size_t kIndex> inline
 constexpr Float Math::Zinvul::getPi() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1562,7 +1799,7 @@ constexpr Float Math::Zinvul::getPi() noexcept
 
 /*!
   */
-template <size_t kIndex, typename Float> inline
+template <typename Float, size_t kIndex> inline
 constexpr Float Math::Zinvul::getPi2() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1589,7 +1826,7 @@ constexpr Float Math::Zinvul::getPi2() noexcept
 
 /*!
   */
-template <size_t kIndex, typename Float> inline
+template <typename Float, size_t kIndex> inline
 constexpr Float Math::Zinvul::getTrigRangeMax() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1638,7 +1875,7 @@ constexpr Float Math::Zinvul::getTrigRangeMax() noexcept
 
 /*!
   */
-template <size_t kIndex, typename Float> inline
+template <typename Float, size_t kIndex> inline
 constexpr auto Math::Zinvul::getAcosCoeff() noexcept
 {
   static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
@@ -1679,6 +1916,31 @@ constexpr auto Math::Zinvul::getAcosCoeff() noexcept
 
 /*!
   */
+template <typename Float, size_t kIndex> inline
+constexpr auto Math::Zinvul::getAtanCoeff() noexcept
+{
+  static_assert(kIsFloatingPoint<Float>, "The Float isn't floating point.");
+  if constexpr (sizeof(Float) == 4) {
+    if constexpr (kIndex == 0) {
+      const auto c = 1.570796326794896557998982f;
+      return c;
+    }
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    if constexpr (kIndex == 0) {
+      const auto c = 1.570796326794896557998982;
+      return c;
+    }
+  }
+  else {
+    static_assert(sizeof(Float) == 0, "Unsupported floating point is specified.");
+    const auto c = static_cast<Float>(0);
+    return c;
+  }
+}
+
+/*!
+  */
 template <typename FloatN> inline
 auto Math::Zinvul::ilogbImpl(FloatN x) noexcept
 {
@@ -1689,8 +1951,8 @@ auto Math::Zinvul::ilogbImpl(FloatN x) noexcept
   constexpr size_t n = VectorTypeInfo<FloatN>::size();
   using IntegerN = Integer32VecType<n>;
 
-  constexpr auto c0 = getIlogbCoeff<0, Float>();
-  constexpr auto c1 = getIlogbCoeff<1, Float>();
+  constexpr auto c0 = getIlogbCoeff<Float, 0>();
+  constexpr auto c1 = getIlogbCoeff<Float, 1>();
   const auto k1 = make<FloatN>(c0);
   const auto flag = zinvul::isless(x, k1);
   x = zinvul::select(x, c1 * x, flag);
@@ -1700,7 +1962,7 @@ auto Math::Zinvul::ilogbImpl(FloatN x) noexcept
   auto y = cast<IntegerN>((treatAs<BitVec>(x) & exp_mask) >> sig_size);
 
   constexpr int32b offset = static_cast<int32b>(exp_mask >> (sig_size + 1));
-  constexpr int32b c2 = getIlogbCoeff<2, Float>();
+  constexpr int32b c2 = getIlogbCoeff<Float, 2>();
   y = zinvul::select(y - offset, y - (c2 + offset), flag);
   return y;
 }
@@ -1747,40 +2009,6 @@ FloatN Math::Zinvul::ldexpImpl(const FloatN x, const IntegerN e) noexcept
 /*!
   */
 template <typename FloatN> inline
-FloatN Math::Zinvul::mulsign(const FloatN x, const FloatN y) noexcept
-{
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  using Float = typename VectorTypeInfo<FloatN>::ElementType;
-  using FloatInfo = FloatingPointFromBytes<sizeof(Float)>;
-  using BitType = typename FloatInfo::BitType;
-  using BitVec = UIntegerTypeFromVec<FloatN>;
-
-  constexpr size_t bits = 8 * sizeof(Float);
-  constexpr BitType k = BitType{1u} << (bits - 1);
-  const auto zi = treatAs<BitVec>(x) ^ (treatAs<BitVec>(y) & k);
-  const auto z = treatAs<FloatN>(zi);
-  return z;
-}
-
-/*!
-  */
-template <typename FloatN, typename IntegerN> inline
-FloatN Math::Zinvul::pow2i(const IntegerN q) noexcept
-{
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
-  using Float = typename VectorTypeInfo<FloatN>::ElementType;
-  using Integer = typename VectorTypeInfo<IntegerN>::ElementType;
-  using FloatInfo = FloatingPointFromBytes<sizeof(Float)>;
-  constexpr auto exp_bias = static_cast<Integer>(FloatInfo::exponentBias());
-  constexpr auto sig_size = static_cast<Integer>(FloatInfo::significandBitSize());
-  const IntegerN result = (q + exp_bias) << sig_size;;
-  return treatAs<FloatN>(result);
-}
-
-/*!
-  */
-template <typename FloatN> inline
 FloatN Math::Zinvul::rintImpl(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
@@ -1790,6 +2018,110 @@ FloatN Math::Zinvul::rintImpl(const FloatN x) noexcept
   auto y = zinvul::select(x + h, x - h, flag);
   y = zinvul::trunc(y);
   return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::fmodImpl(const FloatN x, const FloatN y) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  if constexpr (sizeof(Float) == 4) {
+    const auto z = fmodImplF(x, y);
+    return z;
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    const auto z = fmodImplD(x, y);
+    return z;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::fmodImplF(const FloatN x, const FloatN y) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  using CmpType = ComparisonResultType<FloatN>;
+
+  constexpr auto zero = static_cast<Float>(0.0);
+  constexpr auto one = static_cast<Float>(1.0);
+  constexpr auto two = static_cast<Float>(2.0);
+  constexpr auto three = static_cast<Float>(3.0);
+
+  F2<FloatN> r{x, make<FloatN>(zero)};
+  FloatN q = y;
+  const auto rde = toward0(Algorithm::invert(y));
+  for (int i = 0; i < 8; ++i) {
+    q = zinvul::trunc(toward0(r.x_) * rde);
+
+    auto flag = cast<CmpType>(zinvul::isgreater(three * y, r.x_) &&
+                              zinvul::isgreaterequal(r.x_, y));
+    q = zinvul::select(q, make<FloatN>(two), flag);
+
+    flag = cast<CmpType>(zinvul::isgreater(two * y, r.x_) &&
+                         zinvul::isgreaterequal(r.x_, y));
+    q = zinvul::select(q, make<FloatN>(one), flag);
+
+    const auto tmp = normalizeF2(add2F2F2(r, mulFF(q, -y)));
+    const auto isnot_first = (0 < i) ? kResultTrue<FloatN> : kResultFalse;
+    flag = cast<CmpType>(make<CmpType>(isnot_first) && zinvul::isless(r.x_, y));
+    r.x_ = zinvul::select(tmp.x_, r.x_, flag);
+    r.y_ = zinvul::select(tmp.y_, r.y_, flag);
+  }
+  auto z = r.x_ + r.y_;
+  const auto flag = zinvul::isequal(z, y);
+  z = zinvul::select(z, make<FloatN>(zero), flag);
+
+  return z;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::fmodImplD(const FloatN x, const FloatN y) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  using CmpType = ComparisonResultType<FloatN>;
+
+  constexpr auto zero = static_cast<Float>(0.0);
+  constexpr auto one = static_cast<Float>(1.0);
+  constexpr auto two = static_cast<Float>(2.0);
+  constexpr auto three = static_cast<Float>(3.0);
+
+  F2<FloatN> r{x, make<FloatN>(zero)};
+  FloatN q = y;
+  const auto rde = toward0(Algorithm::invert(y));
+  for (int i = 0; i < 21; ++i) {
+    q = removeLsb(zinvul::trunc(toward0(r.x_) * rde));
+
+    auto flag = cast<CmpType>(zinvul::isgreater(three * y, r.x_) &&
+                              zinvul::isgreaterequal(r.x_, y));
+    q = zinvul::select(q, make<FloatN>(two), flag);
+
+    flag = cast<CmpType>(zinvul::isgreater(two * y, r.x_) &&
+                         zinvul::isgreaterequal(r.x_, y));
+    q = zinvul::select(q, make<FloatN>(one), flag);
+
+    flag = Algorithm::isNegative(r.y_);
+    const auto t = zinvul::select(make<FloatN>(one), make<FloatN>(zero), flag);
+    flag = zinvul::isequal(r.x_, y);
+    q = zinvul::select(q, t, flag);
+
+    const auto tmp = normalizeF2(add2F2F2(r, mulFF(q, -y)));
+    const auto isnot_first = (0 < i) ? kResultTrue<FloatN> : kResultFalse;
+    flag = cast<CmpType>(make<CmpType>(isnot_first) && zinvul::isless(r.x_, y));
+    r.x_ = zinvul::select(tmp.x_, r.x_, flag);
+    r.y_ = zinvul::select(tmp.y_, r.y_, flag);
+  }
+  auto z = r.x_;
+  const auto flag = zinvul::isequal(r.x_ + r.y_, y);
+  z = zinvul::select(z, make<FloatN>(zero), flag);
+
+  return z;
 }
 
 /*!
@@ -1824,10 +2156,10 @@ FloatN Math::Zinvul::sinImplF(const FloatN theta) noexcept
     constexpr auto m_1_pi = static_cast<float>(1.0 / kPi<double>);
     const auto qf = rintImpl(theta * m_1_pi);
 
-    constexpr auto pi_a = -getPi<0, float>();
-    constexpr auto pi_b = -getPi<1, float>();
-    constexpr auto pi_c = -getPi<2, float>();
-    constexpr auto pi_d = -getPi<3, float>();
+    constexpr auto pi_a = -getPi<float, 0>();
+    constexpr auto pi_b = -getPi<float, 1>();
+    constexpr auto pi_c = -getPi<float, 2>();
+    constexpr auto pi_d = -getPi<float, 3>();
     x = zinvul::fma(qf, make<FloatN>(pi_a), x);
     x = zinvul::fma(qf, make<FloatN>(pi_b), x);
     x = zinvul::fma(qf, make<FloatN>(pi_c), x);
@@ -1866,10 +2198,10 @@ FloatN Math::Zinvul::sinImplD(const FloatN theta) noexcept
     const auto dqh = zinvul::trunc(theta * (m_1_pi / m_24)) * m_24;
     const auto qf = rintImpl(theta * m_1_pi - dqh);
 
-    constexpr auto pi_a = -getPi<0, double>();
-    constexpr auto pi_b = -getPi<1, double>();
-    constexpr auto pi_c = -getPi<2, double>();
-    constexpr auto pi_d = -getPi<3, double>();
+    constexpr auto pi_a = -getPi<double, 0>();
+    constexpr auto pi_b = -getPi<double, 1>();
+    constexpr auto pi_c = -getPi<double, 2>();
+    constexpr auto pi_d = -getPi<double, 3>();
     x = zinvul::fma(dqh, make<FloatN>(pi_a), x);
     x = zinvul::fma(qf, make<FloatN>(pi_a), x);
     x = zinvul::fma(dqh, make<FloatN>(pi_b), x);
@@ -1925,10 +2257,10 @@ FloatN Math::Zinvul::cosImplF(const FloatN theta) noexcept
     constexpr auto m_1_pi = static_cast<float>(1.0 / kPi<double>);
     const auto qf = 1.0f + 2.0f * rintImpl(theta * m_1_pi - 0.5f);
 
-    constexpr auto pi_a = -getPi<0, float>() * 0.5f;
-    constexpr auto pi_b = -getPi<1, float>() * 0.5f;
-    constexpr auto pi_c = -getPi<2, float>() * 0.5f;
-    constexpr auto pi_d = -getPi<3, float>() * 0.5f;
+    constexpr auto pi_a = -getPi<float, 0>() * 0.5f;
+    constexpr auto pi_b = -getPi<float, 1>() * 0.5f;
+    constexpr auto pi_c = -getPi<float, 2>() * 0.5f;
+    constexpr auto pi_d = -getPi<float, 3>() * 0.5f;
     x = zinvul::fma(qf, make<FloatN>(pi_a), x);
     x = zinvul::fma(qf, make<FloatN>(pi_b), x);
     x = zinvul::fma(qf, make<FloatN>(pi_c), x);
@@ -1969,10 +2301,10 @@ FloatN Math::Zinvul::cosImplD(const FloatN theta) noexcept
     const auto qf = 2.0 * rintImpl(theta * m_1_pi - 0.5 - dqh * m_23) + 1.0;
     dqh = dqh * m_24;
 
-    constexpr auto pi_a = -getPi<0, double>() * 0.5;
-    constexpr auto pi_b = -getPi<1, double>() * 0.5;
-    constexpr auto pi_c = -getPi<2, double>() * 0.5;
-    constexpr auto pi_d = -getPi<3, double>() * 0.5;
+    constexpr auto pi_a = -getPi<double, 0>() * 0.5;
+    constexpr auto pi_b = -getPi<double, 1>() * 0.5;
+    constexpr auto pi_c = -getPi<double, 2>() * 0.5;
+    constexpr auto pi_d = -getPi<double, 3>() * 0.5;
     x = zinvul::fma(dqh, make<FloatN>(pi_a), x);
     x = zinvul::fma(qf, make<FloatN>(pi_a), x);
     x = zinvul::fma(dqh, make<FloatN>(pi_b), x);
@@ -2028,10 +2360,10 @@ FloatN Math::Zinvul::tanImplF(const FloatN theta) noexcept
     constexpr auto m_2_pi = static_cast<float>(2.0 / kPi<double>);
     const auto qf = rintImpl(theta * m_2_pi);
 
-    constexpr auto pi_a = -getPi<0, float>() * 0.5f;
-    constexpr auto pi_b = -getPi<1, float>() * 0.5f;
-    constexpr auto pi_c = -getPi<2, float>() * 0.5f;
-    constexpr auto pi_d = -getPi<3, float>() * 0.5f;
+    constexpr auto pi_a = -getPi<float, 0>() * 0.5f;
+    constexpr auto pi_b = -getPi<float, 1>() * 0.5f;
+    constexpr auto pi_c = -getPi<float, 2>() * 0.5f;
+    constexpr auto pi_d = -getPi<float, 3>() * 0.5f;
     x = zinvul::fma(qf, make<FloatN>(pi_a), x);
     x = zinvul::fma(qf, make<FloatN>(pi_b), x);
     x = zinvul::fma(qf, make<FloatN>(pi_c), x);
@@ -2069,10 +2401,10 @@ FloatN Math::Zinvul::tanImplD(const FloatN theta) noexcept
     const auto dqh = zinvul::trunc(theta * (m_2_pi / m_24)) * m_24;
     const auto qf = rintImpl(theta * m_2_pi - dqh);
 
-    constexpr auto pi_a = -getPi<0, double>() * 0.5;
-    constexpr auto pi_b = -getPi<1, double>() * 0.5;
-    constexpr auto pi_c = -getPi<2, double>() * 0.5;
-    constexpr auto pi_d = -getPi<3, double>() * 0.5;
+    constexpr auto pi_a = -getPi<double, 0>() * 0.5;
+    constexpr auto pi_b = -getPi<double, 1>() * 0.5;
+    constexpr auto pi_c = -getPi<double, 2>() * 0.5;
+    constexpr auto pi_d = -getPi<double, 3>() * 0.5;
     x = zinvul::fma(dqh, make<FloatN>(pi_a), x);
     x = zinvul::fma(qf, make<FloatN>(pi_a), x);
     x = zinvul::fma(dqh, make<FloatN>(pi_b), x);
@@ -2169,6 +2501,53 @@ FloatN Math::Zinvul::acosImpl(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   const auto y = asinImpl(x);
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::atanImpl(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+  using Float = typename VectorTypeInfo<FloatN>::ElementType;
+  if constexpr (sizeof(Float) == 4) {
+    const auto y = atanImplF(x);
+    return y;
+  }
+  else if constexpr (sizeof(Float) == 8) {
+    const auto y = atanImplD(x);
+    return y;
+  }
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::atanImplF(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+
+  const auto x2 = x * x;
+  const auto x4 = x2 * x2;
+  const auto y = evalPoly8<AtanPolyConstants, 0>(x, x2, x4);
+
+  return y;
+}
+
+/*!
+  */
+template <typename FloatN> inline
+FloatN Math::Zinvul::atanImplD(const FloatN x) noexcept
+{
+  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
+
+  const auto x2 = x * x;
+  const auto x4 = x2 * x2;
+  const auto x8 = x4 * x4;
+  const auto x16 = x8 * x8;
+  const auto y = evalPoly19<AtanPolyConstants, 0>(x, x2, x4, x8, x16);
+
   return y;
 }
 
