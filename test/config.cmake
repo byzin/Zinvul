@@ -117,6 +117,9 @@ function(buildUnitTest)
   makeKernelSet(experiment experiment_source_files experiment_definitions
       SOURCE_FILES ${experiment_cl_files} INCLUDE_DIRS ${experiment_dir})
 
+  #
+  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/mathlog)
+
   # Build unit tests
   file(GLOB unittest_source_files ${__test_root__}/unittest/*.hpp
                                   ${__test_root__}/unittest/*.cpp)

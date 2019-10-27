@@ -16,6 +16,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -34,6 +35,8 @@
 
 namespace {
 
+constexpr std::size_t kLogInterval = 32;
+
 template <typename Float>
 void printFloat(const char* message, const Float x)
 {
@@ -51,10 +54,43 @@ void printFloat(const char* message, const Float x)
   std::cout << std::endl;
 }
 
-template <zinvul::uint32b kAllowableUlps = 2,
+std::unique_ptr<std::ostream> makeLogStream(const std::string_view func_name,
+                                            const zinvul::uint32b number,
+                                            const zinvul::Device& device)
+{
+  using namespace std::string_literals;
+
+  const std::string log_dir_name{"mathlog/"};
+  const auto log_file_name = func_name.data() + "-"s +
+                             std::to_string(number) + "-"s +
+                             device.name().data();
+  const auto log_file_path = log_dir_name + log_file_name + ".csv";
+  std::unique_ptr<std::ostream> log_file =
+      std::make_unique<std::ofstream>(log_file_path);
+  return log_file;
+}
+
+template <typename Float>
+Float calcUlpDistance(const Float lhs, const Float rhs)
+{
+  constexpr auto e = std::numeric_limits<Float>::epsilon();
+  constexpr auto k = static_cast<Float>(2.0);
+
+  Float l = std::min(std::abs(lhs), std::abs(rhs));
+  Float r = std::max(std::abs(lhs), std::abs(rhs));
+  int le = 0;
+  int re = 0;
+  l = std::frexp(l, &le);
+  r = std::frexp(r, &re);
+  r = std::ldexp(r, re - le);
+  const Float ulp_distance = k * (r - l) / e;
+  return ulp_distance;
+}
+
+template <zinvul::uint32b kAllowableUlps = 4,
           zinvul::uint32b kCautionedUlps = 8192,
           typename Float> 
-void testFloat(const char* func_name,
+void testFloat(const std::string_view func_name,
     const Float x,
     const Float* y,
     const Float expected,
@@ -66,6 +102,7 @@ void testFloat(const char* func_name,
     zisc::CompensatedSummation<Float>& sum_ulps,
     Float& max_ulps,
     Float& max_diff,
+    std::ostream* func_log = nullptr,
     const bool print_failure_values = (sizeof(Float) == 4) ? true : false)
 {
   using namespace zinvul;
@@ -76,11 +113,11 @@ void testFloat(const char* func_name,
   {
     char expression[64];
     if (y != nullptr) {
-      std::sprintf(expression, "%s(%g, %g)", func_name, cast<double>(x),
-                                                        cast<double>(*y));
+      std::sprintf(expression, "%s(%g, %g)", func_name.data(), cast<double>(x),
+                                                               cast<double>(*y));
     }
     else {
-      std::sprintf(expression, "%s(%g)", func_name, cast<double>(x));
+      std::sprintf(expression, "%s(%g)", func_name.data(), cast<double>(x));
     }
     std::string_view expression_str{expression};
 
@@ -95,15 +132,15 @@ void testFloat(const char* func_name,
                  *treatAs<const int*>(&expected));
   };
 
-  ++num_of_trials;
+  Float ulp_distance = std::numeric_limits<Float>::quiet_NaN();
   if (std::isfinite(result)) {
-    if (!constant::Math::isAlmostEqual<kAllowableUlps>(expected, result)) {
+    ulp_distance = calcUlpDistance(expected, result);
+    if (cast<Float>(kAllowableUlps) < ulp_distance) {
       ++num_of_failures;
       const auto diff = std::abs(expected - result);
-      const auto ulps = diff / constant::Math::getUlps<1>(expected + result);
-      if (std::isfinite(ulps)) {
-        sum_ulps.add(ulps);
-        max_ulps = std::max(max_ulps, ulps);
+      if (std::isfinite(ulp_distance)) {
+        sum_ulps.add(ulp_distance);
+        max_ulps = std::max(max_ulps, ulp_distance);
       }
       if (!std::isnan(diff)) {
         max_diff = std::max(max_diff, diff);
@@ -130,6 +167,27 @@ void testFloat(const char* func_name,
       std::cout << result_str << std::endl;
     }
   }
+
+  // Log
+  if (func_log != nullptr) {
+    auto& flog = *func_log;
+    // Add column labels
+    if (num_of_trials == 0) {
+      flog << "x";
+      if (y != nullptr)
+        flog << ",y";
+      flog << ",expected,result,ULP distance" << std::endl;
+    }
+    // Add values
+    flog << std::scientific
+         << std::setprecision(std::numeric_limits<Float>::max_digits10)
+         << x;
+    if (y != nullptr)
+      flog << "," << (*y);
+    flog << "," << expected << "," << result << "," << ulp_distance << std::endl;
+  }
+
+  ++num_of_trials;
 }
 
 } // namespace 
@@ -1138,15 +1196,21 @@ TEST(MathTest, ExpBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::exp"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::exp(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::exp", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::exp' func failed." << std::endl
@@ -1205,15 +1269,21 @@ TEST(MathTest, ExpZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::exp"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::exp(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::exp", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::exp' func failed." << std::endl
@@ -1339,15 +1409,21 @@ TEST(MathTest, Exp2BuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::exp2"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::exp2(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::exp2", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::exp2' func failed." << std::endl
@@ -1406,15 +1482,21 @@ TEST(MathTest, Exp2ZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::exp2"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::exp2(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::exp2", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::exp2' func failed." << std::endl
@@ -1540,15 +1622,21 @@ TEST(MathTest, LogBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::log"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::log(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::log", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::log' func failed." << std::endl
@@ -1607,15 +1695,21 @@ TEST(MathTest, LogZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::log"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::log(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::log", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::log' func failed." << std::endl
@@ -1741,15 +1835,21 @@ TEST(MathTest, Log2BuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::log2"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::log2(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::log2", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::log2' func failed." << std::endl
@@ -1808,15 +1908,21 @@ TEST(MathTest, Log2ZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::log2"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::log2(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::log2", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::log2' func failed." << std::endl
@@ -1955,15 +2061,21 @@ TEST(MathTest, PowBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::pow"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < xinputs.size(); ++i) {
         const auto x = xinputs[i];
         const auto y = yinputs[i];
         const auto expected = std::pow(x, y);
         const auto result = results[i];
-        ::testFloat("builtin::pow", x, &y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, &y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::pow' func failed." << std::endl
@@ -2029,15 +2141,21 @@ TEST(MathTest, PowZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::pow"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < xinputs.size(); ++i) {
         const auto x = xinputs[i];
         const auto y = yinputs[i];
         const auto expected = std::pow(x, y);
         const auto result = results[i];
-        ::testFloat("zinvul::pow", x, &y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, &y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::pow' func failed." << std::endl
@@ -2164,15 +2282,21 @@ TEST(MathTest, RsqrtBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::rsqrt"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = zisc::Algorithm::invert(std::sqrt(x));
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::rsqrt", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::rsqrt' func failed." << std::endl
@@ -2231,15 +2355,21 @@ TEST(MathTest, RsqrtZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::rsqrt"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = zisc::Algorithm::invert(std::sqrt(x));
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::rsqrt", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::rsqrt' func failed." << std::endl
@@ -2365,15 +2495,21 @@ TEST(MathTest, SqrtBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::sqrt"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sqrt(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::sqrt", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::sqrt' func failed." << std::endl
@@ -2432,15 +2568,21 @@ TEST(MathTest, SqrtZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::sqrt"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sqrt(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::sqrt", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::sqrt' func failed." << std::endl
@@ -2566,15 +2708,21 @@ TEST(MathTest, CbrtBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::cbrt"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cbrt(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::cbrt", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::cbrt' func failed." << std::endl
@@ -2633,15 +2781,21 @@ TEST(MathTest, CbrtZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::cbrt"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cbrt(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::cbrt", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::cbrt' func failed." << std::endl
@@ -2700,12 +2854,14 @@ TEST(MathTest, SinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"sin"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sin(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("sin", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
@@ -2767,15 +2923,21 @@ TEST(MathTest, SinBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::sin"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sin(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::sin", x, y, expected, result,
+        auto flog = ((0.f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::sin' func failed." << std::endl
@@ -2834,15 +2996,21 @@ TEST(MathTest, SinZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::sin"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sin(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::sin", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::sin' func failed." << std::endl
@@ -2968,15 +3136,21 @@ TEST(MathTest, CosBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::cos"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cos(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::cos", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::cos' func failed." << std::endl
@@ -3035,15 +3209,21 @@ TEST(MathTest, CosZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::cos"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cos(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::cos", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::cos' func failed." << std::endl
@@ -3169,15 +3349,21 @@ TEST(MathTest, TanBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::tan"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::tan(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::tan", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::tan' func failed." << std::endl
@@ -3236,15 +3422,21 @@ TEST(MathTest, TanZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::tan"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::tan(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::tan", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::tan' func failed." << std::endl
@@ -3370,15 +3562,21 @@ TEST(MathTest, SinPiBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::sin_pi"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sin(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::sin", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::sin' func failed." << std::endl
@@ -3437,15 +3635,21 @@ TEST(MathTest, SinPiZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::sin_pi"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sin(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::sin", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::sin' func failed." << std::endl
@@ -3571,15 +3775,21 @@ TEST(MathTest, CosPiBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::cos_pi"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cos(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::cos", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::cos' func failed." << std::endl
@@ -3638,15 +3848,21 @@ TEST(MathTest, CosPiZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::cos_pi"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cos(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::cos", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::cos' func failed." << std::endl
@@ -3772,15 +3988,21 @@ TEST(MathTest, TanPiBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::tan_pi"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::tan(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::tan", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::tan' func failed." << std::endl
@@ -3839,15 +4061,21 @@ TEST(MathTest, TanPiZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::tan_pi"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::tan(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::tan", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::tan' func failed." << std::endl
@@ -3973,15 +4201,21 @@ TEST(MathTest, AsinBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::asin"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::asin(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::asin", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::asin' func failed." << std::endl
@@ -4040,15 +4274,21 @@ TEST(MathTest, AsinZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::asin"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::asin(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::asin", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::asin' func failed." << std::endl
@@ -4174,15 +4414,21 @@ TEST(MathTest, AcosBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::acos"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::acos(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::acos", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::acos' func failed." << std::endl
@@ -4241,15 +4487,21 @@ TEST(MathTest, AcosZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::acos"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::acos(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::acos", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::acos' func failed." << std::endl
@@ -4375,15 +4627,21 @@ TEST(MathTest, AtanBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::atan"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::atan(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("builtin::atan", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::atan' func failed." << std::endl
@@ -4442,15 +4700,21 @@ TEST(MathTest, AtanZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::atan"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::atan(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("zinvul::atan", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::atan' func failed." << std::endl
@@ -4589,15 +4853,21 @@ TEST(MathTest, FmodBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::fmod"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < xinputs.size(); ++i) {
         const auto x = xinputs[i];
         const auto y = yinputs[i];
         const auto expected = std::fmod(x, y);
         const auto result = results[i];
-        ::testFloat("builtin::fmod", x, &y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, &y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'builtin::fmod' func failed." << std::endl
@@ -4663,15 +4933,21 @@ TEST(MathTest, FmodZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::fmod"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < xinputs.size(); ++i) {
         const auto x = xinputs[i];
         const auto y = yinputs[i];
         const auto expected = std::fmod(x, y);
         const auto result = results[i];
-        ::testFloat("zinvul::fmod", x, &y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, &y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::fmod' func failed." << std::endl
@@ -5054,6 +5330,9 @@ TEST(MathTest, ModfBuiltinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"builtin::modf"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         float fexpected = 0.0f;
@@ -5061,10 +5340,13 @@ TEST(MathTest, ModfBuiltinTest)
         const auto result = results[i];
         const auto fresult = fresults[i];
         float* y = nullptr;
-        ::testFloat("builtin::modf", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
         if (std::isnan(fexpected))
           ASSERT_TRUE(std::isnan(fresult)) << "'builtin::modf' func failed.";
         else
@@ -5134,6 +5416,9 @@ TEST(MathTest, ModfZinvulTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::modf"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         float fexpected = 0.0f;
@@ -5141,10 +5426,13 @@ TEST(MathTest, ModfZinvulTest)
         const auto result = results[i];
         const auto fresult = fresults[i];
         float* y = nullptr;
-        ::testFloat("zinvul::modf", x, y, expected, result,
+        auto flog = ((0.0f < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
         if (std::isnan(fexpected))
           ASSERT_TRUE(std::isnan(fresult)) << "'zinvul::modf' func failed.";
         else
@@ -7939,15 +8227,21 @@ TEST(MathTest, SinZinvulF64Test)
       double max_ulps = 0.0;
       double max_diff = 0.0;
 
+      const std::string_view func_name{"zinvul::sin64"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sin(x);
         const auto result = results[i];
         double* y = nullptr;
-        ::testFloat("zinvul::sin", x, y, expected, result,
+        auto flog = ((0.0 < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::sin' func failed." << std::endl
@@ -8140,15 +8434,21 @@ TEST(MathTest, CosZinvulF64Test)
       double max_ulps = 0.0;
       double max_diff = 0.0;
 
+      const std::string_view func_name{"zinvul::cos64"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cos(x);
         const auto result = results[i];
         double* y = nullptr;
-        ::testFloat("zinvul::cos", x, y, expected, result,
+        auto flog = ((0.0 < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::cos' func failed." << std::endl
@@ -8341,15 +8641,21 @@ TEST(MathTest, TanZinvulF64Test)
       double max_ulps = 0.0;
       double max_diff = 0.0;
 
+      const std::string_view func_name{"zinvul::tan64"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::tan(x);
         const auto result = results[i];
         double* y = nullptr;
-        ::testFloat("zinvul::tan", x, y, expected, result,
+        auto flog = ((0.0 < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::tan' func failed." << std::endl
@@ -8542,15 +8848,21 @@ TEST(MathTest, SinPiZinvulF64Test)
       double max_ulps = 0.0;
       double max_diff = 0.0;
 
+      const std::string_view func_name{"zinvul::sin_pi64"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sin(x);
         const auto result = results[i];
         double* y = nullptr;
-        ::testFloat("zinvul::sin", x, y, expected, result,
+        auto flog = ((0.0 < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::sin' func failed." << std::endl
@@ -8743,15 +9055,21 @@ TEST(MathTest, CosPiZinvulF64Test)
       double max_ulps = 0.0;
       double max_diff = 0.0;
 
+      const std::string_view func_name{"zinvul::cos_pi64"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cos(x);
         const auto result = results[i];
         double* y = nullptr;
-        ::testFloat("zinvul::cos", x, y, expected, result,
+        auto flog = ((0.0 < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::cos' func failed." << std::endl
@@ -8944,15 +9262,21 @@ TEST(MathTest, TanPiZinvulF64Test)
       double max_ulps = 0.0;
       double max_diff = 0.0;
 
+      const std::string_view func_name{"zinvul::tan_pi64"};
+      auto func_log = makeLogStream(func_name, number, *device);
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::tan(x);
         const auto result = results[i];
         double* y = nullptr;
-        ::testFloat("zinvul::tan", x, y, expected, result,
+        auto flog = ((0.0 < x) && (i % kLogInterval) == 0)
+            ? func_log.get()
+            : nullptr;
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
-                    sum_ulps, max_ulps, max_diff);
+                    sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
           << "'zinvul::tan' func failed." << std::endl
