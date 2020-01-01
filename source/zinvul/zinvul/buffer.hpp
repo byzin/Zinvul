@@ -72,10 +72,10 @@ class Buffer : private zisc::NonCopyable<Buffer<kDescriptor, T>>
                     const std::size_t offset,
                     const uint32b queue_index) const noexcept = 0;
 
-  //! Set a size of a buffer
+  //! Change the number of elements
   virtual void setSize(const std::size_t s) noexcept = 0;
 
-  //! Return a size of a buffer
+  //! Return the number of elements
   virtual std::size_t size() const noexcept = 0;
 
   //! Convert a type of a buffer interface to DstType

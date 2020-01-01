@@ -169,6 +169,7 @@ void testFloat(const std::string_view func_name,
   }
 
   // Log
+  if (false)
   if (func_log != nullptr) {
     auto& flog = *func_log;
     // Add column labels
@@ -1129,18 +1130,20 @@ TEST(MathTest, ExpTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"exp"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::exp(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("exp", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'exp' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1213,7 +1216,7 @@ TEST(MathTest, ExpBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::exp' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1286,7 +1289,7 @@ TEST(MathTest, ExpZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::exp' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1342,18 +1345,20 @@ TEST(MathTest, Exp2Test)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"exp2"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::exp2(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("exp2", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'exp2' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1426,7 +1431,7 @@ TEST(MathTest, Exp2BuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::exp2' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1555,18 +1560,20 @@ TEST(MathTest, LogTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"log"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::log(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("log", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'log' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1639,7 +1646,7 @@ TEST(MathTest, LogBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::log' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1712,7 +1719,7 @@ TEST(MathTest, LogZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::log' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1768,18 +1775,20 @@ TEST(MathTest, Log2Test)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"log2"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::log2(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("log2", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'log2' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1852,7 +1861,7 @@ TEST(MathTest, Log2BuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::log2' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1925,7 +1934,7 @@ TEST(MathTest, Log2ZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::log2' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -1987,18 +1996,20 @@ TEST(MathTest, PowTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"pow"};
+
       for (uint32b i = 0; i < xinputs.size(); ++i) {
         const auto x = xinputs[i];
         const auto y = yinputs[i];
         const auto expected = std::pow(x, y);
         const auto result = results[i];
-        ::testFloat("pow", x, &y, expected, result,
+        ::testFloat(func_name, x, &y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'pow' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2078,7 +2089,7 @@ TEST(MathTest, PowBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::pow' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2158,7 +2169,7 @@ TEST(MathTest, PowZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::pow' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2215,18 +2226,20 @@ TEST(MathTest, RsqrtTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"rsqrt"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = zisc::Algorithm::invert(std::sqrt(x));
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("rsqrt", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'rsqrt' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2299,7 +2312,7 @@ TEST(MathTest, RsqrtBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::rsqrt' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2372,7 +2385,7 @@ TEST(MathTest, RsqrtZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::rsqrt' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2428,18 +2441,20 @@ TEST(MathTest, SqrtTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"sqrt"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sqrt(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("sqrt", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'sqrt' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2512,7 +2527,7 @@ TEST(MathTest, SqrtBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::sqrt' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2585,7 +2600,7 @@ TEST(MathTest, SqrtZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::sqrt' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2641,18 +2656,20 @@ TEST(MathTest, CbrtTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"cbrt"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cbrt(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("cbrt", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'cbrt' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2725,7 +2742,7 @@ TEST(MathTest, CbrtBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::cbrt' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2798,7 +2815,7 @@ TEST(MathTest, CbrtZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::cbrt' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2867,7 +2884,7 @@ TEST(MathTest, SinTest)
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'sin' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -2940,7 +2957,7 @@ TEST(MathTest, SinBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::sin' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3013,7 +3030,7 @@ TEST(MathTest, SinZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::sin' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3069,18 +3086,20 @@ TEST(MathTest, CosTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"cos"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cos(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("cos", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'cos' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3153,7 +3172,7 @@ TEST(MathTest, CosBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::cos' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3226,7 +3245,7 @@ TEST(MathTest, CosZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::cos' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3282,18 +3301,20 @@ TEST(MathTest, TanTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"tan"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::tan(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("tan", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'tan' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3366,7 +3387,7 @@ TEST(MathTest, TanBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::tan' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3439,7 +3460,7 @@ TEST(MathTest, TanZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::tan' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3495,18 +3516,20 @@ TEST(MathTest, SinPiTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"sin_pi"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::sin(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("sin", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'sin' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3579,7 +3602,7 @@ TEST(MathTest, SinPiBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::sin' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3652,7 +3675,7 @@ TEST(MathTest, SinPiZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::sin' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3708,18 +3731,20 @@ TEST(MathTest, CosPiTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"cos_pi"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::cos(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("cos", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'cos' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3792,7 +3817,7 @@ TEST(MathTest, CosPiBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::cos' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3865,7 +3890,7 @@ TEST(MathTest, CosPiZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::cos' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -3921,18 +3946,20 @@ TEST(MathTest, TanPiTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"zinvul::tan_pi"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::tan(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("tan", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'tan' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4005,7 +4032,7 @@ TEST(MathTest, TanPiBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::tan' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4078,7 +4105,7 @@ TEST(MathTest, TanPiZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::tan' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4134,18 +4161,20 @@ TEST(MathTest, AsinTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"asin"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::asin(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("asin", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'asin' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4218,7 +4247,7 @@ TEST(MathTest, AsinBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::asin' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4291,7 +4320,7 @@ TEST(MathTest, AsinZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::asin' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4347,18 +4376,20 @@ TEST(MathTest, AcosTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"acos"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::acos(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("acos", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'acos' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4431,7 +4462,7 @@ TEST(MathTest, AcosBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::acos' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4504,7 +4535,7 @@ TEST(MathTest, AcosZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::acos' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4560,18 +4591,20 @@ TEST(MathTest, AtanTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"atan"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         const auto expected = std::atan(x);
         const auto result = results[i];
         float* y = nullptr;
-        ::testFloat("atan", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'atan' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4644,7 +4677,7 @@ TEST(MathTest, AtanBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::atan' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4717,7 +4750,7 @@ TEST(MathTest, AtanZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::atan' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4779,18 +4812,20 @@ TEST(MathTest, FmodTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"fmod"};
+
       for (uint32b i = 0; i < xinputs.size(); ++i) {
         const auto x = xinputs[i];
         const auto y = yinputs[i];
         const auto expected = std::fmod(x, y);
         const auto result = results[i];
-        ::testFloat("fmod", x, &y, expected, result,
+        ::testFloat(func_name, x, &y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'fmod' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4870,7 +4905,7 @@ TEST(MathTest, FmodBuiltinTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::fmod' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -4950,7 +4985,7 @@ TEST(MathTest, FmodZinvulTest)
                     sum_ulps, max_ulps, max_diff, flog);
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::fmod' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -5250,6 +5285,8 @@ TEST(MathTest, ModfTest)
       float max_ulps = 0.0f;
       float max_diff = 0.0f;
 
+      const std::string_view func_name{"modf"};
+
       for (uint32b i = 0; i < inputs.size(); ++i) {
         const auto x = inputs[i];
         float fexpected = 0.0f;
@@ -5257,7 +5294,7 @@ TEST(MathTest, ModfTest)
         const auto result = results[i];
         const auto fresult = fresults[i];
         float* y = nullptr;
-        ::testFloat("modf", x, y, expected, result,
+        ::testFloat(func_name, x, y, expected, result,
                     num_of_trials, num_of_failures,
                     num_of_inf_failures, num_of_nan_failures,
                     sum_ulps, max_ulps, max_diff);
@@ -5267,7 +5304,7 @@ TEST(MathTest, ModfTest)
           ASSERT_FLOAT_EQ(fexpected, fresult) << "'modf' func failed.";
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'modf' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -5353,7 +5390,7 @@ TEST(MathTest, ModfBuiltinTest)
           ASSERT_FLOAT_EQ(fexpected, fresult) << "'builtin::modf' func failed.";
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'builtin::modf' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
@@ -5439,7 +5476,7 @@ TEST(MathTest, ModfZinvulTest)
           ASSERT_FLOAT_EQ(fexpected, fresult) << "'zinvul::modf' func failed.";
       }
       EXPECT_FALSE(num_of_failures) << std::scientific
-          << "'zinvul::modf' func failed." << std::endl
+          << func_name.data() << " func failed." << std::endl
           << "  Num of failures: " << num_of_failures << std::endl
           << "  Avg ulps: " << (sum_ulps.get() / zisc::cast<float>(num_of_failures))
           << std::endl
