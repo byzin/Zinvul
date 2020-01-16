@@ -21,7 +21,7 @@ def main():
   baked_spirv_code = "/*!\n"
   baked_spirv_code += "  \\file baked_" + args.kernel_set_name + "_spirv.hpp\n"
   baked_spirv_code += "  \\author Sho Ikeda\n"
-  baked_spirv_code += "  Copyright (c) 2015-2019 Sho Ikeda\n"
+  baked_spirv_code += "  Copyright (c) 2015-2020 Sho Ikeda\n"
   baked_spirv_code += "  This software is released under the MIT License.\n"
   baked_spirv_code += "  http://opensource.org/licenses/mit-license.php\n"
   baked_spirv_code += "  */\n"
