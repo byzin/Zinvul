@@ -19,10 +19,10 @@
 
 # Documents
 !/README.md
-!/LICENSE
+!/LICENSE.txt
 !/Acknowledgement.md
-!/documents/
-!/documents/Doxyfile.in
+!/document/
+!/document/CMakeLists.txt
 
 # Source code
 !/source/
