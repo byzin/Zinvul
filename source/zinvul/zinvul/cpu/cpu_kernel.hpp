@@ -48,7 +48,7 @@ class CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...> :
   const CpuDevice* device() const noexcept;
 
   //! Return the device type
-  DeviceType deviceType() const noexcept override;
+  SubPlatformType SubPlatformType() const noexcept override;
 
   //! Return a kernel function
   Function kernel() const noexcept;

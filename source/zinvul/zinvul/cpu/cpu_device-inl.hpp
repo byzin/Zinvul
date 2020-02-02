@@ -1,7 +1,12 @@
 /*!
   \file cpu_device-inl.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -24,100 +29,98 @@
 #include "zisc/error.hpp"
 #include "zisc/function_reference.hpp"
 #include "zisc/math.hpp"
-#include "zisc/memory_resource.hpp"
+#include "zisc/std_memory_resource.hpp"
 #include "zisc/thread_manager.hpp"
-#include "zisc/unique_memory_pointer.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
-#include "cpu_buffer.hpp"
-#include "cpu_kernel.hpp"
+//#include "cpu_buffer.hpp"
+//#include "cpu_kernel.hpp"
+#include "zinvul/device_options.hpp"
 #include "zinvul/zinvul_config.hpp"
 #include "zinvul/cppcl/atomic.hpp"
 #include "zinvul/cppcl/utility.hpp"
-// cpu_features
-#include "cpu_features_macros.h"
-#if defined(CPU_FEATURES_ARCH_X86)
-#include "cpuinfo_x86.h"
-#elif defined(CPU_FEATURES_ARCH_ARM)
-#include "cpuinfo_arm.h"
-#elif defined(CPU_FEATURES_ARCH_AARCH64)
-#include "cpuinfo_aarch64.h"
-#elif defined(CPU_FEATURES_ARCH_MIPS)
-#include "cpuinfo_mips.h"
-#elif defined(CPU_FEATURES_ARCH_PPC)
-#include "cpuinfo_ppc.h"
-#endif
 
 namespace zinvul {
 
 /*!
+  \details No detailed description
+
+  \param [in] options No description.
   */
 inline
 CpuDevice::CpuDevice(DeviceOptions& options) noexcept :
     Device(options),
-    thread_manager_{options.cpu_num_of_threads_, memoryResource()},
-    task_bucket_size_{zisc::max(options.cpu_task_bucket_size_, 1u)}
+    thread_manager_{options.cpuNumOfThreads(), memoryResource()},
+    name_{zisc::pmr::string::allocator_type{memoryResource()}},
+    vendor_name_{zisc::pmr::string::allocator_type{memoryResource()}},
+    task_batch_size_{zisc::max(options.cpuTaskBatchSize(), 1u)}
 {
   initialize(options);
 }
 
-/*!
-  */
-template <DescriptorType kDescriptor, typename Type> inline
-void CpuDevice::allocate(const std::size_t size,
-                         CpuBuffer<kDescriptor, Type>* buffer) noexcept
-{
-  auto& b = buffer->buffer();
-  b.resize(size);
+///*!
+//  */
+//template <DescriptorType kDescriptor, typename Type> inline
+//void CpuDevice::allocate(const std::size_t size,
+//                         CpuBuffer<kDescriptor, Type>* buffer) noexcept
+//{
+//  auto& b = buffer->buffer();
+//  b.resize(size);
+//
+//  const std::size_t memory_usage = deviceMemoryUsage() + buffer->memoryUsage();
+//  setDeviceMemoryUsage(memory_usage);
+//  setHostMemoryUsage(memory_usage);
+//}
+//
+///*!
+//  */
+//template <DescriptorType kDescriptor, typename Type> inline
+//void CpuDevice::deallocate(CpuBuffer<kDescriptor, Type>* buffer) noexcept
+//{
+//  const std::size_t memory_usage = deviceMemoryUsage() - buffer->memoryUsage();
+//  setDeviceMemoryUsage(memory_usage);
+//  setHostMemoryUsage(memory_usage);
+//}
 
-  const std::size_t memory_usage = deviceMemoryUsage() + buffer->memoryUsage();
-  setDeviceMemoryUsage(memory_usage);
-  setHostMemoryUsage(memory_usage);
-}
-
 /*!
-  */
-template <DescriptorType kDescriptor, typename Type> inline
-void CpuDevice::deallocate(CpuBuffer<kDescriptor, Type>* buffer) noexcept
-{
-  const std::size_t memory_usage = deviceMemoryUsage() - buffer->memoryUsage();
-  setDeviceMemoryUsage(memory_usage);
-  setHostMemoryUsage(memory_usage);
-}
+  \details No detailed description
 
-/*!
+  \return No description
   */
 inline
-DeviceType CpuDevice::deviceType() const noexcept
+SubPlatformType CpuDevice::subPlatformType() const noexcept
 {
-  return DeviceType::kCpu;
+  return SubPlatformType::kCpu;
 }
 
-/*!
-  */
-template <DescriptorType kDescriptor, typename Type> inline
-UniqueBuffer<kDescriptor, Type> CpuDevice::makeBuffer(
-    const BufferUsage usage_flag) noexcept
-{
-  using DeviceBuffer = CpuBuffer<kDescriptor, Type>;
-  using UniqueCpuBuffer = zisc::UniqueMemoryPointer<DeviceBuffer>;
-  auto buffer = UniqueCpuBuffer::make(memoryResource(), this, usage_flag);
-  return std::move(buffer);
-}
+///*!
+//  */
+//template <DescriptorType kDescriptor, typename Type> inline
+//UniqueBuffer<kDescriptor, Type> CpuDevice::makeBuffer(
+//    const BufferUsage usage_flag) noexcept
+//{
+//  using DeviceBuffer = CpuBuffer<kDescriptor, Type>;
+//  using UniqueCpuBuffer = zisc::UniqueMemoryPointer<DeviceBuffer>;
+//  auto buffer = UniqueCpuBuffer::make(memoryResource(), this, usage_flag);
+//  return std::move(buffer);
+//}
+//
+///*!
+//  */
+//template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
+//UniqueKernel<kDimension, BufferArgs...> CpuDevice::makeKernel(
+//    Function func) noexcept
+//{
+//  using DeviceKernel = CpuKernel<kDimension, Function, BufferArgs...>;
+//  using UniqueCpuKernel = zisc::UniqueMemoryPointer<DeviceKernel>;
+//  auto kernel = UniqueCpuKernel::make(memoryResource(), this, func);
+//  return std::move(kernel);
+//}
 
 /*!
-  */
-template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline
-UniqueKernel<kDimension, BufferArgs...> CpuDevice::makeKernel(
-    Function func) noexcept
-{
-  using DeviceKernel = CpuKernel<kDimension, Function, BufferArgs...>;
-  using UniqueCpuKernel = zisc::UniqueMemoryPointer<DeviceKernel>;
-  auto kernel = UniqueCpuKernel::make(memoryResource(), this, func);
-  return std::move(kernel);
-}
+  \details No detailed description
 
-/*!
+  \return No description
   */
 inline
 std::string_view CpuDevice::name() const noexcept
@@ -127,6 +130,9 @@ std::string_view CpuDevice::name() const noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 std::size_t CpuDevice::numOfThreads() const noexcept
@@ -135,6 +141,9 @@ std::size_t CpuDevice::numOfThreads() const noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 uint32b CpuDevice::subgroupSize() const noexcept
@@ -143,38 +152,46 @@ uint32b CpuDevice::subgroupSize() const noexcept
 }
 
 /*!
-  */
-template <std::size_t kDimension> inline
-void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
-                       const Command& command) noexcept
-{
-  std::atomic<uint32b> id{0};
-  auto task = [this, &command, &works, &id](const uint, const uint)
-  {
-    const auto group_size = expandTo3dWorkGroupSize(works);
-    const uint32b num_of_works = group_size[0] * group_size[1] * group_size[2];
-    const uint32b n = ((num_of_works % taskBucketSize()) == 0)
-        ? num_of_works / taskBucketSize()
-        : num_of_works / taskBucketSize() + 1;
-    cl::clinner::WorkGroup::setWorkGroupSize(group_size);
-    for (uint32b bucket_id = id++; bucket_id < n; bucket_id = id++) {
-      for (uint32b i = 0; i < taskBucketSize(); ++i) {
-        const uint32b group_id = bucket_id * taskBucketSize() + i;
-        if (group_id < num_of_works) {
-          cl::clinner::WorkGroup::setWorkGroupId(group_id);
-          command();
-        }
-      }
-    }
-  };
+  \details No detailed description
 
-  constexpr uint start = 0;
-  const uint end = thread_manager_.numOfThreads();
-  auto result = thread_manager_.enqueueLoop(task, start, end, workResource());
-  result->wait();
-}
+  \tparam kDimension No description.
+  \param [in] works No description.
+  \param [in] command No description.
+  */
+//template <std::size_t kDimension> inline
+//void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
+//                       const Command& command) noexcept
+//{
+//  std::atomic<uint32b> id{0};
+//  auto task = [this, &command, &works, &id](const uint, const uint)
+//  {
+//    const auto group_size = expandTo3dWorkGroupSize(works);
+//    const uint32b num_of_works = group_size[0] * group_size[1] * group_size[2];
+//    const uint32b n = ((num_of_works % taskBucketSize()) == 0)
+//        ? num_of_works / taskBucketSize()
+//        : num_of_works / taskBucketSize() + 1;
+//    cl::clinner::WorkGroup::setWorkGroupSize(group_size);
+//    for (uint32b bucket_id = id++; bucket_id < n; bucket_id = id++) {
+//      for (uint32b i = 0; i < taskBucketSize(); ++i) {
+//        const uint32b group_id = bucket_id * taskBucketSize() + i;
+//        if (group_id < num_of_works) {
+//          cl::clinner::WorkGroup::setWorkGroupId(group_id);
+//          command();
+//        }
+//      }
+//    }
+//  };
+//
+//  constexpr uint start = 0;
+//  const uint end = thread_manager_.numOfThreads();
+//  auto result = thread_manager_.enqueueLoop(task, start, end, workResource());
+//  result->wait();
+//}
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 std::string_view CpuDevice::vendorName() const noexcept
@@ -184,6 +201,7 @@ std::string_view CpuDevice::vendorName() const noexcept
 }
 
 /*!
+  \details No detailed description
   */
 inline
 void CpuDevice::waitForCompletion() const noexcept
@@ -191,6 +209,9 @@ void CpuDevice::waitForCompletion() const noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] queue_type No description.
   */
 inline
 void CpuDevice::waitForCompletion(const QueueType /* queue_type */) const noexcept
@@ -198,6 +219,10 @@ void CpuDevice::waitForCompletion(const QueueType /* queue_type */) const noexce
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] queue_type No description.
+  \param [in] queue_index No description.
   */
 inline
 void CpuDevice::waitForCompletion(const QueueType /* queue_type */,
@@ -206,6 +231,11 @@ void CpuDevice::waitForCompletion(const QueueType /* queue_type */,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kDimension No description.
+  \param [in] works No description.
+  \return No description
   */
 template <std::size_t kDimension> inline
 std::array<uint32b, 3> CpuDevice::expandTo3dWorkGroupSize(
@@ -218,57 +248,14 @@ std::array<uint32b, 3> CpuDevice::expandTo3dWorkGroupSize(
 }
 
 /*!
-  */
-inline
-void CpuDevice::initialize(DeviceOptions& /* options */) noexcept
-{
-  using namespace cpu_features;
-  // Initialize device info
-#if defined(CPU_FEATURES_ARCH_X86)
-  {
-    char brand_string[49];
-    FillX86BrandString(brand_string);
-    name_ = brand_string;
-  }
-  {
-    const X86Info info = GetX86Info();
-    vendor_name_ = info.vendor;
-  }
-#elif defined(CPU_FEATURES_ARCH_ARM)
-  static_assert(false, "Not implemented yet.");
-  {
-    const ArmInfo info = GetArmInfo();
-  }
-  vendor_name_ = "ARM";
-#elif defined(CPU_FEATURES_ARCH_AARCH64)
-  static_assert(false, "Not implemented yet.");
-  {
-    const Aarch64Info info = GetAarch64Info();
-  }
-#elif defined(CPU_FEATURES_ARCH_MIPS)
-  static_assert(false, "Not implemented yet.");
-  {
-    const MipsInfo info = GetMipsInfo();
-  }
-#elif defined(CPU_FEATURES_ARCH_PPC)
-  static_assert(false, "Not implemented yet.");
-  {
-    const PPCInfo info = GetPPCInfo();
-    const PPCPlatformStrings strings = GetPPCPlatformStrings();
-  }
-#endif
-  if (name_.empty())
-    name_ = "N/A";
-  if (vendor_name_.empty())
-    vendor_name_ = "N/A";
-}
+  \details No detailed description
 
-/*!
+  \return No description
   */
 inline
-uint32b CpuDevice::taskBucketSize() const noexcept
+uint32b CpuDevice::taskBatchSize() const noexcept
 {
-  return task_bucket_size_;
+  return task_batch_size_;
 }
 
 } // namespace zinvul

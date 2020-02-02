@@ -7,42 +7,21 @@
 # 
 
 
-# Retrieve Zinvul version from README.md
-function(retrieveZinvulVersion version_major version_minor version_patch)
-  set(version_is_found OFF)
-  # Parse README.md and find Zinvul version
-  file(STRINGS ${PROJECT_SOURCE_DIR}/README.md readme_text)
-  foreach(readme_line ${readme_text})
-    if(readme_line MATCHES "Version: *([0-9]+)\\.([0-9]+)\\.([0-9]+) *")
-      set(version_is_found ON)
-      set(major ${CMAKE_MATCH_1})
-      set(minor ${CMAKE_MATCH_2})
-      set(patch ${CMAKE_MATCH_3})
-      break()
-    endif()
-  endforeach(readme_line)
-  if(NOT version_is_found)
-    message(FATAL_ERROR "Zinvul version isn't found in README.md.")
+function(attachZinvulOption target)
+  checkTarget(Zisc)
+  checkTarget(${target})
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
+  find_package(Threads REQUIRED)
+  get_target_property(zisc_compile_flags Zisc INTERFACE_COMPILE_OPTIONS)
+  if(zisc_compile_flags)
+    target_compile_options(${target} PRIVATE ${zisc_compile_flags})
   endif()
-
-
-  # Output variables
-  set(${version_major} ${major} PARENT_SCOPE)
-  set(${version_minor} ${minor} PARENT_SCOPE)
-  set(${version_patch} ${patch} PARENT_SCOPE)
-endfunction(retrieveZinvulVersion)
-
-
-# Seet project informations
-macro(setZinvulProperties)
-  # Version
-  retrieveZinvulVersion(PROJECT_VERSION_MAJOR
-                        PROJECT_VERSION_MINOR
-                        PROJECT_VERSION_PATCH)
-  set(PROJECT_VERSION
-      "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
-  set(zinvul_version ${PROJECT_VERSION})
-  set(zinvul_version_major ${PROJECT_VERSION_MAJOR})
-  set(zinvul_version_minor ${PROJECT_VERSION_MINOR})
-  set(zinvul_version_patch ${PROJECT_VERSION_PATCH})
-endmacro(setZinvulProperties)
+  get_target_property(zisc_libraries Zisc INTERFACE_LINK_LIBRARIES)
+  if(zisc_libraries)
+    target_link_libraries(${target} PRIVATE ${zisc_libraries})
+  endif()
+  get_target_property(zisc_linker_flags Zisc INTERFACE_LINK_OPTIONS)
+  if(zisc_linker_flags)
+    target_link_options(${target} PRIVATE ${zisc_linker_flags})
+  endif()
+endfunction(attachZinvulOption)

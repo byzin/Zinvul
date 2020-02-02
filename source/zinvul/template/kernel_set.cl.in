@@ -1,14 +1,19 @@
 /*!
   \file @kernel_set_name@.cl
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
 
 #ifndef ZINVUL_@kernel_set_name@_CL
-#define ZINVUL_@kernel_set_name@_CL @set_number@
+#define ZINVUL_@kernel_set_name@_CL @kernel_set_number@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc++98-compat"
@@ -22,7 +27,7 @@
 
 @kernel_include_lines@
 
-static_assert(ZINVUL_@kernel_set_name@_CL == @set_number@,
+static_assert(ZINVUL_@kernel_set_name@_CL == @kernel_set_number@,
               "The number of the kernel set is changed.");
 #if !defined(ZINVUL_GLOBAL_NAMESPACE)
 static_assert(false, "The ZINVUL_GLOBAL_NAMESPACE macro isn't defined.");

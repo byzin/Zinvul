@@ -1,7 +1,12 @@
 /*!
   \file mapped_memory.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -15,7 +20,7 @@
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zinvul
-#include "zinvul/zinvul_config.hpp"
+#include "zinvul_config.hpp"
 
 namespace zinvul {
 
@@ -23,6 +28,12 @@ namespace zinvul {
 template <DescriptorType, typename> class Buffer;
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam kDescriptor No description.
+  \tparam T No description.
   */
 template <DescriptorType kDescriptor, typename T>
 class MappedMemory : public zisc::NonCopyable<MappedMemory<kDescriptor, T>>
@@ -36,7 +47,9 @@ class MappedMemory : public zisc::NonCopyable<MappedMemory<kDescriptor, T>>
   using ConstPointer = std::add_pointer_t<ConstType>;
   using Iterator = Pointer;
   using ConstIterator = ConstPointer;
-  using ConstBuffer = std::add_const_t<Buffer<kDescriptor, std::remove_cv_t<T>>>;
+  using Buffer = zinvul::Buffer<kDescriptor, std::remove_cv_t<T>>;
+  using ConstBuffer = std::add_const_t<Buffer>;
+  using BufferP = std::add_pointer_t<Buffer>;
   using ConstBufferP = std::add_pointer_t<ConstBuffer>;
 
 

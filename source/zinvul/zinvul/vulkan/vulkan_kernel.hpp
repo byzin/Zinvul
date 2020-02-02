@@ -60,7 +60,7 @@ class VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...> :
   const VulkanDevice* device() const noexcept;
 
   //! Return the device type
-  DeviceType deviceType() const noexcept override;
+  SubPlatformType SubPlatformType() const noexcept override;
 
   //! Execute a kernel
   void run(std::add_lvalue_reference_t<BufferArgs>... args,

@@ -128,9 +128,9 @@ void VulkanBuffer<kDescriptor, T>::destroy() noexcept
 /*!
   */
 template <DescriptorType kDescriptor, typename T> inline
-DeviceType VulkanBuffer<kDescriptor, T>::deviceType() const noexcept
+SubPlatformType VulkanBuffer<kDescriptor, T>::SubPlatformType() const noexcept
 {
-  return DeviceType::kVulkan;
+  return SubPlatformType::kVulkan;
 }
 
 /*!

@@ -1,7 +1,12 @@
 /*!
   \file zinvul_config-inl.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -12,6 +17,7 @@
 
 #include "zinvul/zinvul_config.hpp"
 // Standard C++ library
+#include <string_view>
 #include <type_traits>
 // Zisc
 #include "zisc/utility.hpp"
@@ -28,6 +34,9 @@ static_assert(sizeof(uint32b) == 4, "The size of uint32b is wrong.");
 static_assert(sizeof(uint64b) == 8, "The size of uint64b is wrong.");
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 constexpr bool Config::isUniformBufferEnabled() noexcept
@@ -41,19 +50,25 @@ constexpr bool Config::isUniformBufferEnabled() noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 constexpr bool Config::isVulkanBackendEnabled() noexcept
 {
-#if defined(ZINVUL_ENABLE_VULKAN_BACKEND)
+#if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
   const bool is_enabled = true;
-#else // ZINVUL_ENABLE_VULKAN_BACKEND
+#else // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
   const bool is_enabled = false;
-#endif // ZINVUL_ENABLE_VULKAN_BACKEND
+#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
   return is_enabled;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 constexpr int32b Config::scalarResultFalse() noexcept
@@ -63,6 +78,9 @@ constexpr int32b Config::scalarResultFalse() noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 constexpr int32b Config::scalarResultTrue() noexcept
@@ -72,6 +90,10 @@ constexpr int32b Config::scalarResultTrue() noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \return No description
   */
 template <typename Type> inline
 constexpr auto Config::vecResultFalse() noexcept -> ComparisonResultType<Type>
@@ -81,6 +103,10 @@ constexpr auto Config::vecResultFalse() noexcept -> ComparisonResultType<Type>
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \return No description
   */
 template <typename Type> inline
 constexpr auto Config::vecResultTrue() noexcept -> ComparisonResultType<Type>
@@ -88,6 +114,52 @@ constexpr auto Config::vecResultTrue() noexcept -> ComparisonResultType<Type>
   const auto zero = Config::vecResultFalse<Type>();
   const ComparisonResultType<Type> result = ~zero;
   return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr int Config::versionMajor() noexcept
+{
+  return @PROJECT_VERSION_MAJOR@;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr int Config::versionMinor() noexcept
+{
+  return @PROJECT_VERSION_MINOR@;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr int Config::versionPatch() noexcept
+{
+  return @PROJECT_VERSION_PATCH@;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr std::string_view Config::versionString() noexcept
+{
+  constexpr auto version_str = "@PROJECT_VERSION@";
+  const std::string_view version{version_str};
+  return version;
 }
 
 } // namespace zinvul

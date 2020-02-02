@@ -17,26 +17,42 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")
 endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+include(InstallRequiredSystemLibraries)
 
 set(zisc_path ${PROJECT_SOURCE_DIR}/source/dependencies/zisc/source/zisc)
 include(${zisc_path}/cmake/general.cmake)
 message(STATUS "System information:")
 printSystemInfo("  + ")
 ## Project options
+include(${PROJECT_SOURCE_DIR}/cmake/project.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/option.cmake)
 initProjectOptions()
 restrictBuildDirectory(${PROJECT_SOURCE_DIR}/build)
 
-# cpu_features
-set(cpu_features_path ${PROJECT_SOURCE_DIR}/source/dependencies/cpu_features)
-add_subdirectory(${cpu_features_path} ${PROJECT_BINARY_DIR}/cpu_features)
-
 # Build Zisc
 add_subdirectory(${zisc_path} ${PROJECT_BINARY_DIR}/Zisc)
 
+# cpu_features
+set(cpu_features_path ${PROJECT_SOURCE_DIR}/source/dependencies/cpu_features)
+add_subdirectory(${cpu_features_path} ${PROJECT_BINARY_DIR}/CpuFeatures)
+#attachZinvulOption(cpu_features)
+
+# Build Zinvul
+set(zinvul_path ${PROJECT_SOURCE_DIR}/source/zinvul)
+add_subdirectory(${zinvul_path} ${PROJECT_BINARY_DIR}/Zinvul)
+
+# Build examples
+add_subdirectory(${PROJECT_SOURCE_DIR}/example ${PROJECT_BINARY_DIR}/Examples)
+
 # Build unit test
-include(${PROJECT_SOURCE_DIR}/cmake/googletest.cmake)
-addZinvulGoogleTest()
+if(ZINVUL_BUILD_TESTS)
+  # GoogleTest
+  set(google_test_path ${PROJECT_SOURCE_DIR}/test/googletest)
+  addGoogleTest(${google_test_path} ${PROJECT_BINARY_DIR}/GoogleTest)
+  attachZinvulOption(gtest)
+  attachZinvulOption(gtest_main)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/test ${PROJECT_BINARY_DIR}/UnitTest)
+endif()
 
 # Build documents
-# add_subdirectory(${PROJECT_SOURCE_DIR}/document ${PROJECT_BINARY_DIR}/Document)
+add_subdirectory(${PROJECT_SOURCE_DIR}/document ${PROJECT_BINARY_DIR}/Document)

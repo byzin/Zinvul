@@ -10,8 +10,6 @@
 #ifndef ZINVUL_CL_UTILITY_HPP
 #define ZINVUL_CL_UTILITY_HPP
 
-// Standard C++ library
-#include <array>
 // Zinvul
 #include "types.hpp"
 #include "vector.hpp"
@@ -20,12 +18,6 @@
 namespace zinvul {
 
 namespace cl {
-
-//! Set the work group ID
-void __setWorkGroupId(const uint32b id) noexcept;
-
-//! Set the work group size
-void __setWorkGroupSize(const std::array<uint32b, 3>& size) noexcept;
 
 // OpenCL functions
 

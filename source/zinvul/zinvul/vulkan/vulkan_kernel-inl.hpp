@@ -106,10 +106,10 @@ auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::device
   */
 template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
 inline
-auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::deviceType()
-    const noexcept -> DeviceType
+auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::SubPlatformType()
+    const noexcept -> SubPlatformType
 {
-  return DeviceType::kVulkan;
+  return SubPlatformType::kVulkan;
 }
 
 /*!
@@ -206,7 +206,7 @@ template <typename Type> inline
 auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::getVkBuffer(
     Type&& buffer) const noexcept -> vk::Buffer&
 {
-  ZISC_ASSERT(buffer.deviceType() == DeviceType::kVulkan,
+  ZISC_ASSERT(buffer.SubPlatformType() == SubPlatformType::kVulkan,
               "The device type of the buffer isn't vulkan.");
 
   using ElementType = typename std::remove_reference_t<Type>::Type;

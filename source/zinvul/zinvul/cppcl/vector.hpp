@@ -17,6 +17,7 @@
 #include "zisc/type_traits.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
+#include "address_space_pointer.hpp"
 #include "types.hpp"
 #include "zinvul/zinvul_config.hpp"
 

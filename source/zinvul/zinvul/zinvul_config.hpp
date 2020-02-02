@@ -1,7 +1,12 @@
 /*!
   \file zinvul_config.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -11,15 +16,11 @@
 #define ZINVUL_CONFIG_HPP
 
 // Standard C++ library
+#include <string_view>
 #include <type_traits>
 // Zisc
 #include "zisc/zisc_config.hpp"
 #include "zisc/utility.hpp"
-
-constexpr unsigned int kZinvulVersionMajor = @zinvul_version_major@;
-constexpr unsigned int kZinvulVersionMinor = @zinvul_version_minor@;
-constexpr unsigned int kZinvulVersionPatch = @zinvul_version_patch@;
-constexpr char kZinvulVersion[] = "@zinvul_version@";
 
 namespace zinvul {
 
@@ -39,14 +40,20 @@ using uint64b = zisc::uint64b;
 // Device
 
 /*!
+  \brief No brief description
+
+  No detailed description.
   */
-enum class DeviceType : uint32b
+enum class SubPlatformType : uint32b
 {
   kCpu = 0,
   kVulkan
 };
 
 /*!
+  \brief No brief description
+
+  No detailed description.
   */
 enum class QueueType : uint32b
 {
@@ -57,6 +64,9 @@ enum class QueueType : uint32b
 // Buffer
 
 /*!
+  \brief No brief description
+
+  No detailed description.
   */
 enum class DescriptorType : uint32b
 {
@@ -65,6 +75,9 @@ enum class DescriptorType : uint32b
 };
 
 /*!
+  \brief No brief description
+
+  No detailed description.
   */
 enum class BufferUsage : uint32b
 {
@@ -76,6 +89,8 @@ enum class BufferUsage : uint32b
 
 /*!
   \brief config values in zinvul
+
+  No detailed description.
   */
 class Config
 {
@@ -107,6 +122,18 @@ class Config
   //! Represent 'true' value of scalar value comparison
   template <typename Type>
   static constexpr ComparisonResultType<Type> vecResultTrue() noexcept;
+
+  //! Return the value of the major component of the Zinvul version number
+  static constexpr int versionMajor() noexcept;
+
+  //! Return the value of the minor component of the Zinvul version number
+  static constexpr int versionMinor() noexcept;
+
+  //! Return the value of the patch component of the Zinvul version number
+  static constexpr int versionPatch() noexcept;
+
+  //! Return the version string of Zinvul
+  static constexpr std::string_view versionString() noexcept;
 };
 
 } // namespace zinvul

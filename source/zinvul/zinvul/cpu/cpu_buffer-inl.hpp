@@ -94,9 +94,9 @@ auto CpuBuffer<kDescriptor, T>::data() const noexcept -> ConstPointer
 /*!
   */
 template <DescriptorType kDescriptor, typename T> inline
-DeviceType CpuBuffer<kDescriptor, T>::deviceType() const noexcept
+SubPlatformType CpuBuffer<kDescriptor, T>::SubPlatformType() const noexcept
 {
-  return DeviceType::kCpu;
+  return SubPlatformType::kCpu;
 }
 
 /*!

@@ -67,7 +67,7 @@ class CpuBuffer : public Buffer<kDescriptor, T>
   ConstPointer data() const noexcept;
 
   //! Return the device type
-  DeviceType deviceType() const noexcept override;
+  SubPlatformType SubPlatformType() const noexcept override;
 
   //! Check if a buffer memory is on device
   bool isDeviceMemory() const noexcept override;

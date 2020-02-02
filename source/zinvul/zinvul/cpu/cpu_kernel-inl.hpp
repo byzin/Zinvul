@@ -66,10 +66,10 @@ auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::device()
   */
 template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
 inline
-auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::deviceType()
-    const noexcept -> DeviceType
+auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::SubPlatformType()
+    const noexcept -> SubPlatformType
 {
-  return DeviceType::kCpu;
+  return SubPlatformType::kCpu;
 }
 
 /*!
@@ -140,7 +140,7 @@ void CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::runFunc(
       using CpuBufferPtr = std::add_pointer_t<CpuBufferT>;
 
       auto& buffer = argument;
-      ZISC_ASSERT(buffer.deviceType() == DeviceType::kCpu,
+      ZISC_ASSERT(buffer.SubPlatformType() == SubPlatformType::kCpu,
                   "The device type of the buffer isn't cpu.");
       ZISC_ASSERT(0 < buffer.size(), "The buffer is empty.");
       auto b = zisc::cast<CpuBufferPtr>(std::addressof(buffer));

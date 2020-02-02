@@ -46,7 +46,7 @@ class Buffer : private zisc::NonCopyable<Buffer<kDescriptor, T>>
   static constexpr DescriptorType descriptorType() noexcept;
 
   //! Return the device type
-  virtual DeviceType deviceType() const noexcept = 0;
+  virtual SubPlatformType SubPlatformType() const noexcept = 0;
 
   //! Check if a buffer memory is on device
   virtual bool isDeviceMemory() const noexcept = 0;

@@ -73,7 +73,7 @@ class VulkanBuffer : public Buffer<kDescriptor, T>
   void destroy() noexcept;
 
   //! Return the device type
-  DeviceType deviceType() const noexcept override;
+  SubPlatformType SubPlatformType() const noexcept override;
 
   //! Check if a buffer memory is on device
   bool isDeviceMemory() const noexcept override;

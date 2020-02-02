@@ -12,11 +12,6 @@
 # gitignore
 !/.gitignore
 
-# CMake files
-!/CMakeLists.txt
-!/cmake/
-!/cmake/*.cmake
-
 # Documents
 !/README.md
 !/LICENSE.txt
@@ -24,19 +19,23 @@
 !/document/
 !/document/CMakeLists.txt
 
+# Project cmake file
+!/CMakeLists.txt
+!/cmake/
+!/cmake/*.cmake
+
 # Source code
 !/source/
-!/source/*.hpp
-!/source/*.cpp
 !/source/zinvul/
+!/source/zinvul/CMakeLists.txt
 !/source/zinvul/*.dox
-!/source/zinvul/*.cmake
 !/source/zinvul/python/
 !/source/zinvul/python/*.py
 !/source/zinvul/template/
 !/source/zinvul/template/*.hpp.in
 !/source/zinvul/template/*.cpp.in
 !/source/zinvul/template/*.cl.in
+!/source/zinvul/template/*.cmake.in
 !/source/zinvul/zinvul/
 !/source/zinvul/zinvul/*.hpp
 !/source/zinvul/zinvul/*.hpp.in
@@ -52,6 +51,13 @@
 !/source/zinvul/zinvul/vulkan/
 !/source/zinvul/zinvul/vulkan/*.hpp
 !/source/zinvul/zinvul/vulkan/*.cpp
+!/source/zinvul/zinvul/utility/
+!/source/zinvul/zinvul/utility/*.hpp
+!/source/zinvul/zinvul/utility/*.cpp
+# Zinvul cmake file
+!/source/zinvul/cmake/
+!/source/zinvul/cmake/*.cmake
+!/source/zinvul/cmake/*.gitkeep
 # Dependencies
 !/source/dependencies/
 !/source/dependencies/cpu_features
@@ -93,6 +99,11 @@
 !/test/scripts/
 !/test/scripts/*.sh
 !/test/scripts/*.cmd
+
+# Example
+!/example/
+!/example/CMakeLists.txt
+!/example/*.cpp
 
 # Build directories
 !/build/

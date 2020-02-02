@@ -12,6 +12,7 @@
 
 #include "utility.hpp"
 // Standard C++ library
+#include <array>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
@@ -29,17 +30,12 @@ namespace zinvul {
 
 namespace cl {
 
-/*!
-  */
-template <typename Type> inline
-void printf(const char* format, const Type& value) noexcept
-{
-  std::printf(format, value);
-}
-
-namespace clinner {
+namespace inner {
 
 /*!
+  \brief No brief description
+
+  No detailed description.
   */
 class WorkGroup
 {
@@ -82,7 +78,15 @@ class WorkGroup
   static thread_local std::array<uint32b, 3> work_group_size_;
 };
 
-} // namespace clinner
+} // namespace inner
+
+/*!
+  */
+template <typename Type> inline
+void printf(const char* format, const Type& value) noexcept
+{
+  std::printf(format, value);
+}
 
 /*!
   */
@@ -114,7 +118,7 @@ size_t get_global_size(const uint32b dimension) noexcept
 inline
 size_t get_group_id(const uint32b dimension) noexcept
 {
-  return clinner::WorkGroup::getWorkGroupId(dimension);
+  return inner::WorkGroup::getWorkGroupId(dimension);
 }
 
 /*!
@@ -138,7 +142,7 @@ constexpr size_t get_local_size(const uint32b /* dimension */) noexcept
 inline
 size_t get_num_groups(const uint32b dimension) noexcept
 {
-  return clinner::WorkGroup::getWorkGroupSize(dimension);
+  return inner::WorkGroup::getWorkGroupSize(dimension);
 }
 
 /*!
@@ -149,7 +153,7 @@ constexpr uint32b get_work_dim() noexcept
   return 3;
 }
 
-namespace clinner {
+namespace inner {
 
 /*!
   */
@@ -162,7 +166,7 @@ auto convertToVector(const Vector<Type, kN>& value)
   return result;
 }
 
-} // namespace clinner
+} // namespace inner
 
 /*!
   */
@@ -177,7 +181,7 @@ int8b convert_char(Type&& value) noexcept
 template <typename Type> inline
 char2 convert_char2(const Vector<Type, 2>& value) noexcept
 {
-  return clinner::convertToVector<Type, int8b, 2>(value);
+  return inner::convertToVector<Type, int8b, 2>(value);
 }
 
 /*!
@@ -185,7 +189,7 @@ char2 convert_char2(const Vector<Type, 2>& value) noexcept
 template <typename Type> inline
 char3 convert_char3(const Vector<Type, 3>& value) noexcept
 {
-  return clinner::convertToVector<Type, int8b, 3>(value);
+  return inner::convertToVector<Type, int8b, 3>(value);
 }
 
 /*!
@@ -193,7 +197,7 @@ char3 convert_char3(const Vector<Type, 3>& value) noexcept
 template <typename Type> inline
 char4 convert_char4(const Vector<Type, 4>& value) noexcept
 {
-  return clinner::convertToVector<Type, int8b, 4>(value);
+  return inner::convertToVector<Type, int8b, 4>(value);
 }
 
 /*!
@@ -209,7 +213,7 @@ uint8b convert_uchar(Type&& value) noexcept
 template <typename Type> inline
 uchar2 convert_uchar2(const Vector<Type, 2>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint8b, 2>(value);
+  return inner::convertToVector<Type, uint8b, 2>(value);
 }
 
 /*!
@@ -217,7 +221,7 @@ uchar2 convert_uchar2(const Vector<Type, 2>& value) noexcept
 template <typename Type> inline
 uchar3 convert_uchar3(const Vector<Type, 3>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint8b, 3>(value);
+  return inner::convertToVector<Type, uint8b, 3>(value);
 }
 
 /*!
@@ -225,7 +229,7 @@ uchar3 convert_uchar3(const Vector<Type, 3>& value) noexcept
 template <typename Type> inline
 uchar4 convert_uchar4(const Vector<Type, 4>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint8b, 4>(value);
+  return inner::convertToVector<Type, uint8b, 4>(value);
 }
 
 /*!
@@ -241,7 +245,7 @@ int16b convert_short(Type&& value) noexcept
 template <typename Type> inline
 short2 convert_short2(const Vector<Type, 2>& value) noexcept
 {
-  return clinner::convertToVector<Type, int16b, 2>(value);
+  return inner::convertToVector<Type, int16b, 2>(value);
 }
 
 /*!
@@ -249,7 +253,7 @@ short2 convert_short2(const Vector<Type, 2>& value) noexcept
 template <typename Type> inline
 short3 convert_short3(const Vector<Type, 3>& value) noexcept
 {
-  return clinner::convertToVector<Type, int16b, 3>(value);
+  return inner::convertToVector<Type, int16b, 3>(value);
 }
 
 /*!
@@ -257,7 +261,7 @@ short3 convert_short3(const Vector<Type, 3>& value) noexcept
 template <typename Type> inline
 short4 convert_short4(const Vector<Type, 4>& value) noexcept
 {
-  return clinner::convertToVector<Type, int16b, 4>(value);
+  return inner::convertToVector<Type, int16b, 4>(value);
 }
 
 /*!
@@ -273,7 +277,7 @@ uint16b convert_ushort(Type&& value) noexcept
 template <typename Type> inline
 ushort2 convert_ushort2(const Vector<Type, 2>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint16b, 2>(value);
+  return inner::convertToVector<Type, uint16b, 2>(value);
 }
 
 /*!
@@ -281,7 +285,7 @@ ushort2 convert_ushort2(const Vector<Type, 2>& value) noexcept
 template <typename Type> inline
 ushort3 convert_ushort3(const Vector<Type, 3>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint16b, 3>(value);
+  return inner::convertToVector<Type, uint16b, 3>(value);
 }
 
 /*!
@@ -289,7 +293,7 @@ ushort3 convert_ushort3(const Vector<Type, 3>& value) noexcept
 template <typename Type> inline
 ushort4 convert_ushort4(const Vector<Type, 4>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint16b, 4>(value);
+  return inner::convertToVector<Type, uint16b, 4>(value);
 }
 
 /*!
@@ -305,7 +309,7 @@ int32b convert_int(Type&& value) noexcept
 template <typename Type> inline
 int2 convert_int2(const Vector<Type, 2>& value) noexcept
 {
-  return clinner::convertToVector<Type, int32b, 2>(value);
+  return inner::convertToVector<Type, int32b, 2>(value);
 }
 
 /*!
@@ -313,7 +317,7 @@ int2 convert_int2(const Vector<Type, 2>& value) noexcept
 template <typename Type> inline
 int3 convert_int3(const Vector<Type, 3>& value) noexcept
 {
-  return clinner::convertToVector<Type, int32b, 3>(value);
+  return inner::convertToVector<Type, int32b, 3>(value);
 }
 
 /*!
@@ -321,7 +325,7 @@ int3 convert_int3(const Vector<Type, 3>& value) noexcept
 template <typename Type> inline
 int4 convert_int4(const Vector<Type, 4>& value) noexcept
 {
-  return clinner::convertToVector<Type, int32b, 4>(value);
+  return inner::convertToVector<Type, int32b, 4>(value);
 }
 
 /*!
@@ -337,7 +341,7 @@ uint32b convert_uint(Type&& value) noexcept
 template <typename Type> inline
 uint2 convert_uint2(const Vector<Type, 2>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint32b, 2>(value);
+  return inner::convertToVector<Type, uint32b, 2>(value);
 }
 
 /*!
@@ -345,7 +349,7 @@ uint2 convert_uint2(const Vector<Type, 2>& value) noexcept
 template <typename Type> inline
 uint3 convert_uint3(const Vector<Type, 3>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint32b, 3>(value);
+  return inner::convertToVector<Type, uint32b, 3>(value);
 }
 
 /*!
@@ -353,7 +357,7 @@ uint3 convert_uint3(const Vector<Type, 3>& value) noexcept
 template <typename Type> inline
 uint4 convert_uint4(const Vector<Type, 4>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint32b, 4>(value);
+  return inner::convertToVector<Type, uint32b, 4>(value);
 }
 
 /*!
@@ -369,7 +373,7 @@ int64b convert_long(Type&& value) noexcept
 template <typename Type> inline
 long2 convert_long2(const Vector<Type, 2>& value) noexcept
 {
-  return clinner::convertToVector<Type, int64b, 2>(value);
+  return inner::convertToVector<Type, int64b, 2>(value);
 }
 
 /*!
@@ -377,7 +381,7 @@ long2 convert_long2(const Vector<Type, 2>& value) noexcept
 template <typename Type> inline
 long3 convert_long3(const Vector<Type, 3>& value) noexcept
 {
-  return clinner::convertToVector<Type, int64b, 3>(value);
+  return inner::convertToVector<Type, int64b, 3>(value);
 }
 
 /*!
@@ -385,7 +389,7 @@ long3 convert_long3(const Vector<Type, 3>& value) noexcept
 template <typename Type> inline
 long4 convert_long4(const Vector<Type, 4>& value) noexcept
 {
-  return clinner::convertToVector<Type, int64b, 4>(value);
+  return inner::convertToVector<Type, int64b, 4>(value);
 }
 
 /*!
@@ -401,7 +405,7 @@ uint64b convert_ulong(Type&& value) noexcept
 template <typename Type> inline
 ulong2 convert_ulong2(const Vector<Type, 2>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint64b, 2>(value);
+  return inner::convertToVector<Type, uint64b, 2>(value);
 }
 
 /*!
@@ -409,7 +413,7 @@ ulong2 convert_ulong2(const Vector<Type, 2>& value) noexcept
 template <typename Type> inline
 ulong3 convert_ulong3(const Vector<Type, 3>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint64b, 3>(value);
+  return inner::convertToVector<Type, uint64b, 3>(value);
 }
 
 /*!
@@ -417,7 +421,7 @@ ulong3 convert_ulong3(const Vector<Type, 3>& value) noexcept
 template <typename Type> inline
 ulong4 convert_ulong4(const Vector<Type, 4>& value) noexcept
 {
-  return clinner::convertToVector<Type, uint64b, 4>(value);
+  return inner::convertToVector<Type, uint64b, 4>(value);
 }
 
 /*!
@@ -433,7 +437,7 @@ float convert_float(Type&& value) noexcept
 template <typename Type> inline
 float2 convert_float2(const Vector<Type, 2>& value) noexcept
 {
-  return clinner::convertToVector<Type, float, 2>(value);
+  return inner::convertToVector<Type, float, 2>(value);
 }
 
 /*!
@@ -441,7 +445,7 @@ float2 convert_float2(const Vector<Type, 2>& value) noexcept
 template <typename Type> inline
 float3 convert_float3(const Vector<Type, 3>& value) noexcept
 {
-  return clinner::convertToVector<Type, float, 3>(value);
+  return inner::convertToVector<Type, float, 3>(value);
 }
 
 /*!
@@ -449,7 +453,7 @@ float3 convert_float3(const Vector<Type, 3>& value) noexcept
 template <typename Type> inline
 float4 convert_float4(const Vector<Type, 4>& value) noexcept
 {
-  return clinner::convertToVector<Type, float, 4>(value);
+  return inner::convertToVector<Type, float, 4>(value);
 }
 
 /*!
@@ -465,7 +469,7 @@ double convert_double(Type&& value) noexcept
 template <typename Type> inline
 double2 convert_double2(const Vector<Type, 2>& value) noexcept
 {
-  return clinner::convertToVector<Type, double, 2>(value);
+  return inner::convertToVector<Type, double, 2>(value);
 }
 
 /*!
@@ -473,7 +477,7 @@ double2 convert_double2(const Vector<Type, 2>& value) noexcept
 template <typename Type> inline
 double3 convert_double3(const Vector<Type, 3>& value) noexcept
 {
-  return clinner::convertToVector<Type, double, 3>(value);
+  return inner::convertToVector<Type, double, 3>(value);
 }
 
 /*!
@@ -481,7 +485,7 @@ double3 convert_double3(const Vector<Type, 3>& value) noexcept
 template <typename Type> inline
 double4 convert_double4(const Vector<Type, 4>& value) noexcept
 {
-  return clinner::convertToVector<Type, double, 4>(value);
+  return inner::convertToVector<Type, double, 4>(value);
 }
 /*!
   */

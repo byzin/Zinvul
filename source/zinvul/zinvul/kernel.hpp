@@ -38,7 +38,7 @@ class Kernel : private zisc::NonCopyable<Kernel<kDimension, BufferArgs...>>
 
 
   //! Return the device type
-  virtual DeviceType deviceType() const noexcept = 0;
+  virtual SubPlatformType SubPlatformType() const noexcept = 0;
 
   //! Execute a kernel
   virtual void run(std::add_lvalue_reference_t<BufferArgs>... args,

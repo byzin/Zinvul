@@ -1,0 +1,13 @@
+/*!
+  \namespace zinvul
+  \brief Main classes and functions of Zinvul
+
+  No detailed description.
+  */
+
+/*!
+  \namespace zinvul::cppinner
+  \brief Helper classes and functions of Zinvul
+
+  No detailed description.
+  */

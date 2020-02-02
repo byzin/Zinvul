@@ -22,25 +22,25 @@
 #include "zinvul/zinvul.hpp"
 #include "zinvul/zinvul_config.hpp"
 #include "zinvul/cpu/cpu_device.hpp"
-#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
+#ifdef ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
 #include "zinvul/vulkan/vulkan_device.hpp"
-#endif // ZINVUL_ENABLE_VULKAN_BACKEND
+#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
 
 std::vector<zinvul::UniqueDevice> makeTestDeviceList(zinvul::DeviceOptions& options)
 {
   std::vector<zinvul::UniqueDevice> device_list;
   // CPU
-  options.device_type_ = zinvul::DeviceType::kCpu;
+  options.device_type_ = zinvul::SubPlatformType::kCpu;
   device_list.emplace_back(zinvul::makeDevice(options));
   // Vulkan
-#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
-  options.device_type_ = zinvul::DeviceType::kVulkan;
+#ifdef ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
+  options.device_type_ = zinvul::SubPlatformType::kVulkan;
   const auto vulkan_device_list = zinvul::VulkanDevice::getPhysicalDeviceInfoList();
   for (std::size_t i = 0; i < vulkan_device_list.size(); ++i) {
     options.vulkan_device_number_ = static_cast<zinvul::uint32b>(i);
     device_list.emplace_back(zinvul::makeDevice(options));
   }
-#endif // ZINVUL_ENABLE_VULKAN_BACKEND
+#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
 
   return device_list;
 }
@@ -59,8 +59,8 @@ std::string getTestDeviceInfo(const zinvul::Device& device)
 {
   using namespace std::string_literals;
   std::string info;
-  switch (device.deviceType()) {
-   case zinvul::DeviceType::kCpu: {
+  switch (device.SubPlatformType()) {
+   case zinvul::SubPlatformType::kCpu: {
     auto d = static_cast<const zinvul::CpuDevice*>(&device);
     info = "## Device: CPU\n"s;
     info += "  Vendor: "s + device.vendorName().data() + "\n"s;
@@ -69,8 +69,8 @@ std::string getTestDeviceInfo(const zinvul::Device& device)
     info += "  Subgroup: "s + std::to_string(device.subgroupSize()) + "\n"s;
     break;
    }
-#ifdef ZINVUL_ENABLE_VULKAN_BACKEND
-   case zinvul::DeviceType::kVulkan: {
+#ifdef ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
+   case zinvul::SubPlatformType::kVulkan: {
 //    auto d = static_cast<const zinvul::VulkanDevice*>(&device);
     info = "## Device: Vulkan\n"s;
     info += "  Vendor: "s + device.vendorName().data() + "\n"s;
@@ -78,7 +78,7 @@ std::string getTestDeviceInfo(const zinvul::Device& device)
     info += "  Subgroup: "s + std::to_string(device.subgroupSize()) + "\n"s;
     break;
    }
-#endif // ZINVUL_ENABLE_VULKAN_BACKEND
+#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
    default: {
     info = "## Device: N/A\n"s;
     break;

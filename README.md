@@ -18,4 +18,4 @@ Version: 0.0.1
 ## License ##
 
 This software is released under the MIT License,
-see [LICENSE](./LICENSE)
+see [LICENSE.txt](./LICENSE.txt)

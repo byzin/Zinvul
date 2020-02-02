@@ -1,7 +1,12 @@
 /*!
   \file cpu_device.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -17,13 +22,12 @@
 #include <string_view>
 // Zisc
 #include "zisc/function_reference.hpp"
-#include "zisc/memory_resource.hpp"
+#include "zisc/std_memory_resource.hpp"
 #include "zisc/thread_manager.hpp"
-#include "zisc/unique_memory_pointer.hpp"
 // Zinvul
-#include "zinvul/buffer.hpp"
+//#include "zinvul/buffer.hpp"
 #include "zinvul/device.hpp"
-#include "zinvul/kernel.hpp"
+//#include "zinvul/kernel.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
@@ -32,6 +36,9 @@ namespace zinvul {
 template <DescriptorType, typename> class CpuBuffer;
 
 /*!
+  \brief No brief description
+
+  No detailed description.
   */
 class CpuDevice : public Device
 {
@@ -39,31 +46,31 @@ class CpuDevice : public Device
   using Command = zisc::FunctionReference<void ()>;
 
 
-  //! Initialize a cpu device
+  //! Creat a CPU device
   CpuDevice(DeviceOptions& options) noexcept;
 
 
-  //! Allocate a memory of a buffer
-  template <DescriptorType kDescriptor, typename Type>
-  void allocate(const std::size_t size,
-                CpuBuffer<kDescriptor, Type>* buffer) noexcept;
-
-  //! Deallocate a memory of a buffer
-  template <DescriptorType kDescriptor, typename Type>
-  void deallocate(CpuBuffer<kDescriptor, Type>* buffer) noexcept;
+//  //! Allocate a memory of a buffer
+//  template <DescriptorType kDescriptor, typename Type>
+//  void allocate(const std::size_t size,
+//                CpuBuffer<kDescriptor, Type>* buffer) noexcept;
+//
+//  //! Deallocate a memory of a buffer
+//  template <DescriptorType kDescriptor, typename Type>
+//  void deallocate(CpuBuffer<kDescriptor, Type>* buffer) noexcept;
 
   //! Return cpu type
-  DeviceType deviceType() const noexcept override;
+  SubPlatformType subPlatformType() const noexcept override;
 
-  //! Make a buffer
-  template <DescriptorType kDescriptor, typename Type>
-  UniqueBuffer<kDescriptor, Type> makeBuffer(
-      const BufferUsage usage_flag) noexcept;
+//  //! Make a buffer
+//  template <DescriptorType kDescriptor, typename Type>
+//  UniqueBuffer<kDescriptor, Type> makeBuffer(
+//      const BufferUsage usage_flag) noexcept;
 
-  //! Make a kernel
-  template <std::size_t kDimension, typename Function, typename ...BufferArgs>
-  UniqueKernel<kDimension, BufferArgs...> makeKernel(
-      Function func) noexcept;
+//  //! Make a kernel
+//  template <std::size_t kDimension, typename Function, typename ...BufferArgs>
+//  UniqueKernel<kDimension, BufferArgs...> makeKernel(
+//      Function func) noexcept;
 
   //! Return the device name
   std::string_view name() const noexcept override;
@@ -98,17 +105,20 @@ class CpuDevice : public Device
   std::array<uint32b, 3> expandTo3dWorkGroupSize(
       const std::array<uint32b, kDimension>& works) const noexcept;
 
-  //! Initialize a cpu device
+  //! Initialize CPU info
+  void initCpuInfo() noexcept;
+
+  //! Initialize a CPU device
   void initialize(DeviceOptions& options) noexcept;
 
-  //! Return the task bucket size
-  uint32b taskBucketSize() const noexcept;
+  //! Return the task batch size
+  uint32b taskBatchSize() const noexcept;
 
 
   zisc::ThreadManager thread_manager_;
-  std::string name_;
-  std::string vendor_name_;
-  uint32b task_bucket_size_;
+  zisc::pmr::string name_;
+  zisc::pmr::string vendor_name_;
+  uint32b task_batch_size_;
 };
 
 } // namespace zinvul

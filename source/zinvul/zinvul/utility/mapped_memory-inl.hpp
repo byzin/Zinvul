@@ -1,6 +1,15 @@
 /*!
   \file mapped_memory-inl.hpp
   \author Sho Ikeda
+  \brief No brief description
+
+  \details
+  No detailed description.
+
+  \copyright
+  Copyright (c) 2015-2020 Sho Ikeda
+  This software is released under the MIT License.
+  http://opensource.org/licenses/mit-license.php
   */
 
 #ifndef ZINVUL_MAPPED_MEMORY_INL_HPP
@@ -9,13 +18,15 @@
 #include "mapped_memory.hpp"
 // Zisc
 #include "zisc/error.hpp"
+#include "zisc/utility.hpp"
 // Zinvul
 #include "buffer.hpp"
-#include "zinvul/zinvul_config.hpp"
+#include "zinvul_config.hpp"
 
 namespace zinvul {
 
 /*!
+  \details No detailed description
   */
 template <DescriptorType kDescriptor, typename T> inline
 MappedMemory<kDescriptor, T>::MappedMemory() noexcept
@@ -23,10 +34,13 @@ MappedMemory<kDescriptor, T>::MappedMemory() noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] buffer No description.
   */
 template <DescriptorType kDescriptor, typename T> inline
 MappedMemory<kDescriptor, T>::MappedMemory(ConstBufferP buffer) noexcept :
-    data_{(buffer != nullptr) ? buffer->mappedMemory() : nullptr},
+    data_{buffer ? buffer->mappedMemory() : nullptr},
     buffer_{buffer}
 {
   if (buffer_) {
@@ -35,17 +49,19 @@ MappedMemory<kDescriptor, T>::MappedMemory(ConstBufferP buffer) noexcept :
 }
 
 /*!
+  \details No detailed description
+
+  \param [in,out] other No description.
   */
 template <DescriptorType kDescriptor, typename T> inline
-MappedMemory<kDescriptor, T>::MappedMemory(MappedMemory&& other) noexcept :
-    data_{other.data_},
-    buffer_{other.buffer_}
+MappedMemory<kDescriptor, T>::MappedMemory(MappedMemory&& other) noexcept
 {
-  other.data_ = nullptr;
-  other.buffer_ = nullptr;
+  zisc::swap(data_, other.data_);
+  zisc::swap(buffer_, other.buffer_);
 }
 
 /*!
+  \details No detailed description
   */
 template <DescriptorType kDescriptor, typename T> inline
 MappedMemory<kDescriptor, T>::~MappedMemory() noexcept
@@ -54,6 +70,9 @@ MappedMemory<kDescriptor, T>::~MappedMemory() noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::begin() noexcept -> Iterator
@@ -64,6 +83,9 @@ auto MappedMemory<kDescriptor, T>::begin() noexcept -> Iterator
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::begin() const noexcept -> ConstIterator
@@ -74,6 +96,9 @@ auto MappedMemory<kDescriptor, T>::begin() const noexcept -> ConstIterator
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::cbegin() const noexcept -> ConstIterator
@@ -84,6 +109,9 @@ auto MappedMemory<kDescriptor, T>::cbegin() const noexcept -> ConstIterator
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::end() noexcept -> Iterator
@@ -95,6 +123,9 @@ auto MappedMemory<kDescriptor, T>::end() noexcept -> Iterator
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::end() const noexcept -> ConstIterator
@@ -106,6 +137,9 @@ auto MappedMemory<kDescriptor, T>::end() const noexcept -> ConstIterator
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::cend() const noexcept -> ConstIterator
@@ -117,19 +151,25 @@ auto MappedMemory<kDescriptor, T>::cend() const noexcept -> ConstIterator
 }
 
 /*!
+  \details No detailed description
+
+  \param [in,out] other No description.
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::operator=(MappedMemory&& other) noexcept
     -> MappedMemory&
 {
-  data_ = other.data_;
-  buffer_ = other.buffer_;
-  other.data_ = nullptr;
-  other.buffer_ = nullptr;
+  zisc::swap(data_, other.data_);
+  zisc::swap(buffer_, other.buffer_);
   return *this;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::operator[](const std::size_t index) noexcept
@@ -139,6 +179,10 @@ auto MappedMemory<kDescriptor, T>::operator[](const std::size_t index) noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::operator[](const std::size_t index) const noexcept
@@ -148,6 +192,9 @@ auto MappedMemory<kDescriptor, T>::operator[](const std::size_t index) const noe
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::data() noexcept -> Pointer
@@ -156,6 +203,9 @@ auto MappedMemory<kDescriptor, T>::data() noexcept -> Pointer
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::data() const noexcept -> ConstPointer
@@ -164,6 +214,10 @@ auto MappedMemory<kDescriptor, T>::data() const noexcept -> ConstPointer
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::get(const std::size_t index) noexcept
@@ -172,10 +226,15 @@ auto MappedMemory<kDescriptor, T>::get(const std::size_t index) noexcept
   auto d = data();
   ZISC_ASSERT(d != nullptr, "The data is null.");
   ZISC_ASSERT(index < size(), "The index is out of bounds");
-  return d[index];
+  Reference value = d[index];
+  return value;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 auto MappedMemory<kDescriptor, T>::get(const std::size_t index) const noexcept
@@ -184,10 +243,15 @@ auto MappedMemory<kDescriptor, T>::get(const std::size_t index) const noexcept
   auto d = data();
   ZISC_ASSERT(d != nullptr, "The data is null.");
   ZISC_ASSERT(index < size(), "The index is out of bounds");
-  return d[index];
+  ConstReference value = d[index];
+  return value;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \param [in] value No description.
   */
 template <DescriptorType kDescriptor, typename T> inline
 void MappedMemory<kDescriptor, T>::set(const std::size_t index,
@@ -200,6 +264,9 @@ void MappedMemory<kDescriptor, T>::set(const std::size_t index,
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 template <DescriptorType kDescriptor, typename T> inline
 std::size_t MappedMemory<kDescriptor, T>::size() const noexcept
@@ -209,6 +276,7 @@ std::size_t MappedMemory<kDescriptor, T>::size() const noexcept
 }
 
 /*!
+  \details No detailed description
   */
 template <DescriptorType kDescriptor, typename T> inline
 void MappedMemory<kDescriptor, T>::unmap() noexcept

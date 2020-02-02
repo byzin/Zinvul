@@ -1,7 +1,12 @@
 /*!
   \file @kernel_set_name@.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -11,12 +16,9 @@
 #define ZINVUL_@kernel_set_name@_HPP
 
 // Standard C++ library
-#include <fstream>
 #include <vector>
 // Zisc
-#include "zisc/error.hpp"
-#include "zisc/memory_resource.hpp"
-#include "zisc/utility.hpp"
+#include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "zinvul/kernel_set.hpp"
 #include "zinvul/zinvul_config.hpp"
@@ -48,12 +50,12 @@ namespace @kernel_set_name@ {
 #if defined(__kernel)
   static_assert(false, "The macro '__kernel' is already defined.");
 #endif // __kernel
-#define __kernel
+#define __kernel // Dymmy definitions for the compatibility with OpenCL
 
 #if defined(kernel)
   static_assert(false, "The macro 'kernel' is already defined.");
 #endif // kernel
-#define kernel
+#define kernel // Dymmy definitions for the compatibility with OpenCL
 
 #define ZINVUL_GLOBAL_NAMESPACE ::zinvul::cl
 
@@ -69,53 +71,28 @@ namespace @kernel_set_name@ {
 
 namespace @kernel_set_name@ {
 
+namespace inner {
+
 /*!
+  \brief No brief description
+
+  No detailed description.
   */
-class __KernelSet : public zinvul::KernelSet<__KernelSet>
+class KernelSet : public zinvul::KernelSet<KernelSet>
 {
  public:
   //! Return the SPIR-V code
   static zisc::pmr::vector<uint32b> getKernelSpirvCode(
-      zisc::pmr::memory_resource* mem_resource) noexcept
-  {
-    zisc::pmr::vector<uint32b> spirv_code{mem_resource};
-#ifndef ZINVUL_BAKE_KERNELS
-    std::ifstream spirv_file{"@spv_file_path@", std::ios_base::binary};
-    ZISC_ASSERT(spirv_file.is_open(), "The SPIR-V file doesn't exist.");
-    std::streamsize spirv_size = 0;
-    {
-      const auto begin = spirv_file.tellg();
-      spirv_file.seekg(0, std::ios_base::end);
-      const auto end = spirv_file.tellg();
-      spirv_size = end - begin;
-      ZISC_ASSERT((spirv_size % 4) == 0, "The size of the SPIR-V code is invalid.");
-      spirv_file.clear();
-      spirv_file.seekg(0, std::ios_base::beg);
-    }
-    spirv_code.resize(zisc::cast<std::size_t>(spirv_size / 4));
-    spirv_file.read(reinterpret_cast<char*>(spirv_code.data()), spirv_size);
-#else // ZINVUL_BAKE_KERNELS
-    const auto to_4byte = [](const uint32b byte1,
-                             const uint32b byte2,
-                             const uint32b byte3,
-                             const uint32b byte4)
-    {
-      const uint32b b = byte1 | (byte2 << 8u) | (byte3 << 16u) | (byte4 << 24u);
-      return b;
-    };
-    spirv_code = {
-#include "@baked_spv_file_path@"
-        };
-#endif // ZINVUL_BAKE_KERNELS
-    return spirv_code;
-  }
+      std::pmr::memory_resource* mem_resource) noexcept;
 
   //! Return the set number
   static constexpr uint32b getId() noexcept
   {
-    return @set_number@;
+    return @kernel_set_number@;
   }
 };
+
+} // namespace inner
 
 } // namespace @kernel_set_name@
 

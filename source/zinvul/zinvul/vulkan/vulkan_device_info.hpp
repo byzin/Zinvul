@@ -1,21 +1,26 @@
 /*!
-  \file vulkan_physical_device_info.hpp
+  \file vulkan_device_info.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_VULKAN_PHYSICAL_DEVICE_INFO_HPP
-#define ZINVUL_VULKAN_PHYSICAL_DEVICE_INFO_HPP
+#ifndef ZINVUL_VULKAN_DEVICE_INFO_HPP
+#define ZINVUL_VULKAN_DEVICE_INFO_HPP
 
 // Standard C++ library
 #include <vector>
 // Vulkan
 #include <vulkan/vulkan.hpp>
 // Zisc
-#include "zisc/memory_resource.hpp"
+#include "zisc/std_memory_resource.hpp"
 #include "zisc/non_copyable.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
@@ -24,8 +29,10 @@ namespace zinvul {
 
 /*!
   \brief Properties and features of a vulkan device
+
+  No detailed description.
   */
-class VulkanPhysicalDeviceInfo : private zisc::NonCopyable<VulkanPhysicalDeviceInfo>
+class VulkanDeviceInfo : private zisc::NonCopyable<VulkanDeviceInfo>
 {
  public:
   //! Extension properties of a device
@@ -113,83 +120,96 @@ class VulkanPhysicalDeviceInfo : private zisc::NonCopyable<VulkanPhysicalDeviceI
     vk::QueueFamilyProperties properties1_;
   };
 
+  //! Tool properties of a device
+  struct ToolProperties
+  {
+    vk::PhysicalDeviceToolPropertiesEXT properties1_;
+  };
+
 
   //! Initialize device info
-  VulkanPhysicalDeviceInfo(zisc::pmr::memory_resource* mem_resource) noexcept;
+  VulkanDeviceInfo(std::pmr::memory_resource* mem_resource) noexcept;
 
   //! Move a data
-  VulkanPhysicalDeviceInfo(VulkanPhysicalDeviceInfo&& other) noexcept;
+  VulkanDeviceInfo(VulkanDeviceInfo&& other) noexcept;
 
 
   //! Move a data
-  VulkanPhysicalDeviceInfo& operator=(VulkanPhysicalDeviceInfo&& other) noexcept;
+  VulkanDeviceInfo& operator=(VulkanDeviceInfo&& other) noexcept;
 
 
-  //! Return extension properties list
+  //! Return extension properties list of the device
   zisc::pmr::vector<ExtensionProperties>& extensionPropertiesList() noexcept;
 
-  //! Return extension properties list
+  //! Return extension properties list of the device
   const zisc::pmr::vector<ExtensionProperties>& extensionPropertiesList() const noexcept;
 
-  //! Return features
+  //! Return features of the device
   Features& features() noexcept;
 
-  //! Return features
+  //! Return features of the device
   const Features& features() const noexcept;
 
   //! Fetch device info from a physical device
   void fetch(const vk::PhysicalDevice& device) noexcept;
 
-  //! Return layer properties list
+  //! Return layer properties list of the device
   zisc::pmr::vector<LayerProperties>& layerPropertiesList() noexcept;
 
-  //! Return layer properties list
+  //! Return layer properties list of the device
   const zisc::pmr::vector<LayerProperties>& layerPropertiesList() const noexcept;
 
-  template <typename Type1, typename Type2, typename ...Types>
-  static void link(Type1&& value1, Type2&& value2, Types&&... values) noexcept;
+//  template <typename Type1, typename Type2, typename ...Types>
+//  static void link(Type1&& value1, Type2&& value2, Types&&... values) noexcept;
 
-  //! Return memory properties
+  //! Return memory properties of the device
   MemoryProperties& memoryProperties() noexcept;
 
-  //! Return memory properties
+  //! Return memory properties of the device
   const MemoryProperties& memoryProperties() const noexcept;
 
-  //! Return properties
+  //! Return properties of the device
   Properties& properties() noexcept;
 
-  //! Return properties
+  //! Return properties of the device
   const Properties& properties() const noexcept;
 
-  //! Return queue family properties list
+  //! Return tool properties list of the device
+  zisc::pmr::vector<ToolProperties>& toolPropertiesList() noexcept;
+
+  //! Return tool properties list of the device
+  const zisc::pmr::vector<ToolProperties>& toolPropertiesList() const noexcept;
+
+  //! Return queue family properties list of the device
   zisc::pmr::vector<QueueFamilyProperties>& queueFamilyPropertiesList() noexcept;
 
-  //! Return queue family properties list
+  //! Return queue family properties list of the device
   const zisc::pmr::vector<QueueFamilyProperties>& queueFamilyPropertiesList() const noexcept;
 
  private:
   //! Fetch extension properties from a physical device
   void fetchExtensionProperties(const vk::PhysicalDevice& device) noexcept;
 
-  //! Fetch features from a physical device
-  void fetchFeatures(const vk::PhysicalDevice& device) noexcept;
-
-  //! Fetch layer properties from a physical device
-  void fetchLayerProperties(const vk::PhysicalDevice& device) noexcept;
-
-  //! Fetch memory properties from a physical device
-  void fetchMemoryProperties(const vk::PhysicalDevice& device) noexcept;
-
-  //! Fetch properties from a physical device
-  void fetchProperties(const vk::PhysicalDevice& device) noexcept;
-
-  //! Fetch queue family properties from a physical device
-  void fetchQueueFamilyProperties(const vk::PhysicalDevice& device) noexcept;
+//  //! Fetch features from a physical device
+//  void fetchFeatures(const vk::PhysicalDevice& device) noexcept;
+//
+//  //! Fetch layer properties from a physical device
+//  void fetchLayerProperties(const vk::PhysicalDevice& device) noexcept;
+//
+//  //! Fetch memory properties from a physical device
+//  void fetchMemoryProperties(const vk::PhysicalDevice& device) noexcept;
+//
+//  //! Fetch properties from a physical device
+//  void fetchProperties(const vk::PhysicalDevice& device) noexcept;
+//
+//  //! Fetch queue family properties from a physical device
+//  void fetchQueueFamilyProperties(const vk::PhysicalDevice& device) noexcept;
 
 
   zisc::pmr::vector<ExtensionProperties> extension_properties_list_;
   zisc::pmr::vector<LayerProperties> layer_properties_list_;
   zisc::pmr::vector<QueueFamilyProperties> queue_family_properties_list_;
+  zisc::pmr::vector<ToolProperties> tool_properties_list_;
   Properties properties_;
   Features features_;
   MemoryProperties memory_properties_;
@@ -197,6 +217,6 @@ class VulkanPhysicalDeviceInfo : private zisc::NonCopyable<VulkanPhysicalDeviceI
 
 } // namespace zinvul
 
-#include "vulkan_physical_device_info-inl.hpp"
+#include "vulkan_device_info-inl.hpp"
 
-#endif // ZINVUL_VULKAN_PHYSICAL_DEVICE_INFO_HPP
+#endif // ZINVUL_VULKAN_DEVICE_INFO_HPP
