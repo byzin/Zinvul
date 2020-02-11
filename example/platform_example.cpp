@@ -67,50 +67,54 @@ int main(int /* argc */, char** /* argv */)
   auto platform = zinvul::makePlatform(&mem_resource);
   platform->initialize(platform_options);
 
+  const std::string indent1 = "    ";
+  const std::string indent2 = indent1 + indent1;
   // CPU sub-platform
   bool has_subplatform = platform->hasSubPlatform(zinvul::SubPlatformType::kCpu);
-  std::cout << "    CPU sub-platform: " << has_subplatform << std::endl;
+  std::cout << indent1 << "CPU sub-platform: " << has_subplatform << std::endl;
 
   // Vulkan sub-platform
   has_subplatform = platform->hasSubPlatform(zinvul::SubPlatformType::kVulkan);
-  std::cout << "    Vulkan sub-platform: " << has_subplatform << std::endl;
+  std::cout << indent1 << "Vulkan sub-platform: " << has_subplatform << std::endl;
 
   // Show device info
   std::cout << std::endl;
   platform->updateDeviceInfoList();
   const auto& device_info_list = platform->deviceInfoList();
   for (std::size_t i = 0; i < device_info_list.size(); ++i) {
+    std::cout << std::endl;
     const auto info = device_info_list[i];
-    std::cout << "    ## Device[" << i << "]" << std::endl;
-    std::cout << "        Type                : "
+    std::cout << indent1 << "## Device[" << i << "]" << std::endl;
+    std::cout << indent2 << "Type                : "
               << ::getSubPlatformTypeString(info->type()) << std::endl;
-    std::cout << "        Name                : "
+    std::cout << indent2 << "Name                : "
               << info->name() << std::endl;
-    std::cout << "        Vendor name         : "
+    std::cout << indent2 << "Vendor name         : "
               << info->vendorName() << std::endl;
     const auto workgroup_counts = info->maxWorkGroupCount();
-    std::cout << "        Max work group count: " << "("
+    std::cout << indent2 << "Max work group count: " << "("
               << workgroup_counts[0] << ", "
               << workgroup_counts[1] << ", "
               << workgroup_counts[2] << ")" << std::endl;
-    std::cout << "        Work group size     : "
+    std::cout << indent2 << "Work group size     : "
               << info->workGroupSize() << std::endl;
-    std::cout << "        Max allocation size : "
+    std::cout << indent2 << "Max allocation size : "
               << ::toMegaBytes(info->maxAllocationSize()) << " MB." << std::endl;
+    const std::string indent3 = indent2 + indent1;
     for (std::size_t index = 0; index < info->numOfHeaps(); ++index) {
-      std::cout << "        MemoryHeap[" << index << "]" << std::endl;
-      std::cout << "            Total memory    : "
+      std::cout << indent2 << "MemoryHeap[" << index << "]" << std::endl;
+      std::cout << indent3 << "Total memory    : "
                 << ::toMegaBytes(info->totalMemory(index)) << " MB." << std::endl;
-      std::cout << "            Available memory: "
+      std::cout << indent3 << "Available memory: "
                 << ::toMegaBytes(info->availableMemory(index)) << " MB." << std::endl;
     }
   }
 
   std::cout << std::endl;
-  std::cout << "    Host memory usage     : "
+  std::cout << indent1 << "Host memory usage     : "
             << ::toMegaBytes(mem_resource.totalMemoryUsage()) << " MB."
             << std::endl;
-  std::cout << "    Host peak memory usage: "
+  std::cout << indent1 << "Host peak memory usage: "
             << ::toMegaBytes(mem_resource.peakMemoryUsage()) << " MB."
             << std::endl;
 

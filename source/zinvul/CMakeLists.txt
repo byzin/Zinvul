@@ -120,6 +120,24 @@ function(getZinvulFlags zinvul_compile_flags zinvul_linker_flags zinvul_definiti
 endfunction(getZinvulFlags)
 
 
+function(getZinvulWarningFlags zinvul_warning_flags)
+  set(warning_flags "")
+
+  # Suppress warnings
+  if(Z_CLANG)
+    list(APPEND warning_flags -Wno-float-equal
+                              -Wno-padded
+                              -Wno-sign-conversion
+                              )
+  elseif(Z_GCC)
+    list(APPEND warning_flags -Wno-sign-conversion
+                              )
+  endif()
+
+  set(${zinvul_warning_flags} ${warning_flags} PARENT_SCOPE)
+endfunction(getZinvulWarningFlags)
+
+
 #
 set(project_description "Zinvul.")
 project(Zinvul VERSION 0.0.1 DESCRIPTION "${project_description}" LANGUAGES CXX)
@@ -162,8 +180,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17
 
 getCxxWarningFlags(cxx_compile_warning_flags)
 getZinvulFlags(zinvul_compile_flags zinvul_linker_flags zinvul_definitions)
+getZinvulWarningFlags(zinvul_warning_flags)
 target_compile_options(${PROJECT_NAME} PUBLIC ${zinvul_compile_flags}
-                                       PRIVATE ${cxx_compile_warning_flags})
+                                       PRIVATE ${cxx_compile_warning_flags}
+                                               ${zinvul_warning_flags})
 target_link_libraries(${PROJECT_NAME} PUBLIC Zisc cpu_features)
 target_link_options(${PROJECT_NAME} PUBLIC ${zinvul_linker_flags})
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${zinvul_definitions})

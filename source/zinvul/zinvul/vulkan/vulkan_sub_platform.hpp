@@ -54,6 +54,9 @@ class VulkanSubPlatform : public SubPlatform
   //! Return the device list
   const zisc::pmr::vector<VkPhysicalDevice>& deviceList() const noexcept;
 
+  //! Return the device info list
+  const zisc::pmr::vector<VulkanDeviceInfo>& deviceInfoList() const noexcept;
+
   //! Return the dispatcher of vulkan objects
   const VulkanDispatchLoader& dispatcher() const noexcept;
 

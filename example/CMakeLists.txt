@@ -16,7 +16,7 @@ function(getExampleWarningFlags example_warning_flags)
   set(warning_flags "")
 
   # Suppress warnings
-  if(ZISC_SUPPRESS_EXCESSIVE_WARNING)
+  if(ZINVUL_SUPPRESS_EXCESSIVE_WARNING)
     if(Z_CLANG)
       list(APPEND warning_flags -Wno-float-equal
                                 -Wno-sign-conversion 

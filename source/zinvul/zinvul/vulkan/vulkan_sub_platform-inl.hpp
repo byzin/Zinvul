@@ -23,6 +23,7 @@
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
+#include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "zinvul/zinvul_config.hpp"
 
@@ -37,6 +38,17 @@ inline
 const zisc::pmr::vector<VkPhysicalDevice>& VulkanSubPlatform::deviceList() const noexcept
 {
   return *device_list_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const zisc::pmr::vector<VulkanDeviceInfo>& VulkanSubPlatform::deviceInfoList() const noexcept
+{
+  return *device_info_list_;
 }
 
 /*!

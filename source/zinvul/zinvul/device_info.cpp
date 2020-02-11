@@ -47,6 +47,7 @@ DeviceInfo::~DeviceInfo() noexcept
   */
 DeviceInfo& DeviceInfo::operator=(DeviceInfo&& /* other */) noexcept
 {
+  return *this;
 }
 
 } // namespace zinvul
