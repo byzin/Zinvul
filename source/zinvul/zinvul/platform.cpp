@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
+#include <vector>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
@@ -45,12 +46,21 @@ Platform::Platform() noexcept
 
   \param [in] other No description.
   */
-Platform::Platform(Platform&& other) noexcept
+Platform::Platform(Platform&& other) noexcept :
+    device_info_list_{std::move(other.device_info_list_)}
 {
   std::swap(mem_resource_, other.mem_resource_);
   std::move(other.sub_platform_list_.begin(),
             other.sub_platform_list_.end(),
             sub_platform_list_.begin());
+}
+
+/*!
+  \details No detailed description
+  */
+Platform::~Platform() noexcept
+{
+  destroy();
 }
 
 /*!
@@ -73,6 +83,7 @@ Platform& Platform::operator=(Platform&& other) noexcept
   */
 void Platform::destroy() noexcept
 {
+  device_info_list_.reset();
   for (auto& sub_platform : sub_platform_list_)
     sub_platform.reset();
   mem_resource_ = nullptr;
@@ -94,6 +105,39 @@ void Platform::initialize(PlatformOptions& platform_options)
   initCpuSubPlatform(platform_options);
   if (platform_options.vulkanSubPlatformEnabled())
     initVulkanSubPlatform(platform_options);
+
+  // Get device info list
+  using DeviceInfoList = zisc::pmr::vector<const DeviceInfo*>;
+  DeviceInfoList new_info_list{DeviceInfoList::allocator_type{mem_resource_}};
+  device_info_list_ = zisc::pmr::allocateUnique<DeviceInfoList>(
+      mem_resource_,
+      std::move(new_info_list));
+  updateDeviceInfoList();
+}
+
+/*!
+  \details No detailed description
+  */
+void Platform::updateDeviceInfoList() noexcept
+{
+  device_info_list_->clear();
+  // 
+  for (auto& sub_platform : sub_platform_list_) {
+    if (sub_platform)
+      sub_platform->updateDeviceInfoList();
+  }
+  //
+  std::size_t num_of_devices = 0;
+  for (const auto& sub_platform : sub_platform_list_) {
+    if (sub_platform)
+      num_of_devices += sub_platform->numOfDevices();
+  }
+  device_info_list_->reserve(num_of_devices);
+  //
+  for (const auto& sub_platform : sub_platform_list_) {
+    if (sub_platform)
+      sub_platform->getDeviceInfoList(*device_info_list_);
+  }
 }
 
 /*!
@@ -103,7 +147,7 @@ void Platform::initialize(PlatformOptions& platform_options)
   */
 void Platform::initCpuSubPlatform(PlatformOptions& platform_options)
 {
-  std::pmr::memory_resource* mem_resource = memoryResource();
+  zisc::pmr::memory_resource* mem_resource = memoryResource();
   auto sub_platform = zisc::pmr::allocateUnique<CpuSubPlatform>(mem_resource);
   sub_platform->initialize(platform_options);
   setSubPlatform(SubPlatformType::kCpu, std::move(sub_platform));
@@ -117,12 +161,24 @@ void Platform::initCpuSubPlatform(PlatformOptions& platform_options)
 void Platform::initVulkanSubPlatform(PlatformOptions& platform_options)
 {
 #if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
-  std::pmr::memory_resource* mem_resource = memoryResource();
+  zisc::pmr::memory_resource* mem_resource = memoryResource();
   auto sub_platform = zisc::pmr::allocateUnique<VulkanSubPlatform>(mem_resource);
   sub_platform->initialize(platform_options);
   setSubPlatform(SubPlatformType::kVulkan, std::move(sub_platform));
 #endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
   static_cast<void>(platform_options);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] mem_resource No description.
+  \return No description
+  */
+UniquePlatform makePlatform(zisc::pmr::memory_resource* mem_resource) noexcept
+{
+  auto platform = zisc::pmr::allocateUnique<Platform>(mem_resource);
+  return platform;
 }
 
 } // namespace zinvul

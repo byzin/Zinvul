@@ -54,7 +54,7 @@ namespace inner {
   \return No description
   */
 zisc::pmr::vector<uint32b> KernelSet::getKernelSpirvCode(
-    std::pmr::memory_resource* mem_resource) noexcept
+    zisc::pmr::memory_resource* mem_resource) noexcept
 {
   zisc::pmr::vector<uint32b> spirv_code{mem_resource};
 #if !defined(ZINVUL_BAKE_KERNELS)

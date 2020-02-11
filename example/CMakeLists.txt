@@ -77,9 +77,11 @@ setVariablesOnCMake(${platform_definitions})
 checkTarget(Zinvul)
 
 # Build examples
-addExample(DeviceExample ON
+addExample(PlatformExample ON
+           ${PROJECT_SOURCE_DIR}/platform_example.cpp)
+addExample(VulkanSubPlatformExample OFF
+           ${PROJECT_SOURCE_DIR}/vulkan_sub_platform_example.cpp)
+addExample(DeviceExample OFF
            ${PROJECT_SOURCE_DIR}/device_example.cpp)
-if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
-  addExample(VulkanDeviceInfoExample OFF
-             ${PROJECT_SOURCE_DIR}/vulkan_device_info_example.cpp)
-endif()
+addExample(VulkanDeviceInfoExample OFF
+           ${PROJECT_SOURCE_DIR}/vulkan_device_info_example.cpp)

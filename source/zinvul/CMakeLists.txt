@@ -14,11 +14,14 @@ set(__zisc_path__ ${CMAKE_SOURCE_DIR}/source/dependencies/zisc/source/zisc)
 set(__vma_path__ ${CMAKE_SOURCE_DIR}/source/dependencies/VulkanMemoryAllocator)
 
 function(initZinvulOptions)
-  set(option_description "Bake vulkan kernels into a binary.")
+  set(option_description "Bake Vulkan kernels into a binary.")
   setBooleanOption(ZINVUL_BAKE_KERNELS OFF ${option_description})
 
-  set(option_description "Enable vulkan sub-platform.")
+  set(option_description "Enable Vulkan sub-platform.")
   setBooleanOption(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM ON ${option_description})
+
+  set(option_description "Load Vulkan library dynamically at runtime.")
+  setBooleanOption(ZINVUL_DYNAMIC_VULKAN_LOADING OFF ${option_description})
 
   set(option_description "Enable Zinvul to build VMA implementation.")
   setBooleanOption(ZINVUL_ENABLE_VMA_IMPLEMENTATION_BUILDING ON ${option_description})
@@ -88,13 +91,16 @@ function(getZinvulFlags zinvul_compile_flags zinvul_linker_flags zinvul_definiti
     list(APPEND definitions ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
 
     # Vulkan SDK
-    list(APPEND definitions VULKAN_HPP_TYPESAFE_CONVERSION=0
-                            VULKAN_HPP_NO_SMART_HANDLE
-                            )
+    list(APPEND definitions VULKAN_HPP_NO_SMART_HANDLE)
+    # Dynamic vulkan loading
+    if(ZINVUL_DYNAMIC_VULKAN_LOADING)
+      list(APPEND definitions ZINVUL_DYNAMIC_VULKAN_LOADING)
+    endif()
     # Vulkan Memory Allocator
     if(ZINVUL_ENABLE_VMA_IMPLEMENTATION_BUILDING)
       list(APPEND definitions ZINVUL_ENABLE_VMA_IMPLEMENTATION_BUILDING)
     endif()
+    # \todo Hide the VMA configurations
     if(Z_DEBUG_MODE)
       list(APPEND definitions VMA_DEBUG_INITIALIZE_ALLOCATIONS=1
                               VMA_DEBUG_MARGIN=32

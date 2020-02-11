@@ -35,7 +35,7 @@ class DeviceOptions : public zisc::NonCopyable<DeviceOptions>
 {
  public:
   //! Create a device options
-  DeviceOptions(std::pmr::memory_resource* mem_resource) noexcept;
+  DeviceOptions(zisc::pmr::memory_resource* mem_resource) noexcept;
 
   //! Move option data
   DeviceOptions(DeviceOptions&& other) noexcept;
@@ -46,10 +46,10 @@ class DeviceOptions : public zisc::NonCopyable<DeviceOptions>
 
 
   //! Return the underlying memory resource
-  std::pmr::memory_resource* memoryResource() noexcept;
+  zisc::pmr::memory_resource* memoryResource() noexcept;
 
   //! Return the underlying memory resource
-  const std::pmr::memory_resource* memoryResource() const noexcept;
+  const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
   //! Return the application name
   std::string_view applicationName() const noexcept;
@@ -111,7 +111,7 @@ class DeviceOptions : public zisc::NonCopyable<DeviceOptions>
 
 
   // Memory resources
-  std::pmr::memory_resource* mem_resource_;
+  zisc::pmr::memory_resource* mem_resource_;
   // Common options
   zisc::pmr::string app_name_;
   SubPlatformType device_type_;

@@ -35,7 +35,7 @@ class PlatformOptions : public zisc::NonCopyable<PlatformOptions>
 {
  public:
   //! Create a platform options
-  PlatformOptions(std::pmr::memory_resource* mem_resource) noexcept;
+  PlatformOptions(zisc::pmr::memory_resource* mem_resource) noexcept;
 
   //! Move option data
   PlatformOptions(PlatformOptions&& other) noexcept;
@@ -52,10 +52,10 @@ class PlatformOptions : public zisc::NonCopyable<PlatformOptions>
   void enableVulkanSubPlatform(const bool sub_platform_enabled) noexcept;
 
   //! Return the underlying memory resource
-  std::pmr::memory_resource* memoryResource() noexcept;
+  zisc::pmr::memory_resource* memoryResource() noexcept;
 
   //! Return the underlying memory resource
-  const std::pmr::memory_resource* memoryResource() const noexcept;
+  const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
   //! Return the platform name
   std::string_view platformName() const noexcept;
@@ -92,7 +92,7 @@ class PlatformOptions : public zisc::NonCopyable<PlatformOptions>
   void initialize() noexcept;
 
 
-  std::pmr::memory_resource* mem_resource_;
+  zisc::pmr::memory_resource* mem_resource_;
   zisc::pmr::string platform_name_;
   uint32b platform_version_major_;
   uint32b platform_version_minor_;

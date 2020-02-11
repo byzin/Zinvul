@@ -28,9 +28,6 @@
 #include <utility>
 #include <vector>
 // Vulkan
-#if defined(ZINVUL_ENABLE_VMA_IMPLEMENTATION_BUILDING)
-#define VMA_IMPLEMENTATION
-#endif // ZINVUL_ENABLE_VMA_IMPLEMENTATION_BUILDING
 #include <vulkan/vulkan.hpp>
 #include "vk_mem_alloc.h"
 // Zisc
@@ -306,7 +303,7 @@ SubPlatformType VulkanDevice::subPlatformType() const noexcept
   \return No description
   */
 zisc::pmr::vector<VulkanDeviceInfo> VulkanDevice::getDeviceInfoList(
-    std::pmr::memory_resource* mem_resource)
+    zisc::pmr::memory_resource* mem_resource)
 {
   const auto app_info = makeApplicationInfo("getDeviceInfoList",
                                             Config::versionMajor(),
@@ -325,15 +322,15 @@ zisc::pmr::vector<VulkanDeviceInfo> VulkanDevice::getDeviceInfoList(
   DeviceInfoList device_info_list{DeviceInfoList::allocator_type{mem_resource}};
 
   if (instance) {
-    using ListAllocator = zisc::pmr::vector<vk::PhysicalDevice>::allocator_type;
-    ListAllocator list_alloc{mem_resource};
-    VULKAN_HPP_DEFAULT_DISPATCHER_TYPE dispatch{};
-    auto device_list = instance.enumeratePhysicalDevices(list_alloc, dispatch);
-    device_info_list.reserve(device_list.size());
-    for (const auto& device : device_list) {
-      device_info_list.emplace_back(mem_resource);
-      device_info_list.back().fetch(device);
-    }
+//    using ListAllocator = zisc::pmr::vector<vk::PhysicalDevice>::allocator_type;
+//    ListAllocator list_alloc{mem_resource};
+//    VULKAN_HPP_DEFAULT_DISPATCHER_TYPE dispatch{};
+//    auto device_list = instance.enumeratePhysicalDevices(list_alloc, dispatch);
+//    device_info_list.reserve(device_list.size());
+//    for (const auto& device : device_list) {
+//      device_info_list.emplace_back(mem_resource);
+//      device_info_list.back().fetch(device);
+//    }
   }
   instance.destroy(alloc);
   return device_info_list;
@@ -643,7 +640,7 @@ auto VulkanDevice::Callbacks::allocateMemory(
     VkSystemAllocationScope /* scope */) -> AllocationReturnType
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto mem_resource = zisc::cast<std::pmr::memory_resource*>(user_data);
+  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(user_data);
   void* memory = mem_resource->allocate(size, alignment);
   return memory;
 }
@@ -659,7 +656,7 @@ void VulkanDevice::Callbacks::freeMemory(
     void* memory)
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto mem_resource = zisc::cast<std::pmr::memory_resource*>(user_data);
+  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(user_data);
   if (memory)
     mem_resource->deallocate(memory, 0, 0);
 }
@@ -852,7 +849,7 @@ auto VulkanDevice::Callbacks::reallocateMemory(
     VkSystemAllocationScope /* scope */) -> ReallocationReturnType
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto mem_resource = zisc::cast<std::pmr::memory_resource*>(user_data);
+  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(user_data);
   // Allocate new memory block
   void* memory = nullptr;
   if (0 < size)
@@ -1159,7 +1156,7 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
   \return No description
   */
 vk::AllocationCallbacks VulkanDevice::makeAllocator(
-    std::pmr::memory_resource* mem_resource) noexcept
+    zisc::pmr::memory_resource* mem_resource) noexcept
 {
   vk::AllocationCallbacks alloc{mem_resource,
                                 Callbacks::allocateMemory,
@@ -1213,7 +1210,7 @@ vk::Instance VulkanDevice::makeInstance(const vk::ApplicationInfo& app_info,
                                         const bool enable_debug,
                                         vk::AllocationCallbacks* alloc)
 {
-  auto mem_resource = zisc::cast<std::pmr::memory_resource*>(alloc->pUserData);
+  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(alloc->pUserData);
 
   zisc::pmr::vector<const char*>::allocator_type layer_alloc{mem_resource};
   zisc::pmr::vector<const char*> layers{layer_alloc};

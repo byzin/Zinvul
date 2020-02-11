@@ -63,13 +63,13 @@ class Device : private zisc::NonCopyable<Device>
 
   //! Return the device type and device number list
   static zisc::pmr::vector<Param> getDeviceParamList(
-      std::pmr::memory_resource* mem_resource);
+      zisc::pmr::memory_resource* mem_resource);
 
   //! Returna a memory resource
-  std::pmr::memory_resource* memoryResource() noexcept;
+  zisc::pmr::memory_resource* memoryResource() noexcept;
 
   //! Returna a memory resource
-  const std::pmr::memory_resource* memoryResource() const noexcept;
+  const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
   //! Return the device name
   virtual std::string_view name() const noexcept = 0;
@@ -101,7 +101,7 @@ class Device : private zisc::NonCopyable<Device>
   std::size_t peak_memory_usage_ = 0;
 
  private:
-  std::pmr::memory_resource* mem_resource_;
+  zisc::pmr::memory_resource* mem_resource_;
 };
 
 // Type aliases

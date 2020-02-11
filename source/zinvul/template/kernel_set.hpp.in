@@ -83,7 +83,7 @@ class KernelSet : public zinvul::KernelSet<KernelSet>
  public:
   //! Return the SPIR-V code
   static zisc::pmr::vector<uint32b> getKernelSpirvCode(
-      std::pmr::memory_resource* mem_resource) noexcept;
+      zisc::pmr::memory_resource* mem_resource) noexcept;
 
   //! Return the set number
   static constexpr uint32b getId() noexcept

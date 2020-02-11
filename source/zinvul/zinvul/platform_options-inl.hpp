@@ -32,7 +32,7 @@ namespace zinvul {
   \param [in,out] mem_resource No description.
   */
 inline
-PlatformOptions::PlatformOptions(std::pmr::memory_resource* mem_resource)
+PlatformOptions::PlatformOptions(zisc::pmr::memory_resource* mem_resource)
     noexcept :
         mem_resource_{mem_resource},
         platform_name_{"Platform",
@@ -114,7 +114,7 @@ void PlatformOptions::enableVulkanSubPlatform(const bool sub_platform_enabled)
   \return No description
   */
 inline
-std::pmr::memory_resource* PlatformOptions::memoryResource() noexcept
+zisc::pmr::memory_resource* PlatformOptions::memoryResource() noexcept
 {
   return mem_resource_;
 }
@@ -125,7 +125,7 @@ std::pmr::memory_resource* PlatformOptions::memoryResource() noexcept
   \return No description
   */
 inline
-const std::pmr::memory_resource* PlatformOptions::memoryResource() const noexcept
+const zisc::pmr::memory_resource* PlatformOptions::memoryResource() const noexcept
 {
   return mem_resource_;
 }

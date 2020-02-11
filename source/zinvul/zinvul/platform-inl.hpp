@@ -21,15 +21,28 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
+#include <vector>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
+#include "device_info.hpp"
 #include "sub_platform.hpp"
 #include "zinvul_config.hpp"
 
 namespace zinvul {
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const zisc::pmr::vector<const DeviceInfo*>& Platform::deviceInfoList() const noexcept
+{
+  return *device_info_list_;
+}
 
 /*!
   \details No detailed description
@@ -52,7 +65,7 @@ bool Platform::hasSubPlatform(const SubPlatformType type) const noexcept
   \return No description
   */
 inline
-std::pmr::memory_resource* Platform::memoryResource() noexcept
+zisc::pmr::memory_resource* Platform::memoryResource() noexcept
 {
   return mem_resource_;
 }
@@ -63,7 +76,7 @@ std::pmr::memory_resource* Platform::memoryResource() noexcept
   \return No description
   */
 inline
-const std::pmr::memory_resource* Platform::memoryResource() const noexcept
+const zisc::pmr::memory_resource* Platform::memoryResource() const noexcept
 {
   return mem_resource_;
 }

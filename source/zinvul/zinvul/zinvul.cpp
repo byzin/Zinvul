@@ -35,16 +35,16 @@ namespace zinvul {
 UniqueDevice makeDevice(DeviceOptions& options)
 {
   UniqueDevice device{};
-  std::pmr::memory_resource* mem_resource = options.memoryResource();
+  zisc::pmr::memory_resource* mem_resource = options.memoryResource();
   switch (options.subPlatformType()) {
    case SubPlatformType::kCpu: {
-    std::pmr::polymorphic_allocator<CpuDevice> alloc{mem_resource};
+    zisc::pmr::polymorphic_allocator<CpuDevice> alloc{mem_resource};
     device = zisc::pmr::allocateUnique<CpuDevice>(alloc, options);
     break;
    }
 #if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
    case SubPlatformType::kVulkan: {
-    std::pmr::polymorphic_allocator<VulkanDevice> alloc{mem_resource};
+    zisc::pmr::polymorphic_allocator<VulkanDevice> alloc{mem_resource};
     device = zisc::pmr::allocateUnique<VulkanDevice>(alloc, options);
     break;
    }

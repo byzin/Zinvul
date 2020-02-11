@@ -19,6 +19,7 @@
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <vector>
 // Zisc
 #include "zisc/non_copyable.hpp"
 #include "zisc/std_memory_resource.hpp"
@@ -30,6 +31,7 @@
 namespace zinvul {
 
 // Forward declaration
+class DeviceInfo;
 class PlatformOptions;
 
 /*!
@@ -57,14 +59,17 @@ class Platform : public zisc::NonCopyable<Platform>
   //! Destroy the platform
   void destroy() noexcept;
 
+  //! Return the device info list
+  const zisc::pmr::vector<const DeviceInfo*>& deviceInfoList() const noexcept;
+
   //! Check if the platform has the sub-platform of the given type
   bool hasSubPlatform(const SubPlatformType type) const noexcept;
 
   //! Return the underlying memory resource
-  std::pmr::memory_resource* memoryResource() noexcept;
+  zisc::pmr::memory_resource* memoryResource() noexcept;
 
   //! Return the underlying memory resource
-  const std::pmr::memory_resource* memoryResource() const noexcept;
+  const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
   //! Initialize the platform
   void initialize(PlatformOptions& platform_options);
@@ -74,6 +79,9 @@ class Platform : public zisc::NonCopyable<Platform>
 
   //! Return the sub-platform of the given type
   const SubPlatform* subPlatform(const SubPlatformType type) const noexcept;
+
+  //! Update the device info list
+  void updateDeviceInfoList() noexcept;
 
  private:
   //! Create a CPU sub-platform
@@ -90,12 +98,16 @@ class Platform : public zisc::NonCopyable<Platform>
   static constexpr std::size_t kNumOfSubPlatforms = 2;
 
 
-  std::pmr::memory_resource* mem_resource_ = nullptr;
+  zisc::pmr::memory_resource* mem_resource_ = nullptr;
   std::array<UniqueSubPlatform, kNumOfSubPlatforms> sub_platform_list_;
+  zisc::pmr::unique_ptr<zisc::pmr::vector<const DeviceInfo*>> device_info_list_;
 };
 
 // Type aliases
 using UniquePlatform = zisc::pmr::unique_ptr<Platform>;
+
+//! Make a unique platform
+UniquePlatform makePlatform(zisc::pmr::memory_resource* mem_resource) noexcept;
 
 } // namespace zinvul
 

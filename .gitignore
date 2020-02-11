@@ -48,12 +48,15 @@
 !/source/zinvul/zinvul/cpu/
 !/source/zinvul/zinvul/cpu/*.hpp
 !/source/zinvul/zinvul/cpu/*.cpp
-!/source/zinvul/zinvul/vulkan/
-!/source/zinvul/zinvul/vulkan/*.hpp
-!/source/zinvul/zinvul/vulkan/*.cpp
 !/source/zinvul/zinvul/utility/
 !/source/zinvul/zinvul/utility/*.hpp
 !/source/zinvul/zinvul/utility/*.cpp
+!/source/zinvul/zinvul/vulkan/
+!/source/zinvul/zinvul/vulkan/*.hpp
+!/source/zinvul/zinvul/vulkan/*.cpp
+!/source/zinvul/zinvul/vulkan/utility/
+!/source/zinvul/zinvul/vulkan/utility/*.hpp
+!/source/zinvul/zinvul/vulkan/utility/*.cpp
 # Zinvul cmake file
 !/source/zinvul/cmake/
 !/source/zinvul/cmake/*.cmake

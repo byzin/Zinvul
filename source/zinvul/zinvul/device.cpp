@@ -37,7 +37,7 @@ namespace zinvul {
   \return No description
   */
 zisc::pmr::vector<Device::Param> Device::getDeviceParamList(
-    std::pmr::memory_resource* mem_resource)
+    zisc::pmr::memory_resource* mem_resource)
 {
   using DeviceParamList = zisc::pmr::vector<Param>;
   DeviceParamList param_list{DeviceParamList::allocator_type{mem_resource}};

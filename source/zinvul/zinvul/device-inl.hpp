@@ -46,7 +46,7 @@ Device::~Device() noexcept
 /*!
   */
 inline
-std::pmr::memory_resource* Device::memoryResource() noexcept
+zisc::pmr::memory_resource* Device::memoryResource() noexcept
 {
   ZISC_ASSERT(mem_resource_ != nullptr, "The memory resource is null.");
   return mem_resource_;
@@ -55,7 +55,7 @@ std::pmr::memory_resource* Device::memoryResource() noexcept
 /*!
   */
 inline
-const std::pmr::memory_resource* Device::memoryResource() const noexcept
+const zisc::pmr::memory_resource* Device::memoryResource() const noexcept
 {
   ZISC_ASSERT(mem_resource_ != nullptr, "The memory resource is null.");
   return mem_resource_;

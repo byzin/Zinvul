@@ -14,16 +14,21 @@
 
 #include "vulkan_device_info.hpp"
 // Standard C++ library
+#include <array>
 #include <cstddef>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
-// Vulkan
-#include <vulkan/vulkan.hpp>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
+#include "utility/vulkan.hpp"
+#include "utility/vulkan_dispatch_loader.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
@@ -33,16 +38,20 @@ namespace zinvul {
 
   \param [in,out] mem_resource No description.
   */
-VulkanDeviceInfo::VulkanDeviceInfo(std::pmr::memory_resource* mem_resource)
+VulkanDeviceInfo::VulkanDeviceInfo(zisc::pmr::memory_resource* mem_resource)
     noexcept :
+        DeviceInfo(),
         extension_properties_list_{
-          zisc::pmr::vector<ExtensionProperties>::allocator_type{mem_resource}},
+          decltype(extension_properties_list_)::allocator_type{mem_resource}},
         layer_properties_list_{
-          zisc::pmr::vector<LayerProperties>::allocator_type{mem_resource}},
+          decltype(layer_properties_list_)::allocator_type{mem_resource}},
         queue_family_properties_list_{
-          zisc::pmr::vector<QueueFamilyProperties>::allocator_type{mem_resource}},
+          decltype(queue_family_properties_list_)::allocator_type{mem_resource}},
         tool_properties_list_{
-          zisc::pmr::vector<ToolProperties>::allocator_type{mem_resource}}
+          decltype(tool_properties_list_)::allocator_type{mem_resource}},
+        device_local_index_list_{
+          decltype(device_local_index_list_)::allocator_type{mem_resource}},
+        vendor_name_{zisc::pmr::string::allocator_type{mem_resource}}
 {
 }
 
@@ -52,10 +61,14 @@ VulkanDeviceInfo::VulkanDeviceInfo(std::pmr::memory_resource* mem_resource)
   \param [in] other No description.
   */
 VulkanDeviceInfo::VulkanDeviceInfo(VulkanDeviceInfo&& other) noexcept :
+    DeviceInfo(std::move(other)),
     extension_properties_list_{std::move(other.extension_properties_list_)},
     layer_properties_list_{std::move(other.layer_properties_list_)},
     queue_family_properties_list_{std::move(other.queue_family_properties_list_)},
     tool_properties_list_{std::move(other.tool_properties_list_)},
+    device_local_index_list_{std::move(other.device_local_index_list_)},
+    vendor_name_{std::move(other.vendor_name_)},
+    device_{other.device_},
     properties_{std::move(other.properties_)},
     features_{std::move(other.features_)},
     memory_properties_{std::move(other.memory_properties_)}
@@ -70,294 +83,508 @@ VulkanDeviceInfo::VulkanDeviceInfo(VulkanDeviceInfo&& other) noexcept :
   */
 VulkanDeviceInfo& VulkanDeviceInfo::operator=(VulkanDeviceInfo&& other) noexcept
 {
+  DeviceInfo::operator=(std::move(other));
   extension_properties_list_ = std::move(other.extension_properties_list_);
   layer_properties_list_ = std::move(other.layer_properties_list_);
   queue_family_properties_list_ = std::move(other.queue_family_properties_list_);
   tool_properties_list_ = std::move(other.tool_properties_list_);
+  device_local_index_list_ = std::move(other.device_local_index_list_);
+  vendor_name_ = std::move(other.vendor_name_);
+  device_ = other.device_;
   properties_ = std::move(other.properties_);
   features_ = std::move(other.features_);
   memory_properties_ = std::move(other.memory_properties_);
   return *this;
 }
 
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::extensionPropertiesList() noexcept
-//    -> zisc::pmr::vector<ExtensionProperties>&
-//{
-//  return extension_properties_list_;
-//}
-//
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::extensionPropertiesList() const noexcept
-//    -> const zisc::pmr::vector<ExtensionProperties>&
-//{
-//  return extension_properties_list_;
-//}
-//
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::features() noexcept -> Features&
-//{
-//  return features_;
-//}
-//
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::features() const noexcept -> const Features&
-//{
-//  return features_;
-//}
-
 /*!
   \details No detailed description
-
-  \param [in] device No description.
   */
-void VulkanDeviceInfo::fetch(const vk::PhysicalDevice& device) noexcept
+VulkanDeviceInfo::~VulkanDeviceInfo() noexcept
 {
-  fetchExtensionProperties(device);
-//  fetchLayerProperties(device);
-//  fetchQueueFamilyProperties(device);
-//  fetchProperties(device);
-//  fetchFeatures(device);
-//  fetchMemoryProperties(device);
 }
 
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::layerPropertiesList() noexcept
-//    -> zisc::pmr::vector<LayerProperties>&
-//{
-//  return layer_properties_list_;
-//}
-//
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::layerPropertiesList() const noexcept
-//    -> const zisc::pmr::vector<LayerProperties>&
-//{
-//  return layer_properties_list_;
-//}
-//
-///*!
-//  */
-//template <typename Type1, typename Type2, typename ...Types> inline
-//void VulkanDeviceInfo::link(Type1&& value1,
-//                                    Type2&& value2,
-//                                    Types&&... values) noexcept
-//{
-//  constexpr std::size_t num_of_rests = 1 + sizeof...(Types);
-//  value1.pNext = &value2;
-//  if constexpr (1 < num_of_rests) {
-//    link(value2, values...);
-//  }
-//  else {
-//    value2.pNext = nullptr;
-//  }
-//}
-//
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::memoryProperties() noexcept
-//    -> MemoryProperties&
-//{
-//  return memory_properties_;
-//}
-//
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::memoryProperties() const noexcept
-//    -> const MemoryProperties&
-//{
-//  return memory_properties_;
-//}
-//
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::properties() noexcept -> Properties&
-//{
-//  return properties_;
-//}
-//
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::properties() const noexcept -> const Properties&
-//{
-//  return properties_;
-//}
-//
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::queueFamilyPropertiesList() noexcept
-//    -> zisc::pmr::vector<QueueFamilyProperties>&
-//{
-//  return queue_family_properties_list_;
-//}
-//
-///*!
-//  */
-//inline
-//auto VulkanDeviceInfo::queueFamilyPropertiesList() const noexcept
-//    -> const zisc::pmr::vector<QueueFamilyProperties>&
-//{
-//  return queue_family_properties_list_;
-//}
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::size_t VulkanDeviceInfo::availableMemory(const std::size_t heap_index) const noexcept
+{
+  const std::size_t index = device_local_index_list_[heap_index];
+  const auto& budget = memoryProperties().budget_;
+  const std::size_t mem = budget.heapBudget[index] - budget.heapUsage[index];
+  return mem;
+}
 
 /*!
   \details No detailed description
 
-  \param [in] device No description.
+  \param [in] vdevice No description.
+  */
+void VulkanDeviceInfo::fetch(const VkPhysicalDevice& vdevice,
+                             const VulkanDispatchLoader& dispatcher)
+{
+  device_ = vdevice;
+  // Fetch properties from the given device
+  fetchExtensionProperties(dispatcher);
+  fetchLayerProperties(dispatcher);
+  fetchQueueFamilyProperties(dispatcher);
+  fetchToolProperties(dispatcher);
+  fetchProperties(dispatcher);
+  fetchFeatures(dispatcher);
+  fetchMemoryProperties(dispatcher);
+  // Set device info
+  setVendorNameFromId(properties().properties1_.vendorID);
+  findDeviceLocalHeaps();
+}
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::size_t VulkanDeviceInfo::maxAllocationSize() const noexcept
+{
+  const Properties& props = properties();
+  const std::size_t max_alloc = props.maintenance3_.maxMemoryAllocationSize;
+  return max_alloc;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::array<uint32b, 3> VulkanDeviceInfo::maxWorkGroupCount() const noexcept
+{
+  const Properties& props = properties();
+  const uint32b* counts = props.properties1_.limits.maxComputeWorkGroupCount;
+  const std::array<uint32b, 3> max_list{{counts[0], counts[1], counts[2]}};
+  return max_list;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::string_view VulkanDeviceInfo::name() const noexcept
+{
+  std::string_view n{properties_.properties1_.deviceName};
+  return n;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::size_t VulkanDeviceInfo::numOfHeaps() const noexcept
+{
+  return device_local_index_list_.size();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::size_t VulkanDeviceInfo::totalMemory(const std::size_t heap_index) const noexcept
+{
+  const std::size_t index = device_local_index_list_[heap_index];
+  const auto& heap = memoryProperties().properties1_.memoryHeaps[index];
+  const std::size_t mem = heap.size;
+  return mem;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+SubPlatformType VulkanDeviceInfo::type() const noexcept
+{
+  return SubPlatformType::kVulkan;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::string_view VulkanDeviceInfo::vendorName() const noexcept
+{
+  return vendor_name_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+uint32b VulkanDeviceInfo::workGroupSize() const noexcept
+{
+  const Properties& props = properties();
+  return props.subgroup_.subgroupSize;
+}
+
+/*!
+  \details No detailed description
   */
 void VulkanDeviceInfo::fetchExtensionProperties(
-    const vk::PhysicalDevice& device) noexcept
+    const VulkanDispatchLoader& dispatcher)
 {
-//  auto [result, properties] = device.enumerateDeviceExtensionProperties();
-//  ZISC_ASSERT(result == vk::Result::eSuccess,
-//              "Vulkan device failed to get extension properties.");
-//  extension_properties_list_.resize(properties.size());
-//  for (std::size_t i = 0; i < properties.size(); ++i) {
-//    extension_properties_list_[i].properties1_ = properties[i];
-//  }
+  using Props = zinvulvk::ExtensionProperties;
+  static_assert(sizeof(VkExtensionProperties) == sizeof(Props),
+                "The sizes of properties don't match.");
+
+  const zinvulvk::PhysicalDevice d{device()};
+  const auto loader = dispatcher.loaderImpl();
+
+  using PropertiesList = zisc::pmr::vector<Props>;
+  extension_properties_list_.clear();
+  auto props_list = zisc::treatAs<PropertiesList*>(&extension_properties_list_);
+  *props_list = d.enumerateDeviceExtensionProperties(nullptr, 
+                                                     props_list->get_allocator(),
+                                                     *loader);
 }
 
-//void VulkanDeviceInfo::fetchFeatures(
-//    const vk::PhysicalDevice& device) noexcept
-//{
-//  vk::PhysicalDeviceFeatures2 p;
-//  auto& props = features_;
-//  link(p,
-//       props.b16bit_storage_,
-//       props.b8bit_storage_,
-//       props.astc_decode_,
-//       props.blend_operation_advanced_,
-//       props.buffer_device_address_,
-//       props.conditional_rendering_,
-//       props.depth_clip_enabled_,
-//       props.descriptor_indexing_,
-//       props.float16_int8_,
-//       props.fragment_density_map_,
-////       props.fragment_shader_inter_lock_,
-//       props.host_query_reset_,
-//       props.inline_uniform_block_,
-//       props.memory_priority_features_,
-//       props.multiview_,
-//       props.protected_memory_,
-//       props.sampler_ycbcr_conversion_,
-//       props.scalar_block_layout_,
-//       props.shader_atomic_int64_,
-//       props.shader_draw_parameters_,
-//       props.transform_feedback_,
-//       props.uniform_buffer_standard_layout_,
-//       props.variable_pointers_,
-//       props.vertex_attribute_divisor_,
-//       props.vulkan_memory_mode_,
-//       props.ycbcr_image_arrays_
-//       );
-//  device.getFeatures2(&p);
-//  props.features1_ = p.features;
-//}
-//
-///*!
-//  */
-//inline
-//void VulkanDeviceInfo::fetchLayerProperties(
-//    const vk::PhysicalDevice& device) noexcept
-//{
-//  auto [result, properties] = device.enumerateDeviceLayerProperties();
-//  ZISC_ASSERT(result == vk::Result::eSuccess,
-//              "Vulkan device failed to get layer properties.");
-//  layer_properties_list_.resize(properties.size());
-//  for (std::size_t i = 0; i < properties.size(); ++i) {
-//    layer_properties_list_[i].properties1_ = properties[i];
-//  }
-//}
-//
-///*!
-//  */
-//inline
-//void VulkanDeviceInfo::fetchMemoryProperties(
-//    const vk::PhysicalDevice& device) noexcept
-//{
-//  vk::PhysicalDeviceMemoryProperties2 p;
-//  auto& props = memory_properties_;
-//  link(p,
-//       props.budget_
-//       );
-//  device.getMemoryProperties2(&p);
-//  props.properties1_ = p.memoryProperties;
-//}
-//
-///*!
-//  */
-//inline
-//void VulkanDeviceInfo::fetchProperties(
-//    const vk::PhysicalDevice& device) noexcept
-//{
-//  vk::PhysicalDeviceProperties2 p;
-//  auto& props = properties_;
-//  link(p,
-//       props.blend_operation_advanced_,
-//       props.conservative_rasterization_,
-//       props.depth_stencil_resolve_,
-//       props.descriptor_indexing_,
-//       props.discard_rectangle_,
-//       props.driver_,
-//       props.external_memory_host_,
-//       props.float_controls_,
-//       props.fragment_density_map_,
-//       props.id_properties_,
-//       props.inline_uniform_block_,
-//       props.maintenance3_,
-//       props.multiview_,
-//       props.pci_bus_info_,
-//       props.point_clipping_,
-//       props.protected_memory_,
-//       props.push_descriptor_,
-//       props.sample_locations_,
-//       props.sampler_filter_minmax_,
-//       props.subgroup_,
-//       props.transform_feedback_,
-//       props.vertex_attribute_divisor_
-//       );
-//  device.getProperties2(&p);
-//  props.properties1_ = p.properties;
-//}
-//
-///*!
-//  */
-//inline
-//void VulkanDeviceInfo::fetchQueueFamilyProperties(
-//    const vk::PhysicalDevice& device) noexcept
-//{
-//  // Query queue family properties
-//  {
-//    uint32b n = 0;
-//    std::vector<vk::QueueFamilyProperties2> properties_list;
-//    device.getQueueFamilyProperties2(&n, properties_list.data());
-//
-//    queue_family_properties_list_.resize(zisc::cast<std::size_t>(n));
-//    properties_list.resize(zisc::cast<std::size_t>(n));
-//    device.getQueueFamilyProperties2(&n, properties_list.data());
-//
-//    for (std::size_t i = 0; i < properties_list.size(); ++i) {
-//      const auto& src = properties_list[i];
-//      auto& dst = queue_family_properties_list_[i];
-//      dst.properties1_ = src.queueFamilyProperties;
-//    }
-//  }
-//}
+/*!
+  \details No detailed description
+
+  \param [in] dispatcher No description.
+  */
+void VulkanDeviceInfo::fetchFeatures(
+    const VulkanDispatchLoader& dispatcher)
+{
+  const zinvulvk::PhysicalDevice d{device()};
+  const auto loader = dispatcher.loaderImpl();
+
+  zinvulvk::PhysicalDeviceFeatures2 p;
+  auto& props = features_;
+  link(p,
+       initProp<zinvulvk::PhysicalDevice16BitStorageFeatures>(
+          props.b16bit_storage_),
+       initProp<zinvulvk::PhysicalDevice8BitStorageFeatures>(
+          props.b8bit_storage_),
+       initProp<zinvulvk::PhysicalDeviceASTCDecodeFeaturesEXT>(
+          props.astc_decode_),
+       initProp<zinvulvk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT>(
+          props.blend_operation_advanced_),
+       initProp<zinvulvk::PhysicalDeviceBufferDeviceAddressFeatures>(
+          props.buffer_device_address_),
+       initProp<zinvulvk::PhysicalDeviceConditionalRenderingFeaturesEXT>(
+          props.conditional_rendering_),
+       initProp<zinvulvk::PhysicalDeviceDepthClipEnableFeaturesEXT>(
+          props.depth_clip_enabled_),
+       initProp<zinvulvk::PhysicalDeviceDescriptorIndexingFeatures>(
+          props.descriptor_indexing_),
+       initProp<zinvulvk::PhysicalDeviceFragmentDensityMapFeaturesEXT>(
+          props.fragment_density_map_),
+       initProp<zinvulvk::PhysicalDeviceFragmentShaderInterlockFeaturesEXT>(
+          props.fragment_shader_inter_lock_),
+       initProp<zinvulvk::PhysicalDeviceHostQueryResetFeatures>(
+          props.host_query_reset_),
+       initProp<zinvulvk::PhysicalDeviceImagelessFramebufferFeatures>(
+          props.imageless_framebuffer_),
+       initProp<zinvulvk::PhysicalDeviceIndexTypeUint8FeaturesEXT>(
+          props.index_type_uint8_),
+       initProp<zinvulvk::PhysicalDeviceInlineUniformBlockFeaturesEXT>(
+          props.inline_uniform_block_),
+       initProp<zinvulvk::PhysicalDeviceLineRasterizationFeaturesEXT>(
+          props.line_rasterization_),
+       initProp<zinvulvk::PhysicalDeviceMemoryPriorityFeaturesEXT>(
+          props.memory_priority_features_),
+       initProp<zinvulvk::PhysicalDeviceMultiviewFeatures>(
+          props.multiview_),
+       initProp<zinvulvk::PhysicalDevicePerformanceQueryFeaturesKHR>(
+          props.performance_query_),
+       initProp<zinvulvk::PhysicalDevicePipelineExecutablePropertiesFeaturesKHR>(
+          props.pipeline_executable_properties_),
+       initProp<zinvulvk::PhysicalDeviceProtectedMemoryFeatures>(
+          props.protected_memory_),
+       initProp<zinvulvk::PhysicalDeviceSamplerYcbcrConversionFeatures>(
+          props.sampler_ycbcr_conversion_),
+       initProp<zinvulvk::PhysicalDeviceScalarBlockLayoutFeatures>(
+          props.scalar_block_layout_),
+       initProp<zinvulvk::PhysicalDeviceSeparateDepthStencilLayoutsFeatures>(
+          props.depth_stencil_layouts_),
+       initProp<zinvulvk::PhysicalDeviceShaderAtomicInt64Features>(
+          props.shader_atomic_int64_),
+       initProp<zinvulvk::PhysicalDeviceShaderClockFeaturesKHR>(
+          props.shader_clock_),
+       initProp<zinvulvk::PhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT>(
+          props.demote_to_helper_invocation_),
+       initProp<zinvulvk::PhysicalDeviceShaderDrawParametersFeatures>(
+          props.shader_draw_parameters_),
+       initProp<zinvulvk::PhysicalDeviceShaderFloat16Int8FeaturesKHR>(
+          props.shader_float16_int8_),
+       initProp<zinvulvk::PhysicalDeviceShaderSubgroupExtendedTypesFeatures>(
+          props.shader_subgroup_extended_types_),
+       initProp<zinvulvk::PhysicalDeviceSubgroupSizeControlFeaturesEXT>(
+          props.subgroup_size_control_),
+       initProp<zinvulvk::PhysicalDeviceTexelBufferAlignmentFeaturesEXT>(
+          props.texel_buffer_alignment_),
+       initProp<zinvulvk::PhysicalDeviceTextureCompressionASTCHDRFeaturesEXT>(
+          props.texture_compression_astchdr_),
+       initProp<zinvulvk::PhysicalDeviceTimelineSemaphoreFeatures>(
+          props.timeline_semaphore_),
+       initProp<zinvulvk::PhysicalDeviceTransformFeedbackFeaturesEXT>(
+          props.transform_feedback_),
+       initProp<zinvulvk::PhysicalDeviceUniformBufferStandardLayoutFeatures>(
+          props.uniform_buffer_standard_layout_),
+       initProp<zinvulvk::PhysicalDeviceVariablePointerFeatures>(
+          props.variable_pointers_),
+       initProp<zinvulvk::PhysicalDeviceVertexAttributeDivisorFeaturesEXT>(
+          props.vertex_attribute_divisor_),
+       initProp<zinvulvk::PhysicalDeviceVulkan11Features>(
+          props.vulkan11_),
+       initProp<zinvulvk::PhysicalDeviceVulkan12Features>(
+          props.vulkan12_),
+       initProp<zinvulvk::PhysicalDeviceVulkanMemoryModelFeatures>(
+          props.vulkan_memory_mode_),
+       initProp<zinvulvk::PhysicalDeviceYcbcrImageArraysFeaturesEXT>(
+          props.ycbcr_image_arrays_)
+       );
+  d.getFeatures2(&p, *loader);
+  props.features1_ = zisc::cast<VkPhysicalDeviceFeatures>(p.features);
+}
+
+/*!
+  \details No detailed description
+  */
+void VulkanDeviceInfo::fetchLayerProperties(
+    const VulkanDispatchLoader& dispatcher)
+{
+  using Props = zinvulvk::LayerProperties;
+  static_assert(sizeof(VkLayerProperties) == sizeof(Props),
+                "The sizes of properties don't match.");
+
+  const zinvulvk::PhysicalDevice d{device()};
+  const auto loader = dispatcher.loaderImpl();
+
+  using PropertiesList = zisc::pmr::vector<Props>;
+  layer_properties_list_.clear();
+  auto props_list = zisc::treatAs<PropertiesList*>(&layer_properties_list_);
+  *props_list = d.enumerateDeviceLayerProperties(props_list->get_allocator(),
+                                                 *loader);
+}
+
+void VulkanDeviceInfo::fetchMemoryProperties(
+    const VulkanDispatchLoader& dispatcher)
+{
+  const zinvulvk::PhysicalDevice d{device()};
+  const auto loader = dispatcher.loaderImpl();
+
+  zinvulvk::PhysicalDeviceMemoryProperties2 p;
+  auto& props = memory_properties_;
+  link(p,
+       initProp<zinvulvk::PhysicalDeviceMemoryBudgetPropertiesEXT>(
+          props.budget_)
+       );
+  d.getMemoryProperties2(&p, *loader);
+  props.properties1_ =
+      zisc::cast<VkPhysicalDeviceMemoryProperties>(p.memoryProperties);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dispatcher No description.
+  */
+void VulkanDeviceInfo::fetchProperties(
+    const VulkanDispatchLoader& dispatcher)
+{
+  const zinvulvk::PhysicalDevice d{device()};
+  const auto loader = dispatcher.loaderImpl();
+
+  zinvulvk::PhysicalDeviceProperties2 p;
+  auto& props = properties_;
+  link(p,
+       initProp<zinvulvk::PhysicalDeviceBlendOperationAdvancedPropertiesEXT>(
+          props.blend_operation_advanced_),
+       initProp<zinvulvk::PhysicalDeviceConservativeRasterizationPropertiesEXT>(
+          props.conservative_rasterization_),
+       initProp<zinvulvk::PhysicalDeviceDepthStencilResolveProperties>(
+          props.depth_stencil_resolve_),
+       initProp<zinvulvk::PhysicalDeviceDescriptorIndexingProperties>(
+          props.descriptor_indexing_),
+       initProp<zinvulvk::PhysicalDeviceDiscardRectanglePropertiesEXT>(
+          props.discard_rectangle_),
+       initProp<zinvulvk::PhysicalDeviceDriverProperties>(
+          props.driver_),
+       initProp<zinvulvk::PhysicalDeviceExternalMemoryHostPropertiesEXT>(
+          props.external_memory_host_),
+       initProp<zinvulvk::PhysicalDeviceFloatControlsProperties>(
+          props.float_controls_),
+       initProp<zinvulvk::PhysicalDeviceFragmentDensityMapPropertiesEXT>(
+          props.fragment_density_map_),
+       initProp<zinvulvk::PhysicalDeviceIDProperties>(
+          props.id_properties_),
+       initProp<zinvulvk::PhysicalDeviceInlineUniformBlockPropertiesEXT>(
+          props.inline_uniform_block_),
+       initProp<zinvulvk::PhysicalDeviceLineRasterizationPropertiesEXT>(
+          props.line_rasterization_),
+       initProp<zinvulvk::PhysicalDeviceMaintenance3Properties>(
+          props.maintenance3_),
+       initProp<zinvulvk::PhysicalDeviceMultiviewProperties>(
+          props.multiview_),
+       initProp<zinvulvk::PhysicalDevicePCIBusInfoPropertiesEXT>(
+          props.pci_bus_info_),
+       initProp<zinvulvk::PhysicalDevicePerformanceQueryPropertiesKHR>(
+          props.performance_query_),
+       initProp<zinvulvk::PhysicalDevicePointClippingProperties>(
+          props.point_clipping_),
+       initProp<zinvulvk::PhysicalDeviceProtectedMemoryProperties>(
+          props.protected_memory_),
+       initProp<zinvulvk::PhysicalDevicePushDescriptorPropertiesKHR>(
+          props.push_descriptor_),
+       initProp<zinvulvk::PhysicalDeviceSampleLocationsPropertiesEXT>(
+          props.sample_locations_),
+       initProp<zinvulvk::PhysicalDeviceSamplerFilterMinmaxProperties>(
+          props.sampler_filter_minmax_),
+       initProp<zinvulvk::PhysicalDeviceSubgroupProperties>(
+          props.subgroup_),
+       initProp<zinvulvk::PhysicalDeviceSubgroupSizeControlPropertiesEXT>(
+          props.subgroup_size_control_),
+       initProp<zinvulvk::PhysicalDeviceTexelBufferAlignmentPropertiesEXT>(
+          props.texel_buffer_alignment_),
+       initProp<zinvulvk::PhysicalDeviceTimelineSemaphoreProperties>(
+          props.timeline_semaphore_),
+       initProp<zinvulvk::PhysicalDeviceTransformFeedbackPropertiesEXT>(
+          props.transform_feedback_),
+       initProp<zinvulvk::PhysicalDeviceVertexAttributeDivisorPropertiesEXT>(
+          props.vertex_attribute_divisor_),
+       initProp<zinvulvk::PhysicalDeviceVulkan11Properties>(
+          props.vulkan11_),
+       initProp<zinvulvk::PhysicalDeviceVulkan12Properties>(
+          props.vulkan12_)
+       );
+  d.getProperties2(&p, *loader);
+  props.properties1_ = zisc::cast<VkPhysicalDeviceProperties>(p.properties);
+}
+
+/*!
+  \details No detailed description
+  */
+void VulkanDeviceInfo::fetchToolProperties(
+    const VulkanDispatchLoader& dispatcher)
+{
+  auto mem_resource = tool_properties_list_.get_allocator().resource();
+  const zinvulvk::PhysicalDevice d{device()};
+
+  // Tool properties
+  {
+    const auto loader = dispatcher.loaderImpl();
+
+    // Get the number of properties
+    uint32b n = 0;
+    d.getToolPropertiesEXT(&n, nullptr, *loader);
+
+    // Get properties
+    using PropertiesList = zisc::pmr::vector<zinvulvk::PhysicalDeviceToolPropertiesEXT>;
+    PropertiesList props_list{PropertiesList::allocator_type{mem_resource}};
+    props_list.resize(n);
+    d.getToolPropertiesEXT(&n, props_list.data(), *loader);
+
+    //
+    tool_properties_list_.clear();
+    tool_properties_list_.resize(n);
+    for (std::size_t i = 0; i < props_list.size(); ++i) {
+      const auto& prop = props_list[i];
+      tool_properties_list_[i].properties1_ =
+          zisc::cast<VkPhysicalDeviceToolPropertiesEXT>(prop);
+    }
+  }
+}
+
+/*!
+  \details No detailed description
+  */
+void VulkanDeviceInfo::fetchQueueFamilyProperties(
+    const VulkanDispatchLoader& dispatcher)
+{
+  auto mem_resource = queue_family_properties_list_.get_allocator().resource();
+  const zinvulvk::PhysicalDevice d{device()};
+
+  // Queue family properties
+  {
+    const auto loader = dispatcher.loaderImpl();
+
+    // Get the number of properties
+    uint32b n = 0;
+    d.getQueueFamilyProperties2(&n, nullptr, *loader);
+
+    // Get properties
+    using PropertiesList = zisc::pmr::vector<zinvulvk::QueueFamilyProperties2>;
+    PropertiesList props_list{PropertiesList::allocator_type{mem_resource}};
+    props_list.resize(n);
+    d.getQueueFamilyProperties2(&n, props_list.data(), *loader);
+
+    //
+    queue_family_properties_list_.clear();
+    queue_family_properties_list_.resize(n);
+    for (std::size_t i = 0; i < props_list.size(); ++i) {
+      const auto& prop = props_list[i];
+      queue_family_properties_list_[i].properties1_ =
+          zisc::cast<VkQueueFamilyProperties>(prop.queueFamilyProperties);
+    }
+  }
+}
+
+/*!
+  \details No detailed description
+  */
+void VulkanDeviceInfo::findDeviceLocalHeaps() noexcept
+{
+  device_local_index_list_.clear();
+  const auto& props = memoryProperties().properties1_;
+  for (std::size_t i = 0; i < props.memoryHeapCount; ++i) {
+    const auto& heap = props.memoryHeaps[i];
+    const auto heap_flags = zisc::cast<zinvulvk::MemoryHeapFlags>(heap.flags);
+    if(heap_flags & zinvulvk::MemoryHeapFlagBits::eDeviceLocal)
+      device_local_index_list_.emplace_back(i);
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] vendor_id No description.
+  */
+void VulkanDeviceInfo::setVendorNameFromId(const uint32b vendor_id) noexcept
+{
+  using namespace std::string_literals;
+  switch (vendor_id) {
+   case zisc::cast<uint32b>(VendorId::kAmd): {
+    vendor_name_ = "AMD"s;
+    break;
+   }
+   case zisc::cast<uint32b>(VendorId::kImgTec): {
+    vendor_name_ = "ImgTec"s;
+    break;
+   }
+   case zisc::cast<uint32b>(VendorId::kNvidia): {
+    vendor_name_ = "NVIDIA"s;
+    break;
+   }
+   case zisc::cast<uint32b>(VendorId::kArm): {
+    vendor_name_ = "ARM"s;
+    break;
+   }
+   case zisc::cast<uint32b>(VendorId::kQualcomm): {
+    vendor_name_ = "Qualcomm"s;
+    break;
+   }
+   case zisc::cast<uint32b>(VendorId::kIntel): {
+    vendor_name_ = "INTEL"s;
+    break;
+   }
+   default: {
+    vendor_name_ = "N/A"s;
+    break;
+   }
+  }
+}
 
 } // namespace zinvul

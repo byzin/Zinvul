@@ -32,7 +32,7 @@ namespace zinvul {
   \param [in,out] mem_resource No description.
   */
 inline
-DeviceOptions::DeviceOptions(std::pmr::memory_resource* mem_resource) noexcept :
+DeviceOptions::DeviceOptions(zisc::pmr::memory_resource* mem_resource) noexcept :
     mem_resource_{mem_resource},
     app_name_{"Application", zisc::pmr::string::allocator_type{mem_resource_}},
     device_type_{SubPlatformType::kCpu},
@@ -95,7 +95,7 @@ DeviceOptions& DeviceOptions::operator=(DeviceOptions&& other) noexcept
   \return No description
   */
 inline
-std::pmr::memory_resource* DeviceOptions::memoryResource() noexcept
+zisc::pmr::memory_resource* DeviceOptions::memoryResource() noexcept
 {
   return mem_resource_;
 }
@@ -106,7 +106,7 @@ std::pmr::memory_resource* DeviceOptions::memoryResource() noexcept
   \return No description
   */
 inline
-const std::pmr::memory_resource* DeviceOptions::memoryResource() const noexcept
+const zisc::pmr::memory_resource* DeviceOptions::memoryResource() const noexcept
 {
   return mem_resource_;
 }

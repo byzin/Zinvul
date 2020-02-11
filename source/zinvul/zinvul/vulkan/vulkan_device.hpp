@@ -103,7 +103,7 @@ class VulkanDevice : public Device
 
   //! Return the list of device info
   static zisc::pmr::vector<VulkanDeviceInfo> getDeviceInfoList(
-      std::pmr::memory_resource* mem_resource);
+      zisc::pmr::memory_resource* mem_resource);
 
 //  //! Return the shader module by the index
 //  const vk::ShaderModule& getShaderModule(const std::size_t index) const noexcept;
@@ -278,7 +278,7 @@ class VulkanDevice : public Device
 
   //! Make an allocator
   static vk::AllocationCallbacks makeAllocator(
-      std::pmr::memory_resource* mem_resource) noexcept;
+      zisc::pmr::memory_resource* mem_resource) noexcept;
 
   //! Make an application info
   static vk::ApplicationInfo makeApplicationInfo(

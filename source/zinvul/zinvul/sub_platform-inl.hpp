@@ -1,5 +1,5 @@
 /*!
-  \file sub_platform.cpp
+  \file sub_platform-inl.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,6 +12,9 @@
   http://opensource.org/licenses/mit-license.php
   */
 
+#ifndef ZINVUL_SUB_PLATFORM_INL_HPP
+#define ZINVUL_SUB_PLATFORM_INL_HPP
+
 #include "sub_platform.hpp"
 // Standard C++ library
 #include <atomic>
@@ -19,7 +22,6 @@
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
-#include "platform_options.hpp"
 #include "zinvul_config.hpp"
 #include "utility/id_data.hpp"
 
@@ -27,41 +29,39 @@ namespace zinvul {
 
 /*!
   \details No detailed description
-  */
-SubPlatform::SubPlatform() noexcept
-{
-}
 
-/*!
-  \details No detailed description
+  \return No description
   */
-SubPlatform::~SubPlatform() noexcept
+inline
+IdData SubPlatform::issueId() noexcept
 {
-}
-
-/*!
-  \details No detailed description
-  */
-void SubPlatform::destroy() noexcept
-{
-  destroyData();
-  mem_resource_ = nullptr;
+  const uint32b id = id_count_++;
+  IdData id_data{id};
+  return id_data;
 }
 
 /*!
   \details No detailed description
 
-  \param [in,out] platform_options No description.
+  \return No description
   */
-void SubPlatform::initialize(PlatformOptions& platform_options)
+inline
+zisc::pmr::memory_resource* SubPlatform::memoryResource() noexcept
 {
-  // Clear the previous sub-platform data first
-  destroy();
+  return mem_resource_;
+}
 
-  mem_resource_ = platform_options.memoryResource();
-  id_count_.store(0);
+/*!
+  \details No detailed description
 
-  initData(platform_options);
+  \return No description
+  */
+inline
+const zisc::pmr::memory_resource* SubPlatform::memoryResource() const noexcept
+{
+  return mem_resource_;
 }
 
 } // namespace zinvul
+
+#endif // ZINVUL_SUB_PLATFORM_INL_HPP
