@@ -116,8 +116,8 @@ void CpuDeviceInfo::fetch() noexcept
   */
 std::size_t CpuDeviceInfo::maxAllocationSize() const noexcept
 {
-  const std::size_t memory_size = memory_stats_.totalPhysicalMemory();
-  return memory_size;
+  const std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull; // 4 GB
+  return max_alloc;
 }
 
 /*!

@@ -15,13 +15,16 @@
 #include "vulkan_sub_platform.hpp"
 // Standard C++ library
 #include <cstddef>
+#include <cstring>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>
 // Zisc
+#include "zisc/error.hpp"
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
@@ -112,6 +115,7 @@ void VulkanSubPlatform::destroyData() noexcept
   }
 
   dispatcher_.reset();
+  allocator_data_.reset();
 }
 
 /*!
@@ -121,33 +125,29 @@ void VulkanSubPlatform::destroyData() noexcept
   */
 void VulkanSubPlatform::initData(PlatformOptions& platform_options)
 {
+  allocator_data_ = zisc::pmr::allocateUnique<AllocatorData>(
+      memoryResource(),
+      memoryResource(),
+      MemoryMap{MemoryMap::allocator_type{memoryResource()}});
   initDispatcher();
   initInstance(platform_options);
   initDeviceList();
   initDeviceInfoList();
-
-//  instance_ = makeInstance(app_info_, options.enable_debug_);
-//  ZISC_ASSERT(instance_, "Vulkan instance creation failed.");
-//  if (options.enable_debug_)
-//    initDebugMessenger();
-//  initPhysicalDevice(options);
-//  initQueueFamilyIndexList();
-//
-//  {
-//    const auto& info = physicalDeviceInfo();
-//    uint32b subgroup_size = info.properties().subgroup_.subgroupSize;
-//    subgroup_size = zisc::isInClosedBounds(subgroup_size, 1u, 128u)
-//        ? subgroup_size
-//        : getVendorSubgroupSize(info.properties().properties1_.vendorID);
-//    vendor_name_ = getVendorName(info.properties().properties1_.vendorID);
-//    initLocalWorkSize(subgroup_size);
-//  }
-//
-//  initDevice(options);
-//  initCommandPool();
-//  initMemoryAllocator();
 }
 
+/*!
+  \details No detailed description
+
+  \param [in,out] mem_resource No description.
+  \param [in] mem_map No description.
+  */
+VulkanSubPlatform::AllocatorData::AllocatorData(
+    zisc::pmr::memory_resource* mem_resource,
+    MemoryMap&& mem_map) noexcept :
+        mem_resource_{mem_resource},
+        mem_map_{std::move(mem_map)}
+{
+}
 
 /*!
   \details No detailed description
@@ -165,8 +165,12 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
     VkSystemAllocationScope /* scope */) -> AllocationReturnType
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(user_data);
-  void* memory = mem_resource->allocate(size, alignment);
+  auto alloc_data = zisc::cast<AllocatorData*>(user_data);
+  void* memory = alloc_data->mem_resource_->allocate(size, alignment);
+  //
+  const std::size_t address = zisc::treatAs<std::size_t>(memory);
+  const auto mem_data = std::make_pair(size, alignment);
+  alloc_data->mem_map_.emplace(std::make_pair(address, mem_data));
   return memory;
 }
 
@@ -181,9 +185,15 @@ void VulkanSubPlatform::Callbacks::freeMemory(
     void* memory)
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(user_data);
-  if (memory)
-    mem_resource->deallocate(memory, 0, 0);
+  auto alloc_data = zisc::cast<AllocatorData*>(user_data);
+  if (memory) {
+    const std::size_t address = zisc::treatAs<std::size_t>(memory);
+    const auto mem = alloc_data->mem_map_.find(address);
+    ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
+    const auto& data = mem->second;
+    alloc_data->mem_resource_->deallocate(memory, data.first, data.second);
+    alloc_data->mem_map_.erase(mem);
+  }
 }
 
 /*!
@@ -371,21 +381,25 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
     void* original_memory,
     size_t size,
     size_t alignment,
-    VkSystemAllocationScope /* scope */) -> ReallocationReturnType
+    VkSystemAllocationScope scope) -> ReallocationReturnType
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(user_data);
   // Allocate new memory block
   void* memory = nullptr;
   if (0 < size)
-    memory = mem_resource->allocate(size, alignment);
+    memory = allocateMemory(user_data, size, alignment, scope);
   // Copy data
-  if (original_memory && memory)
-    std::cerr << "Warning: copying data in the reallocation isn't operated."
-              << std::endl;
+  if (original_memory && memory) {
+    auto alloc_data = zisc::cast<AllocatorData*>(user_data);
+    const std::size_t address = zisc::treatAs<std::size_t>(original_memory);
+    const auto mem = alloc_data->mem_map_.find(address);
+    ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
+    const auto& data = mem->second;
+    std::memcpy(memory, original_memory, data.first);
+  }
   // Deallocate the original memory
   if (original_memory)
-    mem_resource->deallocate(original_memory, 0, 0);
+    freeMemory(user_data, original_memory);
   return memory;
 }
 
@@ -396,7 +410,7 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
   */
 VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
 {
-  zinvulvk::AllocationCallbacks alloc{memoryResource(),
+  zinvulvk::AllocationCallbacks alloc{allocator_data_.get(),
                                       Callbacks::allocateMemory,
                                       Callbacks::reallocateMemory,
                                       Callbacks::freeMemory,

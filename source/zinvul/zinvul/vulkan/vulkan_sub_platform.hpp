@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <cstddef>
+#include <map>
 #include <memory>
 #include <string_view>
 #include <type_traits>
@@ -25,6 +26,7 @@
 #include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
+#include "zisc/non_copyable.hpp"
 // Zinvul
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
@@ -86,6 +88,25 @@ class VulkanSubPlatform : public SubPlatform
   void initData(PlatformOptions& platform_options) override;
 
  private:
+  //
+  using MemoryMap = zisc::pmr::map<std::size_t, std::pair<size_t, size_t>>;
+
+  /*!
+    \brief No brief description
+
+    No detailed description.
+    */
+  class AllocatorData : zisc::NonCopyable<AllocatorData>
+  {
+   public:
+    //! Initialize the allocator data
+    AllocatorData(zisc::pmr::memory_resource* mem_resource,
+                  MemoryMap&& memory_map) noexcept;
+
+    zisc::pmr::memory_resource* mem_resource_;
+    MemoryMap mem_map_;
+  };
+
   /*!
     \brief No brief description
 
@@ -181,7 +202,8 @@ class VulkanSubPlatform : public SubPlatform
   void initDispatcher();
 
 
-  VkInstance instance_;
+  VkInstance instance_ = VK_NULL_HANDLE;
+  zisc::pmr::unique_ptr<AllocatorData> allocator_data_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkPhysicalDevice>> device_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VulkanDeviceInfo>> device_info_list_;
