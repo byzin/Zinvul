@@ -108,9 +108,11 @@ int main(int /* argc */, char** /* argv */)
         platform->subPlatform(zinvul::SubPlatformType::kVulkan));
     const auto& info_list = sub_platform->deviceInfoList();
     for (std::size_t i = 0; i < info_list.size(); ++i) {
-      std::cout << std::endl;
-      std::cout << indent1 << "## VulkanDevice[" << i << "]" << std::endl;
       const zinvul::VulkanDeviceInfo& info = info_list[i];
+      std::cout << std::endl;
+      std::cout << indent1 << "## VulkanDevice[" << i << "]: "
+                << info.properties().properties1_.deviceName
+                << std::endl;
       // Extension properties
       {
         std::cout << indent3 << "Extensions" << std::endl;
