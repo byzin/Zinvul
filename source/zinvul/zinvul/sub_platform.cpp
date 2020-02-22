@@ -45,6 +45,7 @@ SubPlatform::~SubPlatform() noexcept
 void SubPlatform::destroy() noexcept
 {
   destroyData();
+  id_count_.store(0);
   mem_resource_ = nullptr;
 }
 
@@ -59,8 +60,6 @@ void SubPlatform::initialize(PlatformOptions& platform_options)
   destroy();
 
   mem_resource_ = platform_options.memoryResource();
-  id_count_.store(0);
-
   initData(platform_options);
 }
 

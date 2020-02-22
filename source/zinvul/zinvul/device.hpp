@@ -18,8 +18,6 @@
 // Standard C++ library
 #include <cstddef>
 #include <memory>
-#include <string_view>
-#include <vector>
 // Zisc
 #include "zisc/non_copyable.hpp"
 #include "zisc/std_memory_resource.hpp"
@@ -29,7 +27,7 @@
 namespace zinvul {
 
 // Forward declaration
-class DeviceOptions;
+class DeviceInfo;
 
 /*!
   \brief No brief description
@@ -39,31 +37,25 @@ class DeviceOptions;
 class Device : private zisc::NonCopyable<Device>
 {
  public:
-  /*!
-    \brief No brief description
+  //! Initialize the device
+  Device(zisc::pmr::memory_resource* mem_resource) noexcept;
 
-    No detailed description.
-    */
-  struct Param
-  {
-    SubPlatformType type_;
-    uint32b number_;
-  };
+  //! Move a data
+  Device(Device&& other) noexcept;
 
-
-  //! Initialize a device
-  Device(DeviceOptions& options) noexcept;
-
-  //!
+  //! Finalize the device
   virtual ~Device() noexcept;
 
 
-  //! Return the device type
-  virtual SubPlatformType subPlatformType() const noexcept = 0;
+  //! Move a data
+  Device& operator=(Device&& other) noexcept;
 
-  //! Return the device type and device number list
-  static zisc::pmr::vector<Param> getDeviceParamList(
-      zisc::pmr::memory_resource* mem_resource);
+
+  //! Destroy the data
+  void destroy() noexcept;
+
+  //! Return the underlying device info
+  virtual const DeviceInfo& deviceInfo() const noexcept = 0;
 
   //! Returna a memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;
@@ -71,34 +63,28 @@ class Device : private zisc::NonCopyable<Device>
   //! Returna a memory resource
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
-  //! Return the device name
-  virtual std::string_view name() const noexcept = 0;
-
   //! Return the peak memory usage
-  std::size_t peakMemoryUsage() const noexcept;
-
-  //! Return the subgroup size
-  virtual uint32b subgroupSize() const noexcept = 0;
+  virtual std::size_t peakMemoryUsage(const std::size_t heap_index) const noexcept = 0;
 
   //! Return the current memory usage
-  std::size_t totalMemoryUsage() const noexcept;
+  virtual std::size_t totalMemoryUsage(const std::size_t heap_index) const noexcept = 0;
 
-  //! Return the vendor name
-  virtual std::string_view vendorName() const noexcept = 0;
+  //! Return the sub-platform type
+  virtual SubPlatformType type() const noexcept = 0;
 
-  //! Wait this thread until all commands in the device are completed
-  virtual void waitForCompletion() const noexcept = 0;
-
-  //! Wait this thread until all commands in the queues are completed
-  virtual void waitForCompletion(const QueueType queue_type) const noexcept = 0;
-
-  //! Wait this thread until all commands in the queue are completed
-  virtual void waitForCompletion(const QueueType queue_type,
-                                 const uint32b queue_index) const noexcept = 0;
+//  //! Wait this thread until all commands in the device are completed
+//  virtual void waitForCompletion() const noexcept = 0;
+//
+//  //! Wait this thread until all commands in the queues are completed
+//  virtual void waitForCompletion(const QueueType queue_type) const noexcept = 0;
+//
+//  //! Wait this thread until all commands in the queue are completed
+//  virtual void waitForCompletion(const QueueType queue_type,
+//                                 const uint32b queue_index) const noexcept = 0;
 
  protected:
-  std::size_t total_memory_usage_ = 0;
-  std::size_t peak_memory_usage_ = 0;
+  //! Destroy the data
+  virtual void destroyData() noexcept = 0;
 
  private:
   zisc::pmr::memory_resource* mem_resource_;

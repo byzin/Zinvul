@@ -14,50 +14,61 @@
 
 #include "device.hpp"
 // Standard C++ library
-#include <vector>
-#include <iostream>
-#if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
-// Vulkan
-#include <vulkan/vulkan.hpp>
-#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
+#include <memory>
+#include <utility>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "zinvul_config.hpp"
-#if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
-#include "vulkan/vulkan_device.hpp"
-#include "vulkan/vulkan_device_info.hpp"
-#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
 
 namespace zinvul {
 
 /*!
   \details No detailed description
 
-  \return No description
+  \param [in,out] mem_resource No description.
   */
-zisc::pmr::vector<Device::Param> Device::getDeviceParamList(
-    zisc::pmr::memory_resource* mem_resource)
+Device::Device(zisc::pmr::memory_resource* mem_resource) noexcept :
+    mem_resource_{mem_resource}
 {
-  using DeviceParamList = zisc::pmr::vector<Param>;
-  DeviceParamList param_list{DeviceParamList::allocator_type{mem_resource}};
-  param_list.reserve(5); // Assume that a machine has a CPU and 4 GPUs at most
+}
 
-  // CPU
-  param_list.emplace_back(Param{SubPlatformType::kCpu, 0});
+/*!
+  \details No detailed description
 
-#if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
-  // Vulkan
-  try {
-    auto device_info_list = VulkanDevice::getDeviceInfoList(mem_resource);
-  }
-  catch (const vk::SystemError& error) {
-    std::cerr << error.what();
-    //! \todo Handle errors
-  }
-#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
+  \param [in] other No description.
+  */
+Device::Device(Device&& other) noexcept :
+    mem_resource_{nullptr}
+{
+  std::swap(mem_resource_, other.mem_resource_);
+}
 
-  return param_list;
+/*!
+  \details No detailed description
+  */
+Device::~Device() noexcept
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] other No description.
+  */
+Device& Device::operator=(Device&& other) noexcept
+{
+  std::swap(mem_resource_, other.mem_resource_);
+  return *this;
+}
+
+/*!
+  \details No detailed description
+  */
+void Device::destroy() noexcept
+{
+  destroyData();
+  mem_resource_ = nullptr;
 }
 
 } // namespace zinvul

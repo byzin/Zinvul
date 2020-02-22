@@ -17,33 +17,19 @@
 
 #include "device.hpp"
 // Standard C++ library
-#include <cstddef>
+#include <memory>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/std_memory_resource.hpp"
-#include "zisc/utility.hpp"
 // Zinvul
-#include "device_options.hpp"
 #include "zinvul_config.hpp"
 
 namespace zinvul {
 
 /*!
-  */
-inline
-Device::Device(DeviceOptions& options) noexcept :
-    mem_resource_{options.memoryResource()}
-{
-}
+  \details No detailed description
 
-/*!
-  */
-inline
-Device::~Device() noexcept
-{
-}
-
-/*!
+  \return No description
   */
 inline
 zisc::pmr::memory_resource* Device::memoryResource() noexcept
@@ -53,28 +39,15 @@ zisc::pmr::memory_resource* Device::memoryResource() noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 const zisc::pmr::memory_resource* Device::memoryResource() const noexcept
 {
   ZISC_ASSERT(mem_resource_ != nullptr, "The memory resource is null.");
   return mem_resource_;
-}
-
-/*!
-  */
-inline
-std::size_t Device::peakMemoryUsage() const noexcept
-{
-  return peak_memory_usage_;
-}
-
-/*!
-  */
-inline
-std::size_t Device::totalMemoryUsage() const noexcept
-{
-  return total_memory_usage_;
 }
 
 } // namespace zinvul

@@ -88,7 +88,6 @@ class VulkanSubPlatform : public SubPlatform
   void initData(PlatformOptions& platform_options) override;
 
  private:
-  //
   using MemoryMap = zisc::pmr::map<std::size_t, std::pair<size_t, size_t>>;
 
   /*!
@@ -104,7 +103,7 @@ class VulkanSubPlatform : public SubPlatform
                   MemoryMap&& memory_map) noexcept;
 
     zisc::pmr::memory_resource* mem_resource_;
-    MemoryMap mem_map_;
+    MemoryMap mem_map_; //!< \todo Make this thread safe
   };
 
   /*!

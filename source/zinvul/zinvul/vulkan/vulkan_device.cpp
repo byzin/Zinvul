@@ -15,35 +15,20 @@
 #include "vulkan_device.hpp"
 // Standard C++ library
 #include <algorithm>
-#include <array>
 #include <cstddef>
-#include <cstring>
-#include <cstdio>
-#include <functional>
-#include <iostream>
+#include <iterator>
 #include <limits>
-#include <memory>
-#include <string>
-#include <string_view>
+#include <numeric>
+#include <tuple>
 #include <utility>
-#include <vector>
-// Vulkan
-#include <vulkan/vulkan.hpp>
-#include "vk_mem_alloc.h"
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
-//#include "zisc/unique_memory_pointer.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "vulkan_device_info.hpp"
-//#include "vulkan_buffer.hpp"
-//#include "vulkan_kernel.hpp"
-//#include "zinvul/buffer.hpp"
-//#include "zinvul/device.hpp"
-//#include "zinvul/kernel.hpp"
-#include "zinvul/device.hpp"
-#include "zinvul/device_options.hpp"
+#include "vulkan_sub_platform.hpp"
+#include "utility/vulkan.hpp"
+#include "zinvul/device_info.hpp"
 #include "zinvul/zinvul_config.hpp"
 #include "zinvul/utility/id_data.hpp"
 
@@ -52,19 +37,18 @@ namespace zinvul {
 /*!
   \details No detailed description
 
-  \param [in] options No description.
+  \param [in] sub_platform No description.
+  \param [in] device_info No description.
   */
-VulkanDevice::VulkanDevice(DeviceOptions& options) noexcept :
-    Device(options),
-    id_count_{0}
-//    device_info_{memoryResource()},
-//    shader_module_list_{memoryResource()},
-//    command_pool_list_{memoryResource()},
-//    queue_family_index_list_{memoryResource()},
-//    queue_family_index_ref_list_{{std::numeric_limits<uint32b>::max(),
-//                                  std::numeric_limits<uint32b>::max()}}
+VulkanDevice::VulkanDevice(VulkanSubPlatform* sub_platform,
+                           const VulkanDeviceInfo* device_info) noexcept :
+    Device(sub_platform->memoryResource()),
+    sub_platform_{sub_platform},
+    device_info_{device_info},
+    queue_family_index_list_{
+        decltype(queue_family_index_list_)::allocator_type{memoryResource()}},
+    queue_family_index_ref_list_{{0, 0}}
 {
-  initialize(options);
 }
 
 ///*!
@@ -87,7 +71,7 @@ VulkanDevice::VulkanDevice(DeviceOptions& options) noexcept :
   */
 VulkanDevice::~VulkanDevice() noexcept
 {
-//  destroy();
+  destroy();
 }
 
 ///*!
@@ -225,12 +209,12 @@ VulkanDevice::~VulkanDevice() noexcept
 //    alloc_info.size = 0;
 //  }
 //}
-//
-///*!
-//  */
-//inline
-//void VulkanDevice::destroy() noexcept
-//{
+
+void VulkanDevice::destroyData() noexcept
+{
+  queue_family_index_ref_list_.fill(0);
+  queue_family_index_list_.clear();
+
 //  if (device_) {
 //    for (auto& module : shader_module_list_) {
 //      if (module) {
@@ -268,8 +252,11 @@ VulkanDevice::~VulkanDevice() noexcept
 //    instance_.destroy();
 //    instance_ = nullptr;
 //  }
-//}
-//
+
+  device_info_ = nullptr;
+  sub_platform_ = nullptr;
+}
+
 ///*!
 //  */
 //inline
@@ -291,49 +278,9 @@ VulkanDevice::~VulkanDevice() noexcept
 
   \return No description
   */
-SubPlatformType VulkanDevice::subPlatformType() const noexcept
+SubPlatformType VulkanDevice::type() const noexcept
 {
   return SubPlatformType::kVulkan;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] mem_resource No description.
-  \return No description
-  */
-zisc::pmr::vector<VulkanDeviceInfo> VulkanDevice::getDeviceInfoList(
-    zisc::pmr::memory_resource* mem_resource)
-{
-  const auto app_info = makeApplicationInfo("getDeviceInfoList",
-                                            Config::versionMajor(),
-                                            Config::versionMinor(),
-                                            Config::versionPatch());
-  constexpr bool enable_debug =
-#if defined(Z_DEBUG_MODE)
-    true;
-#else // Z_DEBUG_MODE
-    false;
-#endif
-  auto alloc = makeAllocator(mem_resource);
-  auto instance = makeInstance(app_info, enable_debug, &alloc);
-
-  using DeviceInfoList = zisc::pmr::vector<VulkanDeviceInfo>;
-  DeviceInfoList device_info_list{DeviceInfoList::allocator_type{mem_resource}};
-
-  if (instance) {
-//    using ListAllocator = zisc::pmr::vector<vk::PhysicalDevice>::allocator_type;
-//    ListAllocator list_alloc{mem_resource};
-//    VULKAN_HPP_DEFAULT_DISPATCHER_TYPE dispatch{};
-//    auto device_list = instance.enumeratePhysicalDevices(list_alloc, dispatch);
-//    device_info_list.reserve(device_list.size());
-//    for (const auto& device : device_list) {
-//      device_info_list.emplace_back(mem_resource);
-//      device_info_list.back().fetch(device);
-//    }
-  }
-  instance.destroy(alloc);
-  return device_info_list;
 }
 
 ///*!
@@ -345,71 +292,7 @@ zisc::pmr::vector<VulkanDeviceInfo> VulkanDevice::getDeviceInfoList(
 //  ZISC_ASSERT(hasShaderModule(index), "The shader module doesn't exist.");
 //  return shader_module_list_[index];
 //}
-//
-///*!
-//  */
-//inline
-//std::string VulkanDevice::getVendorName(const uint32b id) noexcept
-//{
-//  using namespace std::string_literals;
-//  std::string vendor_name;
-//  switch (id) {
-//   case zisc::cast<uint32b>(VendorId::kAmd): {
-//    vendor_name = "AMD"s;
-//    break;
-//   }
-//   case zisc::cast<uint32b>(VendorId::kImgTec): {
-//    vendor_name = "ImgTec"s;
-//    break;
-//   }
-//   case zisc::cast<uint32b>(VendorId::kNvidia): {
-//    vendor_name = "NVIDIA"s;
-//    break;
-//   }
-//   case zisc::cast<uint32b>(VendorId::kArm): {
-//    vendor_name = "ARM"s;
-//    break;
-//   }
-//   case zisc::cast<uint32b>(VendorId::kQualcomm): {
-//    vendor_name = "Qualcomm"s;
-//    break;
-//   }
-//   case zisc::cast<uint32b>(VendorId::kIntel): {
-//    vendor_name = "INTEL"s;
-//    break;
-//   }
-//   default: {
-//    vendor_name = "N/A"s;
-//    break;
-//   }
-//  }
-//  return vendor_name;
-//}
-//
-///*!
-//  */
-//inline
-//uint32b VulkanDevice::getVendorSubgroupSize(const uint32b id) noexcept
-//{
-//  // Common subgroup size: 32 (NVidia, Intel), 64 (AMD)
-//  uint32b subgroup_size = 1;
-//  switch (id) {
-//   case zisc::cast<uint32b>(VendorId::kAmd): {
-//    subgroup_size = 64;
-//    break;
-//   }
-//   case zisc::cast<uint32b>(VendorId::kNvidia):
-//   case zisc::cast<uint32b>(VendorId::kIntel): {
-//    subgroup_size = 32;
-//    break;
-//   }
-//   default: {
-//    break;
-//   }
-//  }
-//  return subgroup_size;
-//}
-//
+
 ///*!
 //  */
 //inline
@@ -419,37 +302,6 @@ zisc::pmr::vector<VulkanDeviceInfo> VulkanDevice::getDeviceInfoList(
 //                    shader_module_list_[index];
 //  return flag;
 //}
-//
-///*!
-//  */
-//inline
-//void VulkanDevice::initLocalWorkSize(const uint32b subgroup_size) noexcept
-//{
-//  for (uint32b dim = 1; dim <= local_work_size_list_.size(); ++dim) {
-//    std::array<uint32b, 3> local_work_size{{1, 1, 1}};
-//    const auto product = [](const std::array<uint32b, 3>& s)
-//    {
-//      return std::accumulate(s.begin(), s.end(), 1u, std::multiplies<uint32b>());
-//    };
-//    for (uint32b i = 0; product(local_work_size) < subgroup_size; i = (i + 1) % dim)
-//      local_work_size[i] *= 2;
-//    ZISC_ASSERT(product(local_work_size) == subgroup_size,
-//                "The subgroup size should be power of 2: ", subgroup_size);
-//    local_work_size_list_[dim - 1] = local_work_size;
-//  }
-//}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-IdData VulkanDevice::issueId() noexcept
-{
-  const uint32b id = id_count_++;
-  IdData id_data{id};
-  return id_data;
-}
 
 ///*!
 //  */
@@ -506,28 +358,6 @@ IdData VulkanDevice::issueId() noexcept
 //  return allocator_;
 //}
 
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-std::string_view VulkanDevice::name() const noexcept
-{
-//  const auto& device_info = physicalDeviceInfo();
-//  std::string_view device_name{device_info.properties().properties1_.deviceName};
-//  return device_name;
-  return std::string_view{""};
-}
-
-///*!
-//  */
-//inline
-//auto VulkanDevice::physicalDeviceInfo() const noexcept
-//    -> const VulkanPhysicalDeviceInfo&
-//{
-//  return device_info_;
-//}
-//
 ///*!
 //  */
 //inline
@@ -547,17 +377,6 @@ std::string_view VulkanDevice::name() const noexcept
 //  shader_module_list_[index] = shader_module;
 //}
 
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-uint32b VulkanDevice::subgroupSize() const noexcept
-{
-//  return local_work_size_list_[0][0];
-  return 0;
-}
-
 ///*!
 //  */
 //inline
@@ -572,357 +391,119 @@ uint32b VulkanDevice::subgroupSize() const noexcept
 //  (void)result;
 //}
 
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-std::string_view VulkanDevice::vendorName() const noexcept
-{
-//  std::string_view vendor_name{vendor_name_};
-//  return vendor_name;
-  return std::string_view{""};
-}
-
-/*!
-  \details No detailed description
-  */
-void VulkanDevice::waitForCompletion() const noexcept
-{
-//  const auto result = device_.waitIdle();
-//  ZISC_ASSERT(result == vk::Result::eSuccess, "Device waiting failed.");
-//  (void)result;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] queue_type No description.
-  */
-void VulkanDevice::waitForCompletion(const QueueType queue_type) const noexcept
-{
-//  const uint32b family_index = queueFamilyIndex(queue_type);
-//  const auto& info = physicalDeviceInfo();
-//  const auto& family_info_list = info.queueFamilyPropertiesList();
-//  const auto& family_info = family_info_list[family_index].properties1_;
-//  for (uint32b i = 0; i < family_info.queueCount; ++i)
-//    waitForCompletion(queue_type, i);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] queue_type No description.
-  \param [in] queue_index No description.
-  */
-void VulkanDevice::waitForCompletion(const QueueType queue_type,
-                                     const uint32b queue_index) const noexcept
-{
-//  auto q = getQueue(queue_type, queue_index);
-//  const auto result = q.waitIdle();
-//  ZISC_ASSERT(result == vk::Result::eSuccess, "Queue waiting failed.");
-//  (void)result;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] user_data No description.
-  \param [in] size No description.
-  \param [in] alignment No description.
-  \param [in] scope No description.
-  \return No description
-  */
-auto VulkanDevice::Callbacks::allocateMemory(
-    void* user_data,
-    size_t size,
-    size_t alignment,
-    VkSystemAllocationScope /* scope */) -> AllocationReturnType
-{
-  ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(user_data);
-  void* memory = mem_resource->allocate(size, alignment);
-  return memory;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] user_data No description.
-  \param [in,out] memory No description.
-  */
-void VulkanDevice::Callbacks::freeMemory(
-    void* user_data,
-    void* memory)
-{
-  ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(user_data);
-  if (memory)
-    mem_resource->deallocate(memory, 0, 0);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] user_data No description.
-  \param [in] size No description.
-  \param [in] type No description.
-  \param [in] scope No description.
-  */
-void VulkanDevice::Callbacks::notifyOfMemoryAllocation(
-    void* /* user_data */,
-    size_t /* size */,
-    VkInternalAllocationType /* type */,
-    VkSystemAllocationScope /* scope */)
-{
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] user_data No description.
-  \param [in] size No description.
-  \param [in] type No description.
-  \param [in] scope No description.
-  */
-void VulkanDevice::Callbacks::notifyOfMemoryFreeing(
-    void* /* user_data */,
-    size_t /* size */,
-    VkInternalAllocationType /* type */,
-    VkSystemAllocationScope /* scope */)
-{
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] severity_flags No description.
-  \param [in] message_types No description.
-  \param [in] callback_data No description.
-  \param [in] user_data No description.
-  \return No description
-  */
-auto VulkanDevice::Callbacks::printDebugMessage(
-    VkDebugUtilsMessageSeverityFlagBitsEXT severity_flags,
-    VkDebugUtilsMessageTypeFlagsEXT message_types,
-    const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
-    void* user_data) -> DebugMessengerReturnType
-{
-  constexpr std::size_t max_add_message_length = 2048;
-  bool is_error = false;
-  std::string message;
-
-  if (user_data) {
-    char tmp[max_add_message_length];
-    const IdData* data = zisc::cast<const IdData*>(user_data);
-    std::sprintf(tmp, "ID[%u] -", data->id());
-    if (data->hasName()) {
-      std::sprintf(tmp, "%s Name '%s'", tmp, data->name().data());
-    }
-    if (data->hasFileInfo()) {
-      const std::string_view file_name = data->fileName();
-      const uint32b line = data->lineNumber();
-      std::sprintf(tmp, "%s at line %u in '%s'", tmp, line, file_name.data());
-    }
-    std::sprintf(tmp, "%s\n", tmp);
-    message += tmp;
-  }
-
-  {
-    char prefix[64] = "";
-    if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-      std::strcat(prefix, "VERBOSE : ");
-    }
-    else if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-      std::strcat(prefix, "INFO    : ");
-    }
-    else if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-      std::strcat(prefix, "WARNING : ");
-    }
-    else if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-      std::strcat(prefix, "ERROR   : ");
-      is_error = true;
-    }
-
-    if (message_types & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) {
-      std::strcat(prefix, "GENERAL");
-    }
-    else if (message_types & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) {
-      std::strcat(prefix, "VALIDATION");
-    }
-    else if (message_types & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) {
-      std::strcat(prefix, "PERF");
-    }
-
-    char tmp[max_add_message_length];
-    std::sprintf(tmp, "%s - Message ID Number %d, Message ID Name %s :\n%s",
-        prefix,
-        callback_data->messageIdNumber,
-        callback_data->pMessageIdName,
-        callback_data->pMessage);
-    message += tmp;
-  }
-  const char indent[] = "          ";
-
-  if (0 < callback_data->queueLabelCount) {
-    char tmp[max_add_message_length];
-    std::sprintf(tmp, "\n%sQueue Labels - %d\n",
-        indent,
-        zisc::cast<int>(callback_data->queueLabelCount));
-    for (std::size_t id = 0; id < callback_data->queueLabelCount; ++id) {
-      const auto& label = callback_data->pQueueLabels[id];
-      std::sprintf(tmp, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
-          tmp,
-          indent,
-          zisc::cast<int>(id),
-          label.pLabelName,
-          zisc::cast<double>(label.color[0]),
-          zisc::cast<double>(label.color[1]),
-          zisc::cast<double>(label.color[2]),
-          zisc::cast<double>(label.color[3]));
-    }
-    message += tmp;
-  }
-
-  if (0 < callback_data->cmdBufLabelCount) {
-    char tmp[max_add_message_length];
-    std::sprintf(tmp, "\n%sCommand Buffer Labels - %d\n",
-        indent,
-        zisc::cast<int>(callback_data->cmdBufLabelCount));
-    for (std::size_t id = 0; id < callback_data->cmdBufLabelCount; ++id) {
-      const auto& label = callback_data->pCmdBufLabels[id];
-      std::sprintf(tmp, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
-          tmp,
-          indent,
-          zisc::cast<int>(id),
-          label.pLabelName,
-          zisc::cast<double>(label.color[0]),
-          zisc::cast<double>(label.color[1]),
-          zisc::cast<double>(label.color[2]),
-          zisc::cast<double>(label.color[3]));
-    }
-    message += tmp;
-  }
-
-  if (0 < callback_data->objectCount) {
-    char tmp[max_add_message_length];
-    std::sprintf(tmp, "\n%sObjects - %d\n",
-        indent,
-        zisc::cast<int>(callback_data->objectCount));
-    for (std::size_t id = 0; id < callback_data->objectCount; ++id) {
-      const auto& object = callback_data->pObjects[id];
-      const auto obj_type_name = vk::to_string(
-          zisc::cast<vk::ObjectType>(object.objectType));
-      std::sprintf(tmp, "%s%s  * Object[%d] - Type '%s', Value %lu, Name '%s'\n",
-          tmp,
-          indent,
-          zisc::cast<int>(id),
-          obj_type_name.c_str(),
-          object.objectHandle,
-          object.pObjectName);
-    }
-    message += tmp;
-  }
-
-  message += '\n';
-  std::ostream* output = (is_error) ? &std::cerr : &std::cout;
-  (*output) << message;
-
-  return VK_FALSE;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] user_data No description.
-  \param [in,out] original_memory No description.
-  \param [in] size No description.
-  \param [in] alignment No description.
-  \param [in] scope No description.
-  \return No description
-  */
-auto VulkanDevice::Callbacks::reallocateMemory(
-    void* user_data,
-    void* original_memory,
-    size_t size,
-    size_t alignment,
-    VkSystemAllocationScope /* scope */) -> ReallocationReturnType
-{
-  ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(user_data);
-  // Allocate new memory block
-  void* memory = nullptr;
-  if (0 < size)
-    memory = mem_resource->allocate(size, alignment);
-  // Copy data
-  if (original_memory && memory)
-    std::cerr << "Warning: copying data in the reallocation isn't operated.";
-  // Deallocate the original memory
-  if (original_memory)
-    mem_resource->deallocate(original_memory, 0, 0);
-  return memory;
-}
-
 ///*!
+//  \details No detailed description
 //  */
-//inline
-//uint32b VulkanDevice::findQueueFamily(const QueueType queue_type) const noexcept
+//void VulkanDevice::waitForCompletion() const noexcept
 //{
-//  const auto& queue_family_list = physicalDeviceInfo().queueFamilyPropertiesList();
-//
-//  uint32b index = std::numeric_limits<uint32b>::max();
-//  bool is_found = false;
-//
-//  const vk::QueueFlagBits target = (queue_type == QueueType::kCompute)
-//      ? vk::QueueFlagBits::eCompute
-//      : vk::QueueFlagBits::eTransfer;
-//  const vk::QueueFlagBits other = (queue_type == QueueType::kCompute)
-//      ? vk::QueueFlagBits::eTransfer
-//      : vk::QueueFlagBits::eCompute;
-//
-//  auto has_flag = [](const vk::QueueFamilyProperties& family,
-//                     const vk::QueueFlagBits flag)
-//  {
-//    return (family.queueFlags & flag) == flag;
-//  };
-//
-//  for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
-//    const auto& family = queue_family_list[i].properties1_;
-//    if (!has_flag(family, vk::QueueFlagBits::eGraphics) &&
-//        !has_flag(family, other) && has_flag(family, target)) {
-//      index = zisc::cast<uint32b>(i);
-//      is_found = true;
-//    }
-//  }
-//
-//  for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
-//    const auto& family = queue_family_list[i].properties1_;
-//    if (!has_flag(family, other) && has_flag(family, target)) {
-//      index = zisc::cast<uint32b>(i);
-//      is_found = true;
-//    }
-//  }
-//
-//  for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
-//    const auto& family = queue_family_list[i].properties1_;
-//    if (!has_flag(family, vk::QueueFlagBits::eGraphics) &&
-//        has_flag(family, target)) {
-//      index = zisc::cast<uint32b>(i);
-//      is_found = true;
-//    }
-//  }
-//
-//  for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
-//    const auto& family = queue_family_list[i].properties1_;
-//    if (has_flag(family, target)) {
-//      index = zisc::cast<uint32b>(i);
-//      is_found = true;
-//    }
-//  }
-//
-//  return index;
+////  const auto result = device_.waitIdle();
+////  ZISC_ASSERT(result == vk::Result::eSuccess, "Device waiting failed.");
+////  (void)result;
 //}
 //
+///*!
+//  \details No detailed description
+//
+//  \param [in] queue_type No description.
+//  */
+//void VulkanDevice::waitForCompletion(const QueueType queue_type) const noexcept
+//{
+////  const uint32b family_index = queueFamilyIndex(queue_type);
+////  const auto& info = physicalDeviceInfo();
+////  const auto& family_info_list = info.queueFamilyPropertiesList();
+////  const auto& family_info = family_info_list[family_index].properties1_;
+////  for (uint32b i = 0; i < family_info.queueCount; ++i)
+////    waitForCompletion(queue_type, i);
+//}
+//
+///*!
+//  \details No detailed description
+//
+//  \param [in] queue_type No description.
+//  \param [in] queue_index No description.
+//  */
+//void VulkanDevice::waitForCompletion(const QueueType queue_type,
+//                                     const uint32b queue_index) const noexcept
+//{
+////  auto q = getQueue(queue_type, queue_index);
+////  const auto result = q.waitIdle();
+////  ZISC_ASSERT(result == vk::Result::eSuccess, "Queue waiting failed.");
+////  (void)result;
+//}
+
+/*!
+  \details No detailed description
+
+  \param [in] queue_type No description.
+  \return No description
+  */
+uint32b VulkanDevice::findQueueFamily() const noexcept
+{
+  const auto& info = vulkanDeviceInfo();
+  const auto& queue_family_list = info.queueFamilyPropertiesList();
+
+  uint32b index = invalidQueueIndex();
+  bool is_found = false;
+
+  auto has_flags = [](const zinvulvk::QueueFamilyProperties& props,
+                      const bool graphics_excluded,
+                      const bool sparse_excluded) noexcept
+  {
+    constexpr auto graphics = zinvulvk::QueueFlagBits::eGraphics;
+    constexpr auto compute = zinvulvk::QueueFlagBits::eCompute;
+    constexpr auto transfer = zinvulvk::QueueFlagBits::eTransfer;
+    constexpr auto sparse = zinvulvk::QueueFlagBits::eSparseBinding;
+
+    auto has_flag = [&props](const zinvulvk::QueueFlagBits flag) noexcept
+    {
+      const bool result = (props.queueFlags & flag) == flag;
+      return result;
+    };
+
+    const bool result = (!has_flag(graphics) || !graphics_excluded) &&
+                        (!has_flag(sparse) || !sparse_excluded) &&
+                        has_flag(compute) &&
+                        has_flag(transfer);
+    return result;
+  };
+
+  constexpr auto graphics = zinvulvk::QueueFlagBits::eGraphics;
+
+  for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
+    const auto& p = queue_family_list[i].properties1_;
+    if (!has_flag(p, graphics) && !has_flag(p, other) && has_flag(p, target)) {
+      index = zisc::cast<uint32b>(i);
+      is_found = true;
+    }
+  }
+
+  for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
+    const auto& p = queue_family_list[i].properties1_;
+    if (!has_flag(p, other) && has_flag(p, target)) {
+      index = zisc::cast<uint32b>(i);
+      is_found = true;
+    }
+  }
+
+  for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
+    const auto& p = queue_family_list[i].properties1_;
+    if (!has_flag(p, graphics) && has_flag(p, target)) {
+      index = zisc::cast<uint32b>(i);
+      is_found = true;
+    }
+  }
+
+  for (std::size_t i = 0; !is_found && (i < queue_family_list.size()); ++i) {
+    const auto& p = queue_family_list[i].properties1_;
+    if (has_flag(p, target)) {
+      index = zisc::cast<uint32b>(i);
+      is_found = true;
+    }
+  }
+
+  return index;
+}
+
 ///*!
 //  */
 //inline
@@ -1055,7 +636,7 @@ auto VulkanDevice::Callbacks::reallocateMemory(
 //  ZISC_ASSERT(result == vk::Result::eSuccess, "Vulkan device creation failed.");
 //  device_ = device;
 //}
-//
+
 ///*!
 //  */
 //inline
@@ -1078,39 +659,6 @@ auto VulkanDevice::Callbacks::reallocateMemory(
 //  (void)result;
 //}
 
-/*!
-  \details No detailed description
-
-  \param [in] options No description.
-  */
-void VulkanDevice::initialize(const DeviceOptions& options) noexcept
-{
-  app_info_ = makeApplicationInfo(options.applicationName(),
-                                  options.applicationVersionMajor(),
-                                  options.applicationVersionMinor(),
-                                  options.applicationVersionPatch());
-//  instance_ = makeInstance(app_info_, options.enable_debug_);
-//  ZISC_ASSERT(instance_, "Vulkan instance creation failed.");
-//  if (options.enable_debug_)
-//    initDebugMessenger();
-//  initPhysicalDevice(options);
-//  initQueueFamilyIndexList();
-//
-//  {
-//    const auto& info = physicalDeviceInfo();
-//    uint32b subgroup_size = info.properties().subgroup_.subgroupSize;
-//    subgroup_size = zisc::isInClosedBounds(subgroup_size, 1u, 128u)
-//        ? subgroup_size
-//        : getVendorSubgroupSize(info.properties().properties1_.vendorID);
-//    vendor_name_ = getVendorName(info.properties().properties1_.vendorID);
-//    initLocalWorkSize(subgroup_size);
-//  }
-//
-//  initDevice(options);
-//  initCommandPool();
-//  initMemoryAllocator();
-}
-
 ///*!
 //  */
 //inline
@@ -1124,144 +672,48 @@ void VulkanDevice::initialize(const DeviceOptions& options) noexcept
 //  physical_device_ = physical_device_list[options.vulkan_device_number_];
 //  device_info_.fetch(physical_device_);
 //}
-//
-///*!
-//  */
-//inline
-//void VulkanDevice::initQueueFamilyIndexList() noexcept
-//{
-//  std::array<uint32b, 2> index_list{{findQueueFamily(QueueType::kCompute),
-//                                     findQueueFamily(QueueType::kTransfer)}};
-//  queue_family_index_list_.reserve(index_list.size());
-//  for (std::size_t i = 0; i < index_list.size(); ++i) {
-//    const auto family_index = index_list[i];
-//    auto ite = std::find(queue_family_index_list_.begin(),
-//                         queue_family_index_list_.end(),
-//                         family_index);
-//    if (ite != queue_family_index_list_.end()) {
-//      const auto ref_index = std::distance(queue_family_index_list_.begin(), ite);
-//      queue_family_index_ref_list_[i] = zisc::cast<std::size_t>(ref_index);
-//    }
-//    else {
-//      queue_family_index_list_.emplace_back(family_index);
-//      queue_family_index_ref_list_[i] = i;
-//    }
-//  }
-//}
 
 /*!
   \details No detailed description
-
-  \param [in,out] mem_resource No description.
-  \return No description
   */
-vk::AllocationCallbacks VulkanDevice::makeAllocator(
-    zisc::pmr::memory_resource* mem_resource) noexcept
+void VulkanDevice::initialize() noexcept
 {
-  vk::AllocationCallbacks alloc{mem_resource,
-                                Callbacks::allocateMemory,
-                                Callbacks::reallocateMemory,
-                                Callbacks::freeMemory,
-                                Callbacks::notifyOfMemoryAllocation,
-                                Callbacks::notifyOfMemoryFreeing};
-  return alloc;
+  initLocalWorkGroupSize();
+  initQueueFamilyIndexList();
+//  initDevice(options);
+//  initCommandPool();
+//  initMemoryAllocator();
 }
 
 /*!
   \details No detailed description
-
-  \param [in] app_name No description.
-  \param [in] app_version_major No description.
-  \param [in] app_version_minor No description.
-  \param [in] app_version_patch No description.
-  \return No description
   */
-vk::ApplicationInfo VulkanDevice::makeApplicationInfo(
-    const std::string_view app_name,
-    const uint32b app_version_major,
-    const uint32b app_version_minor,
-    const uint32b app_version_patch) noexcept
+void VulkanDevice::initLocalWorkGroupSize() noexcept
 {
-  const uint32b app_version = VK_MAKE_VERSION(app_version_major,
-                                              app_version_minor,
-                                              app_version_patch);
-  const std::string_view engine_name{"Zinvul"};
-  constexpr uint32b engine_version = VK_MAKE_VERSION(Config::versionMajor(),
-                                                     Config::versionMinor(),
-                                                     Config::versionPatch());
-  constexpr uint32b api_version = VK_API_VERSION_1_2;
-  const vk::ApplicationInfo data{app_name.data(),
-                                 app_version,
-                                 engine_name.data(),
-                                 engine_version,
-                                 api_version};
-  return data;
+  const auto& info = vulkanDeviceInfo();
+  const uint32b group_size = info.workGroupSize();
+
+  for (uint32b dim = 1; dim <= work_group_size_list_.size(); ++dim) {
+    std::array<uint32b, 3> work_group_size{{1, 1, 1}};
+    const auto product = [](const std::array<uint32b, 3>& s) noexcept
+    {
+      return std::accumulate(s.begin(), s.end(), 1u, std::multiplies<uint32b>());
+    };
+    for (uint32b i = 0; product(work_group_size) < group_size; i = (i + 1) % dim)
+      work_group_size[i] *= 2;
+    ZISC_ASSERT(product(work_group_size) == group_size,
+                "The work-group size should be power of 2: group size = ",
+                product(work_group_size));
+    work_group_size_list_[dim - 1] = work_group_size;
+  }
 }
 
 /*!
   \details No detailed description
-
-  \param [in] app_info No description.
-  \param [in] enable_debug No description.
-  \param [in,out] alloc No description.
-  \return No description
   */
-vk::Instance VulkanDevice::makeInstance(const vk::ApplicationInfo& app_info,
-                                        const bool enable_debug,
-                                        vk::AllocationCallbacks* alloc)
+void VulkanDevice::initQueueFamilyIndexList() noexcept
 {
-  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(alloc->pUserData);
-
-  zisc::pmr::vector<const char*>::allocator_type layer_alloc{mem_resource};
-  zisc::pmr::vector<const char*> layers{layer_alloc};
-  zisc::pmr::vector<const char*> extensions{layer_alloc};
-
-  extensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-  if (enable_debug) {
-    layers.emplace_back("VK_LAYER_KHRONOS_validation");
-    extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-  }
-
-  // Debug utils extension
-  const auto severity_flags =
-//      vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
-      vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-      vk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
-  const auto message_type_flags =
-      vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
-      vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
-      vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance;
-  PFN_vkDebugUtilsMessengerCallbackEXT callback = Callbacks::printDebugMessage;
-  vk::DebugUtilsMessengerCreateInfoEXT debug_utils_create_info{
-      vk::DebugUtilsMessengerCreateFlagsEXT{},
-      severity_flags,
-      message_type_flags,
-      callback};
-
-  // Validation features
-  std::array<vk::ValidationFeatureEnableEXT, 3> validation_features_list{{
-      vk::ValidationFeatureEnableEXT::eGpuAssisted,
-      vk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot,
-      vk::ValidationFeatureEnableEXT::eBestPractices}};
-  vk::ValidationFeaturesEXT validation_features{
-      zisc::cast<uint32b>(validation_features_list.size()),
-      validation_features_list.data(),
-      0,
-      nullptr};
-
-  vk::InstanceCreateInfo createInfo{vk::InstanceCreateFlags{},
-                                    &app_info,
-                                    zisc::cast<uint32b>(layers.size()),
-                                    layers.data(),
-                                    zisc::cast<uint32b>(extensions.size()),
-                                    extensions.data()};
-  if (enable_debug) {
-    createInfo.setPNext(std::addressof(debug_utils_create_info));
-    debug_utils_create_info.setPNext(std::addressof(validation_features));
-  }
-
-  auto instance = vk::createInstance(createInfo, *alloc);
-  return instance;
+  queue_family_index_ = findQueueFamily();
 }
 
 ///*!
