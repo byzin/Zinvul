@@ -13,10 +13,13 @@
   */
 
 // Standard C++ library
+#include <algorithm>
 #include <iostream>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <memory>
+#include <vector>
 // Vulkan
 #if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
 #include <vulkan/vulkan.hpp>
@@ -83,6 +86,13 @@ int main(int /* argc */, char** /* argv */)
     {
       std::cout << indent1 << "Vulkan extensions" << std::endl;
       auto properties = vk::enumerateInstanceExtensionProperties();
+      using Type = decltype(properties)::value_type;
+      auto cmp = [](const Type& lhs, const Type& rhs) noexcept
+      {
+        return std::string_view{lhs.extensionName} <
+               std::string_view{rhs.extensionName};
+      };
+      std::sort(properties.begin(), properties.end(), cmp);
       for (const auto& ext : properties) {
         std::cout << indent2 << ext.extensionName << ": "
                   << ::toVersionString(ext.specVersion) << std::endl;
@@ -116,7 +126,19 @@ int main(int /* argc */, char** /* argv */)
       // Extension properties
       {
         std::cout << indent3 << "Extensions" << std::endl;
-        const auto& props = info.extensionPropertiesList();
+        std::vector<VkExtensionProperties> props;
+        {
+          const auto& props2 = info.extensionPropertiesList();
+          props.resize(props2.size());
+          std::copy(props2.begin(), props2.end(), props.begin());
+        }
+        using Type = decltype(props)::value_type;
+        auto cmp = [](const Type& lhs, const Type& rhs) noexcept
+        {
+          return std::string_view{lhs.extensionName} <
+                 std::string_view{rhs.extensionName};
+        };
+        std::sort(props.begin(), props.end(), cmp);
         for (const auto& ext : props) {
           std::cout << indent4 << ext.extensionName << ": "
                     << ::toVersionString(ext.specVersion) << std::endl;
@@ -184,6 +206,14 @@ int main(int /* argc */, char** /* argv */)
                     << vk::to_string(zisc::cast<vk::MemoryPropertyFlags>(memory.propertyFlags))
                     << std::endl;
         }
+      }
+      std::cout << std::endl;
+      {
+        std::cout << indent3 << "ExternalMemory" << std::endl;
+        const auto& props = info.properties();
+        std::cout << indent4 << "Min imported pointer alignment: "
+                  << props.external_memory_host_.minImportedHostPointerAlignment
+                  << " bytes" << std::endl;
       }
     }
 #endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM

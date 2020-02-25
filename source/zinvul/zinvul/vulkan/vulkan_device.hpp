@@ -18,12 +18,14 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <memory>
 #include <vector>
 // Vulkan
 #include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
+#include "utility/vulkan_dispatch_loader.hpp"
 #include "zinvul/device.hpp"
 #include "zinvul/zinvul_config.hpp"
 
@@ -45,7 +47,7 @@ class VulkanDevice : public Device
  public:
   //! Initialize the vulkan device
   VulkanDevice(VulkanSubPlatform* sub_platform,
-               const VulkanDeviceInfo* device_info) noexcept;
+               const VulkanDeviceInfo* device_info);
 
   //! Move a data
   VulkanDevice(VulkanDevice&& other) noexcept;
@@ -78,21 +80,21 @@ class VulkanDevice : public Device
 //  template <DescriptorType kDescriptor, typename Type>
 //  void deallocate(VulkanBuffer<kDescriptor, Type>* buffer) noexcept;
 
-//  //! Destroy a vulkan instance
-//  void destroy() noexcept;
+  //! Return the underlying vulkan device
+  VkDevice& device() noexcept;
+
+  //! Return the underlying vulkan device
+  const VkDevice& device() const noexcept;
 
   //! Return the underlying device info
   const DeviceInfo& deviceInfo() const noexcept override;
 
+  //! Return the dispatcher of vulkan objects
+  const VulkanDispatchLoader& dispatcher() const noexcept;
+
 //  //! Return the shader module by the index
 //  const vk::ShaderModule& getShaderModule(const std::size_t index) const noexcept;
-//
-//  //! Return the vendor name corresponding to the vendor ID
-//  static std::string getVendorName(const uint32b id) noexcept;
-//
-//  //! Return the subgroup size of vendor device
-//  static uint32b getVendorSubgroupSize(const uint32b id) noexcept;
-//
+
 //  //! Check if the device has the shader module
 //  bool hasShaderModule(const std::size_t index) const noexcept;
 
@@ -120,8 +122,14 @@ class VulkanDevice : public Device
 //  //! Return the memory allocator of the device
 //  const VmaAllocator& memoryAllocator() const noexcept;
 
-  //! Return the physical device info
-//  const VulkanPhysicalDeviceInfo& physicalDeviceInfo() const noexcept;
+  //! Return the number of underlying command queues
+  std::size_t numOfQueues() const noexcept override;
+
+  //! Return the peak memory usage of the heap of the given index
+  std::size_t peakMemoryUsage(const std::size_t index) const noexcept override;
+
+  //! Return the current memory usage of the heap of the given index
+  std::size_t totalMemoryUsage(const std::size_t index) const noexcept override;
 
   //! Set a shader module
 //  void setShaderModule(const zisc::pmr::vector<uint32b>& spirv_code,
@@ -162,15 +170,15 @@ class VulkanDevice : public Device
 //
 //  //! Initialize a command pool
 //  void initCommandPool() noexcept;
-//
-//  //! Initialize a debug messenger
-//  void initDebugMessenger() noexcept;
-//
-//  //! Initialize a device
-//  void initDevice(const DeviceOptions& options) noexcept;
+
+  //! Initialize a device
+  void initDevice();
+
+  //! Initialize the vulkan dispatch loader
+  void initDispatcher();
 
   //! Initialize the vulkan device
-  void initialize() noexcept;
+  void initialize();
 
   //! Initialize work group size of dimensions
   void initLocalWorkGroupSize() noexcept;
@@ -181,17 +189,24 @@ class VulkanDevice : public Device
   //! Initialize a queue family index list
   void initQueueFamilyIndexList() noexcept;
 
-//  //! Return an index of a queue family
-//  uint32b queueFamilyIndex(const QueueType queue_type) const noexcept;
+  //! Return the sub-platform
+  VulkanSubPlatform& subPlatform() noexcept;
+
+  //! Return the sub-platform
+  const VulkanSubPlatform& subPlatform() const noexcept;
+
+  //! Return an index of a queue family
+  uint32b queueFamilyIndex() const noexcept;
 
 
   VulkanSubPlatform* sub_platform_ = nullptr;
   const VulkanDeviceInfo* device_info_ = nullptr;
+  VkDevice device_ = VK_NULL_HANDLE;
+  zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
 //  zisc::pmr::vector<vk::ShaderModule> shader_module_list_;
 //  zisc::pmr::vector<vk::CommandPool> command_pool_list_;
-//  vk::Device device_;
 //  VmaAllocator allocator_ = VK_NULL_HANDLE;
-  uint32b queue_family_index_;
+  uint32b queue_family_index_ = invalidQueueIndex();
   std::array<std::array<uint32b, 3>, 3> work_group_size_list_;
 };
 

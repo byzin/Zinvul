@@ -23,6 +23,7 @@
 #include "zisc/non_copyable.hpp"
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
+#include "device.hpp"
 #include "device_info.hpp"
 #include "zinvul_config.hpp"
 #include "utility/id_data.hpp"
@@ -57,8 +58,14 @@ class SubPlatform : private zisc::NonCopyable<SubPlatform>
   //! Initialize the sub-platform
   void initialize(PlatformOptions& platform_options);
 
+  //! Check if the sub-platform is in debug mode
+  bool isDebugMode() const noexcept;
+
   //! Issue an ID of an object
   IdData issueId() noexcept;
+
+  //! Make a unique device
+  virtual UniqueDevice makeDevice(const DeviceInfo& device_info) = 0;
 
   //! Return the underlying memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;
@@ -83,8 +90,13 @@ class SubPlatform : private zisc::NonCopyable<SubPlatform>
   virtual void initData(PlatformOptions& platform_options) = 0;
 
  private:
+  //! Set debug mode
+  void setDebugMode(const bool is_debug_mode) noexcept;
+
+
   zisc::pmr::memory_resource* mem_resource_ = nullptr;
   std::atomic<uint32b> id_count_ = 0;
+  int32b is_debug_mode_ = Config::scalarResultFalse();
 };
 
 // Type aliases

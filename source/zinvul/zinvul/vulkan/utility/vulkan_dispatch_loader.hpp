@@ -78,8 +78,11 @@ class VulkanDispatchLoader
   //! Return the underlying vulkan dispatch loader
   ConstLoaderImplPtr loaderImpl() const noexcept;
 
+  //! The dispatcher obtains the function pointers from the given device
+  void set(const VkDevice& device);
+
   //! The dispatcher obtains the function pointers from the given instance
-  void set(const VkInstance instance);
+  void set(const VkInstance& instance);
 
  private:
   //! Copy a data

@@ -19,8 +19,11 @@
 #include <vector>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
+#include "zisc/utility.hpp"
 // Zinvul
+#include "cpu_device.hpp"
 #include "cpu_device_info.hpp"
+#include "zinvul/device.hpp"
 #include "zinvul/platform_options.hpp"
 #include "zinvul/zinvul_config.hpp"
 
@@ -50,6 +53,22 @@ void CpuSubPlatform::getDeviceInfoList(
     zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept
 {
   device_info_list.emplace_back(device_info_.get());
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device_info No description.
+  \return No description
+  */
+UniqueDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info) noexcept
+{
+  auto info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
+  auto device = zisc::pmr::allocateUnique<CpuDevice>(memoryResource(),
+                                                     this,
+                                                     info);
+  UniqueDevice d = std::move(device);
+  return d;
 }
 
 /*!

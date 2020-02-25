@@ -63,11 +63,14 @@ class Device : private zisc::NonCopyable<Device>
   //! Returna a memory resource
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
-  //! Return the peak memory usage
-  virtual std::size_t peakMemoryUsage(const std::size_t heap_index) const noexcept = 0;
+  //! Return the number of underlying command queues
+  virtual std::size_t numOfQueues() const noexcept = 0;
 
-  //! Return the current memory usage
-  virtual std::size_t totalMemoryUsage(const std::size_t heap_index) const noexcept = 0;
+  //! Return the peak memory usage of the heap of the given index
+  virtual std::size_t peakMemoryUsage(const std::size_t index) const noexcept = 0;
+
+  //! Return the current memory usage of the heap of the given index
+  virtual std::size_t totalMemoryUsage(const std::size_t index) const noexcept = 0;
 
   //! Return the sub-platform type
   virtual SubPlatformType type() const noexcept = 0;

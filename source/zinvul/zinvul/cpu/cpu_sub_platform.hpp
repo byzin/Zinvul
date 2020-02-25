@@ -23,6 +23,7 @@
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "cpu_device_info.hpp"
+#include "zinvul/device.hpp"
 #include "zinvul/sub_platform.hpp"
 #include "zinvul/zinvul_config.hpp"
 
@@ -48,6 +49,9 @@ class CpuSubPlatform : public SubPlatform
 
   //! Add the underlying device info into the given list
   void getDeviceInfoList(zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept override;
+
+  //! Make a unique device
+  UniqueDevice makeDevice(const DeviceInfo& device_info) noexcept override;
 
   //! Return the number of available devices
   std::size_t numOfDevices() const noexcept override;

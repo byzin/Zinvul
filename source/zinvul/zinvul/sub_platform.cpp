@@ -45,6 +45,7 @@ SubPlatform::~SubPlatform() noexcept
 void SubPlatform::destroy() noexcept
 {
   destroyData();
+  setDebugMode(false);
   id_count_.store(0);
   mem_resource_ = nullptr;
 }
@@ -60,7 +61,20 @@ void SubPlatform::initialize(PlatformOptions& platform_options)
   destroy();
 
   mem_resource_ = platform_options.memoryResource();
+  setDebugMode(platform_options.debugModeEnabled());
+
   initData(platform_options);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] is_debug_mode No description.
+  */
+void SubPlatform::setDebugMode(const bool is_debug_mode) noexcept
+{
+  is_debug_mode_ = is_debug_mode ? Config::scalarResultTrue()
+                                 : Config::scalarResultFalse();
 }
 
 } // namespace zinvul

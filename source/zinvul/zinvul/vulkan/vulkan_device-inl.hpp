@@ -18,10 +18,46 @@
 #include "vulkan_device.hpp"
 // Standard C++ library
 #include <limits>
+// Vulkan
+#include <vulkan/vulkan.h>
 // Zinvul
 #include "vulkan_device_info.hpp"
+#include "utility/vulkan_dispatch_loader.hpp"
 
 namespace zinvul {
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+VkDevice& VulkanDevice::device() noexcept
+{
+  return device_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const VkDevice& VulkanDevice::device() const noexcept
+{
+  return device_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const VulkanDispatchLoader& VulkanDevice::dispatcher() const noexcept
+{
+  return *dispatcher_;
+}
 
 /*!
   \details No detailed description
@@ -44,6 +80,39 @@ inline
 const VulkanDeviceInfo& VulkanDevice::vulkanDeviceInfo() const noexcept
 {
   return *device_info_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+VulkanSubPlatform& VulkanDevice::subPlatform() noexcept
+{
+  return *sub_platform_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const VulkanSubPlatform& VulkanDevice::subPlatform() const noexcept
+{
+  return *sub_platform_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+uint32b VulkanDevice::queueFamilyIndex() const noexcept
+{
+  return queue_family_index_;
 }
 
 } // namespace zinvul

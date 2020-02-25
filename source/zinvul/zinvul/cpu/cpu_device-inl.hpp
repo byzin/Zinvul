@@ -1,63 +1,30 @@
-///*!
-//  \file cpu_device-inl.hpp
-//  \author Sho Ikeda
-//  \brief No brief description
-//
-//  \details
-//  No detailed description.
-//
-//  \copyright
-//  Copyright (c) 2015-2020 Sho Ikeda
-//  This software is released under the MIT License.
-//  http://opensource.org/licenses/mit-license.php
-//  */
-//
-//#ifndef ZINVUL_CPU_DEVICE_INL_HPP
-//#define ZINVUL_CPU_DEVICE_INL_HPP
-//
-//#include "cpu_device.hpp"
-//// Standard C++ library
-//#include <array>
-//#include <atomic>
-//#include <cstddef>
-//#include <numeric>
-//#include <string>
-//#include <string_view>
-//#include <type_traits>
-//#include <utility>
-//// Zisc
-//#include "zisc/error.hpp"
-//#include "zisc/function_reference.hpp"
-//#include "zisc/math.hpp"
-//#include "zisc/std_memory_resource.hpp"
-//#include "zisc/thread_manager.hpp"
-//#include "zisc/utility.hpp"
-//// Zinvul
-////#include "cpu_buffer.hpp"
-////#include "cpu_kernel.hpp"
-//#include "zinvul/device_options.hpp"
-//#include "zinvul/zinvul_config.hpp"
-//#include "zinvul/cppcl/atomic.hpp"
-//#include "zinvul/cppcl/utility.hpp"
-//
-//namespace zinvul {
-//
-///*!
-//  \details No detailed description
-//
-//  \param [in] options No description.
-//  */
-//inline
-//CpuDevice::CpuDevice(DeviceOptions& options) noexcept :
-//    Device(options),
-//    thread_manager_{options.cpuNumOfThreads(), memoryResource()},
-//    name_{zisc::pmr::string::allocator_type{memoryResource()}},
-//    vendor_name_{zisc::pmr::string::allocator_type{memoryResource()}},
-//    task_batch_size_{zisc::max(options.cpuTaskBatchSize(), 1u)}
-//{
-//  initialize(options);
-//}
-//
+/*!
+  \file cpu_device-inl.hpp
+  \author Sho Ikeda
+  \brief No brief description
+
+  \details
+  No detailed description.
+
+  \copyright
+  Copyright (c) 2015-2020 Sho Ikeda
+  This software is released under the MIT License.
+  http://opensource.org/licenses/mit-license.php
+  */
+
+#ifndef ZINVUL_CPU_DEVICE_INL_HPP
+#define ZINVUL_CPU_DEVICE_INL_HPP
+
+#include "cpu_device.hpp"
+// Standard C++ library
+#include <cstddef>
+// Zinvul
+#include "cpu_device_info.hpp"
+#include "cpu_sub_platform.hpp"
+#include "zinvul/zinvul_config.hpp"
+
+namespace zinvul {
+
 /////*!
 ////  */
 ////template <DescriptorType kDescriptor, typename Type> inline
@@ -68,6 +35,17 @@
 ////  b.resize(size);
 ////
 ////  const std::size_t memory_usage = deviceMemoryUsage() + buffer->memoryUsage();
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const CpuDeviceInfo& CpuDevice::cpuDeviceInfo() const noexcept
+{
+  return *device_info_;
+}
+
 ////  setDeviceMemoryUsage(memory_usage);
 ////  setHostMemoryUsage(memory_usage);
 ////}
@@ -81,18 +59,7 @@
 ////  setDeviceMemoryUsage(memory_usage);
 ////  setHostMemoryUsage(memory_usage);
 ////}
-//
-///*!
-//  \details No detailed description
-//
-//  \return No description
-//  */
-//inline
-//SubPlatformType CpuDevice::subPlatformType() const noexcept
-//{
-//  return SubPlatformType::kCpu;
-//}
-//
+
 /////*!
 ////  */
 ////template <DescriptorType kDescriptor, typename Type> inline
@@ -116,19 +83,7 @@
 ////  auto kernel = UniqueCpuKernel::make(memoryResource(), this, func);
 ////  return std::move(kernel);
 ////}
-//
-///*!
-//  \details No detailed description
-//
-//  \return No description
-//  */
-//inline
-//std::string_view CpuDevice::name() const noexcept
-//{
-//  std::string_view device_name{name_};
-//  return device_name;
-//}
-//
+
 ///*!
 //  \details No detailed description
 //
@@ -142,15 +97,7 @@
 //
 ///*!
 //  \details No detailed description
-//
-//  \return No description
-//  */
-//inline
-//uint32b CpuDevice::subgroupSize() const noexcept
-//{
-//  return 1;
-//}
-//
+
 ///*!
 //  \details No detailed description
 //
@@ -187,19 +134,7 @@
 ////  auto result = thread_manager_.enqueueLoop(task, start, end, workResource());
 ////  result->wait();
 ////}
-//
-///*!
-//  \details No detailed description
-//
-//  \return No description
-//  */
-//inline
-//std::string_view CpuDevice::vendorName() const noexcept
-//{
-//  std::string_view vendor_name{vendor_name_};
-//  return vendor_name;
-//}
-//
+
 ///*!
 //  \details No detailed description
 //  */
@@ -246,7 +181,29 @@
 //    work_group_size[i] = works[i];
 //  return work_group_size;
 //}
-//
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+CpuSubPlatform& CpuDevice::subPlatform() noexcept
+{
+  return *sub_platform_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const CpuSubPlatform& CpuDevice::subPlatform() const noexcept
+{
+  return *sub_platform_;
+}
+
 ///*!
 //  \details No detailed description
 //
@@ -257,7 +214,7 @@
 //{
 //  return task_batch_size_;
 //}
-//
-//} // namespace zinvul
-//
-//#endif // ZINVUL_CPU_DEVICE_INL_HPP
+
+} // namespace zinvul
+
+#endif // ZINVUL_CPU_DEVICE_INL_HPP

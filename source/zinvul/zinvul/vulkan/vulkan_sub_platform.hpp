@@ -30,6 +30,7 @@
 // Zinvul
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "zinvul/device.hpp"
 #include "zinvul/sub_platform.hpp"
 #include "zinvul/zinvul_config.hpp"
 
@@ -64,6 +65,12 @@ class VulkanSubPlatform : public SubPlatform
 
   //! Add the underlying device info into the given list
   void getDeviceInfoList(zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept override;
+
+  //! Make a host memory allocator for Vulkan object
+  VkAllocationCallbacks makeAllocator() noexcept;
+
+  //! Make a unique device
+  UniqueDevice makeDevice(const DeviceInfo& device_info) override;
 
   //! Return the number of available devices
   std::size_t numOfDevices() const noexcept override;
@@ -177,9 +184,6 @@ class VulkanSubPlatform : public SubPlatform
         size_t,
         VkSystemAllocationScope);
   };
-
-  //! Make a host memory allocator for Vulkan object
-  VkAllocationCallbacks makeAllocator() noexcept;
 
   //! Make an application info
   static VkApplicationInfo makeApplicationInfo(

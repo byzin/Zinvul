@@ -24,6 +24,7 @@
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
+#include "device.hpp"
 #include "platform_options.hpp"
 #include "sub_platform.hpp"
 #include "zinvul_config.hpp"
@@ -87,6 +88,20 @@ void Platform::destroy() noexcept
   for (auto& sub_platform : sub_platform_list_)
     sub_platform.reset();
   mem_resource_ = nullptr;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device_index No description.
+  \return No description
+  */
+UniqueDevice Platform::makeDevice(const std::size_t device_index)
+{
+  const DeviceInfo* info = deviceInfoList()[device_index];
+  SubPlatform* sub_platform = subPlatform(info->type());
+  auto device = sub_platform->makeDevice(*info);
+  return device;
 }
 
 /*!

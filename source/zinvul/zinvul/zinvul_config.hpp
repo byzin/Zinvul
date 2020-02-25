@@ -50,17 +50,6 @@ enum class SubPlatformType : uint32b
   kVulkan
 };
 
-/*!
-  \brief No brief description
-
-  No detailed description.
-  */
-enum class QueueType : uint32b
-{
-  kCompute = 0,
-  kTransfer
-};
-
 // Buffer
 
 /*!

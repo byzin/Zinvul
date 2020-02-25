@@ -33,6 +33,18 @@ namespace zinvul {
   \return No description
   */
 inline
+bool SubPlatform::isDebugMode() const noexcept
+{
+  const bool result = is_debug_mode_ == Config::scalarResultTrue();
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 IdData SubPlatform::issueId() noexcept
 {
   const uint32b id = id_count_++;

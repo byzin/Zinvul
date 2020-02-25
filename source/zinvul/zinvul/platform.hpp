@@ -25,6 +25,7 @@
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
+#include "device.hpp"
 #include "sub_platform.hpp"
 #include "zinvul_config.hpp"
 
@@ -64,6 +65,9 @@ class Platform : public zisc::NonCopyable<Platform>
 
   //! Check if the platform has the sub-platform of the given type
   bool hasSubPlatform(const SubPlatformType type) const noexcept;
+
+  //! Make a unique device
+  UniqueDevice makeDevice(const std::size_t device_index);
 
   //! Return the underlying memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;

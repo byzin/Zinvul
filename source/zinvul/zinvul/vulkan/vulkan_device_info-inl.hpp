@@ -91,6 +91,19 @@ auto VulkanDeviceInfo::features() const noexcept -> const Features&
 /*!
   \details No detailed description
 
+  \param [in] number No description.
+  \return No description
+  */
+inline
+std::size_t VulkanDeviceInfo::getDeviceHeapIndex(const std::size_t number) const noexcept
+{
+  const std::size_t index = device_local_index_list_[number];
+  return index;
+}
+
+/*!
+  \details No detailed description
+
   \tparam CppType No description.
   \tparam CType No description.
   \param [in] prop No description.

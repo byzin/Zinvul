@@ -111,7 +111,7 @@ VulkanDeviceInfo::~VulkanDeviceInfo() noexcept
   */
 std::size_t VulkanDeviceInfo::availableMemory(const std::size_t heap_index) const noexcept
 {
-  const std::size_t index = device_local_index_list_[heap_index];
+  const std::size_t index = getDeviceHeapIndex(heap_index);
   const auto& budget = memoryProperties().budget_;
   const std::size_t mem = budget.heapBudget[index] - budget.heapUsage[index];
   return mem;
@@ -191,7 +191,7 @@ std::size_t VulkanDeviceInfo::numOfHeaps() const noexcept
   */
 std::size_t VulkanDeviceInfo::totalMemory(const std::size_t heap_index) const noexcept
 {
-  const std::size_t index = device_local_index_list_[heap_index];
+  const std::size_t index = getDeviceHeapIndex(heap_index);
   const auto& heap = memoryProperties().properties1_.memoryHeaps[index];
   const std::size_t mem = heap.size;
   return mem;

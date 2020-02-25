@@ -109,13 +109,25 @@ VulkanDispatchLoader& VulkanDispatchLoader::operator=(
 /*!
   \details No detailed description
 
-  \param [in] instance No description.
+  \param [in] device No description.
   */
-void VulkanDispatchLoader::set(const VkInstance instance)
+void VulkanDispatchLoader::set(const VkDevice& device)
 {
   LoaderImplPtr impl = loaderImpl();
   if (impl)
-    impl->init(instance);
+    impl->init(zinvulvk::Device{device});
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] instance No description.
+  */
+void VulkanDispatchLoader::set(const VkInstance& instance)
+{
+  LoaderImplPtr impl = loaderImpl();
+  if (impl)
+    impl->init(zinvulvk::Instance{instance});
 }
 
 /*!

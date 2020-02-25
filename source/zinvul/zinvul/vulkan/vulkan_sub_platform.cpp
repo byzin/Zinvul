@@ -28,9 +28,11 @@
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
+#include "vulkan_device.hpp"
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "zinvul/device.hpp"
 #include "zinvul/platform_options.hpp"
 #include "zinvul/sub_platform.hpp"
 #include "zinvul/zinvul_config.hpp"
@@ -62,6 +64,38 @@ void VulkanSubPlatform::getDeviceInfoList(
 {
   for (const auto& device_info : *device_info_list_)
     device_info_list.emplace_back(std::addressof(device_info));
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
+{
+  zinvulvk::AllocationCallbacks alloc{allocator_data_.get(),
+                                      Callbacks::allocateMemory,
+                                      Callbacks::reallocateMemory,
+                                      Callbacks::freeMemory,
+                                      Callbacks::notifyOfMemoryAllocation,
+                                      Callbacks::notifyOfMemoryFreeing};
+  return zisc::cast<VkAllocationCallbacks>(alloc);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device_info No description.
+  \return No description
+  */
+UniqueDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
+{
+  auto info = zisc::cast<const VulkanDeviceInfo*>(std::addressof(device_info));
+  auto device = zisc::pmr::allocateUnique<VulkanDevice>(memoryResource(),
+                                                        this,
+                                                        info);
+  UniqueDevice d = std::move(device);
+  return d;
 }
 
 /*!
@@ -111,7 +145,7 @@ void VulkanSubPlatform::destroyData() noexcept
     zinvulvk::AllocationCallbacks alloc{makeAllocator()};
     const auto loader = dispatcher().loaderImpl();
     ins.destroy(alloc, *loader);
-    instance_ = nullptr;
+    instance_ = VK_NULL_HANDLE;
   }
 
   dispatcher_.reset();
@@ -406,22 +440,6 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
 /*!
   \details No detailed description
 
-  \return No description
-  */
-VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
-{
-  zinvulvk::AllocationCallbacks alloc{allocator_data_.get(),
-                                      Callbacks::allocateMemory,
-                                      Callbacks::reallocateMemory,
-                                      Callbacks::freeMemory,
-                                      Callbacks::notifyOfMemoryAllocation,
-                                      Callbacks::notifyOfMemoryFreeing};
-  return zisc::cast<VkAllocationCallbacks>(alloc);
-}
-
-/*!
-  \details No detailed description
-
   \param [in] app_name No description.
   \param [in] app_version_major No description.
   \param [in] app_version_minor No description.
@@ -462,7 +480,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
   zisc::pmr::vector<const char*> extensions{layer_alloc};
 
   extensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-  if (platform_options.debugModeEnabled()) {
+  if (isDebugMode()) {
     layers.emplace_back("VK_LAYER_KHRONOS_validation");
     extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
   }
@@ -505,7 +523,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
                                           layers.data(),
                                           zisc::cast<uint32b>(extensions.size()),
                                           extensions.data()};
-  if (platform_options.debugModeEnabled()) {
+  if (isDebugMode()) {
     createInfo.setPNext(std::addressof(debug_utils_create_info));
     debug_utils_create_info.setPNext(std::addressof(validation_features));
   }
