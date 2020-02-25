@@ -22,9 +22,57 @@
 #include "zisc/error.hpp"
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
+#include "buffer.hpp"
 #include "zinvul_config.hpp"
 
 namespace zinvul {
+
+// Forward declaration
+template <DescriptorType kDescType, typename T>
+UniqueBuffer<kDescType, T> makeBuffer(Device* device, const BufferUsage flag);
+
+/*!
+  \details No detailed description
+
+  \tparam kDescType No description.
+  \tparam T No description.
+  \param [in] flag No description.
+  \return No description
+  */
+template <DescriptorType kDescType, typename T> inline
+UniqueBuffer<kDescType, T> Device::makeBuffer(const BufferUsage flag)
+{
+  auto buffer = zinvul::makeBuffer<kDescType, T>(this, flag);
+  return buffer;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T No description.
+  \param [in] flag No description.
+  \return No description
+  */
+template <typename T> inline
+UniqueStorageBuffer<T> Device::makeStorageBuffer(const BufferUsage flag)
+{
+  UniqueStorageBuffer<T> buffer = makeBuffer<DescriptorType::kStorage, T>(flag);
+  return buffer;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T No description.
+  \param [in] flag No description.
+  \return No description
+  */
+template <typename T> inline
+UniqueUniformBuffer<T> Device::makeUniformBuffer(const BufferUsage flag)
+{
+  UniqueUniformBuffer<T> buffer = makeBuffer<DescriptorType::kUniform, T>(flag);
+  return buffer;
+}
 
 /*!
   \details No detailed description

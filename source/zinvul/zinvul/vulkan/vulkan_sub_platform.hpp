@@ -102,7 +102,7 @@ class VulkanSubPlatform : public SubPlatform
 
     No detailed description.
     */
-  class AllocatorData : zisc::NonCopyable<AllocatorData>
+  class AllocatorData : private zisc::NonCopyable<AllocatorData>
   {
    public:
     //! Initialize the allocator data

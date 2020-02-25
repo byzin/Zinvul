@@ -32,7 +32,7 @@ namespace zinvul {
 
   No detailed description.
   */
-class IdData : public zisc::NonCopyable<IdData>
+class IdData : private zisc::NonCopyable<IdData>
 {
  public:
   //! Create an ID data

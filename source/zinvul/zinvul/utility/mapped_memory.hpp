@@ -36,7 +36,7 @@ template <DescriptorType, typename> class Buffer;
   \tparam T No description.
   */
 template <DescriptorType kDescriptor, typename T>
-class MappedMemory : public zisc::NonCopyable<MappedMemory<kDescriptor, T>>
+class MappedMemory : private zisc::NonCopyable<MappedMemory<kDescriptor, T>>
 {
  public:
   using Type = std::remove_volatile_t<T>;

@@ -17,82 +17,54 @@
 
 #include "zinvul.hpp"
 // Standard C++ library
-//#include <cstddef>
-//#include <memory>
-//#include <string_view>
-//#include <type_traits>
+#include <cstddef>
+#include <utility>
 // Zisc
-//#include "zisc/memory_resource.hpp"
-//#include "zisc/unique_memory_pointer.hpp"
-//#include "zisc/utility.hpp"
+#include "zisc/error.hpp"
+#include "zisc/utility.hpp"
 // Zinvul
-//#include "buffer.hpp"
+#include "buffer.hpp"
+#include "device.hpp"
 //#include "kernel.hpp"
 //#include "kernel_set.hpp"
 //#include "kernel_arg_parser.hpp"
-//#include "cpu/cpu_buffer.hpp"
-//#include "cpu/cpu_device.hpp"
+#include "cpu/cpu_buffer.hpp"
+#include "cpu/cpu_device.hpp"
 //#include "cpu/cpu_kernel.hpp"
-//#ifdef ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
-//#include "vulkan/vulkan_buffer.hpp"
-//#include "vulkan/vulkan_device.hpp"
+#if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
+#include "vulkan/vulkan_buffer.hpp"
+#include "vulkan/vulkan_device.hpp"
 //#include "vulkan/vulkan_kernel.hpp"
-//#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
-//#include "zinvul/zinvul_config.hpp"
+#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
+#include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
 
-///*!
-//  */
-//template <DescriptorType kDescriptor, typename Type> inline
-//UniqueBuffer<kDescriptor, Type> makeBuffer(
-//    Device* device,
-//    const BufferUsage usage_flag) noexcept
-//{
-//  UniqueBuffer<kDescriptor, Type> buffer;
-//  switch (device->SubPlatformType()) {
-//   case SubPlatformType::kCpu: {
-//    auto d = zisc::cast<CpuDevice*>(device);
-//    buffer = d->makeBuffer<kDescriptor, Type>(usage_flag);
-//    break;
-//   }
-//#ifdef ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
-//   case SubPlatformType::kVulkan: {
-//    auto d = zisc::cast<VulkanDevice*>(device);
-//    buffer = d->makeBuffer<kDescriptor, Type>(usage_flag);
-//    break;
-//   }
-//#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
-//   default: {
-//    ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
-//    break;
-//   }
-//  }
-//  return buffer;
-//}
-//
-///*!
-//  */
-//template <typename Type> inline
-//UniqueBuffer<DescriptorType::kUniform, Type> makeUniformBuffer(
-//    Device* device,
-//    const BufferUsage usage_flag) noexcept
-//{
-//  auto buffer = makeBuffer<DescriptorType::kUniform, Type>(device, usage_flag);
-//  return buffer;
-//}
-//
-///*!
-//  */
-//template <typename Type> inline
-//UniqueBuffer<DescriptorType::kStorage, Type> makeStorageBuffer(
-//    Device* device,
-//    const BufferUsage usage_flag) noexcept
-//{
-//  auto buffer = makeBuffer<DescriptorType::kStorage, Type>(device, usage_flag);
-//  return buffer;
-//}
-//
+template <DescriptorType kDescType, typename Type> inline
+UniqueBuffer<kDescType, Type> makeBuffer(Device* device, const BufferUsage flag)
+{
+  UniqueBuffer<kDescType, Type> buffer;
+  switch (device->type()) {
+   case SubPlatformType::kCpu: {
+    auto d = zisc::cast<CpuDevice*>(device);
+    buffer = d->makeBuffer<kDescType, Type>(flag);
+    break;
+   }
+#if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
+   case SubPlatformType::kVulkan: {
+    auto d = zisc::cast<VulkanDevice*>(device);
+    buffer = d->makeBuffer<kDescType, Type>(flag);
+    break;
+   }
+#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
+   default: {
+    ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
+    break;
+   }
+  }
+  return buffer;
+}
+
 ///*!
 //  */
 //template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type>
@@ -131,35 +103,7 @@ namespace zinvul {
 //   }
 //  }
 //}
-//
-///*!
-//  */
-//inline
-//UniqueDevice makeDevice(DeviceOptions& options) noexcept
-//{
-//
-//  UniqueDevice device;
-//  switch (options.device_type_) {
-//   case SubPlatformType::kCpu: {
-//    using UniqueCpuDevice = zisc::UniqueMemoryPointer<CpuDevice>;
-//    device = UniqueCpuDevice::make(options.mem_resource_, options);
-//    break;
-//   }
-//#ifdef ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
-//   case SubPlatformType::kVulkan: {
-//    using UniqueVulkanDevice = zisc::UniqueMemoryPointer<VulkanDevice>;
-//    device = UniqueVulkanDevice::make(options.mem_resource_, options);
-//    break;
-//   }
-//#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
-//   default: {
-//    ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
-//    break;
-//   }
-//  }
-//  return device;
-//}
-//
+
 //namespace cppinner {
 //
 //template <std::size_t kDimension, typename Function, typename ...BufferArgs>

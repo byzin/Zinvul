@@ -22,6 +22,7 @@
 #include "zisc/non_copyable.hpp"
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
+#include "buffer.hpp"
 #include "zinvul_config.hpp"
 
 namespace zinvul {
@@ -56,6 +57,18 @@ class Device : private zisc::NonCopyable<Device>
 
   //! Return the underlying device info
   virtual const DeviceInfo& deviceInfo() const noexcept = 0;
+
+  //! Make a buffer
+  template <DescriptorType kDescType, typename T>
+  UniqueBuffer<kDescType, T> makeBuffer(const BufferUsage flag);
+
+  //! Make a storage buffer
+  template <typename T>
+  UniqueStorageBuffer<T> makeStorageBuffer(const BufferUsage flag);
+
+  //! Make a uniform buffer
+  template <typename T>
+  UniqueUniformBuffer<T> makeUniformBuffer(const BufferUsage flag);
 
   //! Returna a memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;

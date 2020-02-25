@@ -21,9 +21,7 @@
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
-#include "zinvul/platform.hpp"
-#include "zinvul/platform_options.hpp"
-#include "zinvul/zinvul_config.hpp"
+#include "zinvul/zinvul.hpp"
 
 namespace {
 
@@ -97,6 +95,9 @@ int main(int /* argc */, char** /* argv */)
     auto device = platform->makeDevice(i);
     std::cout << indent2 << "Num of queues       : "
               << device->numOfQueues() << std::endl;
+
+    auto buffer1 = device->makeStorageBuffer<int>(zinvul::BufferUsage::kDeviceOnly);
+    auto buffer2 = device->makeUniformBuffer<int>(zinvul::BufferUsage::kDeviceOnly);
   }
 
   std::cout << std::endl;

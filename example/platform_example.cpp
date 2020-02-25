@@ -21,9 +21,7 @@
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
-#include "zinvul/platform.hpp"
-#include "zinvul/platform_options.hpp"
-#include "zinvul/zinvul_config.hpp"
+#include "zinvul/zinvul.hpp"
 
 namespace {
 

@@ -12,52 +12,36 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-
 #ifndef ZINVUL_ZINVUL_HPP
 #define ZINVUL_ZINVUL_HPP
 
 // Standard C++ library
 #include <cstddef>
-#include <string_view>
 // Zinvul
+#include "buffer.hpp"
 #include "device.hpp"
+#include "platform.hpp"
+#include "platform_options.hpp"
 //#include "kernel_arg_parser.hpp"
 //#include "kernel_set.hpp"
-//#include "cpu/cpu_buffer.hpp"
-//#include "cpu/cpu_device.hpp"
+#include "cpu/cpu_buffer.hpp"
+#include "cpu/cpu_device.hpp"
 //#include "cpu/cpu_kernel.hpp"
-//#ifdef ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
-//#include "vulkan/vulkan_buffer.hpp"
-//#include "vulkan/vulkan_device.hpp"
+#if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
+#include "vulkan/vulkan_buffer.hpp"
+#include "vulkan/vulkan_device.hpp"
 //#include "vulkan/vulkan_kernel.hpp"
-//#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
-//#include "zinvul/zinvul_config.hpp"
+#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
+#include "zinvul/zinvul_config.hpp"
 //#include "zinvul/cppcl/types.hpp"
 //#include "zinvul/cppcl/vector.hpp"
 
 namespace zinvul {
 
-// Forward declaration
-class DeviceOptions;
+//! Make a buffer
+template <DescriptorType kDescType, typename Type>
+UniqueBuffer<kDescType, Type> makeBuffer(Device* device, const BufferUsage flag);
 
-////! Make a buffer
-//template <DescriptorType kDescriptor, typename Type>
-//UniqueBuffer<kDescriptor, Type> makeBuffer(
-//    Device* device,
-//    const BufferUsage usage_flag) noexcept;
-//
-////! Make a uniform buffer
-//template <typename Type>
-//UniqueBuffer<DescriptorType::kUniform, Type> makeUniformBuffer(
-//    Device* device,
-//    const BufferUsage usage_flag) noexcept;
-//
-////! Make a storage buffer
-//template <typename Type>
-//UniqueBuffer<DescriptorType::kStorage, Type> makeStorageBuffer(
-//    Device* device,
-//    const BufferUsage usage_flag) noexcept;
-//
 ////! Copy a src buffer to a dst buffer
 //template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type>
 //void copy(const Buffer<kDescriptor1, Type>& src,
@@ -66,9 +50,6 @@ class DeviceOptions;
 //          const std::size_t src_offset,
 //          const std::size_t dst_offset,
 //          const uint32b queue_index) noexcept;
-
-//! Make a device
-UniqueDevice makeDevice(DeviceOptions& options);
 
 //template <std::size_t kDimension, typename ...ArgumentTypes>
 //using UniqueKernelWithoutLocal = zisc::UniqueMemoryPointer<

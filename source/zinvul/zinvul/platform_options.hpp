@@ -31,7 +31,7 @@ namespace zinvul {
 
   No detailed description.
   */
-class PlatformOptions : public zisc::NonCopyable<PlatformOptions>
+class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
 {
  public:
   //! Create a platform options

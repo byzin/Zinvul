@@ -31,7 +31,7 @@ namespace zinvul {
 
   No detailed description.
   */
-class DeviceOptions : public zisc::NonCopyable<DeviceOptions>
+class DeviceOptions : private zisc::NonCopyable<DeviceOptions>
 {
  public:
   //! Create a device options

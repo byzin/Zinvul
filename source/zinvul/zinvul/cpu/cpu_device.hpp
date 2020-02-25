@@ -23,7 +23,7 @@
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/thread_manager.hpp"
 // Zinvul
-//#include "zinvul/buffer.hpp"
+#include "zinvul/buffer.hpp"
 #include "zinvul/device.hpp"
 //#include "zinvul/kernel.hpp"
 #include "zinvul/zinvul_config.hpp"
@@ -34,7 +34,6 @@ namespace zinvul {
 class DeviceInfo;
 class CpuDeviceInfo;
 class CpuSubPlatform;
-//template <DescriptorType, typename> class CpuBuffer;
 
 /*!
   \brief No brief description
@@ -77,10 +76,9 @@ class CpuDevice : public Device
   //! Return the underlying device info
   const DeviceInfo& deviceInfo() const noexcept override;
 
-//  //! Make a buffer
-//  template <DescriptorType kDescriptor, typename Type>
-//  UniqueBuffer<kDescriptor, Type> makeBuffer(
-//      const BufferUsage usage_flag) noexcept;
+  //! Make a buffer
+  template <DescriptorType kDescType, typename Type>
+  UniqueBuffer<kDescType, Type> makeBuffer(const BufferUsage flag) noexcept;
 
 //  //! Make a kernel
 //  template <std::size_t kDimension, typename Function, typename ...BufferArgs>

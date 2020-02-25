@@ -83,5 +83,3 @@ addExample(VulkanSubPlatformExample OFF
            ${PROJECT_SOURCE_DIR}/vulkan_sub_platform_example.cpp)
 addExample(DeviceExample OFF
            ${PROJECT_SOURCE_DIR}/device_example.cpp)
-addExample(VulkanDeviceInfoExample OFF
-           ${PROJECT_SOURCE_DIR}/vulkan_device_info_example.cpp)

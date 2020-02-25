@@ -29,9 +29,7 @@
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
-#include "zinvul/platform.hpp"
-#include "zinvul/platform_options.hpp"
-#include "zinvul/zinvul_config.hpp"
+#include "zinvul/zinvul.hpp"
 #if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
 #include "zinvul/vulkan/vulkan_device_info.hpp"
 #include "zinvul/vulkan/vulkan_sub_platform.hpp"

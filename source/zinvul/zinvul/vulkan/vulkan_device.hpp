@@ -26,6 +26,7 @@
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "zinvul/buffer.hpp"
 #include "zinvul/device.hpp"
 #include "zinvul/zinvul_config.hpp"
 
@@ -35,7 +36,6 @@ namespace zinvul {
 class DeviceInfo;
 class VulkanDeviceInfo;
 class VulkanSubPlatform;
-//template <DescriptorType, typename> class VulkanBuffer;
 
 /*!
   \brief No brief description
@@ -105,11 +105,10 @@ class VulkanDevice : public Device
 //  template <std::size_t kDimension>
 //  const std::array<uint32b, 3>& localWorkSize() const noexcept;
 
-//  //! Make a buffer
-//  template <DescriptorType kDescriptor, typename Type>
-//  UniqueBuffer<kDescriptor, Type> makeBuffer(
-//      const BufferUsage usage_flag) noexcept;
-//
+  //! Make a buffer
+  template <DescriptorType kDescriptor, typename Type>
+  UniqueBuffer<kDescriptor, Type> makeBuffer(const BufferUsage flag);
+
 //  //! Make a kernel
 //  template <std::size_t kDimension, typename Function, typename ...ArgumentTypes>
 //  UniqueKernel<kDimension, ArgumentTypes...> makeKernel(

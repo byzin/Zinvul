@@ -31,7 +31,7 @@ namespace zinvul {
 
   No detailed description.
   */
-class DeviceInfo : public zisc::NonCopyable<DeviceInfo>
+class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
 {
  public:
   //! Initialize the device info

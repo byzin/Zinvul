@@ -40,7 +40,7 @@ class PlatformOptions;
 
   No detailed description.
   */
-class Platform : public zisc::NonCopyable<Platform>
+class Platform : private zisc::NonCopyable<Platform>
 {
  public:
   //! Create an empty platform
