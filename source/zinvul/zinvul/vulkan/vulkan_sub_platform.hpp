@@ -54,6 +54,9 @@ class VulkanSubPlatform : public SubPlatform
   ~VulkanSubPlatform() noexcept override;
 
 
+  //! Return the used Vulkan API version
+  static constexpr uint32b apiVersion() noexcept;
+
   //! Return the device list
   const zisc::pmr::vector<VkPhysicalDevice>& deviceList() const noexcept;
 
@@ -62,6 +65,9 @@ class VulkanSubPlatform : public SubPlatform
 
   //! Return the dispatcher of vulkan objects
   const VulkanDispatchLoader& dispatcher() const noexcept;
+
+  //! Return the engine name
+  std::string_view engineName() const noexcept;
 
   //! Add the underlying device info into the given list
   void getDeviceInfoList(zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept override;
@@ -186,11 +192,11 @@ class VulkanSubPlatform : public SubPlatform
   };
 
   //! Make an application info
-  static VkApplicationInfo makeApplicationInfo(
+  VkApplicationInfo makeApplicationInfo(
       const std::string_view app_name,
       const uint32b app_version_major,
       const uint32b app_version_minor,
-      const uint32b app_version_patch) noexcept;
+      const uint32b app_version_patch) const noexcept;
 
   //! Make a vulkan instance
   void initInstance(PlatformOptions& platform_options);
@@ -210,6 +216,7 @@ class VulkanSubPlatform : public SubPlatform
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkPhysicalDevice>> device_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VulkanDeviceInfo>> device_info_list_;
+  char engine_name_[32] = "Zinvul";
 };
 
 } // namespace zinvul

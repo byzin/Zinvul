@@ -20,6 +20,8 @@
 #include <limits>
 // Vulkan
 #include <vulkan/vulkan.h>
+// VMA
+#include <vk_mem_alloc.h>
 // Zinvul
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
@@ -69,6 +71,28 @@ constexpr uint32b VulkanDevice::invalidQueueIndex() noexcept
 {
   const uint32b index = std::numeric_limits<uint32b>::max();
   return index;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+VmaAllocator& VulkanDevice::memoryAllocator() noexcept
+{
+  return vm_allocator_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
+{
+  return vm_allocator_;
 }
 
 /*!

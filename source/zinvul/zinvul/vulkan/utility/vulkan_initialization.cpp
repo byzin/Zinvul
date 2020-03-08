@@ -12,10 +12,21 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-// Vulkan
-#if defined(ZINVUL_ENABLE_VMA_IMPLEMENTATION_BUILDING)
-#define VMA_IMPLEMENTATION
-#endif // ZINVUL_ENABLE_VMA_IMPLEMENTATION_BUILDING
+// VMA
+#if defined(ZINVUL_ENABLE_VMA_IMPLEMENTATION)
+#define VMA_STATIC_VULKAN_FUNCTIONS 0
+#define VMA_IMPLEMENTATION 1
+
+// VMA Debug
+#if defined(Z_DEBUG_MODE)
+#define VMA_DEBUG_INITIALIZE_ALLOCATIONS 1
+#define VMA_DEBUG_MARGIN 32
+#define VMA_DEBUG_DETECT_CORRUPTION 1
+#else
+static_assert(false);
+#endif // Z_DEBUG_MODE
+
+#endif // ZINVUL_ENABLE_VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"

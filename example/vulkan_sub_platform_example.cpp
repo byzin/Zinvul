@@ -118,12 +118,19 @@ int main(int /* argc */, char** /* argv */)
     for (std::size_t i = 0; i < info_list.size(); ++i) {
       const zinvul::VulkanDeviceInfo& info = info_list[i];
       std::cout << std::endl;
-      std::cout << indent1 << "## VulkanDevice[" << i << "]: "
-                << info.properties().properties1_.deviceName
-                << std::endl;
+      {
+        const auto& props = info.properties().properties1_;
+        std::cout << indent1 << "## VulkanDevice[" << i << "]: "
+                  << props.deviceName << std::endl;
+        std::cout << indent2 << "API version: "
+                  << ::toVersionString(props.apiVersion) << std::endl;
+        std::cout << indent2 << "Driver version: "
+                  << ::toVersionString(props.driverVersion) << std::endl;
+      }
+
       // Extension properties
       {
-        std::cout << indent3 << "Extensions" << std::endl;
+        std::cout << indent2 << "Extensions" << std::endl;
         std::vector<VkExtensionProperties> props;
         {
           const auto& props2 = info.extensionPropertiesList();
@@ -138,17 +145,17 @@ int main(int /* argc */, char** /* argv */)
         };
         std::sort(props.begin(), props.end(), cmp);
         for (const auto& ext : props) {
-          std::cout << indent4 << ext.extensionName << ": "
+          std::cout << indent3 << ext.extensionName << ": "
                     << ::toVersionString(ext.specVersion) << std::endl;
         }
       }
       // Layer
       std::cout << std::endl;
       {
-        std::cout << indent3 << "Layeres" << std::endl;
+        std::cout << indent2 << "Layeres" << std::endl;
         const auto& props = info.layerPropertiesList();
         for (const auto& layer : props) {
-          std::cout << indent4 << layer.layerName << ": "
+          std::cout << indent3 << layer.layerName << ": "
                     << ::toVersionString(layer.specVersion)
                     << " (" << ::toVersionString(layer.implementationVersion)
                     << "): " << layer.description 
@@ -158,14 +165,14 @@ int main(int /* argc */, char** /* argv */)
       // Queue family
       std::cout << std::endl;
       {
-        std::cout << indent3 << "Queue families" << std::endl;
+        std::cout << indent2 << "Queue families" << std::endl;
         const auto& props = info.queueFamilyPropertiesList();
         for (std::size_t index = 0; index < props.size(); ++index) {
           const auto& prop = props[index];
-          std::cout << indent4 << "QueueFamily[" << index << "]: "
+          std::cout << indent3 << "QueueFamily[" << index << "]: "
                     << "counts: " << prop.properties1_.queueCount
                     << ", " << std::endl
-                    << indent5 << "capabilities: "
+                    << indent4 << "capabilities: "
                     << vk::to_string(zisc::cast<vk::QueueFlags>(prop.properties1_.queueFlags))
                     << std::endl;
         }
@@ -173,33 +180,33 @@ int main(int /* argc */, char** /* argv */)
       // Memory
       std::cout << std::endl;
       {
-        std::cout << indent3 << "MemoryHeap" << std::endl;
+        std::cout << indent2 << "MemoryHeap" << std::endl;
         const auto& props = info.memoryProperties();
         const auto& mem = props.properties1_;
         for (std::size_t index = 0; index < mem.memoryHeapCount; ++index) {
           const auto& heap = mem.memoryHeaps[index];
-          std::cout << indent4 << "Heap[" << index << "] attribute: "
+          std::cout << indent3 << "Heap[" << index << "] attribute: "
                     << vk::to_string(zisc::cast<vk::MemoryHeapFlags>(heap.flags))
                     << std::endl;
-          std::cout << indent5 << "total  : "
+          std::cout << indent4 << "total  : "
                     << ::toMegaBytes(heap.size) << " MB"
                     << std::endl
-                    << indent5 << "budget : "
+                    << indent4 << "budget : "
                     << ::toMegaBytes(props.budget_.heapBudget[index]) << " MB"
                     << std::endl
-                    << indent5 << "used   : "
+                    << indent4 << "used   : "
                     << ::toMegaBytes(props.budget_.heapUsage[index]) << " MB"
                     << std::endl;
         }
       }
       std::cout << std::endl;
       {
-        std::cout << indent3 << "Memory" << std::endl;
+        std::cout << indent2 << "Memory" << std::endl;
         const auto& props = info.memoryProperties();
         const auto& mem = props.properties1_;
         for (std::size_t index = 0; index < mem.memoryTypeCount; ++index) {
           const auto& memory = mem.memoryTypes[index];
-          std::cout << indent4 << "Memory[" << index << "] -> Heap["
+          std::cout << indent3 << "Memory[" << index << "] -> Heap["
                     << memory.heapIndex << "], properties: "
                     << vk::to_string(zisc::cast<vk::MemoryPropertyFlags>(memory.propertyFlags))
                     << std::endl;
@@ -207,9 +214,9 @@ int main(int /* argc */, char** /* argv */)
       }
       std::cout << std::endl;
       {
-        std::cout << indent3 << "ExternalMemory" << std::endl;
+        std::cout << indent2 << "ExternalMemory" << std::endl;
         const auto& props = info.properties();
-        std::cout << indent4 << "Min imported pointer alignment: "
+        std::cout << indent3 << "Min imported pointer alignment: "
                   << props.external_memory_host_.minImportedHostPointerAlignment
                   << " bytes" << std::endl;
       }

@@ -24,7 +24,7 @@ function(initZinvulOptions)
   setBooleanOption(ZINVUL_DYNAMIC_VULKAN_LOADING OFF ${option_description})
 
   set(option_description "Enable Zinvul to build VMA implementation.")
-  setBooleanOption(ZINVUL_ENABLE_VMA_IMPLEMENTATION_BUILDING ON ${option_description})
+  setBooleanOption(ZINVUL_ENABLE_VMA_IMPLEMENTATION ON ${option_description})
 
   set(option_description "Enable SPIR-V analysis.")
   setBooleanOption(ZINVUL_ENABLE_SPIRV_ANALYSIS ON ${option_description})
@@ -97,14 +97,8 @@ function(getZinvulFlags zinvul_compile_flags zinvul_linker_flags zinvul_definiti
       list(APPEND definitions ZINVUL_DYNAMIC_VULKAN_LOADING)
     endif()
     # Vulkan Memory Allocator
-    if(ZINVUL_ENABLE_VMA_IMPLEMENTATION_BUILDING)
-      list(APPEND definitions ZINVUL_ENABLE_VMA_IMPLEMENTATION_BUILDING)
-    endif()
-    # \todo Hide the VMA configurations
-    if(Z_DEBUG_MODE)
-      list(APPEND definitions VMA_DEBUG_INITIALIZE_ALLOCATIONS=1
-                              VMA_DEBUG_MARGIN=32
-                              VMA_DEBUG_DETECT_CORRUPTION=1)
+    if(ZINVUL_ENABLE_VMA_IMPLEMENTATION)
+      list(APPEND definitions ZINVUL_ENABLE_VMA_IMPLEMENTATION)
     endif()
   endif()
   if(ZINVUL_ENABLE_UNIFORM_BUFFER)

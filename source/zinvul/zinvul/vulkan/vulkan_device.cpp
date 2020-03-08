@@ -23,6 +23,10 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+// Vulkan
+#include <vulkan/vulkan.h>
+// VMA
+#include <vk_mem_alloc.h>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/std_memory_resource.hpp"
@@ -263,16 +267,17 @@ void VulkanDevice::destroyData() noexcept
   auto& sub_platform = subPlatform();
   queue_family_index_ = invalidQueueIndex();
 
+  if (vm_allocator_) {
+    vmaDestroyAllocator(vm_allocator_);
+    vm_allocator_ = VK_NULL_HANDLE;
+  }
+
 //  if (device_) {
 //    for (auto& module : shader_module_list_) {
 //      if (module) {
 //        device_.destroyShaderModule(module);
 //        module = nullptr;
 //      }
-//    }
-//    if (allocator_)  {
-//      vmaDestroyAllocator(allocator_);
-//      allocator_ = VK_NULL_HANDLE;
 //    }
 //    for (std::size_t i = 0; i < command_pool_list_.size(); ++i) {
 //      auto command_pool = command_pool_list_[i];
@@ -449,6 +454,44 @@ void VulkanDevice::destroyData() noexcept
 /*!
   \details No detailed description
 
+  \param [in] vm_allocator No description.
+  \param [in] memory_type No description.
+  \param [in] memory No description.
+  \param [in] size No description.
+  */
+void VulkanDevice::Callbacks::notifyOfDeviceMemoryAllocation(
+    VmaAllocator /* vm_allocator */,
+    uint32b memory_type,
+    VkDeviceMemory /* memory */,
+    VkDeviceSize size)
+{
+  printf("DeviceMemoryAllocation: memory type [%u], size: %lu bytes\n",
+      memory_type,
+      size);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] vm_allocator No description.
+  \param [in] memory_type No description.
+  \param [in] memory No description.
+  \param [in] size No description.
+  */
+void VulkanDevice::Callbacks::notifyOfDeviceMemoryFreeing(
+    VmaAllocator /* vm_allocator */,
+    uint32b memory_type,
+    VkDeviceMemory /* memory */,
+    VkDeviceSize size)
+{
+  printf("DeviceMemoryFreeing: memory type [%u], size: %lu bytes\n",
+      memory_type,
+      size);
+}
+
+/*!
+  \details No detailed description
+
   \return No description
   */
 uint32b VulkanDevice::findQueueFamily() const noexcept
@@ -497,6 +540,35 @@ uint32b VulkanDevice::findQueueFamily() const noexcept
 
   index = (index != invalidQueueIndex()) ? index : index2;
   return index;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() noexcept
+{
+  const auto loader = dispatcher().loaderImpl();
+  VmaVulkanFunctions functions;
+  functions.vkGetPhysicalDeviceProperties = loader->vkGetPhysicalDeviceProperties;
+  functions.vkGetPhysicalDeviceMemoryProperties = loader->vkGetPhysicalDeviceMemoryProperties;
+  functions.vkAllocateMemory = loader->vkAllocateMemory;
+  functions.vkFreeMemory = loader->vkFreeMemory;
+  functions.vkMapMemory = loader->vkMapMemory;
+  functions.vkUnmapMemory = loader->vkUnmapMemory;
+  functions.vkFlushMappedMemoryRanges = loader->vkFlushMappedMemoryRanges;
+  functions.vkInvalidateMappedMemoryRanges = loader->vkInvalidateMappedMemoryRanges;
+  functions.vkBindBufferMemory = loader->vkBindBufferMemory;
+  functions.vkBindImageMemory = loader->vkBindImageMemory;
+  functions.vkGetBufferMemoryRequirements = loader->vkGetBufferMemoryRequirements;
+  functions.vkGetImageMemoryRequirements = loader->vkGetImageMemoryRequirements;
+  functions.vkCreateBuffer = loader->vkCreateBuffer;
+  functions.vkDestroyBuffer = loader->vkDestroyBuffer;
+  functions.vkCreateImage = loader->vkCreateImage;
+  functions.vkDestroyImage = loader->vkDestroyImage;
+  functions.vkCmdCopyBuffer = loader->vkCmdCopyBuffer;
+  return functions;
 }
 
 ///*!
@@ -623,28 +695,6 @@ void VulkanDevice::initDispatcher()
       sub_platform.dispatcher());
 }
 
-///*!
-//  */
-//inline
-//void VulkanDevice::initMemoryAllocator() noexcept
-//{
-//  VmaAllocatorCreateInfo allocator_create_info{};
-//  allocator_create_info.flags = 0;
-//  allocator_create_info.physicalDevice = physical_device_;
-//  allocator_create_info.device = device_;
-//  allocator_create_info.preferredLargeHeapBlockSize = 0;
-//  allocator_create_info.pAllocationCallbacks = nullptr;
-//  allocator_create_info.pDeviceMemoryCallbacks = nullptr;
-//  allocator_create_info.frameInUseCount = 0;
-//  allocator_create_info.pHeapSizeLimit = nullptr;
-//  allocator_create_info.pVulkanFunctions = nullptr;
-//  allocator_create_info.pRecordSettings = nullptr;
-//
-//  auto result = vmaCreateAllocator(&allocator_create_info, &allocator_);
-//  ZISC_ASSERT(result == VK_SUCCESS, "Memory allocator creation failed.");
-//  (void)result;
-//}
-
 /*!
   \details No detailed description
   */
@@ -654,8 +704,8 @@ void VulkanDevice::initialize()
   initLocalWorkGroupSize();
   initQueueFamilyIndexList();
   initDevice();
+  initVMAllocator();
 //  initCommandPool();
-//  initMemoryAllocator();
 }
 
 /*!
@@ -688,6 +738,52 @@ void VulkanDevice::initQueueFamilyIndexList() noexcept
 {
   //! \todo Support queue family option
   queue_family_index_ = findQueueFamily();
+}
+
+/*!
+  \details No detailed description
+  */
+void VulkanDevice::initVMAllocator()
+{
+  auto& sub_platform = subPlatform();
+  const auto& info = vulkanDeviceInfo();
+
+  VkAllocationCallbacks alloc = sub_platform.makeAllocator();
+  VmaDeviceMemoryCallbacks notifier = makeAllocationNotifier();
+  VmaVulkanFunctions functions = getVmaVulkanFunctions();
+
+  VmaAllocatorCreateInfo create_info;
+  create_info.flags = VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
+  create_info.physicalDevice = info.device();
+  create_info.device = device();
+  create_info.preferredLargeHeapBlockSize = 0;
+  create_info.pAllocationCallbacks = std::addressof(alloc);
+  create_info.pDeviceMemoryCallbacks = std::addressof(notifier);
+  create_info.frameInUseCount = 0;
+  create_info.pHeapSizeLimit = nullptr;
+  create_info.pVulkanFunctions = std::addressof(functions);
+  create_info.pRecordSettings = nullptr;
+  create_info.instance = sub_platform.instance();
+  create_info.vulkanApiVersion = sub_platform.apiVersion();
+  auto result = vmaCreateAllocator(std::addressof(create_info),
+                                   std::addressof(vm_allocator_));
+  if (result != VK_SUCCESS) {
+    //! \todo Handling exceptions
+    printf("[Warning]: Vma creation failed.\n");
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+VmaDeviceMemoryCallbacks VulkanDevice::makeAllocationNotifier() noexcept
+{
+  VmaDeviceMemoryCallbacks notifier;
+  notifier.pfnAllocate = Callbacks::notifyOfDeviceMemoryAllocation;
+  notifier.pfnFree = Callbacks::notifyOfDeviceMemoryFreeing;
+  return notifier;
 }
 
 } // namespace zinvul

@@ -17,6 +17,7 @@
 
 #include "vulkan_sub_platform.hpp"
 // Standard C++ library
+#include <string_view>
 #include <vector>
 // Vulkan
 #include <vulkan/vulkan.h>
@@ -28,6 +29,17 @@
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr uint32b VulkanSubPlatform::apiVersion() noexcept
+{
+  return VK_API_VERSION_1_2;
+}
 
 /*!
   \details No detailed description
@@ -60,6 +72,18 @@ inline
 const VulkanDispatchLoader& VulkanSubPlatform::dispatcher() const noexcept
 {
   return *dispatcher_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+std::string_view VulkanSubPlatform::engineName() const noexcept
+{
+  std::string_view engine_name{engine_name_};
+  return engine_name;
 }
 
 /*!

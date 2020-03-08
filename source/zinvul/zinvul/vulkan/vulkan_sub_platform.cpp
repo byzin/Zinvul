@@ -450,16 +450,16 @@ VkApplicationInfo VulkanSubPlatform::makeApplicationInfo(
     const std::string_view app_name,
     const uint32b app_version_major,
     const uint32b app_version_minor,
-    const uint32b app_version_patch) noexcept
+    const uint32b app_version_patch) const noexcept
 {
   const uint32b app_version = VK_MAKE_VERSION(app_version_major,
                                               app_version_minor,
                                               app_version_patch);
-  const std::string_view engine_name{"Zinvul"};
+  std::string_view engine_name = engineName();
   constexpr uint32b engine_version = VK_MAKE_VERSION(Config::versionMajor(),
                                                      Config::versionMinor(),
                                                      Config::versionPatch());
-  constexpr uint32b api_version = VK_API_VERSION_1_2;
+  constexpr uint32b api_version = apiVersion();
   const zinvulvk::ApplicationInfo data{app_name.data(),
                                        app_version,
                                        engine_name.data(),
@@ -518,7 +518,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
       platform_options.platformVersionMinor(),
       platform_options.platformVersionPatch())};
   zinvulvk::InstanceCreateInfo createInfo{zinvulvk::InstanceCreateFlags{},
-                                          &app_info,
+                                          std::addressof(app_info),
                                           zisc::cast<uint32b>(layers.size()),
                                           layers.data(),
                                           zisc::cast<uint32b>(extensions.size()),

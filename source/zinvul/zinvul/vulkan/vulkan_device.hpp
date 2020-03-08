@@ -22,6 +22,8 @@
 #include <vector>
 // Vulkan
 #include <vulkan/vulkan.h>
+// VMA
+#include <vk_mem_alloc.h>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
@@ -115,11 +117,11 @@ class VulkanDevice : public Device
 //      const uint32b module_index,
 //      const std::string_view kernel_name) noexcept;
 
-//  //! Return the memory allocator of the device
-//  VmaAllocator& memoryAllocator() noexcept;
-//
-//  //! Return the memory allocator of the device
-//  const VmaAllocator& memoryAllocator() const noexcept;
+  //! Return the memory allocator of the device
+  VmaAllocator& memoryAllocator() noexcept;
+
+  //! Return the memory allocator of the device
+  const VmaAllocator& memoryAllocator() const noexcept;
 
   //! Return the number of underlying command queues
   std::size_t numOfQueues() const noexcept override;
@@ -160,8 +162,35 @@ class VulkanDevice : public Device
   void destroyData() noexcept override;
 
  private:
+  /*!
+    \brief No brief description
+
+    No detailed description.
+    */
+  class Callbacks
+  {
+   public:
+    //! Notify of a memory allocation in VMA
+    static void notifyOfDeviceMemoryAllocation(
+        VmaAllocator vm_allocator,
+        uint32b memory_type,
+        VkDeviceMemory memory,
+        VkDeviceSize size);
+
+    //! Notify of a memory freeing in VMA
+    static void notifyOfDeviceMemoryFreeing(
+        VmaAllocator vm_allocator,
+        uint32b memory_type,
+        VkDeviceMemory memory,
+        VkDeviceSize size);
+  };
+
+
   //! Find the index of the optimal queue familty
   uint32b findQueueFamily() const noexcept;
+
+  //! Get Vulkan function pointers used in VMA
+  VmaVulkanFunctions getVmaVulkanFunctions() noexcept;
 
 //  //! Return a queue
 //  vk::Queue getQueue(const QueueType queue_type,
@@ -182,11 +211,14 @@ class VulkanDevice : public Device
   //! Initialize work group size of dimensions
   void initLocalWorkGroupSize() noexcept;
 
-//  //! Initialize a memory allocator
-//  void initMemoryAllocator() noexcept;
-
   //! Initialize a queue family index list
   void initQueueFamilyIndexList() noexcept;
+
+  //! Initialize a vulkan memory allocator
+  void initVMAllocator();
+
+  //! Make a device memory allocation notifier
+  VmaDeviceMemoryCallbacks makeAllocationNotifier() noexcept;
 
   //! Return the sub-platform
   VulkanSubPlatform& subPlatform() noexcept;
@@ -201,10 +233,10 @@ class VulkanDevice : public Device
   VulkanSubPlatform* sub_platform_ = nullptr;
   const VulkanDeviceInfo* device_info_ = nullptr;
   VkDevice device_ = VK_NULL_HANDLE;
+  VmaAllocator vm_allocator_ = VK_NULL_HANDLE;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
 //  zisc::pmr::vector<vk::ShaderModule> shader_module_list_;
 //  zisc::pmr::vector<vk::CommandPool> command_pool_list_;
-//  VmaAllocator allocator_ = VK_NULL_HANDLE;
   uint32b queue_family_index_ = invalidQueueIndex();
   std::array<std::array<uint32b, 3>, 3> work_group_size_list_;
 };
