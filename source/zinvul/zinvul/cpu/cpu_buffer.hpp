@@ -16,14 +16,19 @@
 #define ZINVUL_CPU_BUFFER_HPP
 
 // Standard C++ library
+#include <cstddef>
 #include <memory>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "zinvul/buffer.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/utility/id_data.hpp"
 
 namespace zinvul {
+
+// Forward declaration
+class CpuDevice;
 
 /*!
   \brief No brief description
@@ -45,7 +50,9 @@ class CpuBuffer : public Buffer<kDescType, T>
 
 
   //! Initialize the buffer
-  CpuBuffer() noexcept;
+  CpuBuffer(const BufferUsage buffer_usage,
+            CpuDevice* device,
+            IdData&& id_data) noexcept;
 
   //! Move a data
   CpuBuffer(CpuBuffer&& other) noexcept;
@@ -55,13 +62,27 @@ class CpuBuffer : public Buffer<kDescType, T>
 
 
   //! Move a data
-  CpuBuffer& operator=(CpuBuffer& other) noexcept;
+  CpuBuffer& operator=(CpuBuffer&& other) noexcept;
 
+
+  //! Release the ownership of the buffer
+  void release() noexcept;
+
+  //! Change the number of elements
+  void setSize(const std::size_t s) override;
+
+  //! Return the number of elements
+  std::size_t size() const noexcept override;
 
   //! Return the sub-platform type
   SubPlatformType type() const noexcept override;
 
+ protected:
+  //! Clear the contents of the buffer
+  void clearData() noexcept override;
+
  private:
+  CpuDevice* device_ = nullptr;
 };
 
 } // namespace zinvul

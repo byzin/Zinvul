@@ -42,6 +42,10 @@
 
 namespace zinvul {
 
+void* getUserData(VmaAllocator alloc) noexcept;
+
+void setUserData(VmaAllocator alloc, void* data) noexcept;
+
 /*!
   \details No detailed description
 
@@ -52,7 +56,8 @@ VulkanDevice::VulkanDevice(VulkanSubPlatform* sub_platform,
                            const VulkanDeviceInfo* device_info) :
     Device(sub_platform->memoryResource()),
     sub_platform_{sub_platform},
-    device_info_{device_info}
+    device_info_{device_info},
+    heap_usage_list_{decltype(heap_usage_list_)::allocator_type{memoryResource()}}
 {
   initialize();
 }
@@ -65,77 +70,81 @@ VulkanDevice::~VulkanDevice() noexcept
   destroy();
 }
 
-///*!
-//  */
-//template <DescriptorType kDescriptor, typename Type> inline
-//void VulkanDevice::allocate(const std::size_t size,
-//                            VulkanBuffer<kDescriptor, Type>* buffer) noexcept
-//{
-//  ZISC_ASSERT(buffer != nullptr, "The buffer is null.");
-//  auto& b = buffer->buffer();
-//  auto& memory = buffer->memory();
-//  auto& alloc_info = buffer->allocationInfo();
-//
-//  vk::BufferCreateInfo buffer_create_info;
-//  buffer_create_info.size = sizeof(Type) * size;
-//  buffer_create_info.usage = vk::BufferUsageFlagBits::eTransferSrc |
-//                             vk::BufferUsageFlagBits::eTransferDst;
-//  constexpr bool is_uniform_buffer = Config::isUniformBufferEnabled() &&
-//                                     (kDescriptor == DescriptorType::kUniform);
-//  buffer_create_info.usage = buffer_create_info.usage | (is_uniform_buffer
-//      ? vk::BufferUsageFlagBits::eUniformBuffer
-//      : vk::BufferUsageFlagBits::eStorageBuffer);
-//  buffer_create_info.queueFamilyIndexCount =
-//      zisc::cast<uint32b>(queue_family_index_list_.size());
-//  buffer_create_info.pQueueFamilyIndices = queue_family_index_list_.data();
-//
-//  VmaAllocationCreateInfo alloc_create_info;
-//  switch (buffer->usage()) {
-//   case BufferUsage::kHostOnly: {
-//    alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_ONLY;
-//    break;
-//   }
-//   case BufferUsage::kHostToDevice: {
-//    alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-//    break;
-//   }
-//   case BufferUsage::kDeviceToHost: {
-//    alloc_create_info.usage = VMA_MEMORY_USAGE_GPU_TO_CPU;
-//    break;
-//   }
-//   case BufferUsage::kDeviceOnly:
-//   default: {
-//    alloc_create_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-//    break;
-//   }
-//  }
-//  alloc_create_info.flags = 0;
-//  alloc_create_info.requiredFlags = 0;
-//  alloc_create_info.preferredFlags = 0;
-//  alloc_create_info.memoryTypeBits = 0;
-//  alloc_create_info.pool = VK_NULL_HANDLE;
-//  alloc_create_info.pUserData = nullptr;
-//
-//  const auto result = vmaCreateBuffer(
-//      allocator_,
-//      &zisc::cast<const VkBufferCreateInfo&>(buffer_create_info),
-//      &alloc_create_info,
-//      reinterpret_cast<VkBuffer*>(&b),
-//      &memory,
-//      &alloc_info);
-//  ZISC_ASSERT(result == VK_SUCCESS, "Buffer creation failed.");
-//  (void)result;
-//
-//  if (buffer->isDeviceMemory()) {
-//    const std::size_t memory_usage = deviceMemoryUsage() + buffer->memoryUsage();
-//    setDeviceMemoryUsage(memory_usage);
-//  }
-//  else {
-//    const std::size_t memory_usage = hostMemoryUsage() + buffer->memoryUsage();
-//    setHostMemoryUsage(memory_usage);
-//  }
-//}
-//
+/*!
+  \details No detailed description
+
+  \param [in] size No description.
+  \param [in] desc_type No description.
+  \param [in] buffer_usage No description.
+  \param [in] user_data No description.
+  \param [out] buffer No description.
+  \param [out] vm_allocation No description.
+  \param [out] alloc_info No description.
+  */
+void VulkanDevice::allocateMemory(const std::size_t size,
+                                  const DescriptorType desc_type,
+                                  const BufferUsage buffer_usage,
+                                  void* user_data,
+                                  VkBuffer* buffer,
+                                  VmaAllocation* vm_allocation,
+                                  VmaAllocationInfo* alloc_info)
+{
+  // Buffer create info
+  zinvulvk::BufferCreateInfo buffer_create_info;
+  buffer_create_info.size = size;
+  buffer_create_info.usage = zinvulvk::BufferUsageFlagBits::eTransferSrc |
+                             zinvulvk::BufferUsageFlagBits::eTransferDst;
+  const bool is_uniform_buffer = desc_type == DescriptorType::kUniform;
+  buffer_create_info.usage = buffer_create_info.usage | (is_uniform_buffer
+      ? zinvulvk::BufferUsageFlagBits::eUniformBuffer
+      : zinvulvk::BufferUsageFlagBits::eStorageBuffer);
+  buffer_create_info.sharingMode = zinvulvk::SharingMode::eExclusive;
+  const uint32b queue_family_index = queueFamilyIndex();
+  buffer_create_info.queueFamilyIndexCount = 1;
+  buffer_create_info.pQueueFamilyIndices = std::addressof(queue_family_index);
+
+  // VMA allocation create info
+  VmaAllocationCreateInfo alloc_create_info;
+  alloc_create_info.flags = 0;
+  switch (buffer_usage) {
+   case BufferUsage::kDeviceOnly: {
+    alloc_create_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    break;
+   }
+   case BufferUsage::kHostOnly: {
+    alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+    break;
+   }
+   case BufferUsage::kHostToDevice: {
+    alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+    break;
+   }
+   case BufferUsage::kDeviceToHost: {
+    alloc_create_info.usage = VMA_MEMORY_USAGE_GPU_TO_CPU;
+    break;
+   }
+  }
+  alloc_create_info.requiredFlags = 0;
+  alloc_create_info.preferredFlags = 0;
+  alloc_create_info.memoryTypeBits = 0;
+  alloc_create_info.pool = VK_NULL_HANDLE;
+  alloc_create_info.pUserData = user_data;
+
+  // 
+  const auto binfo = zisc::cast<VkBufferCreateInfo>(buffer_create_info);
+  const auto result = vmaCreateBuffer(memoryAllocator(),
+                                      std::addressof(binfo),
+                                      std::addressof(alloc_create_info),
+                                      buffer,
+                                      vm_allocation,
+                                      alloc_info);
+  if (result != VK_SUCCESS) {
+    //! \todo Handle exception
+    printf("[Warning]: Device memory allocation failed.\n");
+  }
+  printf("MemoryAllocation!!\n");
+}
+
 ///*!
 //  */
 //template <std::size_t kDimension> inline
@@ -173,7 +182,16 @@ VulkanDevice::~VulkanDevice() noexcept
 //  const std::size_t ref_index = queue_family_index_ref_list_[list_index];
 //  return command_pool_list_[ref_index];
 //}
-//
+
+void VulkanDevice::deallocateMemory(VkBuffer* buffer,
+                                    VmaAllocation* vm_allocation,
+                                    VmaAllocationInfo* alloc_info) noexcept
+{
+  if (zinvulvk::Buffer{*buffer}) {
+    vmaDestroyBuffer(memoryAllocator(), *buffer, *vm_allocation);
+  }
+}
+
 ///*!
 //  */
 //template <DescriptorType kDescriptor, typename Type> inline
@@ -299,6 +317,7 @@ void VulkanDevice::destroyData() noexcept
   }
 
   dispatcher_.reset();
+  heap_usage_list_.clear();
   device_info_ = nullptr;
   sub_platform_ = nullptr;
 }
@@ -454,13 +473,37 @@ void VulkanDevice::destroyData() noexcept
 /*!
   \details No detailed description
 
+  \param [in] device No description.
+  \param [in] memory_type No description.
+  \param [out] index No description.
+  \return No description
+  */
+bool VulkanDevice::Callbacks::getHeapIndex(const VulkanDevice& device,
+                                           const uint32b memory_type,
+                                           std::size_t* index) noexcept
+{
+  const auto& info = device.vulkanDeviceInfo();
+  const auto& mem_props = info.memoryProperties().properties1_;
+  const std::size_t heap_index = mem_props.memoryTypes[memory_type].heapIndex;
+  const zinvulvk::MemoryHeap heap{mem_props.memoryHeaps[heap_index]};
+  bool is_device_heap = false;
+  if (heap.flags & zinvulvk::MemoryHeapFlagBits::eDeviceLocal) {
+    *index = info.getDeviceHeapIndex(heap_index);
+    is_device_heap = true;
+  }
+  return is_device_heap;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] vm_allocator No description.
   \param [in] memory_type No description.
   \param [in] memory No description.
   \param [in] size No description.
   */
 void VulkanDevice::Callbacks::notifyOfDeviceMemoryAllocation(
-    VmaAllocator /* vm_allocator */,
+    VmaAllocator vm_allocator,
     uint32b memory_type,
     VkDeviceMemory /* memory */,
     VkDeviceSize size)
@@ -468,6 +511,10 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryAllocation(
   printf("DeviceMemoryAllocation: memory type [%u], size: %lu bytes\n",
       memory_type,
       size);
+  auto device = zisc::cast<VulkanDevice*>(getUserData(vm_allocator));
+  std::size_t heap_index = 0;
+  if (getHeapIndex(*device, memory_type, &heap_index))
+    device->heap_usage_list_[heap_index].add(size);
 }
 
 /*!
@@ -479,7 +526,7 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryAllocation(
   \param [in] size No description.
   */
 void VulkanDevice::Callbacks::notifyOfDeviceMemoryFreeing(
-    VmaAllocator /* vm_allocator */,
+    VmaAllocator vm_allocator,
     uint32b memory_type,
     VkDeviceMemory /* memory */,
     VkDeviceSize size)
@@ -487,6 +534,10 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryFreeing(
   printf("DeviceMemoryFreeing: memory type [%u], size: %lu bytes\n",
       memory_type,
       size);
+  auto device = zisc::cast<VulkanDevice*>(getUserData(vm_allocator));
+  std::size_t heap_index = 0;
+  if (getHeapIndex(*device, memory_type, &heap_index))
+    device->heap_usage_list_[heap_index].release(size);
 }
 
 /*!
@@ -568,6 +619,11 @@ VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() noexcept
   functions.vkCreateImage = loader->vkCreateImage;
   functions.vkDestroyImage = loader->vkDestroyImage;
   functions.vkCmdCopyBuffer = loader->vkCmdCopyBuffer;
+  functions.vkGetBufferMemoryRequirements2KHR = loader->vkGetBufferMemoryRequirements2;
+  functions.vkGetImageMemoryRequirements2KHR = loader->vkGetImageMemoryRequirements2;
+  functions.vkBindBufferMemory2KHR = loader->vkBindBufferMemory2;
+  functions.vkBindImageMemory2KHR = loader->vkBindImageMemory2;
+  functions.vkGetPhysicalDeviceMemoryProperties2KHR = loader->vkGetPhysicalDeviceMemoryProperties2;
   return functions;
 }
 
@@ -700,11 +756,14 @@ void VulkanDevice::initDispatcher()
   */
 void VulkanDevice::initialize()
 {
+  const auto& info = vulkanDeviceInfo();
+  heap_usage_list_.resize(info.numOfHeaps());
+
   initDispatcher();
   initLocalWorkGroupSize();
   initQueueFamilyIndexList();
   initDevice();
-  initVMAllocator();
+  initMemoryAllocator();
 //  initCommandPool();
 }
 
@@ -743,7 +802,7 @@ void VulkanDevice::initQueueFamilyIndexList() noexcept
 /*!
   \details No detailed description
   */
-void VulkanDevice::initVMAllocator()
+void VulkanDevice::initMemoryAllocator()
 {
   auto& sub_platform = subPlatform();
   const auto& info = vulkanDeviceInfo();
@@ -764,13 +823,15 @@ void VulkanDevice::initVMAllocator()
   create_info.pVulkanFunctions = std::addressof(functions);
   create_info.pRecordSettings = nullptr;
   create_info.instance = sub_platform.instance();
-  create_info.vulkanApiVersion = sub_platform.apiVersion();
+//  create_info.vulkanApiVersion = sub_platform.apiVersion();
+  create_info.vulkanApiVersion = VK_API_VERSION_1_1;
   auto result = vmaCreateAllocator(std::addressof(create_info),
                                    std::addressof(vm_allocator_));
   if (result != VK_SUCCESS) {
     //! \todo Handling exceptions
     printf("[Warning]: Vma creation failed.\n");
   }
+  setUserData(vm_allocator_, this);
 }
 
 /*!

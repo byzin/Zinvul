@@ -16,14 +16,23 @@
 #define ZINVUL_VULKAN_BUFFER_HPP
 
 // Standard C++ library
+#include <cstddef>
 #include <memory>
+// Vulkan
+#include <vulkan/vulkan.h>
+// VMA
+#include "vk_mem_alloc.h"
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "zinvul/buffer.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/utility/id_data.hpp"
 
 namespace zinvul {
+
+// Forward declaration
+class VulkanDevice;
 
 template <DescriptorType kDescType, typename T>
 class VulkanBuffer : public Buffer<kDescType, T>
@@ -37,7 +46,9 @@ class VulkanBuffer : public Buffer<kDescType, T>
 
 
   //! Initialize the buffer
-  VulkanBuffer() noexcept;
+  VulkanBuffer(const BufferUsage buffer_usage,
+               VulkanDevice* device,
+               IdData&& id_data) noexcept;
 
   //! Move a data
   VulkanBuffer(VulkanBuffer&& other) noexcept;
@@ -50,10 +61,27 @@ class VulkanBuffer : public Buffer<kDescType, T>
   VulkanBuffer& operator=(VulkanBuffer&& other) noexcept;
 
 
+  //! Release the ownership of the buffer
+  void release() noexcept;
+
+  //! Change the number of elements
+  void setSize(const std::size_t s) override;
+
+  //! Return the number of elements
+  std::size_t size() const noexcept override;
+
   //! Return the sub-platform type
   SubPlatformType type() const noexcept override;
 
+ protected:
+  //! Clear the contents of the buffer
+  void clearData() noexcept override;
+
  private:
+  VulkanDevice* device_ = nullptr;
+  VkBuffer buffer_ = VK_NULL_HANDLE;
+  VmaAllocation vm_allocation_ = VK_NULL_HANDLE;
+  VmaAllocationInfo alloc_info_;
 };
 
 } // namespace zinvul

@@ -540,9 +540,8 @@ void VulkanDeviceInfo::findDeviceLocalHeaps() noexcept
   device_local_index_list_.clear();
   const auto& props = memoryProperties().properties1_;
   for (std::size_t i = 0; i < props.memoryHeapCount; ++i) {
-    const auto& heap = props.memoryHeaps[i];
-    const auto heap_flags = zisc::cast<zinvulvk::MemoryHeapFlags>(heap.flags);
-    if(heap_flags & zinvulvk::MemoryHeapFlagBits::eDeviceLocal)
+    const zinvulvk::MemoryHeap heap{props.memoryHeaps[i]};
+    if(heap.flags & zinvulvk::MemoryHeapFlagBits::eDeviceLocal)
       device_local_index_list_.emplace_back(i);
   }
 }

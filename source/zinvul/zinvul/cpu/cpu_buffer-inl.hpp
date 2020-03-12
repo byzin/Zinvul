@@ -17,14 +17,18 @@
 
 #include "cpu_buffer.hpp"
 // Standard C++ library
+#include <cstddef>
 #include <memory>
 #include <utility>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
+#include "zisc/utility.hpp"
 // Zinvul
 #include "cpu_device.hpp"
 #include "zinvul/buffer.hpp"
+#include "zinvul/sub_platform.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/utility/id_data.hpp"
 
 namespace zinvul {
 
@@ -32,8 +36,25 @@ namespace zinvul {
   \details No detailed description
   */
 template <DescriptorType kDescType, typename T> inline
-CpuBuffer<kDescType, T>::CpuBuffer() noexcept : Buffer<kDescType, T>()
+CpuBuffer<kDescType, T>::CpuBuffer(const BufferUsage buffer_usage,
+                                   CpuDevice* device,
+                                   IdData&& id_data) noexcept :
+    Buffer<kDescType, T>(buffer_usage, std::move(id_data)),
+    device_{device}
 {
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] other No description.
+  */
+template <DescriptorType kDescType, typename T> inline
+CpuBuffer<kDescType, T>::CpuBuffer(CpuBuffer&& other) noexcept :
+    Buffer<kDescType, T>(std::move(other)),
+    device_{other.device_}
+{
+  other.release();
 }
 
 /*!
@@ -42,6 +63,45 @@ CpuBuffer<kDescType, T>::CpuBuffer() noexcept : Buffer<kDescType, T>()
 template <DescriptorType kDescType, typename T> inline
 CpuBuffer<kDescType, T>::~CpuBuffer() noexcept
 {
+  Buffer<kDescType, T>::clear();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] other No description.
+  \return No description
+  */
+template <DescriptorType kDescType, typename T> inline
+auto CpuBuffer<kDescType, T>::operator=(CpuBuffer&& other) noexcept
+    -> CpuBuffer&
+{
+  Buffer<kDescType, T>::clear();
+  Buffer<kDescType, T>::operator=(std::move(other));
+  device_ = other.device_;
+  other.release();
+  return *this;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] s No description.
+  */
+template <DescriptorType kDescType, typename T> inline
+void CpuBuffer<kDescType, T>::setSize(const std::size_t s)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <DescriptorType kDescType, typename T> inline
+std::size_t CpuBuffer<kDescType, T>::size() const noexcept
+{
+  return 0;
 }
 
 /*!
@@ -53,6 +113,14 @@ template <DescriptorType kDescType, typename T> inline
 SubPlatformType CpuBuffer<kDescType, T>::type() const noexcept
 {
   return SubPlatformType::kCpu;
+}
+
+/*!
+  \details No detailed description
+  */
+template <DescriptorType kDescType, typename T> inline
+void CpuBuffer<kDescType, T>::clearData() noexcept
+{
 }
 
 // Device
@@ -68,8 +136,12 @@ SubPlatformType CpuBuffer<kDescType, T>::type() const noexcept
 template <DescriptorType kDescType, typename T> inline
 UniqueBuffer<kDescType, T> CpuDevice::makeBuffer(const BufferUsage flag) noexcept
 {
+  auto sub_platform = zisc::treatAs<SubPlatform*>(std::addressof(subPlatform()));
   using BufferType = CpuBuffer<kDescType, T>;
-  auto buffer = zisc::pmr::allocateUnique<BufferType>(memoryResource());
+  auto buffer = zisc::pmr::allocateUnique<BufferType>(memoryResource(),
+                                                      flag,
+                                                      this,
+                                                      sub_platform->issueId());
   UniqueBuffer<kDescType, T> b = std::move(buffer);
   return b;
 }

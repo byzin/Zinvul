@@ -21,10 +21,13 @@
 #include <utility>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
+#include "zisc/utility.hpp"
 // Zinvul
 #include "vulkan_device.hpp"
 #include "zinvul/buffer.hpp"
+#include "zinvul/sub_platform.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/utility/id_data.hpp"
 
 namespace zinvul {
 
@@ -32,8 +35,25 @@ namespace zinvul {
   \details No detailed description
   */
 template <DescriptorType kDescType, typename T> inline
-VulkanBuffer<kDescType, T>::VulkanBuffer() noexcept : Buffer<kDescType, T>()
+VulkanBuffer<kDescType, T>::VulkanBuffer(const BufferUsage buffer_usage,
+                                         VulkanDevice* device,
+                                         IdData&& id_data) noexcept :
+    Buffer<kDescType, T>(buffer_usage, std::move(id_data)),
+    device_{device}
 {
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] other No description.
+  */
+template <DescriptorType kDescType, typename T> inline
+VulkanBuffer<kDescType, T>::VulkanBuffer(VulkanBuffer&& other) noexcept :
+    Buffer<kDescType, T>(std::move(other)),
+    device_{other.device_}
+{
+  other.release();
 }
 
 /*!
@@ -42,6 +62,55 @@ VulkanBuffer<kDescType, T>::VulkanBuffer() noexcept : Buffer<kDescType, T>()
 template <DescriptorType kDescType, typename T> inline
 VulkanBuffer<kDescType, T>::~VulkanBuffer() noexcept
 {
+  Buffer<kDescType, T>::clear();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] other No description.
+  \return No description
+  */
+template <DescriptorType kDescType, typename T> inline
+auto VulkanBuffer<kDescType, T>::operator=(VulkanBuffer&& other) noexcept
+    -> VulkanBuffer&
+{
+  Buffer<kDescType, T>::clear();
+  Buffer<kDescType, T>::operator=(std::move(other));
+  device_ = other.device_;
+  other.release();
+  return *this;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] s No description.
+  */
+template <DescriptorType kDescType, typename T> inline
+void VulkanBuffer<kDescType, T>::setSize(const std::size_t s)
+{
+  if ((0 < s) && (s != size())) {
+    Buffer<kDescType, T>::clear();
+    device_->allocateMemory(s,
+                            kDescType, 
+                            Buffer<kDescType, T>::usage(),
+                            std::addressof(Buffer<kDescType, T>::idData()),
+                            std::addressof(buffer_),
+                            std::addressof(vm_allocation_),
+                            std::addressof(alloc_info_));
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <DescriptorType kDescType, typename T> inline
+std::size_t VulkanBuffer<kDescType, T>::size() const noexcept
+{
+  return 0;
 }
 
 /*!
@@ -53,6 +122,19 @@ template <DescriptorType kDescType, typename T> inline
 SubPlatformType VulkanBuffer<kDescType, T>::type() const noexcept
 {
   return SubPlatformType::kVulkan;
+}
+
+/*!
+  \details No detailed description
+  */
+template <DescriptorType kDescType, typename T> inline
+void VulkanBuffer<kDescType, T>::clearData() noexcept
+{
+  device_->deallocateMemory(std::addressof(buffer_),
+                            std::addressof(vm_allocation_),
+                            std::addressof(alloc_info_));
+  buffer_ = VK_NULL_HANDLE;
+  vm_allocation_ = VK_NULL_HANDLE;
 }
 
 // Device
@@ -68,8 +150,12 @@ SubPlatformType VulkanBuffer<kDescType, T>::type() const noexcept
 template <DescriptorType kDescType, typename T> inline
 UniqueBuffer<kDescType, T> VulkanDevice::makeBuffer(const BufferUsage flag)
 {
+  auto sub_platform = zisc::treatAs<SubPlatform*>(std::addressof(subPlatform()));
   using BufferType = VulkanBuffer<kDescType, T>;
-  auto buffer = zisc::pmr::allocateUnique<BufferType>(memoryResource());
+  auto buffer = zisc::pmr::allocateUnique<BufferType>(memoryResource(),
+                                                      flag,
+                                                      this,
+                                                      sub_platform->issueId());
   UniqueBuffer<kDescType, T> b = std::move(buffer);
   return b;
 }

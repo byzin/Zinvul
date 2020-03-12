@@ -96,8 +96,16 @@ int main(int /* argc */, char** /* argv */)
     std::cout << indent2 << "Num of queues       : "
               << device->numOfQueues() << std::endl;
 
-    auto buffer1 = device->makeStorageBuffer<int>(zinvul::BufferUsage::kDeviceOnly);
-    auto buffer2 = device->makeUniformBuffer<int>(zinvul::BufferUsage::kDeviceOnly);
+    {
+      auto buffer1 = device->makeStorageBuffer<int>(zinvul::BufferUsage::kDeviceOnly);
+      buffer1->setSize(16);
+      auto buffer2 = device->makeStorageBuffer<int>(zinvul::BufferUsage::kDeviceOnly);
+      buffer2->setSize(16);
+      auto buffer3 = device->makeUniformBuffer<int>(zinvul::BufferUsage::kHostOnly);
+      buffer3->setSize(16);
+      auto buffer4 = device->makeUniformBuffer<int>(zinvul::BufferUsage::kHostOnly);
+      buffer4->setSize(16);
+    }
   }
 
   std::cout << std::endl;

@@ -37,6 +37,12 @@
 
 namespace {
 
+double toKiloBytes(const std::size_t bytes) noexcept
+{
+  const double kb = zisc::cast<double>(bytes) / 1024.0;
+  return kb;
+}
+
 double toMegaBytes(const std::size_t bytes) noexcept
 {
   const double mb = zisc::cast<double>(bytes) / (1024.0 * 1024.0);
@@ -127,7 +133,48 @@ int main(int /* argc */, char** /* argv */)
         std::cout << indent2 << "Driver version: "
                   << ::toVersionString(props.driverVersion) << std::endl;
       }
-
+      std::cout << std::endl;
+      {
+        std::cout << indent1 << "## Limits: " << std::endl;
+        const auto& limits = info.properties().properties1_.limits;
+        std::cout << indent2 << "Max uniform buffer range: "
+                  << ::toMegaBytes(limits.maxUniformBufferRange)
+                  << " MB" << std::endl;
+        std::cout << indent2 << "Max storage buffer range: "
+                  << ::toMegaBytes(limits.maxStorageBufferRange)
+                  << " MB" << std::endl;
+        std::cout << indent2 << "Max push constant size: "
+                  << ::toMegaBytes(limits.maxPushConstantsSize)
+                  << " MB" << std::endl;
+        std::cout << indent2 << "Max memory allocation count: "
+                  << limits.maxMemoryAllocationCount << std::endl;
+        std::cout << indent2 << "Max bound descriptor sets: "
+                  << limits.maxBoundDescriptorSets << std::endl;
+        std::cout << indent2 << "Max per stage descriptor uniform buffers: "
+                  << limits.maxPerStageDescriptorUniformBuffers << std::endl;
+        std::cout << indent2 << "Max per stage descriptor storage buffers: "
+                  << limits.maxPerStageDescriptorStorageBuffers << std::endl;
+        std::cout << indent2 << "Max descriptor set uniform buffers: "
+                  << limits.maxDescriptorSetUniformBuffers << std::endl;
+        std::cout << indent2 << "Max descriptor set storage buffers: "
+                  << limits.maxDescriptorSetStorageBuffers << std::endl;
+        std::cout << indent2 << "Max compute shader memory size: "
+                  << ::toKiloBytes(limits.maxComputeSharedMemorySize)
+                  << " KB" << std::endl;
+        std::cout << indent2 << "Max compute work group count: ["
+                  << limits.maxComputeWorkGroupCount[0] << ", "
+                  << limits.maxComputeWorkGroupCount[1] << ", "
+                  << limits.maxComputeWorkGroupCount[2] << "]" << std::endl;
+        std::cout << indent2 << "Max compute work group invocations: "
+                  << limits.maxComputeWorkGroupInvocations << std::endl;
+        std::cout << indent2 << "Max compute work group size: ["
+                  << limits.maxComputeWorkGroupSize[0] << ", "
+                  << limits.maxComputeWorkGroupSize[1] << ", "
+                  << limits.maxComputeWorkGroupSize[2] << "]" << std::endl;
+        std::cout << indent2 << "Min memory map alignment: "
+                  << limits.minMemoryMapAlignment << " bytes" << std::endl;
+      }
+      std::cout << std::endl;
       // Extension properties
       {
         std::cout << indent2 << "Extensions" << std::endl;

@@ -16,6 +16,7 @@
 #define ZINVUL_BUFFER_HPP
 
 // Standard C++ library
+#include <cstddef>
 #include <memory>
 #include <type_traits>
 // Zisc
@@ -23,6 +24,7 @@
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "zinvul_config.hpp"
+#include "utility/id_data.hpp"
 
 namespace zinvul {
 
@@ -46,7 +48,7 @@ class Buffer : private zisc::NonCopyable<Buffer<kDescType, T>>
 
 
   //! Initialize the buffer
-  Buffer() noexcept;
+  Buffer(const BufferUsage buffer_usage, IdData&& id_data) noexcept;
 
   //! Move a data
   Buffer(Buffer&& other) noexcept;
@@ -59,13 +61,37 @@ class Buffer : private zisc::NonCopyable<Buffer<kDescType, T>>
   Buffer& operator=(Buffer&& other) noexcept;
 
 
+  //! Clear the contents of the buffer
+  void clear() noexcept;
+
   //! Return the descriptor type
   static constexpr DescriptorType descriptorType() noexcept;
+
+  //! Return the underlying ID data
+  IdData& idData() noexcept;
+
+  //! Return the underlying ID data
+  const IdData& idData() const noexcept;
+
+  //! Change the number of elements
+  virtual void setSize(const std::size_t s) = 0;
+
+  //! Return the number of elements
+  virtual std::size_t size() const noexcept = 0;
+
+  //! Return the buffer usage flag
+  BufferUsage usage() const noexcept;
 
   //! Return the sub-platform type
   virtual SubPlatformType type() const noexcept = 0;
 
+ protected:
+  //! Clear the contents of the buffer
+  virtual void clearData() noexcept = 0;
+
  private:
+  BufferUsage buffer_usage_;
+  IdData id_data_;
 };
 
 // Type aliases

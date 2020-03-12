@@ -25,6 +25,7 @@
 // VMA
 #include <vk_mem_alloc.h>
 // Zisc
+#include "zisc/memory.hpp"
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "utility/vulkan_dispatch_loader.hpp"
@@ -62,6 +63,15 @@ class VulkanDevice : public Device
   VulkanDevice& operator=(VulkanDevice&& other) noexcept;
 
 
+  //! Allocate a device memory
+  void allocateMemory(const std::size_t size,
+                      const DescriptorType desc_type,
+                      const BufferUsage buffer_usage,
+                      void* user_data,
+                      VkBuffer* buffer,
+                      VmaAllocation* vm_allocation,
+                      VmaAllocationInfo* alloc_info);
+
 //  //! Allocate a memory of a buffer
 //  template <DescriptorType kDescriptor, typename Type>
 //  void allocate(const std::size_t size,
@@ -78,9 +88,10 @@ class VulkanDevice : public Device
 //  //! Return the command pool
 //  const vk::CommandPool& commandPool(const QueueType queue_type) const noexcept;
 
-//  //! Deallocate a memory of a buffer
-//  template <DescriptorType kDescriptor, typename Type>
-//  void deallocate(VulkanBuffer<kDescriptor, Type>* buffer) noexcept;
+  //! Deallocate a device memory
+  void deallocateMemory(VkBuffer* buffer,
+                        VmaAllocation* vm_allocation,
+                        VmaAllocationInfo* alloc_info) noexcept;
 
   //! Return the underlying vulkan device
   VkDevice& device() noexcept;
@@ -170,6 +181,11 @@ class VulkanDevice : public Device
   class Callbacks
   {
    public:
+    //! Return the index of memory heap
+    static bool getHeapIndex(const VulkanDevice& device,
+                             const uint32b memory_type,
+                             std::size_t* index) noexcept;
+
     //! Notify of a memory allocation in VMA
     static void notifyOfDeviceMemoryAllocation(
         VmaAllocator vm_allocator,
@@ -215,7 +231,7 @@ class VulkanDevice : public Device
   void initQueueFamilyIndexList() noexcept;
 
   //! Initialize a vulkan memory allocator
-  void initVMAllocator();
+  void initMemoryAllocator();
 
   //! Make a device memory allocation notifier
   VmaDeviceMemoryCallbacks makeAllocationNotifier() noexcept;
@@ -234,6 +250,7 @@ class VulkanDevice : public Device
   const VulkanDeviceInfo* device_info_ = nullptr;
   VkDevice device_ = VK_NULL_HANDLE;
   VmaAllocator vm_allocator_ = VK_NULL_HANDLE;
+  zisc::pmr::vector<zisc::Memory::Usage> heap_usage_list_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
 //  zisc::pmr::vector<vk::ShaderModule> shader_module_list_;
 //  zisc::pmr::vector<vk::CommandPool> command_pool_list_;
