@@ -619,11 +619,27 @@ VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() noexcept
   functions.vkCreateImage = loader->vkCreateImage;
   functions.vkDestroyImage = loader->vkDestroyImage;
   functions.vkCmdCopyBuffer = loader->vkCmdCopyBuffer;
-  functions.vkGetBufferMemoryRequirements2KHR = loader->vkGetBufferMemoryRequirements2;
-  functions.vkGetImageMemoryRequirements2KHR = loader->vkGetImageMemoryRequirements2;
-  functions.vkBindBufferMemory2KHR = loader->vkBindBufferMemory2;
-  functions.vkBindImageMemory2KHR = loader->vkBindImageMemory2;
-  functions.vkGetPhysicalDeviceMemoryProperties2KHR = loader->vkGetPhysicalDeviceMemoryProperties2;
+
+  if (loader->vkGetBufferMemoryRequirements2)
+    functions.vkGetBufferMemoryRequirements2KHR = loader->vkGetBufferMemoryRequirements2;
+  else
+    functions.vkGetBufferMemoryRequirements2KHR = loader->vkGetBufferMemoryRequirements2KHR;
+  if (loader->vkGetImageMemoryRequirements2)
+    functions.vkGetImageMemoryRequirements2KHR = loader->vkGetImageMemoryRequirements2;
+  else 
+    functions.vkGetImageMemoryRequirements2KHR = loader->vkGetImageMemoryRequirements2KHR;
+  if (loader->vkBindBufferMemory2)
+    functions.vkBindBufferMemory2KHR = loader->vkBindBufferMemory2;
+  else
+    functions.vkBindBufferMemory2KHR = loader->vkBindBufferMemory2KHR;
+  if (loader->vkBindImageMemory2)
+    functions.vkBindImageMemory2KHR = loader->vkBindImageMemory2;
+  else
+    functions.vkBindImageMemory2KHR = loader->vkBindImageMemory2KHR;
+  if (loader->vkGetPhysicalDeviceMemoryProperties2)
+    functions.vkGetPhysicalDeviceMemoryProperties2KHR = loader->vkGetPhysicalDeviceMemoryProperties2;
+  else
+    functions.vkGetPhysicalDeviceMemoryProperties2KHR = loader->vkGetPhysicalDeviceMemoryProperties2KHR;
   return functions;
 }
 
@@ -669,7 +685,11 @@ void VulkanDevice::initDevice()
   zisc::pmr::vector<const char*> layers{layer_alloc};
   zisc::pmr::vector<const char*> extensions{layer_alloc};
 
-  extensions = {VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME,
+  extensions = {//VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME,
+#if defined(Z_MAC)
+                VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+                VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
+#endif // Z_MAC
                 VK_EXT_MEMORY_BUDGET_EXTENSION_NAME};
   if (sub_platform.isDebugMode()) {
     layers.emplace_back("VK_LAYER_KHRONOS_validation");
@@ -823,8 +843,7 @@ void VulkanDevice::initMemoryAllocator()
   create_info.pVulkanFunctions = std::addressof(functions);
   create_info.pRecordSettings = nullptr;
   create_info.instance = sub_platform.instance();
-//  create_info.vulkanApiVersion = sub_platform.apiVersion();
-  create_info.vulkanApiVersion = VK_API_VERSION_1_1;
+  create_info.vulkanApiVersion = sub_platform.apiVersion();
   auto result = vmaCreateAllocator(std::addressof(create_info),
                                    std::addressof(vm_allocator_));
   if (result != VK_SUCCESS) {

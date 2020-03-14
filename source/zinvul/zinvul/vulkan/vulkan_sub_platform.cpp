@@ -127,8 +127,17 @@ void VulkanSubPlatform::updateDeviceInfoList() noexcept
   device_info_list_->clear();
   device_info_list_->reserve(numOfDevices());
   for (const auto& device : deviceList()) {
-    device_info_list_->emplace_back(memoryResource());
-    device_info_list_->back().fetch(device, dispatcher());
+    VulkanDeviceInfo info{memoryResource()};
+    info.fetch(device, dispatcher());
+    if ((info.vendorId() == VulkanDeviceInfo::VendorId::kUnknown) ||
+        (info.vendorId() == VulkanDeviceInfo::VendorId::kIntel)) {
+#if defined(Z_DEBUG_MODE)
+      std::cout << "[Info] Skip a vulkan device. vendor = '"
+                << info.vendorName() << "'" << std::endl;
+#endif // Z_DEBUG_MODE
+      continue;
+    }
+    device_info_list_->emplace_back(std::move(info));
   }
 }
 

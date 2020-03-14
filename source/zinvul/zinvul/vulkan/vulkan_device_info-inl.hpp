@@ -260,6 +260,17 @@ auto VulkanDeviceInfo::queueFamilyPropertiesList() noexcept
   \return No description
   */
 inline
+auto VulkanDeviceInfo::vendorId() const noexcept -> VendorId
+{
+  return vendor_id_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 auto VulkanDeviceInfo::queueFamilyPropertiesList() const noexcept
     -> const zisc::pmr::vector<QueueFamilyProperties>&
 {

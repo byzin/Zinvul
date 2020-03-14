@@ -51,7 +51,9 @@ VulkanDeviceInfo::VulkanDeviceInfo(zisc::pmr::memory_resource* mem_resource)
           decltype(tool_properties_list_)::allocator_type{mem_resource}},
         device_local_index_list_{
           decltype(device_local_index_list_)::allocator_type{mem_resource}},
-        vendor_name_{zisc::pmr::string::allocator_type{mem_resource}}
+        vendor_name_{zisc::pmr::string::allocator_type{mem_resource}},
+        vendor_id_{VendorId::kUnknown},
+        subgroup_size_{0}
 {
 }
 
@@ -68,6 +70,8 @@ VulkanDeviceInfo::VulkanDeviceInfo(VulkanDeviceInfo&& other) noexcept :
     tool_properties_list_{std::move(other.tool_properties_list_)},
     device_local_index_list_{std::move(other.device_local_index_list_)},
     vendor_name_{std::move(other.vendor_name_)},
+    vendor_id_{other.vendor_id_},
+    subgroup_size_{other.subgroup_size_},
     device_{other.device_},
     properties_{std::move(other.properties_)},
     features_{std::move(other.features_)},
@@ -90,6 +94,8 @@ VulkanDeviceInfo& VulkanDeviceInfo::operator=(VulkanDeviceInfo&& other) noexcept
   tool_properties_list_ = std::move(other.tool_properties_list_);
   device_local_index_list_ = std::move(other.device_local_index_list_);
   vendor_name_ = std::move(other.vendor_name_);
+  vendor_id_ = other.vendor_id_;
+  subgroup_size_ = other.subgroup_size_;
   device_ = other.device_;
   properties_ = std::move(other.properties_);
   features_ = std::move(other.features_);
@@ -135,7 +141,8 @@ void VulkanDeviceInfo::fetch(const VkPhysicalDevice& vdevice,
   fetchFeatures(dispatcher);
   fetchMemoryProperties(dispatcher);
   // Set device info
-  setVendorNameFromId(properties().properties1_.vendorID);
+  initVendorInfo();
+  initSubgroupSize();
   findDeviceLocalHeaps();
 }
 /*!
@@ -224,8 +231,7 @@ std::string_view VulkanDeviceInfo::vendorName() const noexcept
   */
 uint32b VulkanDeviceInfo::workGroupSize() const noexcept
 {
-  const Properties& props = properties();
-  return props.subgroup_.subgroupSize;
+  return subgroup_size_;
 }
 
 /*!
@@ -548,39 +554,63 @@ void VulkanDeviceInfo::findDeviceLocalHeaps() noexcept
 
 /*!
   \details No detailed description
+  */
+void VulkanDeviceInfo::initSubgroupSize() noexcept
+{
+  const Properties& props = properties();
+  uint32b subgroup_size = props.subgroup_.subgroupSize;
+  if (subgroup_size == 0) {
+    switch (props.properties1_.vendorID) {
+     default: {
+      subgroup_size = 32;
+     }
+    }
+  }
+  subgroup_size_ = subgroup_size;
+}
+
+/*!
+  \details No detailed description
 
   \param [in] vendor_id No description.
   */
-void VulkanDeviceInfo::setVendorNameFromId(const uint32b vendor_id) noexcept
+void VulkanDeviceInfo::initVendorInfo() noexcept
 {
   using namespace std::string_literals;
-  switch (vendor_id) {
+  switch (properties().properties1_.vendorID) {
    case zisc::cast<uint32b>(VendorId::kAmd): {
+    vendor_id_ = VendorId::kAmd;
     vendor_name_ = "AMD"s;
     break;
    }
    case zisc::cast<uint32b>(VendorId::kImgTec): {
+    vendor_id_ = VendorId::kImgTec;
     vendor_name_ = "ImgTec"s;
     break;
    }
    case zisc::cast<uint32b>(VendorId::kNvidia): {
+    vendor_id_ = VendorId::kNvidia;
     vendor_name_ = "NVIDIA"s;
     break;
    }
    case zisc::cast<uint32b>(VendorId::kArm): {
+    vendor_id_ = VendorId::kArm;
     vendor_name_ = "ARM"s;
     break;
    }
    case zisc::cast<uint32b>(VendorId::kQualcomm): {
+    vendor_id_ = VendorId::kQualcomm;
     vendor_name_ = "Qualcomm"s;
     break;
    }
    case zisc::cast<uint32b>(VendorId::kIntel): {
+    vendor_id_ = VendorId::kIntel;
     vendor_name_ = "INTEL"s;
     break;
    }
    default: {
-    vendor_name_ = "N/A"s;
+    vendor_id_ = VendorId::kUnknown;
+    vendor_name_ = "Unknown"s;
     break;
    }
   }

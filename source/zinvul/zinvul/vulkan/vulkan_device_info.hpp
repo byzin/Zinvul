@@ -46,6 +46,7 @@ class VulkanDeviceInfo : public DeviceInfo
   //! The Vendor IDs of vulkan device
   enum class VendorId : uint32b
   {
+    kUnknown = 0,
     kAmd = 0x1002, // AMD
     kImgTec = 0x1010, // ImgTec
     kNvidia = 0x10de, // NVIDIA
@@ -250,6 +251,9 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Return queue family properties list of the device
   const zisc::pmr::vector<QueueFamilyProperties>& queueFamilyPropertiesList() const noexcept;
 
+  //! Return the vendor ID
+  VendorId vendorId() const noexcept;
+
   //! Return the vendor name
   std::string_view vendorName() const noexcept override;
 
@@ -281,8 +285,11 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Find the indices of device load heaps
   void findDeviceLocalHeaps() noexcept;
 
-  //! Set the vendor name with the given vendor ID
-  void setVendorNameFromId(const uint32b vendor_id) noexcept;
+  //! Initialize the subgroup size of the device
+  void initSubgroupSize() noexcept;
+
+  //! Initialize the vendor info
+  void initVendorInfo() noexcept;
 
 
   zisc::pmr::vector<VkExtensionProperties> extension_properties_list_;
@@ -291,6 +298,8 @@ class VulkanDeviceInfo : public DeviceInfo
   zisc::pmr::vector<ToolProperties> tool_properties_list_;
   zisc::pmr::vector<std::size_t> device_local_index_list_;
   zisc::pmr::string vendor_name_;
+  VendorId vendor_id_;
+  uint32b subgroup_size_ = 0;
   VkPhysicalDevice device_;
   Properties properties_;
   Features features_;
