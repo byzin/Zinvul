@@ -12,6 +12,7 @@
   http://opensource.org/licenses/mit-license.php
   */
 
+#define NOMINMAX
 // Standard C++ library
 #include <algorithm>
 #include <iostream>
