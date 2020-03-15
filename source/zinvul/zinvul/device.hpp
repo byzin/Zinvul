@@ -59,16 +59,8 @@ class Device : private zisc::NonCopyable<Device>
   virtual const DeviceInfo& deviceInfo() const noexcept = 0;
 
   //! Make a buffer
-  template <DescriptorType kDescType, typename T>
-  UniqueBuffer<kDescType, T> makeBuffer(const BufferUsage flag);
-
-  //! Make a storage buffer
   template <typename T>
-  UniqueStorageBuffer<T> makeStorageBuffer(const BufferUsage flag);
-
-  //! Make a uniform buffer
-  template <typename T>
-  UniqueUniformBuffer<T> makeUniformBuffer(const BufferUsage flag);
+  UniqueBuffer<T> makeBuffer(const BufferUsage flag);
 
   //! Returna a memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;

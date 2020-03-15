@@ -28,9 +28,8 @@ namespace zinvul {
 /*!
   \details No detailed description
   */
-template <DescriptorType kDescType, typename T> inline
-Buffer<kDescType, T>::Buffer(const BufferUsage buffer_usage,
-                             IdData&& id_data) noexcept :
+template <typename T> inline
+Buffer<T>::Buffer(const BufferUsage buffer_usage, IdData&& id_data) noexcept :
     buffer_usage_{buffer_usage},
     id_data_{std::move(id_data)}
 {
@@ -41,8 +40,8 @@ Buffer<kDescType, T>::Buffer(const BufferUsage buffer_usage,
 
   \param [in] other No description.
   */
-template <DescriptorType kDescType, typename T> inline
-Buffer<kDescType, T>::Buffer(Buffer&& other) noexcept :
+template <typename T> inline
+Buffer<T>::Buffer(Buffer&& other) noexcept :
     buffer_usage_{other.buffer_usage_},
     id_data_{std::move(other.id_data_)}
 {
@@ -51,8 +50,8 @@ Buffer<kDescType, T>::Buffer(Buffer&& other) noexcept :
 /*!
   \details No detailed description
   */
-template <DescriptorType kDescType, typename T> inline
-Buffer<kDescType, T>::~Buffer() noexcept
+template <typename T> inline
+Buffer<T>::~Buffer() noexcept
 {
 }
 
@@ -61,16 +60,16 @@ Buffer<kDescType, T>::~Buffer() noexcept
 
   \param [in] other No description.
   */
-template <DescriptorType kDescType, typename T> inline
-auto Buffer<kDescType, T>::operator=(Buffer&& other) noexcept -> Buffer&
+template <typename T> inline
+auto Buffer<T>::operator=(Buffer&& other) noexcept -> Buffer&
 {
   buffer_usage_ = other.buffer_usage_;
   id_data_ = std::move(other.id_data_);
   return *this;
 }
 
-template <DescriptorType kDescType, typename T> inline
-void Buffer<kDescType, T>::clear() noexcept
+template <typename T> inline
+void Buffer<T>::clear() noexcept
 {
   clearData();
 }
@@ -80,19 +79,8 @@ void Buffer<kDescType, T>::clear() noexcept
 
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-constexpr DescriptorType Buffer<kDescType, T>::descriptorType() noexcept
-{
-  return kDescType;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <DescriptorType kDescType, typename T> inline
-IdData& Buffer<kDescType, T>::idData() noexcept
+template <typename T> inline
+IdData& Buffer<T>::idData() noexcept
 {
   return id_data_;
 }
@@ -102,8 +90,8 @@ IdData& Buffer<kDescType, T>::idData() noexcept
 
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-const IdData& Buffer<kDescType, T>::idData() const noexcept
+template <typename T> inline
+const IdData& Buffer<T>::idData() const noexcept
 {
   return id_data_;
 }
@@ -113,8 +101,8 @@ const IdData& Buffer<kDescType, T>::idData() const noexcept
 
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-BufferUsage Buffer<kDescType, T>::usage() const noexcept
+template <typename T> inline
+BufferUsage Buffer<T>::usage() const noexcept
 {
   return buffer_usage_;
 }

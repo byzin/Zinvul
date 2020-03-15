@@ -39,8 +39,8 @@
 namespace zinvul {
 
 //! Make a buffer
-template <DescriptorType kDescType, typename Type>
-UniqueBuffer<kDescType, Type> makeBuffer(Device* device, const BufferUsage flag);
+template <typename Type>
+UniqueBuffer<Type> makeBuffer(Device* device, const BufferUsage flag);
 
 ////! Copy a src buffer to a dst buffer
 //template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type>

@@ -33,11 +33,10 @@ namespace zinvul {
 
   No detailed description.
 
-  \tparam kDescType No description.
   \tparam T No description.
   */
-template <DescriptorType kDescType, typename T>
-class Buffer : private zisc::NonCopyable<Buffer<kDescType, T>>
+template <typename T>
+class Buffer : private zisc::NonCopyable<Buffer<T>>
 {
  public:
   // Type aliases
@@ -63,9 +62,6 @@ class Buffer : private zisc::NonCopyable<Buffer<kDescType, T>>
 
   //! Clear the contents of the buffer
   void clear() noexcept;
-
-  //! Return the descriptor type
-  static constexpr DescriptorType descriptorType() noexcept;
 
   //! Return the underlying ID data
   IdData& idData() noexcept;
@@ -96,15 +92,7 @@ class Buffer : private zisc::NonCopyable<Buffer<kDescType, T>>
 
 // Type aliases
 template <typename Type>
-using UniformBuffer = Buffer<DescriptorType::kUniform, Type>;
-template <typename Type>
-using StorageBuffer = Buffer<DescriptorType::kStorage, Type>;
-template <DescriptorType kDescType, typename Type>
-using UniqueBuffer = zisc::pmr::unique_ptr<Buffer<kDescType, Type>>;
-template <typename Type>
-using UniqueUniformBuffer = UniqueBuffer<DescriptorType::kUniform, Type>;
-template <typename Type>
-using UniqueStorageBuffer = UniqueBuffer<DescriptorType::kStorage, Type>;
+using UniqueBuffer = zisc::pmr::unique_ptr<Buffer<Type>>;
 
 } // namespace zinvul
 

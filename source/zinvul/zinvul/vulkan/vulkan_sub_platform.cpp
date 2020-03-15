@@ -129,14 +129,6 @@ void VulkanSubPlatform::updateDeviceInfoList() noexcept
   for (const auto& device : deviceList()) {
     VulkanDeviceInfo info{memoryResource()};
     info.fetch(device, dispatcher());
-    if ((info.vendorId() == VulkanDeviceInfo::VendorId::kUnknown) ||
-        (info.vendorId() == VulkanDeviceInfo::VendorId::kIntel)) {
-#if defined(Z_DEBUG_MODE)
-      std::cout << "[Info] Skip a vulkan device. vendor = '"
-                << info.vendorName() << "'" << std::endl;
-#endif // Z_DEBUG_MODE
-      continue;
-    }
     device_info_list_->emplace_back(std::move(info));
   }
 }

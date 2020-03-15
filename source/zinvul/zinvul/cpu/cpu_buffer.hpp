@@ -35,18 +35,17 @@ class CpuDevice;
 
   No detailed description.
 
-  \tparam kDescType No description.
   \tparam T No description.
   */
-template <DescriptorType kDescType, typename T>
-class CpuBuffer : public Buffer<kDescType, T>
+template <typename T>
+class CpuBuffer : public Buffer<T>
 {
  public:
   // Type aliases
-  using Type = typename Buffer<kDescType, T>::Type;
-  using ConstType = typename Buffer<kDescType, T>::ConstType;
-  using Pointer = typename Buffer<kDescType, T>::Pointer;
-  using ConstPointer = typename Buffer<kDescType, T>::ConstPointer;
+  using Type = typename Buffer<T>::Type;
+  using ConstType = typename Buffer<T>::ConstType;
+  using Pointer = typename Buffer<T>::Pointer;
+  using ConstPointer = typename Buffer<T>::ConstPointer;
 
 
   //! Initialize the buffer

@@ -34,11 +34,11 @@ namespace zinvul {
 /*!
   \details No detailed description
   */
-template <DescriptorType kDescType, typename T> inline
-VulkanBuffer<kDescType, T>::VulkanBuffer(const BufferUsage buffer_usage,
-                                         VulkanDevice* device,
-                                         IdData&& id_data) noexcept :
-    Buffer<kDescType, T>(buffer_usage, std::move(id_data)),
+template <typename T> inline
+VulkanBuffer<T>::VulkanBuffer(const BufferUsage buffer_usage,
+                              VulkanDevice* device,
+                              IdData&& id_data) noexcept :
+    Buffer<T>(buffer_usage, std::move(id_data)),
     device_{device}
 {
 }
@@ -48,9 +48,9 @@ VulkanBuffer<kDescType, T>::VulkanBuffer(const BufferUsage buffer_usage,
 
   \param [in] other No description.
   */
-template <DescriptorType kDescType, typename T> inline
-VulkanBuffer<kDescType, T>::VulkanBuffer(VulkanBuffer&& other) noexcept :
-    Buffer<kDescType, T>(std::move(other)),
+template <typename T> inline
+VulkanBuffer<T>::VulkanBuffer(VulkanBuffer&& other) noexcept :
+    Buffer<T>(std::move(other)),
     device_{other.device_}
 {
   other.release();
@@ -59,10 +59,10 @@ VulkanBuffer<kDescType, T>::VulkanBuffer(VulkanBuffer&& other) noexcept :
 /*!
   \details No detailed description
   */
-template <DescriptorType kDescType, typename T> inline
-VulkanBuffer<kDescType, T>::~VulkanBuffer() noexcept
+template <typename T> inline
+VulkanBuffer<T>::~VulkanBuffer() noexcept
 {
-  Buffer<kDescType, T>::clear();
+  Buffer<T>::clear();
 }
 
 /*!
@@ -71,12 +71,11 @@ VulkanBuffer<kDescType, T>::~VulkanBuffer() noexcept
   \param [in] other No description.
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-auto VulkanBuffer<kDescType, T>::operator=(VulkanBuffer&& other) noexcept
-    -> VulkanBuffer&
+template <typename T> inline
+auto VulkanBuffer<T>::operator=(VulkanBuffer&& other) noexcept -> VulkanBuffer&
 {
-  Buffer<kDescType, T>::clear();
-  Buffer<kDescType, T>::operator=(std::move(other));
+  Buffer<T>::clear();
+  Buffer<T>::operator=(std::move(other));
   device_ = other.device_;
   other.release();
   return *this;
@@ -87,15 +86,14 @@ auto VulkanBuffer<kDescType, T>::operator=(VulkanBuffer&& other) noexcept
 
   \param [in] s No description.
   */
-template <DescriptorType kDescType, typename T> inline
-void VulkanBuffer<kDescType, T>::setSize(const std::size_t s)
+template <typename T> inline
+void VulkanBuffer<T>::setSize(const std::size_t s)
 {
   if ((0 < s) && (s != size())) {
-    Buffer<kDescType, T>::clear();
+    Buffer<T>::clear();
     device_->allocateMemory(s,
-                            kDescType, 
-                            Buffer<kDescType, T>::usage(),
-                            std::addressof(Buffer<kDescType, T>::idData()),
+                            Buffer<T>::usage(),
+                            std::addressof(Buffer<T>::idData()),
                             std::addressof(buffer_),
                             std::addressof(vm_allocation_),
                             std::addressof(alloc_info_));
@@ -107,8 +105,8 @@ void VulkanBuffer<kDescType, T>::setSize(const std::size_t s)
 
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-std::size_t VulkanBuffer<kDescType, T>::size() const noexcept
+template <typename T> inline
+std::size_t VulkanBuffer<T>::size() const noexcept
 {
   return 0;
 }
@@ -118,8 +116,8 @@ std::size_t VulkanBuffer<kDescType, T>::size() const noexcept
 
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-SubPlatformType VulkanBuffer<kDescType, T>::type() const noexcept
+template <typename T> inline
+SubPlatformType VulkanBuffer<T>::type() const noexcept
 {
   return SubPlatformType::kVulkan;
 }
@@ -127,8 +125,8 @@ SubPlatformType VulkanBuffer<kDescType, T>::type() const noexcept
 /*!
   \details No detailed description
   */
-template <DescriptorType kDescType, typename T> inline
-void VulkanBuffer<kDescType, T>::clearData() noexcept
+template <typename T> inline
+void VulkanBuffer<T>::clearData() noexcept
 {
   device_->deallocateMemory(std::addressof(buffer_),
                             std::addressof(vm_allocation_),
@@ -142,21 +140,20 @@ void VulkanBuffer<kDescType, T>::clearData() noexcept
 /*!
   \details No detailed description
 
-  \tparam kDescType No description.
   \tparam T No description.
   \param [in] flag No description.
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-UniqueBuffer<kDescType, T> VulkanDevice::makeBuffer(const BufferUsage flag)
+template <typename T> inline
+UniqueBuffer<T> VulkanDevice::makeBuffer(const BufferUsage flag)
 {
   auto sub_platform = zisc::treatAs<SubPlatform*>(std::addressof(subPlatform()));
-  using BufferType = VulkanBuffer<kDescType, T>;
+  using BufferType = VulkanBuffer<T>;
   auto buffer = zisc::pmr::allocateUnique<BufferType>(memoryResource(),
                                                       flag,
                                                       this,
                                                       sub_platform->issueId());
-  UniqueBuffer<kDescType, T> b = std::move(buffer);
+  UniqueBuffer<T> b = std::move(buffer);
   return b;
 }
 

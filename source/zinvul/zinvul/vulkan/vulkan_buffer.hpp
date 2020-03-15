@@ -34,15 +34,15 @@ namespace zinvul {
 // Forward declaration
 class VulkanDevice;
 
-template <DescriptorType kDescType, typename T>
-class VulkanBuffer : public Buffer<kDescType, T>
+template <typename T>
+class VulkanBuffer : public Buffer<T>
 {
  public:
   // Type aliases
-  using Type = typename Buffer<kDescType, T>::Type;
-  using ConstType = typename Buffer<kDescType, T>::ConstType;
-  using Pointer = typename Buffer<kDescType, T>::Pointer;
-  using ConstPointer = typename Buffer<kDescType, T>::ConstPointer;
+  using Type = typename Buffer<T>::Type;
+  using ConstType = typename Buffer<T>::ConstType;
+  using Pointer = typename Buffer<T>::Pointer;
+  using ConstPointer = typename Buffer<T>::ConstPointer;
 
 
   //! Initialize the buffer

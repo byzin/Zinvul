@@ -40,20 +40,28 @@
 
 namespace zinvul {
 
-template <DescriptorType kDescType, typename Type> inline
-UniqueBuffer<kDescType, Type> makeBuffer(Device* device, const BufferUsage flag)
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in,out] device No description.
+  \param [in] flag No description.
+  \return No description
+  */
+template <typename Type> inline
+UniqueBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
 {
-  UniqueBuffer<kDescType, Type> buffer;
+  UniqueBuffer<Type> buffer;
   switch (device->type()) {
    case SubPlatformType::kCpu: {
     auto d = zisc::cast<CpuDevice*>(device);
-    buffer = d->makeBuffer<kDescType, Type>(flag);
+    buffer = d->makeBuffer<Type>(flag);
     break;
    }
 #if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
    case SubPlatformType::kVulkan: {
     auto d = zisc::cast<VulkanDevice*>(device);
-    buffer = d->makeBuffer<kDescType, Type>(flag);
+    buffer = d->makeBuffer<Type>(flag);
     break;
    }
 #endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM

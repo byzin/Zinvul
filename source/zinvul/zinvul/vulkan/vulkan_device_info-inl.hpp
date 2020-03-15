@@ -17,7 +17,9 @@
 
 #include "vulkan_device_info.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <cstddef>
+#include <iterator>
 #include <memory>
 #include <type_traits>
 #include <vector>
@@ -99,6 +101,23 @@ std::size_t VulkanDeviceInfo::getDeviceHeapIndex(const std::size_t number) const
 {
   const std::size_t index = device_local_index_list_[number];
   return index;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+inline
+std::size_t VulkanDeviceInfo::getDeviceHeapNumber(const std::size_t index) const noexcept
+{
+  const auto it = std::find(device_local_index_list_.begin(),
+                            device_local_index_list_.end(),
+                            index);
+  const std::size_t number = std::distance(device_local_index_list_.begin(),
+                                           it);
+  return number;
 }
 
 /*!

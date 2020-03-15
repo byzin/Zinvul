@@ -35,11 +35,11 @@ namespace zinvul {
 /*!
   \details No detailed description
   */
-template <DescriptorType kDescType, typename T> inline
-CpuBuffer<kDescType, T>::CpuBuffer(const BufferUsage buffer_usage,
-                                   CpuDevice* device,
-                                   IdData&& id_data) noexcept :
-    Buffer<kDescType, T>(buffer_usage, std::move(id_data)),
+template <typename T> inline
+CpuBuffer<T>::CpuBuffer(const BufferUsage buffer_usage,
+                        CpuDevice* device,
+                        IdData&& id_data) noexcept :
+    Buffer<T>(buffer_usage, std::move(id_data)),
     device_{device}
 {
 }
@@ -49,9 +49,9 @@ CpuBuffer<kDescType, T>::CpuBuffer(const BufferUsage buffer_usage,
 
   \param [in] other No description.
   */
-template <DescriptorType kDescType, typename T> inline
-CpuBuffer<kDescType, T>::CpuBuffer(CpuBuffer&& other) noexcept :
-    Buffer<kDescType, T>(std::move(other)),
+template <typename T> inline
+CpuBuffer<T>::CpuBuffer(CpuBuffer&& other) noexcept :
+    Buffer<T>(std::move(other)),
     device_{other.device_}
 {
   other.release();
@@ -60,10 +60,10 @@ CpuBuffer<kDescType, T>::CpuBuffer(CpuBuffer&& other) noexcept :
 /*!
   \details No detailed description
   */
-template <DescriptorType kDescType, typename T> inline
-CpuBuffer<kDescType, T>::~CpuBuffer() noexcept
+template <typename T> inline
+CpuBuffer<T>::~CpuBuffer() noexcept
 {
-  Buffer<kDescType, T>::clear();
+  Buffer<T>::clear();
 }
 
 /*!
@@ -72,12 +72,11 @@ CpuBuffer<kDescType, T>::~CpuBuffer() noexcept
   \param [in] other No description.
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-auto CpuBuffer<kDescType, T>::operator=(CpuBuffer&& other) noexcept
-    -> CpuBuffer&
+template <typename T> inline
+auto CpuBuffer<T>::operator=(CpuBuffer&& other) noexcept -> CpuBuffer&
 {
-  Buffer<kDescType, T>::clear();
-  Buffer<kDescType, T>::operator=(std::move(other));
+  Buffer<T>::clear();
+  Buffer<T>::operator=(std::move(other));
   device_ = other.device_;
   other.release();
   return *this;
@@ -88,8 +87,8 @@ auto CpuBuffer<kDescType, T>::operator=(CpuBuffer&& other) noexcept
 
   \param [in] s No description.
   */
-template <DescriptorType kDescType, typename T> inline
-void CpuBuffer<kDescType, T>::setSize(const std::size_t s)
+template <typename T> inline
+void CpuBuffer<T>::setSize(const std::size_t s)
 {
 }
 
@@ -98,8 +97,8 @@ void CpuBuffer<kDescType, T>::setSize(const std::size_t s)
 
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-std::size_t CpuBuffer<kDescType, T>::size() const noexcept
+template <typename T> inline
+std::size_t CpuBuffer<T>::size() const noexcept
 {
   return 0;
 }
@@ -109,8 +108,8 @@ std::size_t CpuBuffer<kDescType, T>::size() const noexcept
 
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-SubPlatformType CpuBuffer<kDescType, T>::type() const noexcept
+template <typename T> inline
+SubPlatformType CpuBuffer<T>::type() const noexcept
 {
   return SubPlatformType::kCpu;
 }
@@ -118,8 +117,8 @@ SubPlatformType CpuBuffer<kDescType, T>::type() const noexcept
 /*!
   \details No detailed description
   */
-template <DescriptorType kDescType, typename T> inline
-void CpuBuffer<kDescType, T>::clearData() noexcept
+template <typename T> inline
+void CpuBuffer<T>::clearData() noexcept
 {
 }
 
@@ -128,21 +127,20 @@ void CpuBuffer<kDescType, T>::clearData() noexcept
 /*!
   \details No detailed description
 
-  \tparam kDescType No description.
   \tparam T No description.
   \param [in] flag No description.
   \return No description
   */
-template <DescriptorType kDescType, typename T> inline
-UniqueBuffer<kDescType, T> CpuDevice::makeBuffer(const BufferUsage flag) noexcept
+template <typename T> inline
+UniqueBuffer<T> CpuDevice::makeBuffer(const BufferUsage flag) noexcept
 {
   auto sub_platform = zisc::treatAs<SubPlatform*>(std::addressof(subPlatform()));
-  using BufferType = CpuBuffer<kDescType, T>;
+  using BufferType = CpuBuffer<T>;
   auto buffer = zisc::pmr::allocateUnique<BufferType>(memoryResource(),
                                                       flag,
                                                       this,
                                                       sub_platform->issueId());
-  UniqueBuffer<kDescType, T> b = std::move(buffer);
+  UniqueBuffer<T> b = std::move(buffer);
   return b;
 }
 

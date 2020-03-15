@@ -77,8 +77,8 @@ class CpuDevice : public Device
   const DeviceInfo& deviceInfo() const noexcept override;
 
   //! Make a buffer
-  template <DescriptorType kDescType, typename Type>
-  UniqueBuffer<kDescType, Type> makeBuffer(const BufferUsage flag) noexcept;
+  template <typename Type>
+  UniqueBuffer<Type> makeBuffer(const BufferUsage flag) noexcept;
 
 //  //! Make a kernel
 //  template <std::size_t kDimension, typename Function, typename ...BufferArgs>

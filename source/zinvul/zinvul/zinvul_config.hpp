@@ -57,17 +57,6 @@ enum class SubPlatformType : uint32b
 
   No detailed description.
   */
-enum class DescriptorType : uint32b
-{
-  kUniform = 0,
-  kStorage,
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-  */
 enum class BufferUsage : uint32b
 {
   kDeviceOnly = 0b1u << 0,

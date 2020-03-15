@@ -74,7 +74,6 @@ VulkanDevice::~VulkanDevice() noexcept
   \details No detailed description
 
   \param [in] size No description.
-  \param [in] desc_type No description.
   \param [in] buffer_usage No description.
   \param [in] user_data No description.
   \param [out] buffer No description.
@@ -82,7 +81,6 @@ VulkanDevice::~VulkanDevice() noexcept
   \param [out] alloc_info No description.
   */
 void VulkanDevice::allocateMemory(const std::size_t size,
-                                  const DescriptorType desc_type,
                                   const BufferUsage buffer_usage,
                                   void* user_data,
                                   VkBuffer* buffer,
@@ -93,11 +91,8 @@ void VulkanDevice::allocateMemory(const std::size_t size,
   zinvulvk::BufferCreateInfo buffer_create_info;
   buffer_create_info.size = size;
   buffer_create_info.usage = zinvulvk::BufferUsageFlagBits::eTransferSrc |
-                             zinvulvk::BufferUsageFlagBits::eTransferDst;
-  const bool is_uniform_buffer = desc_type == DescriptorType::kUniform;
-  buffer_create_info.usage = buffer_create_info.usage | (is_uniform_buffer
-      ? zinvulvk::BufferUsageFlagBits::eUniformBuffer
-      : zinvulvk::BufferUsageFlagBits::eStorageBuffer);
+                             zinvulvk::BufferUsageFlagBits::eTransferDst |
+                             zinvulvk::BufferUsageFlagBits::eStorageBuffer;
   buffer_create_info.sharingMode = zinvulvk::SharingMode::eExclusive;
   const uint32b queue_family_index = queueFamilyIndex();
   buffer_create_info.queueFamilyIndexCount = 1;
@@ -142,7 +137,6 @@ void VulkanDevice::allocateMemory(const std::size_t size,
     //! \todo Handle exception
     printf("[Warning]: Device memory allocation failed.\n");
   }
-  printf("MemoryAllocation!!\n");
 }
 
 ///*!
@@ -478,17 +472,17 @@ void VulkanDevice::destroyData() noexcept
   \param [out] index No description.
   \return No description
   */
-bool VulkanDevice::Callbacks::getHeapIndex(const VulkanDevice& device,
+bool VulkanDevice::Callbacks::getHeapNumber(const VulkanDevice& device,
                                            const uint32b memory_type,
-                                           std::size_t* index) noexcept
+                                           std::size_t* number) noexcept
 {
   const auto& info = device.vulkanDeviceInfo();
   const auto& mem_props = info.memoryProperties().properties1_;
-  const std::size_t heap_index = mem_props.memoryTypes[memory_type].heapIndex;
-  const zinvulvk::MemoryHeap heap{mem_props.memoryHeaps[heap_index]};
+  const std::size_t index = mem_props.memoryTypes[memory_type].heapIndex;
+  const zinvulvk::MemoryHeap heap{mem_props.memoryHeaps[index]};
   bool is_device_heap = false;
   if (heap.flags & zinvulvk::MemoryHeapFlagBits::eDeviceLocal) {
-    *index = info.getDeviceHeapIndex(heap_index);
+    *number = info.getDeviceHeapNumber(index);
     is_device_heap = true;
   }
   return is_device_heap;
@@ -508,12 +502,10 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryAllocation(
     VkDeviceMemory /* memory */,
     VkDeviceSize size)
 {
-  printf("DeviceMemoryAllocation: memory type [%u], size: %lu bytes\n",
-      memory_type,
-      size);
   auto device = zisc::cast<VulkanDevice*>(getUserData(vm_allocator));
   std::size_t heap_index = 0;
-  if (getHeapIndex(*device, memory_type, &heap_index))
+  const bool is_index_found = getHeapNumber(*device, memory_type, &heap_index);
+  if (is_index_found)
     device->heap_usage_list_[heap_index].add(size);
 }
 
@@ -531,12 +523,10 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryFreeing(
     VkDeviceMemory /* memory */,
     VkDeviceSize size)
 {
-  printf("DeviceMemoryFreeing: memory type [%u], size: %lu bytes\n",
-      memory_type,
-      size);
   auto device = zisc::cast<VulkanDevice*>(getUserData(vm_allocator));
   std::size_t heap_index = 0;
-  if (getHeapIndex(*device, memory_type, &heap_index))
+  const bool is_index_found = getHeapNumber(*device, memory_type, &heap_index);
+  if (is_index_found)
     device->heap_usage_list_[heap_index].release(size);
 }
 

@@ -65,7 +65,6 @@ class VulkanDevice : public Device
 
   //! Allocate a device memory
   void allocateMemory(const std::size_t size,
-                      const DescriptorType desc_type,
                       const BufferUsage buffer_usage,
                       void* user_data,
                       VkBuffer* buffer,
@@ -119,8 +118,8 @@ class VulkanDevice : public Device
 //  const std::array<uint32b, 3>& localWorkSize() const noexcept;
 
   //! Make a buffer
-  template <DescriptorType kDescriptor, typename Type>
-  UniqueBuffer<kDescriptor, Type> makeBuffer(const BufferUsage flag);
+  template <typename Type>
+  UniqueBuffer<Type> makeBuffer(const BufferUsage flag);
 
 //  //! Make a kernel
 //  template <std::size_t kDimension, typename Function, typename ...ArgumentTypes>
@@ -182,9 +181,9 @@ class VulkanDevice : public Device
   {
    public:
     //! Return the index of memory heap
-    static bool getHeapIndex(const VulkanDevice& device,
-                             const uint32b memory_type,
-                             std::size_t* index) noexcept;
+    static bool getHeapNumber(const VulkanDevice& device,
+                              const uint32b memory_type,
+                              std::size_t* number) noexcept;
 
     //! Notify of a memory allocation in VMA
     static void notifyOfDeviceMemoryAllocation(

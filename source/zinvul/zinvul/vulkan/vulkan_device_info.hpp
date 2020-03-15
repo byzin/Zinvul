@@ -196,6 +196,9 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Return the index of the vulkan heap that is device local of the number-th
   std::size_t getDeviceHeapIndex(const std::size_t number) const noexcept;
 
+  //! Return the number of the vulkan heap by the given index
+  std::size_t getDeviceHeapNumber(const std::size_t index) const noexcept;
+
   //! Initialize a property with the given type
   template <typename CppType, typename CType>
   static CppType& initProp(CType& prop) noexcept;
