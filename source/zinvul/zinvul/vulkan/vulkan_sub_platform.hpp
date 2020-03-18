@@ -37,6 +37,7 @@
 namespace zinvul {
 
 // Forward declaration
+class Platform;
 class PlatformOptions;
 
 /*!
@@ -48,7 +49,7 @@ class VulkanSubPlatform : public SubPlatform
 {
  public:
   //! Create an empty vulkan sub-platform
-  VulkanSubPlatform() noexcept;
+  VulkanSubPlatform(Platform* platform) noexcept;
 
   //! Finalize the sub-platform
   ~VulkanSubPlatform() noexcept override;
@@ -76,7 +77,7 @@ class VulkanSubPlatform : public SubPlatform
   VkAllocationCallbacks makeAllocator() noexcept;
 
   //! Make a unique device
-  UniqueDevice makeDevice(const DeviceInfo& device_info) override;
+  SharedDevice makeDevice(const DeviceInfo& device_info) override;
 
   //! Return the number of available devices
   std::size_t numOfDevices() const noexcept override;

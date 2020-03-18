@@ -49,23 +49,11 @@ class CpuBuffer : public Buffer<T>
 
 
   //! Initialize the buffer
-  CpuBuffer(const BufferUsage buffer_usage,
-            CpuDevice* device,
-            IdData&& id_data) noexcept;
-
-  //! Move a data
-  CpuBuffer(CpuBuffer&& other) noexcept;
+  CpuBuffer(IdData&& id) noexcept;
 
   //! Finalize the buffer
   ~CpuBuffer() noexcept override;
 
-
-  //! Move a data
-  CpuBuffer& operator=(CpuBuffer&& other) noexcept;
-
-
-  //! Release the ownership of the buffer
-  void release() noexcept;
 
   //! Change the number of elements
   void setSize(const std::size_t s) override;
@@ -73,15 +61,19 @@ class CpuBuffer : public Buffer<T>
   //! Return the number of elements
   std::size_t size() const noexcept override;
 
-  //! Return the sub-platform type
-  SubPlatformType type() const noexcept override;
-
  protected:
   //! Clear the contents of the buffer
-  void clearData() noexcept override;
+  void destroyData() noexcept override;
+
+  //! Initialize the buffer
+  void initData() override;
 
  private:
-  CpuDevice* device_ = nullptr;
+  //! Return the device
+  CpuDevice& parentImpl() noexcept;
+
+  //! Return the device
+  const CpuDevice& parentImpl() const noexcept;
 };
 
 } // namespace zinvul

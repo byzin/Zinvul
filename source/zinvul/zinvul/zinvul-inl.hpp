@@ -49,9 +49,9 @@ namespace zinvul {
   \return No description
   */
 template <typename Type> inline
-UniqueBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
+SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
 {
-  UniqueBuffer<Type> buffer;
+  SharedBuffer<Type> buffer;
   switch (device->type()) {
    case SubPlatformType::kCpu: {
     auto d = zisc::cast<CpuDevice*>(device);

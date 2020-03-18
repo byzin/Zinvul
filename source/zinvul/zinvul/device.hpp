@@ -24,61 +24,58 @@
 // Zinvul
 #include "buffer.hpp"
 #include "zinvul_config.hpp"
+#include "utility/id_data.hpp"
+#include "utility/zinvul_object.hpp"
 
 namespace zinvul {
 
 // Forward declaration
 class DeviceInfo;
+class SubPlatform;
 
 /*!
   \brief No brief description
 
   No detailed description.
   */
-class Device : private zisc::NonCopyable<Device>
+class Device : public ZinvulObject
 {
  public:
-  //! Initialize the device
-  Device(zisc::pmr::memory_resource* mem_resource) noexcept;
+  // Type aliases
+  using SharedPtr = std::shared_ptr<Device>;
+  using WeakPtr = std::weak_ptr<Device>;
 
-  //! Move a data
-  Device(Device&& other) noexcept;
+
+  //! Initialize the device
+  Device(IdData&& id) noexcept;
 
   //! Finalize the device
   virtual ~Device() noexcept;
-
-
-  //! Move a data
-  Device& operator=(Device&& other) noexcept;
 
 
   //! Destroy the data
   void destroy() noexcept;
 
   //! Return the underlying device info
-  virtual const DeviceInfo& deviceInfo() const noexcept = 0;
+  const DeviceInfo& deviceInfo() const noexcept;
+
+  //! Initialize the device
+  void initialize(ZinvulObject::SharedPtr&& parent,
+                  WeakPtr&& own,
+                  const DeviceInfo& device_info);
 
   //! Make a buffer
   template <typename T>
-  UniqueBuffer<T> makeBuffer(const BufferUsage flag);
-
-  //! Returna a memory resource
-  zisc::pmr::memory_resource* memoryResource() noexcept;
-
-  //! Returna a memory resource
-  const zisc::pmr::memory_resource* memoryResource() const noexcept;
+  SharedBuffer<T> makeBuffer(const BufferUsage flag);
 
   //! Return the number of underlying command queues
   virtual std::size_t numOfQueues() const noexcept = 0;
 
-  //! Return the peak memory usage of the heap of the given index
-  virtual std::size_t peakMemoryUsage(const std::size_t index) const noexcept = 0;
+  //! Return the peak memory usage of the heap of the given number
+  virtual std::size_t peakMemoryUsage(const std::size_t number) const noexcept = 0;
 
-  //! Return the current memory usage of the heap of the given index
-  virtual std::size_t totalMemoryUsage(const std::size_t index) const noexcept = 0;
-
-  //! Return the sub-platform type
-  virtual SubPlatformType type() const noexcept = 0;
+  //! Return the current memory usage of the heap of the given number
+  virtual std::size_t totalMemoryUsage(const std::size_t number) const noexcept = 0;
 
 //  //! Wait this thread until all commands in the device are completed
 //  virtual void waitForCompletion() const noexcept = 0;
@@ -94,12 +91,16 @@ class Device : private zisc::NonCopyable<Device>
   //! Destroy the data
   virtual void destroyData() noexcept = 0;
 
+  //! Initialize the device
+  virtual void initData() = 0;
+
  private:
-  zisc::pmr::memory_resource* mem_resource_;
+  const DeviceInfo* device_info_ = nullptr;
 };
 
 // Type aliases
-using UniqueDevice = zisc::pmr::unique_ptr<Device>;
+using SharedDevice = Device::SharedPtr;
+using WeakDevice = Device::WeakPtr;
 
 } // namespace zinvul
 

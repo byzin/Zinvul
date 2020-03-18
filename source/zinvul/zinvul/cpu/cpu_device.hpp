@@ -18,6 +18,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <memory>
 // Zisc
 //#include "zisc/function_reference.hpp"
 #include "zisc/std_memory_resource.hpp"
@@ -27,6 +28,7 @@
 #include "zinvul/device.hpp"
 //#include "zinvul/kernel.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/utility/id_data.hpp"
 
 namespace zinvul {
 
@@ -47,18 +49,10 @@ class CpuDevice : public Device
 
 
   //! Initialize the cpu device
-  CpuDevice(CpuSubPlatform* sub_platform,
-            const CpuDeviceInfo* device_info);
-
-  //! Move a data
-  CpuDevice(CpuDevice&& other) noexcept;
+  CpuDevice(IdData&& id);
 
   //! Finalize the cpu instance
   ~CpuDevice() noexcept override;
-
-
-  //! Move a data
-  CpuDevice& operator=(CpuDevice&& other) noexcept;
 
 
 //  //! Allocate a memory of a buffer
@@ -67,18 +61,15 @@ class CpuDevice : public Device
 //                CpuBuffer<kDescriptor, Type>* buffer) noexcept;
 
   //! Return the underlying device info
-  const CpuDeviceInfo& cpuDeviceInfo() const noexcept;
+  const CpuDeviceInfo& deviceInfoData() const noexcept;
 
 //  //! Deallocate a memory of a buffer
 //  template <DescriptorType kDescriptor, typename Type>
 //  void deallocate(CpuBuffer<kDescriptor, Type>* buffer) noexcept;
 
-  //! Return the underlying device info
-  const DeviceInfo& deviceInfo() const noexcept override;
-
   //! Make a buffer
   template <typename Type>
-  UniqueBuffer<Type> makeBuffer(const BufferUsage flag) noexcept;
+  SharedBuffer<Type> makeBuffer(const BufferUsage flag) noexcept;
 
 //  //! Make a kernel
 //  template <std::size_t kDimension, typename Function, typename ...BufferArgs>
@@ -97,13 +88,10 @@ class CpuDevice : public Device
   std::size_t numOfQueues() const noexcept override;
 
   //! Return the peak memory usage of the heap of the given index
-  std::size_t peakMemoryUsage(const std::size_t index) const noexcept override;
+  std::size_t peakMemoryUsage(const std::size_t number) const noexcept override;
 
   //! Return the current memory usage of the heap of the given index
-  std::size_t totalMemoryUsage(const std::size_t index) const noexcept override;
-
-  //! Return the sub-platform type
-  SubPlatformType type() const noexcept override;
+  std::size_t totalMemoryUsage(const std::size_t number) const noexcept override;
 
 //  //! Wait this thread until all commands in the device are completed
 //  void waitForCompletion() const noexcept override;
@@ -119,28 +107,26 @@ class CpuDevice : public Device
   //! Destroy the device
   void destroyData() noexcept override;
 
+  //! Initialize the device
+  void initData() override;
+
  private:
 //  //! Expand the given work-group size array to 3d work-group size array
 //  template <std::size_t kDimension>
 //  std::array<uint32b, 3> expandTo3dWorkGroupSize(
 //      const std::array<uint32b, kDimension>& works) const noexcept;
 
-  //! Initialize the cpu device
-  void initialize() noexcept;
+  //! Return the sub-platform
+  CpuSubPlatform& parentImpl() noexcept;
 
   //! Return the sub-platform
-  CpuSubPlatform& subPlatform() noexcept;
-
-  //! Return the sub-platform
-  const CpuSubPlatform& subPlatform() const noexcept;
+  const CpuSubPlatform& parentImpl() const noexcept;
 
 //  //! Return the task batch size
 //  uint32b taskBatchSize() const noexcept;
 
 
-  CpuSubPlatform* sub_platform_ = nullptr;
-  const CpuDeviceInfo* device_info_ = nullptr;
-  zisc::ThreadManager thread_manager_;
+  zisc::pmr::unique_ptr<zisc::ThreadManager> thread_manager_;
 //  uint32b task_batch_size_;
 };
 

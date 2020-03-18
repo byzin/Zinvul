@@ -20,32 +20,38 @@
 #include <memory>
 #include <vector>
 // Zisc
-#include "zisc/non_copyable.hpp"
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "device.hpp"
 #include "device_info.hpp"
 #include "zinvul_config.hpp"
 #include "utility/id_data.hpp"
+#include "utility/zinvul_object.hpp"
 
 namespace zinvul {
 
 // Forward declaration
 class PlatformOptions;
+class Platform;
 
 /*!
   \brief No brief description
 
   No detailed description.
   */
-class SubPlatform : private zisc::NonCopyable<SubPlatform>
+class SubPlatform : public ZinvulObject
 {
  public:
+  // Type aliases
+  using SharedPtr = std::shared_ptr<SubPlatform>;
+  using WeakPtr = std::weak_ptr<SubPlatform>;
+
+
   //! Create an empty sub-platform
-  SubPlatform() noexcept;
+  SubPlatform(Platform* platform) noexcept;
 
   //! Finalize the platform
-  virtual ~SubPlatform() noexcept;
+  ~SubPlatform() noexcept override;
 
 
   //! Destroy the sub-platform
@@ -56,28 +62,25 @@ class SubPlatform : private zisc::NonCopyable<SubPlatform>
       zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept = 0;
 
   //! Initialize the sub-platform
-  void initialize(PlatformOptions& platform_options);
+  void initialize(WeakPtr&& own, PlatformOptions& platform_options);
 
   //! Check if the sub-platform is in debug mode
-  bool isDebugMode() const noexcept;
+  bool isDebugMode() const noexcept override;
 
   //! Issue an ID of an object
-  IdData issueId() noexcept;
+  IdData issueId() noexcept override;
 
   //! Make a unique device
-  virtual UniqueDevice makeDevice(const DeviceInfo& device_info) = 0;
+  virtual SharedDevice makeDevice(const DeviceInfo& device_info) = 0;
 
   //! Return the underlying memory resource
-  zisc::pmr::memory_resource* memoryResource() noexcept;
+  zisc::pmr::memory_resource* memoryResource() noexcept override;
 
   //! Return the underlying memory resource
-  const zisc::pmr::memory_resource* memoryResource() const noexcept;
+  const zisc::pmr::memory_resource* memoryResource() const noexcept override;
 
   //! Return the number of available devices 
   virtual std::size_t numOfDevices() const noexcept = 0;
-
-  //! Return the sub-platform type
-  virtual SubPlatformType type() const noexcept = 0;
 
   //! Update the device info list
   virtual void updateDeviceInfoList() noexcept = 0;
@@ -90,20 +93,13 @@ class SubPlatform : private zisc::NonCopyable<SubPlatform>
   virtual void initData(PlatformOptions& platform_options) = 0;
 
  private:
-  //! Set debug mode
-  void setDebugMode(const bool is_debug_mode) noexcept;
-
-
-  zisc::pmr::memory_resource* mem_resource_ = nullptr;
-  std::atomic<uint32b> id_count_ = 0;
-  int32b is_debug_mode_ = Config::scalarResultFalse();
+  Platform* platform_ = nullptr;
 };
 
 // Type aliases
-using UniqueSubPlatform = zisc::pmr::unique_ptr<SubPlatform>;
+using SharedSubPlatform = SubPlatform::SharedPtr;
+using WeakSubPlatform = SubPlatform::WeakPtr;
 
 } // namespace zinvul
-
-#include "sub_platform-inl.hpp"
 
 #endif // ZINVUL_SUB_PLATFORM_HPP

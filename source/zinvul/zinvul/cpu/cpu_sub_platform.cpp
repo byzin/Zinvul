@@ -15,6 +15,7 @@
 #include "cpu_sub_platform.hpp"
 // Standard C++ library
 #include <cstddef>
+#include <iostream>
 #include <memory>
 #include <vector>
 // Zisc
@@ -24,7 +25,9 @@
 #include "cpu_device.hpp"
 #include "cpu_device_info.hpp"
 #include "zinvul/device.hpp"
+#include "zinvul/platform.hpp"
 #include "zinvul/platform_options.hpp"
+#include "zinvul/sub_platform.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
@@ -32,7 +35,8 @@ namespace zinvul {
 /*!
   \details No detailed description
   */
-CpuSubPlatform::CpuSubPlatform() noexcept
+CpuSubPlatform::CpuSubPlatform(Platform* platform) noexcept :
+    SubPlatform(platform)
 {
 }
 
@@ -61,14 +65,21 @@ void CpuSubPlatform::getDeviceInfoList(
   \param [in] device_info No description.
   \return No description
   */
-UniqueDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info) noexcept
+SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info) noexcept
 {
   auto info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
-  auto device = zisc::pmr::allocateUnique<CpuDevice>(memoryResource(),
-                                                     this,
-                                                     info);
-  UniqueDevice d = std::move(device);
-  return d;
+  if (device_info_.get() != info) {
+    //! \todo Throw an exception
+    std::cerr << "[Error] Invalid device info is passed." << std::endl;
+  }
+  zisc::pmr::polymorphic_allocator<CpuDevice> alloc{memoryResource()};
+  SharedDevice device = std::allocate_shared<CpuDevice>(alloc, issueId());
+
+  ZinvulObject::SharedPtr parent{getOwn()};
+  WeakDevice own{device};
+  device->initialize(std::move(parent), std::move(own), device_info);
+
+  return device;
 }
 
 /*!
@@ -114,8 +125,9 @@ void CpuSubPlatform::destroyData() noexcept
   */
 void CpuSubPlatform::initData(PlatformOptions& /* platform_options */)
 {
-  device_info_ = zisc::pmr::allocateUnique<CpuDeviceInfo>(memoryResource(),
-                                                          memoryResource());
+  auto mem_resource = memoryResource();
+  zisc::pmr::polymorphic_allocator<CpuDeviceInfo> alloc{mem_resource};
+  device_info_ = zisc::pmr::allocateUnique<CpuDeviceInfo>(alloc, mem_resource);
 }
 
 

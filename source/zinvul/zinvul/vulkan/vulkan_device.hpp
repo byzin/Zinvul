@@ -32,6 +32,7 @@
 #include "zinvul/buffer.hpp"
 #include "zinvul/device.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/utility/id_data.hpp"
 
 namespace zinvul {
 
@@ -49,18 +50,10 @@ class VulkanDevice : public Device
 {
  public:
   //! Initialize the vulkan device
-  VulkanDevice(VulkanSubPlatform* sub_platform,
-               const VulkanDeviceInfo* device_info);
-
-  //! Move a data
-  VulkanDevice(VulkanDevice&& other) noexcept;
+  VulkanDevice(IdData&& id);
 
   //! Finalize the vulkan instance
   ~VulkanDevice() noexcept override;
-
-
-  //! Move a data
-  VulkanDevice& operator=(VulkanDevice&& other) noexcept;
 
 
   //! Allocate a device memory
@@ -99,7 +92,7 @@ class VulkanDevice : public Device
   const VkDevice& device() const noexcept;
 
   //! Return the underlying device info
-  const DeviceInfo& deviceInfo() const noexcept override;
+  const VulkanDeviceInfo& deviceInfoData() const noexcept;
 
   //! Return the dispatcher of vulkan objects
   const VulkanDispatchLoader& dispatcher() const noexcept;
@@ -119,7 +112,7 @@ class VulkanDevice : public Device
 
   //! Make a buffer
   template <typename Type>
-  UniqueBuffer<Type> makeBuffer(const BufferUsage flag);
+  SharedBuffer<Type> makeBuffer(const BufferUsage flag);
 
 //  //! Make a kernel
 //  template <std::size_t kDimension, typename Function, typename ...ArgumentTypes>
@@ -136,11 +129,11 @@ class VulkanDevice : public Device
   //! Return the number of underlying command queues
   std::size_t numOfQueues() const noexcept override;
 
-  //! Return the peak memory usage of the heap of the given index
-  std::size_t peakMemoryUsage(const std::size_t index) const noexcept override;
+  //! Return the peak memory usage of the heap of the given number
+  std::size_t peakMemoryUsage(const std::size_t number) const noexcept override;
 
-  //! Return the current memory usage of the heap of the given index
-  std::size_t totalMemoryUsage(const std::size_t index) const noexcept override;
+  //! Return the current memory usage of the heap of the given number
+  std::size_t totalMemoryUsage(const std::size_t number) const noexcept override;
 
   //! Set a shader module
 //  void setShaderModule(const zisc::pmr::vector<uint32b>& spirv_code,
@@ -150,9 +143,6 @@ class VulkanDevice : public Device
 //  void submit(const QueueType queue_type,
 //              const uint32b queue_index,
 //              const vk::CommandBuffer& command) const noexcept;
-
-  //! Return the sub-platform type
-  SubPlatformType type() const noexcept override;
 
 //  //! Wait this thread until all commands in the device are completed
 //  void waitForCompletion() const noexcept override;
@@ -164,12 +154,12 @@ class VulkanDevice : public Device
 //  void waitForCompletion(const QueueType queue_type,
 //                         const uint32b queue_index) const noexcept override;
 
-  //! Return the underlying device info
-  const VulkanDeviceInfo& vulkanDeviceInfo() const noexcept;
-
  protected:
   //! Destroy the device
   void destroyData() noexcept override;
+
+  //! Initialize the vulkan device
+  void initData() override;
 
  private:
   /*!
@@ -220,9 +210,6 @@ class VulkanDevice : public Device
   //! Initialize the vulkan dispatch loader
   void initDispatcher();
 
-  //! Initialize the vulkan device
-  void initialize();
-
   //! Initialize work group size of dimensions
   void initLocalWorkGroupSize() noexcept;
 
@@ -236,20 +223,18 @@ class VulkanDevice : public Device
   VmaDeviceMemoryCallbacks makeAllocationNotifier() noexcept;
 
   //! Return the sub-platform
-  VulkanSubPlatform& subPlatform() noexcept;
+  VulkanSubPlatform& parentImpl() noexcept;
 
   //! Return the sub-platform
-  const VulkanSubPlatform& subPlatform() const noexcept;
+  const VulkanSubPlatform& parentImpl() const noexcept;
 
   //! Return an index of a queue family
   uint32b queueFamilyIndex() const noexcept;
 
 
-  VulkanSubPlatform* sub_platform_ = nullptr;
-  const VulkanDeviceInfo* device_info_ = nullptr;
   VkDevice device_ = VK_NULL_HANDLE;
   VmaAllocator vm_allocator_ = VK_NULL_HANDLE;
-  zisc::pmr::vector<zisc::Memory::Usage> heap_usage_list_;
+  zisc::pmr::unique_ptr<zisc::pmr::vector<zisc::Memory::Usage>> heap_usage_list_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
 //  zisc::pmr::vector<vk::ShaderModule> shader_module_list_;
 //  zisc::pmr::vector<vk::CommandPool> command_pool_list_;

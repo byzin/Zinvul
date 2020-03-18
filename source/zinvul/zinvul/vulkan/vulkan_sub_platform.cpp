@@ -33,6 +33,7 @@
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "zinvul/device.hpp"
+#include "zinvul/platform.hpp"
 #include "zinvul/platform_options.hpp"
 #include "zinvul/sub_platform.hpp"
 #include "zinvul/zinvul_config.hpp"
@@ -42,7 +43,8 @@ namespace zinvul {
 /*!
   \details No detailed description
   */
-VulkanSubPlatform::VulkanSubPlatform() noexcept
+VulkanSubPlatform::VulkanSubPlatform(Platform* platform) noexcept :
+    SubPlatform(platform)
 {
 }
 
@@ -88,14 +90,27 @@ VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
   \param [in] device_info No description.
   \return No description
   */
-UniqueDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
+SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
 {
-  auto info = zisc::cast<const VulkanDeviceInfo*>(std::addressof(device_info));
-  auto device = zisc::pmr::allocateUnique<VulkanDevice>(memoryResource(),
-                                                        this,
-                                                        info);
-  UniqueDevice d = std::move(device);
-  return d;
+  const auto& info_list = deviceInfoList();
+  const auto pred = [&device_info](const DeviceInfo& info) noexcept
+  {
+    const bool result = std::addressof(device_info) == std::addressof(info);
+    return result;
+  };
+  auto it = std::find_if(info_list.begin(), info_list.end(), pred);
+  if (it == info_list.end()) {
+    //! \todo Throw an exception
+    std::cerr << "[Error] Invalid device info is passed." << std::endl;
+  }
+  zisc::pmr::polymorphic_allocator<VulkanDevice> alloc{memoryResource()};
+  SharedDevice device = std::allocate_shared<VulkanDevice>(alloc, issueId());
+
+  ZinvulObject::SharedPtr parent{getOwn()};
+  WeakDevice own{device};
+  device->initialize(std::move(parent), std::move(own), device_info);
+
+  return device;
 }
 
 /*!
@@ -160,10 +175,12 @@ void VulkanSubPlatform::destroyData() noexcept
   */
 void VulkanSubPlatform::initData(PlatformOptions& platform_options)
 {
+  auto mem_resource = memoryResource();
+  zisc::pmr::polymorphic_allocator<AllocatorData> alloc{mem_resource};
   allocator_data_ = zisc::pmr::allocateUnique<AllocatorData>(
-      memoryResource(),
-      memoryResource(),
-      MemoryMap{MemoryMap::allocator_type{memoryResource()}});
+      alloc,
+      mem_resource,
+      MemoryMap{MemoryMap::allocator_type{mem_resource}});
   initDispatcher();
   initInstance(platform_options);
   initDeviceList();
@@ -560,10 +577,12 @@ void VulkanSubPlatform::initDeviceList()
   */
 void VulkanSubPlatform::initDeviceInfoList() noexcept
 {
+  auto mem_resource = memoryResource();
   using DeviceInfoList = decltype(device_info_list_)::element_type;
-  DeviceInfoList info_list{DeviceInfoList::allocator_type{memoryResource()}};
+  DeviceInfoList info_list{DeviceInfoList::allocator_type{mem_resource}};
+  zisc::pmr::polymorphic_allocator<DeviceInfoList> alloc{mem_resource};
   device_info_list_ = zisc::pmr::allocateUnique<DeviceInfoList>(
-      memoryResource(),
+      alloc,
       std::move(info_list));
 }
 
@@ -573,7 +592,8 @@ void VulkanSubPlatform::initDeviceInfoList() noexcept
 void VulkanSubPlatform::initDispatcher()
 {
   auto mem_resource = memoryResource();
-  dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(mem_resource,
+  zisc::pmr::polymorphic_allocator<VulkanDispatchLoader> alloc{mem_resource};
+  dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc,
                                                                 mem_resource);
 }
 

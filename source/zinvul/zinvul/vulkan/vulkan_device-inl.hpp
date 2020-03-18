@@ -18,10 +18,13 @@
 #include "vulkan_device.hpp"
 // Standard C++ library
 #include <limits>
+#include <memory>
 // Vulkan
 #include <vulkan/vulkan.h>
 // VMA
 #include <vk_mem_alloc.h>
+// Zisc
+#include "zisc/utility.hpp"
 // Zinvul
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
@@ -48,6 +51,18 @@ inline
 const VkDevice& VulkanDevice::device() const noexcept
 {
   return device_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const VulkanDeviceInfo& VulkanDevice::deviceInfoData() const noexcept
+{
+  const auto& info = deviceInfo();
+  return *zisc::cast<const VulkanDeviceInfo*>(std::addressof(info));
 }
 
 /*!
@@ -101,9 +116,10 @@ const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
   \return No description
   */
 inline
-const VulkanDeviceInfo& VulkanDevice::vulkanDeviceInfo() const noexcept
+VulkanSubPlatform& VulkanDevice::parentImpl() noexcept
 {
-  return *device_info_;
+  auto p = getParent();
+  return *zisc::treatAs<VulkanSubPlatform*>(p);
 }
 
 /*!
@@ -112,20 +128,10 @@ const VulkanDeviceInfo& VulkanDevice::vulkanDeviceInfo() const noexcept
   \return No description
   */
 inline
-VulkanSubPlatform& VulkanDevice::subPlatform() noexcept
+const VulkanSubPlatform& VulkanDevice::parentImpl() const noexcept
 {
-  return *sub_platform_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-const VulkanSubPlatform& VulkanDevice::subPlatform() const noexcept
-{
-  return *sub_platform_;
+  const auto p = getParent();
+  return *zisc::treatAs<const VulkanSubPlatform*>(p);
 }
 
 /*!

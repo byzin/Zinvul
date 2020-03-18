@@ -49,17 +49,10 @@ void setUserData(VmaAllocator alloc, void* data) noexcept;
 /*!
   \details No detailed description
 
-  \param [in] sub_platform No description.
-  \param [in] device_info No description.
+  \param [in] id No description.
   */
-VulkanDevice::VulkanDevice(VulkanSubPlatform* sub_platform,
-                           const VulkanDeviceInfo* device_info) :
-    Device(sub_platform->memoryResource()),
-    sub_platform_{sub_platform},
-    device_info_{device_info},
-    heap_usage_list_{decltype(heap_usage_list_)::allocator_type{memoryResource()}}
+VulkanDevice::VulkanDevice(IdData&& id) : Device(std::move(id))
 {
-  initialize();
 }
 
 /*!
@@ -218,20 +211,9 @@ void VulkanDevice::deallocateMemory(VkBuffer* buffer,
 
   \return No description
   */
-const DeviceInfo& VulkanDevice::deviceInfo() const noexcept
-{
-  const auto& device_info = vulkanDeviceInfo();
-  return device_info;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
 std::size_t VulkanDevice::numOfQueues() const noexcept
 {
-  const auto& info = vulkanDeviceInfo();
+  const auto& info = deviceInfoData();
   const uint32b index = queueFamilyIndex();
   const auto& queue_family_list = info.queueFamilyPropertiesList();
 
@@ -243,10 +225,10 @@ std::size_t VulkanDevice::numOfQueues() const noexcept
 /*!
   \details No detailed description
 
-  \param [in] index No description.
+  \param [in] number No description.
   \return No description
   */
-std::size_t VulkanDevice::peakMemoryUsage(const std::size_t index) const noexcept
+std::size_t VulkanDevice::peakMemoryUsage(const std::size_t number) const noexcept
 {
   return 0;
 }
@@ -254,21 +236,12 @@ std::size_t VulkanDevice::peakMemoryUsage(const std::size_t index) const noexcep
 /*!
   \details No detailed description
 
-  \param [in] index No description.
+  \param [in] number No description.
   \return No description
   */
-std::size_t VulkanDevice::totalMemoryUsage(const std::size_t index) const noexcept
+std::size_t VulkanDevice::totalMemoryUsage(const std::size_t number) const noexcept
 {
   return 0;
-}
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-SubPlatformType VulkanDevice::type() const noexcept
-{
-  return SubPlatformType::kVulkan;
 }
 
 /*!
@@ -276,7 +249,6 @@ SubPlatformType VulkanDevice::type() const noexcept
   */
 void VulkanDevice::destroyData() noexcept
 {
-  auto& sub_platform = subPlatform();
   queue_family_index_ = invalidQueueIndex();
 
   if (vm_allocator_) {
@@ -304,6 +276,7 @@ void VulkanDevice::destroyData() noexcept
 
   zinvulvk::Device d{device()};
   if (d) {
+    auto& sub_platform = parentImpl();
     zinvulvk::AllocationCallbacks alloc{sub_platform.makeAllocator()};
     const auto loader = dispatcher().loaderImpl();
     d.destroy(alloc, *loader);
@@ -311,9 +284,33 @@ void VulkanDevice::destroyData() noexcept
   }
 
   dispatcher_.reset();
-  heap_usage_list_.clear();
-  device_info_ = nullptr;
-  sub_platform_ = nullptr;
+  heap_usage_list_.reset();
+}
+
+/*!
+  \details No detailed description
+  */
+void VulkanDevice::initData()
+{
+  {
+    auto mem_resource = memoryResource();
+    using UsageList = decltype(heap_usage_list_)::element_type;
+    zisc::pmr::polymorphic_allocator<zisc::Memory::Usage> alloce{mem_resource};
+    UsageList usage_list{alloce};
+
+    zisc::pmr::polymorphic_allocator<UsageList> alloc{mem_resource};
+    heap_usage_list_ = zisc::pmr::allocateUnique(alloc, std::move(usage_list));
+
+    const auto& info = deviceInfoData();
+    heap_usage_list_->resize(info.numOfHeaps());
+  }
+
+  initDispatcher();
+  initLocalWorkGroupSize();
+  initQueueFamilyIndexList();
+  initDevice();
+  initMemoryAllocator();
+//  initCommandPool();
 }
 
 ///*!
@@ -469,14 +466,14 @@ void VulkanDevice::destroyData() noexcept
 
   \param [in] device No description.
   \param [in] memory_type No description.
-  \param [out] index No description.
+  \param [out] number No description.
   \return No description
   */
 bool VulkanDevice::Callbacks::getHeapNumber(const VulkanDevice& device,
                                            const uint32b memory_type,
                                            std::size_t* number) noexcept
 {
-  const auto& info = device.vulkanDeviceInfo();
+  const auto& info = device.deviceInfoData();
   const auto& mem_props = info.memoryProperties().properties1_;
   const std::size_t index = mem_props.memoryTypes[memory_type].heapIndex;
   const zinvulvk::MemoryHeap heap{mem_props.memoryHeaps[index]};
@@ -506,7 +503,7 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryAllocation(
   std::size_t heap_index = 0;
   const bool is_index_found = getHeapNumber(*device, memory_type, &heap_index);
   if (is_index_found)
-    device->heap_usage_list_[heap_index].add(size);
+    (*device->heap_usage_list_)[heap_index].add(size);
 }
 
 /*!
@@ -527,7 +524,7 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryFreeing(
   std::size_t heap_index = 0;
   const bool is_index_found = getHeapNumber(*device, memory_type, &heap_index);
   if (is_index_found)
-    device->heap_usage_list_[heap_index].release(size);
+    (*device->heap_usage_list_)[heap_index].release(size);
 }
 
 /*!
@@ -559,7 +556,7 @@ uint32b VulkanDevice::findQueueFamily() const noexcept
     return result;
   };
 
-  const auto& info = vulkanDeviceInfo();
+  const auto& info = deviceInfoData();
   const auto& queue_family_list = info.queueFamilyPropertiesList();
 
   uint32b index = invalidQueueIndex();
@@ -669,7 +666,7 @@ VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() noexcept
   */
 void VulkanDevice::initDevice()
 {
-  auto& sub_platform = subPlatform();
+  auto& sub_platform = parentImpl();
 
   zisc::pmr::vector<const char*>::allocator_type layer_alloc{memoryResource()};
   zisc::pmr::vector<const char*> layers{layer_alloc};
@@ -685,7 +682,7 @@ void VulkanDevice::initDevice()
     layers.emplace_back("VK_LAYER_KHRONOS_validation");
   }
 
-  const auto& info = vulkanDeviceInfo();
+  const auto& info = deviceInfoData();
 
   // Queue create info
   zisc::pmr::vector<float> priority_list{
@@ -755,7 +752,7 @@ void VulkanDevice::initDevice()
   */
 void VulkanDevice::initDispatcher()
 {
-  const auto& sub_platform = subPlatform();
+  const auto& sub_platform = parentImpl();
   dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(
       memoryResource(),
       sub_platform.dispatcher());
@@ -764,25 +761,9 @@ void VulkanDevice::initDispatcher()
 /*!
   \details No detailed description
   */
-void VulkanDevice::initialize()
-{
-  const auto& info = vulkanDeviceInfo();
-  heap_usage_list_.resize(info.numOfHeaps());
-
-  initDispatcher();
-  initLocalWorkGroupSize();
-  initQueueFamilyIndexList();
-  initDevice();
-  initMemoryAllocator();
-//  initCommandPool();
-}
-
-/*!
-  \details No detailed description
-  */
 void VulkanDevice::initLocalWorkGroupSize() noexcept
 {
-  const auto& info = vulkanDeviceInfo();
+  const auto& info = deviceInfoData();
   const uint32b group_size = info.workGroupSize();
 
   for (uint32b dim = 1; dim <= work_group_size_list_.size(); ++dim) {
@@ -814,8 +795,8 @@ void VulkanDevice::initQueueFamilyIndexList() noexcept
   */
 void VulkanDevice::initMemoryAllocator()
 {
-  auto& sub_platform = subPlatform();
-  const auto& info = vulkanDeviceInfo();
+  auto& sub_platform = parentImpl();
+  const auto& info = deviceInfoData();
 
   VkAllocationCallbacks alloc = sub_platform.makeAllocator();
   VmaDeviceMemoryCallbacks notifier = makeAllocationNotifier();

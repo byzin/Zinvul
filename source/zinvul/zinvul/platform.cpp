@@ -48,7 +48,9 @@ Platform::Platform() noexcept
   \param [in] other No description.
   */
 Platform::Platform(Platform&& other) noexcept :
-    device_info_list_{std::move(other.device_info_list_)}
+    device_info_list_{std::move(other.device_info_list_)},
+    id_count_{other.id_count_.load()},
+    is_debug_mode_{other.is_debug_mode_}
 {
   std::swap(mem_resource_, other.mem_resource_);
   std::move(other.sub_platform_list_.begin(),
@@ -76,6 +78,9 @@ Platform& Platform::operator=(Platform&& other) noexcept
   std::move(other.sub_platform_list_.begin(),
             other.sub_platform_list_.end(),
             sub_platform_list_.begin());
+  device_info_list_ = std::move(other.device_info_list_);
+  id_count_ = other.id_count_.load();
+  is_debug_mode_ = other.is_debug_mode_;
   return *this;
 }
 
@@ -96,7 +101,7 @@ void Platform::destroy() noexcept
   \param [in] device_index No description.
   \return No description
   */
-UniqueDevice Platform::makeDevice(const std::size_t device_index)
+SharedDevice Platform::makeDevice(const std::size_t device_index)
 {
   const DeviceInfo* info = deviceInfoList()[device_index];
   SubPlatform* sub_platform = subPlatform(info->type());
@@ -115,6 +120,7 @@ void Platform::initialize(PlatformOptions& platform_options)
   destroy();
 
   mem_resource_ = platform_options.memoryResource();
+  setDebugMode(platform_options.debugModeEnabled());
 
   // Initialize sub-platforms
   initCpuSubPlatform(platform_options);
@@ -162,10 +168,11 @@ void Platform::updateDeviceInfoList() noexcept
   */
 void Platform::initCpuSubPlatform(PlatformOptions& platform_options)
 {
-  zisc::pmr::memory_resource* mem_resource = memoryResource();
-  auto sub_platform = zisc::pmr::allocateUnique<CpuSubPlatform>(mem_resource);
-  sub_platform->initialize(platform_options);
-  setSubPlatform(SubPlatformType::kCpu, std::move(sub_platform));
+  zisc::pmr::polymorphic_allocator<CpuSubPlatform> alloc{memoryResource()};
+  auto sub_platform = std::allocate_shared<CpuSubPlatform>(alloc, this);
+  std::weak_ptr<CpuSubPlatform> own{sub_platform};
+  sub_platform->initialize(std::move(own), platform_options);
+  setSubPlatform(std::move(sub_platform));
 }
 
 /*!
@@ -176,12 +183,24 @@ void Platform::initCpuSubPlatform(PlatformOptions& platform_options)
 void Platform::initVulkanSubPlatform(PlatformOptions& platform_options)
 {
 #if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
-  zisc::pmr::memory_resource* mem_resource = memoryResource();
-  auto sub_platform = zisc::pmr::allocateUnique<VulkanSubPlatform>(mem_resource);
-  sub_platform->initialize(platform_options);
-  setSubPlatform(SubPlatformType::kVulkan, std::move(sub_platform));
+  zisc::pmr::polymorphic_allocator<CpuSubPlatform> alloc{memoryResource()};
+  auto sub_platform = std::allocate_shared<VulkanSubPlatform>(alloc, this);
+  std::weak_ptr<VulkanSubPlatform> own{sub_platform};
+  sub_platform->initialize(std::move(own), platform_options);
+  setSubPlatform(std::move(sub_platform));
 #endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
   static_cast<void>(platform_options);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] is_debug_mode No description.
+  */
+void Platform::setDebugMode(const bool is_debug_mode) noexcept
+{
+  is_debug_mode_ = is_debug_mode ? Config::scalarResultTrue()
+                                 : Config::scalarResultFalse();
 }
 
 /*!

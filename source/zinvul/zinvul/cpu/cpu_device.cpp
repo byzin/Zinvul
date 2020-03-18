@@ -16,6 +16,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <memory>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
@@ -25,23 +26,17 @@
 #include "zinvul/device.hpp"
 #include "zinvul/device_info.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/utility/id_data.hpp"
 
 namespace zinvul {
 
 /*!
   \details No detailed description
 
-  \param [in] sub_platform No description.
-  \param [in] device_info No description.
+  \param [in] id No description.
   */
-CpuDevice::CpuDevice(CpuSubPlatform* sub_platform,
-                     const CpuDeviceInfo* device_info) :
-    Device(sub_platform->memoryResource()),
-    sub_platform_{sub_platform},
-    device_info_{device_info},
-    thread_manager_{sub_platform->memoryResource()}
+CpuDevice::CpuDevice(IdData&& id) : Device(std::move(id))
 {
-  initialize();
 }
 
 /*!
@@ -57,17 +52,6 @@ CpuDevice::~CpuDevice() noexcept
 
   \return No description
   */
-const DeviceInfo& CpuDevice::deviceInfo() const noexcept
-{
-  const auto& device_info = cpuDeviceInfo();
-  return device_info;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
 std::size_t CpuDevice::numOfQueues() const noexcept
 {
   return 1;
@@ -76,10 +60,10 @@ std::size_t CpuDevice::numOfQueues() const noexcept
 /*!
   \details No detailed description
 
-  \param [in] index No description.
+  \param [in] number No description.
   \return No description
   */
-std::size_t CpuDevice::peakMemoryUsage(const std::size_t index) const noexcept
+std::size_t CpuDevice::peakMemoryUsage(const std::size_t number) const noexcept
 {
   return 0;
 }
@@ -87,22 +71,12 @@ std::size_t CpuDevice::peakMemoryUsage(const std::size_t index) const noexcept
 /*!
   \details No detailed description
 
-  \param [in] index No description.
+  \param [in] number No description.
   \return No description
   */
-std::size_t CpuDevice::totalMemoryUsage(const std::size_t index) const noexcept
+std::size_t CpuDevice::totalMemoryUsage(const std::size_t number) const noexcept
 {
   return 0;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-SubPlatformType CpuDevice::type() const noexcept
-{
-  return SubPlatformType::kCpu;
 }
 
 /*!
@@ -110,15 +84,17 @@ SubPlatformType CpuDevice::type() const noexcept
   */
 void CpuDevice::destroyData() noexcept
 {
-  device_info_ = nullptr;
-  sub_platform_ = nullptr;
+  thread_manager_.reset();
 }
 
 /*!
   \details No detailed description
   */
-void CpuDevice::initialize() noexcept
+void CpuDevice::initData()
 {
+  auto mem_resource = memoryResource();
+  zisc::pmr::polymorphic_allocator<zisc::ThreadManager> alloc{mem_resource};
+  thread_manager_ = zisc::pmr::allocateUnique(alloc, mem_resource);
 }
 
 } // namespace zinvul

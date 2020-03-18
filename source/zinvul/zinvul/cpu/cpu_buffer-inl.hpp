@@ -29,6 +29,7 @@
 #include "zinvul/sub_platform.hpp"
 #include "zinvul/zinvul_config.hpp"
 #include "zinvul/utility/id_data.hpp"
+#include "zinvul/utility/zinvul_object.hpp"
 
 namespace zinvul {
 
@@ -36,25 +37,8 @@ namespace zinvul {
   \details No detailed description
   */
 template <typename T> inline
-CpuBuffer<T>::CpuBuffer(const BufferUsage buffer_usage,
-                        CpuDevice* device,
-                        IdData&& id_data) noexcept :
-    Buffer<T>(buffer_usage, std::move(id_data)),
-    device_{device}
+CpuBuffer<T>::CpuBuffer(IdData&& id) noexcept : Buffer<T>(std::move(id))
 {
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] other No description.
-  */
-template <typename T> inline
-CpuBuffer<T>::CpuBuffer(CpuBuffer&& other) noexcept :
-    Buffer<T>(std::move(other)),
-    device_{other.device_}
-{
-  other.release();
 }
 
 /*!
@@ -63,23 +47,7 @@ CpuBuffer<T>::CpuBuffer(CpuBuffer&& other) noexcept :
 template <typename T> inline
 CpuBuffer<T>::~CpuBuffer() noexcept
 {
-  Buffer<T>::clear();
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] other No description.
-  \return No description
-  */
-template <typename T> inline
-auto CpuBuffer<T>::operator=(CpuBuffer&& other) noexcept -> CpuBuffer&
-{
-  Buffer<T>::clear();
-  Buffer<T>::operator=(std::move(other));
-  device_ = other.device_;
-  other.release();
-  return *this;
+  Buffer<T>::destroy();
 }
 
 /*!
@@ -105,21 +73,42 @@ std::size_t CpuBuffer<T>::size() const noexcept
 
 /*!
   \details No detailed description
-
-  \return No description
   */
 template <typename T> inline
-SubPlatformType CpuBuffer<T>::type() const noexcept
+void CpuBuffer<T>::destroyData() noexcept
 {
-  return SubPlatformType::kCpu;
 }
 
 /*!
   \details No detailed description
   */
 template <typename T> inline
-void CpuBuffer<T>::clearData() noexcept
+void CpuBuffer<T>::initData()
 {
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+CpuDevice& CpuBuffer<T>::parentImpl() noexcept
+{
+  auto p = Buffer<T>::getParent();
+  return *zisc::treatAs<CpuBuffer*>(p);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
+{
+  const auto p = Buffer<T>::getParent();
+  return *zisc::treatAs<const CpuBuffer*>(p);
 }
 
 // Device
@@ -132,16 +121,17 @@ void CpuBuffer<T>::clearData() noexcept
   \return No description
   */
 template <typename T> inline
-UniqueBuffer<T> CpuDevice::makeBuffer(const BufferUsage flag) noexcept
+SharedBuffer<T> CpuDevice::makeBuffer(const BufferUsage flag) noexcept
 {
-  auto sub_platform = zisc::treatAs<SubPlatform*>(std::addressof(subPlatform()));
   using BufferType = CpuBuffer<T>;
-  auto buffer = zisc::pmr::allocateUnique<BufferType>(memoryResource(),
-                                                      flag,
-                                                      this,
-                                                      sub_platform->issueId());
-  UniqueBuffer<T> b = std::move(buffer);
-  return b;
+  zisc::pmr::polymorphic_allocator<BufferType> alloc{memoryResource()};
+  SharedBuffer<T> buffer = std::allocate_shared<BufferType>(alloc, issueId());
+
+  ZinvulObject::SharedPtr parent{getOwn()};
+  WeakBuffer<T> own{buffer};
+  buffer->initialize(std::move(parent), std::move(own), flag);
+
+  return buffer;
 }
 
 } // namespace zinvul

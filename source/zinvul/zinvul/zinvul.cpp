@@ -32,25 +32,25 @@ namespace zinvul {
   \param [in] options No description.
   \return No description
   */
-UniqueDevice makeDevice(DeviceOptions& options)
-{
-  UniqueDevice device{};
-//  zisc::pmr::memory_resource* mem_resource = options.memoryResource();
-//  switch (options.subPlatformType()) {
-//   case SubPlatformType::kCpu: {
-//    zisc::pmr::polymorphic_allocator<CpuDevice> alloc{mem_resource};
-//    device = zisc::pmr::allocateUnique<CpuDevice>(alloc, options);
-//    break;
-//   }
-//#if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
-//   case SubPlatformType::kVulkan: {
-//    zisc::pmr::polymorphic_allocator<VulkanDevice> alloc{mem_resource};
-//    device = zisc::pmr::allocateUnique<VulkanDevice>(alloc, options);
-//    break;
-//   }
-//#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
-//  }
-  return device;
-}
+//UniqueDevice makeDevice(DeviceOptions& options)
+//{
+//  UniqueDevice device{};
+////  zisc::pmr::memory_resource* mem_resource = options.memoryResource();
+////  switch (options.subPlatformType()) {
+////   case SubPlatformType::kCpu: {
+////    zisc::pmr::polymorphic_allocator<CpuDevice> alloc{mem_resource};
+////    device = zisc::pmr::allocateUnique<CpuDevice>(alloc, options);
+////    break;
+////   }
+////#if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
+////   case SubPlatformType::kVulkan: {
+////    zisc::pmr::polymorphic_allocator<VulkanDevice> alloc{mem_resource};
+////    device = zisc::pmr::allocateUnique<VulkanDevice>(alloc, options);
+////    break;
+////   }
+////#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
+////  }
+//  return device;
+//}
 
 } // namespace zinvul

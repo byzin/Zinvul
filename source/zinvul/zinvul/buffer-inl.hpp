@@ -17,11 +17,15 @@
 
 #include "buffer.hpp"
 // Standard C++ library
+#include <memory>
 #include <type_traits>
 #include <utility>
+// Zisc
+#include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "zinvul_config.hpp"
 #include "utility/id_data.hpp"
+#include "utility/zinvul_object.hpp"
 
 namespace zinvul {
 
@@ -29,21 +33,7 @@ namespace zinvul {
   \details No detailed description
   */
 template <typename T> inline
-Buffer<T>::Buffer(const BufferUsage buffer_usage, IdData&& id_data) noexcept :
-    buffer_usage_{buffer_usage},
-    id_data_{std::move(id_data)}
-{
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] other No description.
-  */
-template <typename T> inline
-Buffer<T>::Buffer(Buffer&& other) noexcept :
-    buffer_usage_{other.buffer_usage_},
-    id_data_{std::move(other.id_data_)}
+Buffer<T>::Buffer(IdData&& id) noexcept : ZinvulObject(std::move(id))
 {
 }
 
@@ -57,43 +47,41 @@ Buffer<T>::~Buffer() noexcept
 
 /*!
   \details No detailed description
-
-  \param [in] other No description.
   */
 template <typename T> inline
-auto Buffer<T>::operator=(Buffer&& other) noexcept -> Buffer&
+void Buffer<T>::destroy() noexcept
 {
-  buffer_usage_ = other.buffer_usage_;
-  id_data_ = std::move(other.id_data_);
-  return *this;
+  clear();
+  destroyObject();
 }
 
+/*!
+  \details No detailed description
+  */
 template <typename T> inline
 void Buffer<T>::clear() noexcept
 {
-  clearData();
+  destroyData();
 }
 
 /*!
   \details No detailed description
 
-  \return No description
+  \param [in] parent No description.
+  \param [in] own No description.
+  \param [in] buffer_usage No description.
   */
 template <typename T> inline
-IdData& Buffer<T>::idData() noexcept
+void Buffer<T>::initialize(ZinvulObject::SharedPtr&& parent,
+                           WeakPtr&& own,
+                           const BufferUsage buffer_usage)
 {
-  return id_data_;
-}
+  //! Clear the previous device data first
+  destroy();
 
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <typename T> inline
-const IdData& Buffer<T>::idData() const noexcept
-{
-  return id_data_;
+  initObject(std::move(parent), std::move(own));
+  buffer_usage_ = buffer_usage;
+  initData();
 }
 
 /*!

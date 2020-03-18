@@ -18,6 +18,9 @@
 #include "cpu_device.hpp"
 // Standard C++ library
 #include <cstddef>
+#include <memory>
+// Zisc
+#include "zisc/utility.hpp"
 // Zinvul
 #include "cpu_device_info.hpp"
 #include "cpu_sub_platform.hpp"
@@ -41,9 +44,10 @@ namespace zinvul {
   \return No description
   */
 inline
-const CpuDeviceInfo& CpuDevice::cpuDeviceInfo() const noexcept
+const CpuDeviceInfo& CpuDevice::deviceInfoData() const noexcept
 {
-  return *device_info_;
+  const auto& info = deviceInfo();
+  return *zisc::cast<const CpuDeviceInfo*>(std::addressof(info));
 }
 
 ////  setDeviceMemoryUsage(memory_usage);
@@ -188,9 +192,10 @@ const CpuDeviceInfo& CpuDevice::cpuDeviceInfo() const noexcept
   \return No description
   */
 inline
-CpuSubPlatform& CpuDevice::subPlatform() noexcept
+CpuSubPlatform& CpuDevice::parentImpl() noexcept
 {
-  return *sub_platform_;
+  auto p = getParent();
+  return *zisc::cast<CpuSubPlatform*>(p);
 }
 
 /*!
@@ -199,9 +204,10 @@ CpuSubPlatform& CpuDevice::subPlatform() noexcept
   \return No description
   */
 inline
-const CpuSubPlatform& CpuDevice::subPlatform() const noexcept
+const CpuSubPlatform& CpuDevice::parentImpl() const noexcept
 {
-  return *sub_platform_;
+  const auto p = getParent();
+  return *zisc::cast<const CpuSubPlatform*>(p);
 }
 
 ///*!

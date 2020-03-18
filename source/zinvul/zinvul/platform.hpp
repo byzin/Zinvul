@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <memory>
 #include <vector>
@@ -66,17 +67,23 @@ class Platform : private zisc::NonCopyable<Platform>
   //! Check if the platform has the sub-platform of the given type
   bool hasSubPlatform(const SubPlatformType type) const noexcept;
 
+  //! Initialize the platform
+  void initialize(PlatformOptions& platform_options);
+
+  //! Check if the platform is in debug mode
+  bool isDebugMode() const noexcept;
+
+  //! Issue an ID of an object
+  IdData issueId() noexcept;
+
   //! Make a unique device
-  UniqueDevice makeDevice(const std::size_t device_index);
+  SharedDevice makeDevice(const std::size_t device_index);
 
   //! Return the underlying memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;
 
   //! Return the underlying memory resource
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
-
-  //! Initialize the platform
-  void initialize(PlatformOptions& platform_options);
 
   //! Return the sub-platform of the given type
   SubPlatform* subPlatform(const SubPlatformType type) noexcept;
@@ -94,17 +101,21 @@ class Platform : private zisc::NonCopyable<Platform>
   //! Create a Vulkan sub-platform
   void initVulkanSubPlatform(PlatformOptions& platform_options);
 
+  //! Set debug mode
+  void setDebugMode(const bool is_debug_mode) noexcept;
+
   //! Set a sub-platform of the given type
-  void setSubPlatform(const SubPlatformType type,
-                      UniqueSubPlatform&& sub_platform) noexcept;
+  void setSubPlatform(SharedSubPlatform&& sub_platform) noexcept;
 
 
   static constexpr std::size_t kNumOfSubPlatforms = 2;
 
 
   zisc::pmr::memory_resource* mem_resource_ = nullptr;
-  std::array<UniqueSubPlatform, kNumOfSubPlatforms> sub_platform_list_;
+  std::array<SharedSubPlatform, kNumOfSubPlatforms> sub_platform_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<const DeviceInfo*>> device_info_list_;
+  std::atomic<uint32b> id_count_ = 0;
+  int32b is_debug_mode_ = Config::scalarResultFalse();
 };
 
 // Type aliases

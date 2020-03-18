@@ -30,6 +30,7 @@
 namespace zinvul {
 
 // Forward declaration
+class Platform;
 class PlatformOptions;
 
 /*!
@@ -41,7 +42,7 @@ class CpuSubPlatform : public SubPlatform
 {
  public:
   //! Create an empty cpu sub-platform
-  CpuSubPlatform() noexcept;
+  CpuSubPlatform(Platform* platform) noexcept;
 
   //! Finalize the sub-platform
   ~CpuSubPlatform() noexcept override;
@@ -51,7 +52,7 @@ class CpuSubPlatform : public SubPlatform
   void getDeviceInfoList(zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept override;
 
   //! Make a unique device
-  UniqueDevice makeDevice(const DeviceInfo& device_info) noexcept override;
+  SharedDevice makeDevice(const DeviceInfo& device_info) noexcept override;
 
   //! Return the number of available devices
   std::size_t numOfDevices() const noexcept override;

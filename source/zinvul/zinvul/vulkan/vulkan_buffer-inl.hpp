@@ -28,6 +28,7 @@
 #include "zinvul/sub_platform.hpp"
 #include "zinvul/zinvul_config.hpp"
 #include "zinvul/utility/id_data.hpp"
+#include "zinvul/utility/zinvul_object.hpp"
 
 namespace zinvul {
 
@@ -35,25 +36,8 @@ namespace zinvul {
   \details No detailed description
   */
 template <typename T> inline
-VulkanBuffer<T>::VulkanBuffer(const BufferUsage buffer_usage,
-                              VulkanDevice* device,
-                              IdData&& id_data) noexcept :
-    Buffer<T>(buffer_usage, std::move(id_data)),
-    device_{device}
+VulkanBuffer<T>::VulkanBuffer(IdData&& id) noexcept : Buffer<T>(std::move(id))
 {
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] other No description.
-  */
-template <typename T> inline
-VulkanBuffer<T>::VulkanBuffer(VulkanBuffer&& other) noexcept :
-    Buffer<T>(std::move(other)),
-    device_{other.device_}
-{
-  other.release();
 }
 
 /*!
@@ -62,23 +46,7 @@ VulkanBuffer<T>::VulkanBuffer(VulkanBuffer&& other) noexcept :
 template <typename T> inline
 VulkanBuffer<T>::~VulkanBuffer() noexcept
 {
-  Buffer<T>::clear();
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] other No description.
-  \return No description
-  */
-template <typename T> inline
-auto VulkanBuffer<T>::operator=(VulkanBuffer&& other) noexcept -> VulkanBuffer&
-{
-  Buffer<T>::clear();
-  Buffer<T>::operator=(std::move(other));
-  device_ = other.device_;
-  other.release();
-  return *this;
+  Buffer<T>::destroy();
 }
 
 /*!
@@ -91,12 +59,13 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
 {
   if ((0 < s) && (s != size())) {
     Buffer<T>::clear();
-    device_->allocateMemory(s,
-                            Buffer<T>::usage(),
-                            std::addressof(Buffer<T>::idData()),
-                            std::addressof(buffer_),
-                            std::addressof(vm_allocation_),
-                            std::addressof(alloc_info_));
+    auto& device = parentImpl();
+    device.allocateMemory(s,
+                          Buffer<T>::usage(),
+                          std::addressof(Buffer<T>::id()),
+                          std::addressof(buffer_),
+                          std::addressof(vm_allocation_),
+                          std::addressof(alloc_info_));
   }
 }
 
@@ -113,26 +82,50 @@ std::size_t VulkanBuffer<T>::size() const noexcept
 
 /*!
   \details No detailed description
-
-  \return No description
   */
 template <typename T> inline
-SubPlatformType VulkanBuffer<T>::type() const noexcept
+void VulkanBuffer<T>::destroyData() noexcept
 {
-  return SubPlatformType::kVulkan;
+  if (buffer_ != VK_NULL_HANDLE) {
+    auto& device = parentImpl();
+    device.deallocateMemory(std::addressof(buffer_),
+                            std::addressof(vm_allocation_),
+                            std::addressof(alloc_info_));
+    buffer_ = VK_NULL_HANDLE;
+    vm_allocation_ = VK_NULL_HANDLE;
+  }
 }
 
 /*!
   \details No detailed description
   */
 template <typename T> inline
-void VulkanBuffer<T>::clearData() noexcept
+void VulkanBuffer<T>::initData()
 {
-  device_->deallocateMemory(std::addressof(buffer_),
-                            std::addressof(vm_allocation_),
-                            std::addressof(alloc_info_));
-  buffer_ = VK_NULL_HANDLE;
-  vm_allocation_ = VK_NULL_HANDLE;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+VulkanDevice& VulkanBuffer<T>::parentImpl() noexcept
+{
+  auto p = Buffer<T>::getParent();
+  return *zisc::treatAs<VulkanDevice*>(p);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+const VulkanDevice& VulkanBuffer<T>::parentImpl() const noexcept
+{
+  const auto p = Buffer<T>::getParent();
+  return *zisc::treatAs<const VulkanDevice*>(p);
 }
 
 // Device
@@ -145,16 +138,17 @@ void VulkanBuffer<T>::clearData() noexcept
   \return No description
   */
 template <typename T> inline
-UniqueBuffer<T> VulkanDevice::makeBuffer(const BufferUsage flag)
+SharedBuffer<T> VulkanDevice::makeBuffer(const BufferUsage flag)
 {
-  auto sub_platform = zisc::treatAs<SubPlatform*>(std::addressof(subPlatform()));
   using BufferType = VulkanBuffer<T>;
-  auto buffer = zisc::pmr::allocateUnique<BufferType>(memoryResource(),
-                                                      flag,
-                                                      this,
-                                                      sub_platform->issueId());
-  UniqueBuffer<T> b = std::move(buffer);
-  return b;
+  zisc::pmr::polymorphic_allocator<BufferType> alloc{memoryResource()};
+  SharedBuffer<T> buffer = std::allocate_shared<BufferType>(alloc, issueId());
+
+  ZinvulObject::SharedPtr parent{getOwn()};
+  WeakBuffer<T> own{buffer};
+  buffer->initialize(std::move(parent), std::move(own), flag);
+
+  return buffer;
 }
 
 } // namespace zinvul

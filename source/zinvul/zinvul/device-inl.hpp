@@ -29,7 +29,7 @@ namespace zinvul {
 
 // Forward declaration
 template <typename T>
-UniqueBuffer<T> makeBuffer(Device* device, const BufferUsage flag);
+SharedBuffer<T> makeBuffer(Device* device, const BufferUsage flag);
 
 /*!
   \details No detailed description
@@ -39,7 +39,7 @@ UniqueBuffer<T> makeBuffer(Device* device, const BufferUsage flag);
   \return No description
   */
 template <typename T> inline
-UniqueBuffer<T> Device::makeBuffer(const BufferUsage flag)
+SharedBuffer<T> Device::makeBuffer(const BufferUsage flag)
 {
   auto buffer = zinvul::makeBuffer<T>(this, flag);
   return buffer;
@@ -51,22 +51,9 @@ UniqueBuffer<T> Device::makeBuffer(const BufferUsage flag)
   \return No description
   */
 inline
-zisc::pmr::memory_resource* Device::memoryResource() noexcept
+const DeviceInfo& Device::deviceInfo() const noexcept
 {
-  ZISC_ASSERT(mem_resource_ != nullptr, "The memory resource is null.");
-  return mem_resource_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-const zisc::pmr::memory_resource* Device::memoryResource() const noexcept
-{
-  ZISC_ASSERT(mem_resource_ != nullptr, "The memory resource is null.");
-  return mem_resource_;
+  return *device_info_;
 }
 
 } // namespace zinvul

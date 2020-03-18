@@ -19,29 +19,18 @@
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
+#include "sub_platform.hpp"
 #include "zinvul_config.hpp"
+#include "utility/id_data.hpp"
+#include "utility/zinvul_object.hpp"
 
 namespace zinvul {
 
 /*!
   \details No detailed description
-
-  \param [in,out] mem_resource No description.
   */
-Device::Device(zisc::pmr::memory_resource* mem_resource) noexcept :
-    mem_resource_{mem_resource}
+Device::Device(IdData&& id) noexcept : ZinvulObject{std::move(id)}
 {
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] other No description.
-  */
-Device::Device(Device&& other) noexcept :
-    mem_resource_{nullptr}
-{
-  std::swap(mem_resource_, other.mem_resource_);
 }
 
 /*!
@@ -53,22 +42,30 @@ Device::~Device() noexcept
 
 /*!
   \details No detailed description
-
-  \param [in] other No description.
-  */
-Device& Device::operator=(Device&& other) noexcept
-{
-  std::swap(mem_resource_, other.mem_resource_);
-  return *this;
-}
-
-/*!
-  \details No detailed description
   */
 void Device::destroy() noexcept
 {
   destroyData();
-  mem_resource_ = nullptr;
+  device_info_ = nullptr;
+  destroyObject();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] parent No description.
+  \param [in,out] own No description.
+  */
+void Device::initialize(ZinvulObject::SharedPtr&& parent,
+                        WeakPtr&& own,
+                        const DeviceInfo& device_info)
+{
+  //! Clear the previous device data first
+  destroy();
+
+  initObject(std::move(parent), std::move(own));
+  device_info_ = std::addressof(device_info);
+  initData();
 }
 
 } // namespace zinvul

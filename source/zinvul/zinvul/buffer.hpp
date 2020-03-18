@@ -25,6 +25,7 @@
 // Zinvul
 #include "zinvul_config.hpp"
 #include "utility/id_data.hpp"
+#include "utility/zinvul_object.hpp"
 
 namespace zinvul {
 
@@ -36,10 +37,12 @@ namespace zinvul {
   \tparam T No description.
   */
 template <typename T>
-class Buffer : private zisc::NonCopyable<Buffer<T>>
+class Buffer : public ZinvulObject
 {
  public:
   // Type aliases
+  using SharedPtr = std::shared_ptr<Buffer>;
+  using WeakPtr = std::weak_ptr<Buffer>;
   using Type = std::remove_cv_t<std::remove_reference_t<T>>;
   using ConstType = std::add_const_t<Type>;
   using Pointer = std::add_pointer_t<Type>;
@@ -47,27 +50,22 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
 
 
   //! Initialize the buffer
-  Buffer(const BufferUsage buffer_usage, IdData&& id_data) noexcept;
-
-  //! Move a data
-  Buffer(Buffer&& other) noexcept;
+  Buffer(IdData&& id) noexcept;
 
   //! Finalize the buffer
   virtual ~Buffer() noexcept;
 
 
-  //! Move a data
-  Buffer& operator=(Buffer&& other) noexcept;
-
+  //! Destroy the buffer
+  void destroy() noexcept;
 
   //! Clear the contents of the buffer
   void clear() noexcept;
 
-  //! Return the underlying ID data
-  IdData& idData() noexcept;
-
-  //! Return the underlying ID data
-  const IdData& idData() const noexcept;
+  //! Initialize the buffer
+  void initialize(ZinvulObject::SharedPtr&& parent,
+                  WeakPtr&& own,
+                  const BufferUsage buffer_usage);
 
   //! Change the number of elements
   virtual void setSize(const std::size_t s) = 0;
@@ -78,21 +76,22 @@ class Buffer : private zisc::NonCopyable<Buffer<T>>
   //! Return the buffer usage flag
   BufferUsage usage() const noexcept;
 
-  //! Return the sub-platform type
-  virtual SubPlatformType type() const noexcept = 0;
-
  protected:
   //! Clear the contents of the buffer
-  virtual void clearData() noexcept = 0;
+  virtual void destroyData() noexcept = 0;
+
+  //! Initialize the buffer
+  virtual void initData() = 0;
 
  private:
   BufferUsage buffer_usage_;
-  IdData id_data_;
 };
 
 // Type aliases
 template <typename Type>
-using UniqueBuffer = zisc::pmr::unique_ptr<Buffer<Type>>;
+using SharedBuffer = typename Buffer<Type>::SharedPtr;
+template <typename Type>
+using WeakBuffer = typename Buffer<Type>::WeakPtr;
 
 } // namespace zinvul
 

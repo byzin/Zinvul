@@ -46,23 +46,11 @@ class VulkanBuffer : public Buffer<T>
 
 
   //! Initialize the buffer
-  VulkanBuffer(const BufferUsage buffer_usage,
-               VulkanDevice* device,
-               IdData&& id_data) noexcept;
-
-  //! Move a data
-  VulkanBuffer(VulkanBuffer&& other) noexcept;
+  VulkanBuffer(IdData&& id) noexcept;
 
   //! Finalize the buffer
   ~VulkanBuffer() noexcept override;
 
-
-  //! Move a data
-  VulkanBuffer& operator=(VulkanBuffer&& other) noexcept;
-
-
-  //! Release the ownership of the buffer
-  void release() noexcept;
 
   //! Change the number of elements
   void setSize(const std::size_t s) override;
@@ -70,15 +58,21 @@ class VulkanBuffer : public Buffer<T>
   //! Return the number of elements
   std::size_t size() const noexcept override;
 
-  //! Return the sub-platform type
-  SubPlatformType type() const noexcept override;
-
  protected:
   //! Clear the contents of the buffer
-  void clearData() noexcept override;
+  void destroyData() noexcept override;
+
+  //! Initialize the buffer
+  void initData() override;
 
  private:
-  VulkanDevice* device_ = nullptr;
+  //! Return the device
+  VulkanDevice& parentImpl() noexcept;
+
+  //! Return the device
+  const VulkanDevice& parentImpl() const noexcept;
+
+
   VkBuffer buffer_ = VK_NULL_HANDLE;
   VmaAllocation vm_allocation_ = VK_NULL_HANDLE;
   VmaAllocationInfo alloc_info_;
