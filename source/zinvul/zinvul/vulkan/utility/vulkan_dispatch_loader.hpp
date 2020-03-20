@@ -72,6 +72,9 @@ class VulkanDispatchLoader
   VulkanDispatchLoader& operator=(VulkanDispatchLoader&& other) noexcept;
 
 
+  //! Check if the loader is available
+  bool isAvailable() const noexcept;
+
   //! Return the underlying vulkan dispatch loader
   LoaderImplPtr loaderImpl() noexcept;
 

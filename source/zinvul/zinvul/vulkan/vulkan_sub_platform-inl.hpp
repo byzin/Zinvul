@@ -95,7 +95,7 @@ std::string_view VulkanSubPlatform::engineName() const noexcept
 inline
 VkInstance& VulkanSubPlatform::instance() noexcept
 {
-  return instance_;
+  return *instance_ref_;
 }
 
 /*!
@@ -106,7 +106,7 @@ VkInstance& VulkanSubPlatform::instance() noexcept
 inline
 const VkInstance& VulkanSubPlatform::instance() const noexcept
 {
-  return instance_;
+  return *instance_ref_;
 }
 
 } // namespace zinvul

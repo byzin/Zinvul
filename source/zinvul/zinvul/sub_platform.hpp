@@ -64,6 +64,9 @@ class SubPlatform : public ZinvulObject
   //! Initialize the sub-platform
   void initialize(WeakPtr&& own, PlatformOptions& platform_options);
 
+  //! Check if the sub-platform is available
+  virtual bool isAvailable() const noexcept = 0;
+
   //! Check if the sub-platform is in debug mode
   bool isDebugMode() const noexcept override;
 

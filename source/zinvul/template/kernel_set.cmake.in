@@ -78,10 +78,6 @@ endfunction(prepareCppBackend)
 #                            --expensive-combines
 #                            --instcombine-code-sinking
 #                            )
-#  if(ZINVUL_ENABLE_UNIFORM_BUFFER)
-#    list(APPEND clspv_options --constant-args-ubo
-#                              --pod-ubo
-#                              )
 #  endif()
 #
 #  # Descriptor map

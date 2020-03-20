@@ -29,9 +29,6 @@ function(initZinvulOptions)
   set(option_description "Enable SPIR-V analysis.")
   setBooleanOption(ZINVUL_ENABLE_SPIRV_ANALYSIS ON ${option_description})
 
-  set(option_description "Enable Uniform buffer.")
-  setBooleanOption(ZINVUL_ENABLE_UNIFORM_BUFFER ON ${option_description})
-
   set(option_description "Use built-in math funcs instead of the Zinvul funcs.")
   setBooleanOption(ZINVUL_MATH_BUILTIN OFF ${option_description})
 
@@ -100,9 +97,6 @@ function(getZinvulFlags zinvul_compile_flags zinvul_linker_flags zinvul_definiti
     if(ZINVUL_ENABLE_VMA_IMPLEMENTATION)
       list(APPEND definitions ZINVUL_ENABLE_VMA_IMPLEMENTATION)
     endif()
-  endif()
-  if(ZINVUL_ENABLE_UNIFORM_BUFFER)
-    list(APPEND definitions ZINVUL_ENABLE_UNIFORM_BUFFER)
   endif()
 
   # C++

@@ -140,10 +140,10 @@ void VulkanDispatchLoader::copy(const VulkanDispatchLoader& other) noexcept
   destroy();
   mem_resource_ = const_cast<zisc::pmr::memory_resource*>(other.mem_resource_);
   dynamic_loader_ = other.dynamic_loader_;
+  if (other.isAvailable())
   {
     zisc::pmr::polymorphic_allocator<LoaderImpl> alloc{mem_resource_};
-    constexpr std::size_t n = 1;
-    loader_impl_ = alloc.allocate(n);
+    loader_impl_ = alloc.allocate(1);
     alloc.construct(loader_impl_, *other.loader_impl_);
   }
 }
@@ -153,11 +153,10 @@ void VulkanDispatchLoader::copy(const VulkanDispatchLoader& other) noexcept
   */
 void VulkanDispatchLoader::destroy() noexcept
 {
-  if (mem_resource_ && loader_impl_) {
+  if (isAvailable()) {
     std::destroy_at(loader_impl_);
     zisc::pmr::polymorphic_allocator<LoaderImpl> alloc{mem_resource_};
-    constexpr std::size_t n = 1;
-    alloc.deallocate(loader_impl_, n);
+    alloc.deallocate(loader_impl_, 1);
   }
   loader_impl_ = nullptr;
   dynamic_loader_.reset();
@@ -181,6 +180,7 @@ void VulkanDispatchLoader::initialize()
     //! \todo Throw an exception
     ZISC_ASSERT(!dynamic_loader_->success(), "Vulkan library loading failed.");
   }
+  ZISC_ASSERT(!dynamic_loader_->success(), "Debug.");
 #else // ZINVUL_DYNAMIC_VULKAN_LOADING
   get_proc_addr = ::vkGetInstanceProcAddr;
 #endif // ZINVUL_DYNAMIC_VULKAN_LOADING
@@ -195,10 +195,9 @@ void VulkanDispatchLoader::initialize()
 void VulkanDispatchLoader::initialize(PFN_vkGetInstanceProcAddr get_proc_addr)
 {
   ZISC_ASSERT(mem_resource_ != nullptr, "The memory resource is null.");
-  {
+  if (get_proc_addr != nullptr) {
     zisc::pmr::polymorphic_allocator<LoaderImpl> alloc{mem_resource_};
-    constexpr std::size_t n = 1;
-    loader_impl_ = alloc.allocate(n);
+    loader_impl_ = alloc.allocate(1);
     alloc.construct(loader_impl_, get_proc_addr);
   }
 }

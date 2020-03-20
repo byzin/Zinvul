@@ -81,11 +81,8 @@ class Config
                                                                      int32b>>>;
 
 
-  //! Return whether uniform buffer is enabled
-  static constexpr bool isUniformBufferEnabled() noexcept;
-
-  //! Return whether vulkan backendb is enabled
-  static constexpr bool isVulkanBackendEnabled() noexcept;
+  //! Check if vulkan sub-platform is enabled
+  static constexpr bool isVulkanSubPlatformEnabled() noexcept;
 
   //! Represent 'false' value of scalar value comparison
   static constexpr int32b scalarResultFalse() noexcept;

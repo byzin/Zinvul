@@ -51,6 +51,9 @@ class CpuSubPlatform : public SubPlatform
   //! Add the underlying device info into the given list
   void getDeviceInfoList(zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept override;
 
+  //! Check if the sub-platform is available
+  bool isAvailable() const noexcept override;
+
   //! Make a unique device
   SharedDevice makeDevice(const DeviceInfo& device_info) noexcept override;
 

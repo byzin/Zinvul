@@ -73,6 +73,15 @@ class VulkanSubPlatform : public SubPlatform
   //! Add the underlying device info into the given list
   void getDeviceInfoList(zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept override;
 
+  //! Return the underlying Vulkan instance
+  VkInstance& instance() noexcept;
+
+  //! Return the underlying Vulkan instance
+  const VkInstance& instance() const noexcept;
+
+  //! Check if the sub-platform is available
+  bool isAvailable() const noexcept override;
+
   //! Make a host memory allocator for Vulkan object
   VkAllocationCallbacks makeAllocator() noexcept;
 
@@ -81,12 +90,6 @@ class VulkanSubPlatform : public SubPlatform
 
   //! Return the number of available devices
   std::size_t numOfDevices() const noexcept override;
-
-  //! Return the underlying Vulkan instance
-  VkInstance& instance() noexcept;
-
-  //! Return the underlying Vulkan instance
-  const VkInstance& instance() const noexcept;
 
   //! Return the sub-platform type
   SubPlatformType type() const noexcept override;
@@ -199,6 +202,9 @@ class VulkanSubPlatform : public SubPlatform
       const uint32b app_version_minor,
       const uint32b app_version_patch) const noexcept;
 
+  //! Initialize an allocator which used in the sub-platform
+  void initAllocator() noexcept;
+
   //! Make a vulkan instance
   void initInstance(PlatformOptions& platform_options);
 
@@ -209,10 +215,11 @@ class VulkanSubPlatform : public SubPlatform
   void initDeviceInfoList() noexcept;
 
   //! Initialize the vulkan dispatch loader
-  void initDispatcher();
+  void initDispatcher(PlatformOptions& platform_options);
 
 
   VkInstance instance_ = VK_NULL_HANDLE;
+  std::add_pointer_t<VkInstance> instance_ref_ = nullptr;
   zisc::pmr::unique_ptr<AllocatorData> allocator_data_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkPhysicalDevice>> device_list_;

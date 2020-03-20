@@ -84,6 +84,18 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   //! Set the value of the patch component of the platform version number
   void setPlatformVersionPatch(const uint32b patch) noexcept;
 
+  //! Set a ptr of a VkInstance object which is used instead of internal instance
+  void setVulkanInstancePtr(void* instance_ptr) noexcept;
+
+  //! Set a ptr of a PFN_vkGetInstanceProcAddr which is used instead of internal function
+  void setVulkanGetProcAddrPtr(void* get_proc_addr_ptr) noexcept;
+
+  //! Return a ptr of a VkInstance object
+  void* vulkanInstancePtr() noexcept;
+
+  //! Return a ptr of a PFN_vkGetInstanceProcAddr
+  void* vulkanGetProcAddrPtr() noexcept;
+
   //! Check whether the vulkan sub-platform is enabled
   bool vulkanSubPlatformEnabled() const noexcept;
 
@@ -97,8 +109,12 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   uint32b platform_version_major_;
   uint32b platform_version_minor_;
   uint32b platform_version_patch_;
-  int32b vulkan_sub_platform_enabled_;
   int32b debug_mode_enabled_; //!< Enable debugging in Zinvul
+  // uint32b cpu_num_of_threads_
+  // uint32b cpu_task_batch_size_
+  int32b vulkan_sub_platform_enabled_;
+  void* vulkan_instance_ptr_ = nullptr;
+  void* vulkan_get_proc_addr_ptr_ = nullptr;
 };
 
 } // namespace zinvul

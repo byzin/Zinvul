@@ -87,6 +87,16 @@ SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info) noexcept
 
   \return No description
   */
+bool CpuSubPlatform::isAvailable() const noexcept
+{
+  return true;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
 std::size_t CpuSubPlatform::numOfDevices() const noexcept
 {
   return 1;

@@ -73,6 +73,17 @@ void VulkanSubPlatform::getDeviceInfoList(
 
   \return No description
   */
+bool VulkanSubPlatform::isAvailable() const noexcept
+{
+  const bool result = instance_ref_ != nullptr;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
 VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
 {
   zinvulvk::AllocationCallbacks alloc{allocator_data_.get(),
@@ -156,7 +167,7 @@ void VulkanSubPlatform::destroyData() noexcept
   device_info_list_.reset();
   device_list_.reset();
 
-  zinvulvk::Instance ins{instance()};
+  zinvulvk::Instance ins{instance_};
   if (ins) {
     zinvulvk::AllocationCallbacks alloc{makeAllocator()};
     const auto loader = dispatcher().loaderImpl();
@@ -164,8 +175,8 @@ void VulkanSubPlatform::destroyData() noexcept
     instance_ = VK_NULL_HANDLE;
   }
 
-  dispatcher_.reset();
   allocator_data_.reset();
+  dispatcher_.reset();
 }
 
 /*!
@@ -175,14 +186,15 @@ void VulkanSubPlatform::destroyData() noexcept
   */
 void VulkanSubPlatform::initData(PlatformOptions& platform_options)
 {
-  auto mem_resource = memoryResource();
-  zisc::pmr::polymorphic_allocator<AllocatorData> alloc{mem_resource};
-  allocator_data_ = zisc::pmr::allocateUnique<AllocatorData>(
-      alloc,
-      mem_resource,
-      MemoryMap{MemoryMap::allocator_type{mem_resource}});
-  initDispatcher();
+  initDispatcher(platform_options);
+  if (!dispatcher().isAvailable()) {
+    if (isDebugMode())
+      std::cerr << "[Warning] Loading Vulkan functions failed." << std::endl;
+    return;
+  }
+  initAllocator();
   initInstance(platform_options);
+  dispatcher_->set(instance());
   initDeviceList();
   initDeviceInfoList();
 }
@@ -488,11 +500,33 @@ VkApplicationInfo VulkanSubPlatform::makeApplicationInfo(
 
 /*!
   \details No detailed description
+  */
+void VulkanSubPlatform::initAllocator() noexcept
+{
+  auto mem_resource = memoryResource();
+  zisc::pmr::polymorphic_allocator<AllocatorData> alloc{mem_resource};
+  allocator_data_ = zisc::pmr::allocateUnique<AllocatorData>(
+      alloc,
+      mem_resource,
+      MemoryMap{MemoryMap::allocator_type{mem_resource}});
+}
+
+/*!
+  \details No detailed description
 
   \param [in,out] platform_options No description.
   */
 void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
 {
+  using InstancePtr = std::add_pointer_t<VkInstance>;
+  auto ptr = zisc::cast<InstancePtr>(platform_options.vulkanInstancePtr());
+  if (ptr) {
+    // Use the given instance instead of allocating new instance
+    instance_ = VK_NULL_HANDLE;
+    instance_ref_ = ptr;
+    return;
+  }
+
   zisc::pmr::vector<const char*>::allocator_type layer_alloc{memoryResource()};
   zisc::pmr::vector<const char*> layers{layer_alloc};
   zisc::pmr::vector<const char*> extensions{layer_alloc};
@@ -550,7 +584,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
   const auto loader = dispatcher().loaderImpl();
   zinvulvk::Instance ins = zinvulvk::createInstance(createInfo, alloc, *loader);
   instance_ = zisc::cast<VkInstance>(ins);
-  dispatcher_->set(instance());
+  instance_ref_ = std::addressof(instance_);
 }
 
 /*!
@@ -589,12 +623,16 @@ void VulkanSubPlatform::initDeviceInfoList() noexcept
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::initDispatcher()
+void VulkanSubPlatform::initDispatcher(PlatformOptions& platform_options)
 {
   auto mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<VulkanDispatchLoader> alloc{mem_resource};
-  dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc,
-                                                                mem_resource);
+
+  using FuncPtr = std::add_pointer_t<PFN_vkGetInstanceProcAddr>;
+  auto ptr = zisc::cast<FuncPtr>(platform_options.vulkanGetProcAddrPtr());
+  dispatcher_ = (ptr) // Use the given loader instead of allocating new one
+      ? zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, *ptr)
+      : zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource);
 }
 
 } // namespace zinvul

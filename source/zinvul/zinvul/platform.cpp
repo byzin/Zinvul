@@ -144,19 +144,19 @@ void Platform::updateDeviceInfoList() noexcept
   device_info_list_->clear();
   // 
   for (auto& sub_platform : sub_platform_list_) {
-    if (sub_platform)
+    if (sub_platform && sub_platform->isAvailable())
       sub_platform->updateDeviceInfoList();
   }
   //
   std::size_t num_of_devices = 0;
   for (const auto& sub_platform : sub_platform_list_) {
-    if (sub_platform)
+    if (sub_platform && sub_platform->isAvailable())
       num_of_devices += sub_platform->numOfDevices();
   }
   device_info_list_->reserve(num_of_devices);
   //
   for (const auto& sub_platform : sub_platform_list_) {
-    if (sub_platform)
+    if (sub_platform && sub_platform->isAvailable())
       sub_platform->getDeviceInfoList(*device_info_list_);
   }
 }

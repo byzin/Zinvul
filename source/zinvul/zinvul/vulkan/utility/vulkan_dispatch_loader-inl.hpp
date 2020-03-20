@@ -25,6 +25,18 @@ namespace zinvul {
   \return No description
   */
 inline
+bool VulkanDispatchLoader::isAvailable() const noexcept
+{
+  const bool result = loaderImpl() != nullptr;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 auto VulkanDispatchLoader::loaderImpl() noexcept -> LoaderImplPtr
 {
   return loader_impl_;

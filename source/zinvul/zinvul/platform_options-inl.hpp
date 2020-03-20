@@ -40,8 +40,10 @@ PlatformOptions::PlatformOptions(zisc::pmr::memory_resource* mem_resource)
         platform_version_major_{0},
         platform_version_minor_{0},
         platform_version_patch_{0},
+        debug_mode_enabled_{Config::scalarResultFalse()},
         vulkan_sub_platform_enabled_{Config::scalarResultTrue()},
-        debug_mode_enabled_{Config::scalarResultFalse()}
+        vulkan_instance_ptr_{nullptr},
+        vulkan_get_proc_addr_ptr_{nullptr}
 {
   initialize();
 }
@@ -58,8 +60,10 @@ PlatformOptions::PlatformOptions(PlatformOptions&& other) noexcept :
     platform_version_major_{other.platform_version_major_},
     platform_version_minor_{other.platform_version_minor_},
     platform_version_patch_{other.platform_version_patch_},
+    debug_mode_enabled_{other.debug_mode_enabled_},
     vulkan_sub_platform_enabled_{other.vulkan_sub_platform_enabled_},
-    debug_mode_enabled_{other.debug_mode_enabled_}
+    vulkan_instance_ptr_{other.vulkan_instance_ptr_},
+    vulkan_get_proc_addr_ptr_{other.vulkan_get_proc_addr_ptr_}
 {
 }
 
@@ -77,8 +81,10 @@ PlatformOptions& PlatformOptions::operator=(PlatformOptions&& other) noexcept
   platform_version_major_ = other.platform_version_major_;
   platform_version_minor_ = other.platform_version_minor_;
   platform_version_patch_ = other.platform_version_patch_;
-  vulkan_sub_platform_enabled_ = other.vulkan_sub_platform_enabled_;
   debug_mode_enabled_ = other.debug_mode_enabled_;
+  vulkan_sub_platform_enabled_ = other.vulkan_sub_platform_enabled_;
+  vulkan_instance_ptr_ = other.vulkan_instance_ptr_;
+  vulkan_get_proc_addr_ptr_ = other.vulkan_get_proc_addr_ptr_;
   return *this;
 }
 
@@ -229,6 +235,50 @@ inline
 void PlatformOptions::setPlatformVersionPatch(const uint32b patch) noexcept
 {
   platform_version_patch_ = patch;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] instance_ptr No description.
+  */
+inline
+void PlatformOptions::setVulkanInstancePtr(void* instance_ptr) noexcept
+{
+  vulkan_instance_ptr_ = instance_ptr;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] get_proc_addr_ptr No description.
+  */
+inline
+void PlatformOptions::setVulkanGetProcAddrPtr(void* get_proc_addr_ptr) noexcept
+{
+  vulkan_get_proc_addr_ptr_ = get_proc_addr_ptr;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+void* PlatformOptions::vulkanInstancePtr() noexcept
+{
+  return vulkan_instance_ptr_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+void* PlatformOptions::vulkanGetProcAddrPtr() noexcept
+{
+  return vulkan_get_proc_addr_ptr_;
 }
 
 /*!
