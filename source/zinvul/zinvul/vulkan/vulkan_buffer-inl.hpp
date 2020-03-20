@@ -19,11 +19,14 @@
 // Standard C++ library
 #include <memory>
 #include <utility>
+// Vulkan
+#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "vulkan_device.hpp"
+#include "vulkan_device_info.hpp"
 #include "zinvul/buffer.hpp"
 #include "zinvul/sub_platform.hpp"
 #include "zinvul/zinvul_config.hpp"
@@ -107,6 +110,54 @@ const VkBuffer& VulkanBuffer<T>::buffer() const noexcept
 /*!
   \details No detailed description
 
+  \return No description
+  */
+template <typename T> inline
+bool VulkanBuffer<T>::isDeviceLocal() const noexcept
+{
+  const bool result = hasMemoryProperty(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+bool VulkanBuffer<T>::isHostCached() const noexcept
+{
+  const bool result = hasMemoryProperty(VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+bool VulkanBuffer<T>::isHostCoherent() const noexcept
+{
+  const bool result = hasMemoryProperty(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+bool VulkanBuffer<T>::isHostVisible() const noexcept
+{
+  const bool result = hasMemoryProperty(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] s No description.
   */
 template <typename T> inline
@@ -170,6 +221,25 @@ void VulkanBuffer<T>::initData()
   vm_alloc_info_.size = 0;
   vm_alloc_info_.pMappedData = nullptr;
   vm_alloc_info_.pUserData = nullptr;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] flag No description.
+  \return No description
+  */
+template <typename T> inline
+bool VulkanBuffer<T>::hasMemoryProperty(const VkMemoryPropertyFlagBits flag) const noexcept
+{
+  const auto& device = parentImpl();
+  const auto& device_info = device.deviceInfoData();
+  const auto& info = allocationInfo();
+
+  const auto& mem_props = device_info.memoryProperties().properties1_;
+  const auto& mem_type = mem_props.memoryTypes[info.memoryType];
+  const bool has_property = (mem_type.propertyFlags & flag) == flag;
+  return has_property;
 }
 
 /*!

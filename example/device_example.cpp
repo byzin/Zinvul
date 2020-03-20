@@ -97,28 +97,41 @@ int main(int /* argc */, char** /* argv */)
               << device->numOfQueues() << std::endl;
 
     std::cout << std::endl;
+    const std::string indent3 = indent2 + indent1;
+    auto print_buffer_info = [&indent3](zinvul::Buffer<int>* buffer)
+    {
+      using Type = zinvul::Buffer<int>::Type;
+      const std::size_t s = sizeof(Type) * buffer->size();
+      std::cout << indent3 << "n = " << buffer->size()
+                << " (" << ::toMegaBytes(s) << " MB)." << std::endl;
+      std::cout << indent3
+                << "DeviceLocal: " << buffer->isDeviceLocal() << ", "
+                << "HostVisible: " << buffer->isHostVisible() << ", "
+                << "HostCoherent: " << buffer->isHostCoherent() << ", "
+                << "HostCached: " << buffer->isHostCached() << std::endl;
+    };
     constexpr std::size_t size = 128 * 1024 * 1024;
     constexpr std::size_t n = size / sizeof(int);
+
     auto buffer1 = device->makeBuffer<int>(zinvul::BufferUsage::kDeviceOnly);
     buffer1->setSize(n);
-    std::cout << indent2 << "Create a device only buffer: "
-              << "int x " << buffer1->size()
-              << " (" << ::toMegaBytes(size) << " MB)." << std::endl;
+    std::cout << indent2 << "Create a device only buffer: " << std::endl;
+    print_buffer_info(buffer1.get());
+
     auto buffer2 = device->makeBuffer<int>(zinvul::BufferUsage::kHostOnly);
     buffer2->setSize(n);
-    std::cout << indent2 << "Create a host only buffer: "
-              << "int x " << buffer2->size()
-              << " (" << ::toMegaBytes(size) << " MB)." << std::endl;
+    std::cout << indent2 << "Create a host only buffer: " << std::endl;
+    print_buffer_info(buffer2.get());
+
     auto buffer3 = device->makeBuffer<int>(zinvul::BufferUsage::kDeviceToHost);
     buffer3->setSize(n);
-    std::cout << indent2 << "Create a device to host buffer: "
-              << "int x " << buffer3->size()
-              << " (" << ::toMegaBytes(size) << " MB)." << std::endl;
+    std::cout << indent2 << "Create a device to host buffer: " << std::endl;
+    print_buffer_info(buffer3.get());
+
     auto buffer4 = device->makeBuffer<int>(zinvul::BufferUsage::kHostToDevice);
     buffer4->setSize(n);
-    std::cout << indent2 << "Create a host to device buffer: "
-              << "int x " << buffer4->size()
-              << " (" << ::toMegaBytes(size) << " MB)." << std::endl;
+    std::cout << indent2 << "Create a host to device buffer: " << std::endl;
+    print_buffer_info(buffer4.get());
 
     std::cout << std::endl;
     for (std::size_t num = 0; num < info->numOfHeaps(); ++num) {

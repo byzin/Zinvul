@@ -62,6 +62,18 @@ class CpuBuffer : public Buffer<T>
   //! Return the buffer data
   const zisc::pmr::vector<Type>& buffer() const noexcept;
 
+  //! Check if the buffer is the most efficient for the device access
+  bool isDeviceLocal() const noexcept override;
+
+  //! Check if the buffer is cached on the host
+  bool isHostCached() const noexcept override;
+
+  //! Check if the buffer doesn't need to be unmapped
+  bool isHostCoherent() const noexcept override;
+
+  //! Check if the buffer can be mapped for the host access
+  bool isHostVisible() const noexcept override;
+
   //! Change the number of elements
   void setSize(const std::size_t s) override;
 

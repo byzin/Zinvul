@@ -67,6 +67,18 @@ class Buffer : public ZinvulObject
                   WeakPtr&& own,
                   const BufferUsage buffer_usage);
 
+  //! Check if the buffer is the most efficient for the device access
+  virtual bool isDeviceLocal() const noexcept = 0;
+
+  //! Check if the buffer is cached on the host
+  virtual bool isHostCached() const noexcept = 0;
+
+  //! Check if the buffer doesn't need to be unmapped
+  virtual bool isHostCoherent() const noexcept = 0;
+
+  //! Check if the buffer can be mapped for the host access
+  virtual bool isHostVisible() const noexcept = 0;
+
   //! Change the number of elements
   virtual void setSize(const std::size_t s) = 0;
 

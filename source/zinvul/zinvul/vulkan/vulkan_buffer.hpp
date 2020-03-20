@@ -67,6 +67,18 @@ class VulkanBuffer : public Buffer<T>
   //! Return the buffer data
   const VkBuffer& buffer() const noexcept;
 
+  //! Check if the buffer is the most efficient for the device access
+  bool isDeviceLocal() const noexcept override;
+
+  //! Check if the buffer is cached on the host
+  bool isHostCached() const noexcept override;
+
+  //! Check if the buffer doesn't need to be unmapped
+  bool isHostCoherent() const noexcept override;
+
+  //! Check if the buffer can be mapped for the host access
+  bool isHostVisible() const noexcept override;
+
   //! Change the number of elements
   void setSize(const std::size_t s) override;
 
@@ -81,6 +93,9 @@ class VulkanBuffer : public Buffer<T>
   void initData() override;
 
  private:
+  //! Check if the buffer has the given memory property flag
+  bool hasMemoryProperty(const VkMemoryPropertyFlagBits flag) const noexcept;
+
   //! Return the device
   VulkanDevice& parentImpl() noexcept;
 

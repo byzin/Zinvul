@@ -76,6 +76,50 @@ auto CpuBuffer<T>::buffer() const noexcept -> const zisc::pmr::vector<Type>&
 /*!
   \details No detailed description
 
+  \return No description
+  */
+template <typename T> inline
+bool CpuBuffer<T>::isDeviceLocal() const noexcept
+{
+  return true;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+bool CpuBuffer<T>::isHostCached() const noexcept
+{
+  return false;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+bool CpuBuffer<T>::isHostCoherent() const noexcept
+{
+  return true;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+bool CpuBuffer<T>::isHostVisible() const noexcept
+{
+  return true;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] s No description.
   */
 template <typename T> inline
