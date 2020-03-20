@@ -97,8 +97,8 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   uint32b platform_version_major_;
   uint32b platform_version_minor_;
   uint32b platform_version_patch_;
-  uint32b vulkan_sub_platform_enabled_;
-  uint32b debug_mode_enabled_; //!< Enable debugging in Zinvul
+  int32b vulkan_sub_platform_enabled_;
+  int32b debug_mode_enabled_; //!< Enable debugging in Zinvul
 };
 
 } // namespace zinvul
