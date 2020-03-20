@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <memory>
 // Zisc
+#include "zisc/memory.hpp"
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
@@ -63,9 +64,9 @@ std::size_t CpuDevice::numOfQueues() const noexcept
   \param [in] number No description.
   \return No description
   */
-std::size_t CpuDevice::peakMemoryUsage(const std::size_t number) const noexcept
+std::size_t CpuDevice::peakMemoryUsage(const std::size_t /* number */) const noexcept
 {
-  return 0;
+  return heap_usage_.peak();
 }
 
 /*!
@@ -74,9 +75,9 @@ std::size_t CpuDevice::peakMemoryUsage(const std::size_t number) const noexcept
   \param [in] number No description.
   \return No description
   */
-std::size_t CpuDevice::totalMemoryUsage(const std::size_t number) const noexcept
+std::size_t CpuDevice::totalMemoryUsage(const std::size_t /* number */) const noexcept
 {
-  return 0;
+  return heap_usage_.total();
 }
 
 /*!
@@ -92,6 +93,8 @@ void CpuDevice::destroyData() noexcept
   */
 void CpuDevice::initData()
 {
+  heap_usage_.setPeak(0);
+  heap_usage_.setTotal(0);
   auto mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<zisc::ThreadManager> alloc{mem_resource};
   thread_manager_ = zisc::pmr::allocateUnique(alloc, mem_resource);

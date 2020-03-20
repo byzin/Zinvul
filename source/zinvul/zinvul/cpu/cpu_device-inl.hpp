@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <memory>
 // Zisc
+#include "zisc/memory.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "cpu_device_info.hpp"
@@ -50,6 +51,28 @@ const CpuDeviceInfo& CpuDevice::deviceInfoData() const noexcept
   return *zisc::cast<const CpuDeviceInfo*>(std::addressof(info));
 }
 
+/*!
+  \details No detailed description
+
+  \param [in] size No description.
+  */
+inline
+void CpuDevice::notifyAllocation(const std::size_t size) noexcept
+{
+  heap_usage_.add(size);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] size No description.
+  */
+inline
+void CpuDevice::notifyDeallocation(const std::size_t size) noexcept
+{
+  heap_usage_.release(size);
+}
+
 ////  setDeviceMemoryUsage(memory_usage);
 ////  setHostMemoryUsage(memory_usage);
 ////}
@@ -64,18 +87,6 @@ const CpuDeviceInfo& CpuDevice::deviceInfoData() const noexcept
 ////  setHostMemoryUsage(memory_usage);
 ////}
 
-/////*!
-////  */
-////template <DescriptorType kDescriptor, typename Type> inline
-////UniqueBuffer<kDescriptor, Type> CpuDevice::makeBuffer(
-////    const BufferUsage usage_flag) noexcept
-////{
-////  using DeviceBuffer = CpuBuffer<kDescriptor, Type>;
-////  using UniqueCpuBuffer = zisc::UniqueMemoryPointer<DeviceBuffer>;
-////  auto buffer = UniqueCpuBuffer::make(memoryResource(), this, usage_flag);
-////  return std::move(buffer);
-////}
-////
 /////*!
 ////  */
 ////template <std::size_t kDimension, typename Function, typename ...BufferArgs> inline

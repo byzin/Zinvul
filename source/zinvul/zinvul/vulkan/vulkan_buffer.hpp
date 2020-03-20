@@ -52,6 +52,21 @@ class VulkanBuffer : public Buffer<T>
   ~VulkanBuffer() noexcept override;
 
 
+  //! Return the allocation data
+  VmaAllocation& allocation() noexcept;
+
+  //! Return the allocation data
+  const VmaAllocation& allocation() const noexcept;
+
+  //! Return the allocation ifno
+  const VmaAllocationInfo& allocationInfo() const noexcept;
+
+  //! Return the buffer data
+  VkBuffer& buffer() noexcept;
+
+  //! Return the buffer data
+  const VkBuffer& buffer() const noexcept;
+
   //! Change the number of elements
   void setSize(const std::size_t s) override;
 
@@ -75,7 +90,7 @@ class VulkanBuffer : public Buffer<T>
 
   VkBuffer buffer_ = VK_NULL_HANDLE;
   VmaAllocation vm_allocation_ = VK_NULL_HANDLE;
-  VmaAllocationInfo alloc_info_;
+  VmaAllocationInfo vm_alloc_info_;
 };
 
 } // namespace zinvul

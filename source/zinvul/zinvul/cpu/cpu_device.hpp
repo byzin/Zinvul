@@ -21,6 +21,7 @@
 #include <memory>
 // Zisc
 //#include "zisc/function_reference.hpp"
+#include "zisc/memory.hpp"
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/thread_manager.hpp"
 // Zinvul
@@ -84,6 +85,12 @@ class CpuDevice : public Device
 //  void submit(const std::array<uint32b, kDimension>& works,
 //              const Command& command) noexcept;
 
+  //! Notify of device memory allocation
+  void notifyAllocation(const std::size_t size) noexcept;
+
+  //! Notify of device memory deallocation
+  void notifyDeallocation(const std::size_t size) noexcept;
+
   //! Return the number of underlying command queues
   std::size_t numOfQueues() const noexcept override;
 
@@ -126,6 +133,7 @@ class CpuDevice : public Device
 //  uint32b taskBatchSize() const noexcept;
 
 
+  zisc::Memory::Usage heap_usage_;
   zisc::pmr::unique_ptr<zisc::ThreadManager> thread_manager_;
 //  uint32b task_batch_size_;
 };

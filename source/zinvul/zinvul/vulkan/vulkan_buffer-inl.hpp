@@ -52,20 +52,79 @@ VulkanBuffer<T>::~VulkanBuffer() noexcept
 /*!
   \details No detailed description
 
+  \return No description
+  */
+template <typename T> inline
+VmaAllocation& VulkanBuffer<T>::allocation() noexcept
+{
+  return vm_allocation_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+const VmaAllocation& VulkanBuffer<T>::allocation() const noexcept
+{
+  return vm_allocation_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+const VmaAllocationInfo& VulkanBuffer<T>::allocationInfo() const noexcept
+{
+  return vm_alloc_info_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+VkBuffer& VulkanBuffer<T>::buffer() noexcept
+{
+  return buffer_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+const VkBuffer& VulkanBuffer<T>::buffer() const noexcept
+{
+  return buffer_;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] s No description.
   */
 template <typename T> inline
 void VulkanBuffer<T>::setSize(const std::size_t s)
 {
-  if ((0 < s) && (s != size())) {
+  const std::size_t prev_size = size();
+  if (s != prev_size) {
     Buffer<T>::clear();
-    auto& device = parentImpl();
-    device.allocateMemory(s,
-                          Buffer<T>::usage(),
-                          std::addressof(Buffer<T>::id()),
-                          std::addressof(buffer_),
-                          std::addressof(vm_allocation_),
-                          std::addressof(alloc_info_));
+    if (0 < s) {
+      const std::size_t mem_size = sizeof(Type) * s;
+      auto& device = parentImpl();
+      device.allocateMemory(mem_size,
+                            Buffer<T>::usage(),
+                            std::addressof(Buffer<T>::id()),
+                            std::addressof(buffer()),
+                            std::addressof(allocation()),
+                            std::addressof(vm_alloc_info_));
+    }
   }
 }
 
@@ -77,7 +136,9 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
 template <typename T> inline
 std::size_t VulkanBuffer<T>::size() const noexcept
 {
-  return 0;
+  const auto& info = allocationInfo();
+  const std::size_t s = info.size / sizeof(Type);
+  return s;
 }
 
 /*!
@@ -88,11 +149,10 @@ void VulkanBuffer<T>::destroyData() noexcept
 {
   if (buffer_ != VK_NULL_HANDLE) {
     auto& device = parentImpl();
-    device.deallocateMemory(std::addressof(buffer_),
-                            std::addressof(vm_allocation_),
-                            std::addressof(alloc_info_));
-    buffer_ = VK_NULL_HANDLE;
-    vm_allocation_ = VK_NULL_HANDLE;
+    device.deallocateMemory(std::addressof(buffer()),
+                            std::addressof(allocation()),
+                            std::addressof(vm_alloc_info_));
+    initData();
   }
 }
 
@@ -102,6 +162,14 @@ void VulkanBuffer<T>::destroyData() noexcept
 template <typename T> inline
 void VulkanBuffer<T>::initData()
 {
+  buffer_ = VK_NULL_HANDLE;
+  vm_allocation_ = VK_NULL_HANDLE;
+  vm_alloc_info_.memoryType = 0;
+  vm_alloc_info_.deviceMemory = VK_NULL_HANDLE;
+  vm_alloc_info_.offset = 0;
+  vm_alloc_info_.size = 0;
+  vm_alloc_info_.pMappedData = nullptr;
+  vm_alloc_info_.pUserData = nullptr;
 }
 
 /*!

@@ -230,7 +230,12 @@ std::size_t VulkanDevice::numOfQueues() const noexcept
   */
 std::size_t VulkanDevice::peakMemoryUsage(const std::size_t number) const noexcept
 {
-  return 0;
+  std::size_t s = 0;
+  if (heap_usage_list_) {
+    const auto& usage = (*heap_usage_list_)[number];
+    s = usage.peak();
+  }
+  return s;
 }
 
 /*!
@@ -241,7 +246,12 @@ std::size_t VulkanDevice::peakMemoryUsage(const std::size_t number) const noexce
   */
 std::size_t VulkanDevice::totalMemoryUsage(const std::size_t number) const noexcept
 {
-  return 0;
+  std::size_t s = 0;
+  if (heap_usage_list_) {
+    const auto& usage = (*heap_usage_list_)[number];
+    s = usage.total();
+  }
+  return s;
 }
 
 /*!

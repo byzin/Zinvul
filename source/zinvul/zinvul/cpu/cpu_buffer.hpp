@@ -18,6 +18,7 @@
 // Standard C++ library
 #include <cstddef>
 #include <memory>
+#include <vector>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 // Zinvul
@@ -55,6 +56,12 @@ class CpuBuffer : public Buffer<T>
   ~CpuBuffer() noexcept override;
 
 
+  //! Return the buffer data
+  zisc::pmr::vector<Type>& buffer() noexcept;
+
+  //! Return the buffer data
+  const zisc::pmr::vector<Type>& buffer() const noexcept;
+
   //! Change the number of elements
   void setSize(const std::size_t s) override;
 
@@ -74,6 +81,12 @@ class CpuBuffer : public Buffer<T>
 
   //! Return the device
   const CpuDevice& parentImpl() const noexcept;
+
+  //! Prepare a buffer for use
+  void prepareBuffer() noexcept;
+
+
+  zisc::pmr::unique_ptr<zisc::pmr::vector<Type>> buffer_;
 };
 
 } // namespace zinvul

@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
+#include <vector>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
@@ -53,11 +54,47 @@ CpuBuffer<T>::~CpuBuffer() noexcept
 /*!
   \details No detailed description
 
+  \return No description
+  */
+template <typename T> inline
+auto CpuBuffer<T>::buffer() noexcept -> zisc::pmr::vector<Type>&
+{
+  return *buffer_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+auto CpuBuffer<T>::buffer() const noexcept -> const zisc::pmr::vector<Type>&
+{
+  return *buffer_;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] s No description.
   */
 template <typename T> inline
 void CpuBuffer<T>::setSize(const std::size_t s)
 {
+  const std::size_t prev_size = size();
+  if (s != prev_size) {
+    prepareBuffer();
+    const std::size_t prev_cap = buffer().capacity();
+    buffer().resize(s);
+    const std::size_t cap = buffer().capacity();
+    if (cap != prev_cap) {
+      auto& device = parentImpl();
+      const std::size_t prev_mem_size = sizeof(Type) * prev_cap;
+      device.notifyDeallocation(prev_mem_size);
+      const std::size_t mem_size = sizeof(Type) * cap;
+      device.notifyAllocation(mem_size);
+    }
+  }
 }
 
 /*!
@@ -68,7 +105,8 @@ void CpuBuffer<T>::setSize(const std::size_t s)
 template <typename T> inline
 std::size_t CpuBuffer<T>::size() const noexcept
 {
-  return 0;
+  const std::size_t s = (buffer_) ? buffer().size() : 0;
+  return s;
 }
 
 /*!
@@ -77,6 +115,7 @@ std::size_t CpuBuffer<T>::size() const noexcept
 template <typename T> inline
 void CpuBuffer<T>::destroyData() noexcept
 {
+  buffer_.reset();
 }
 
 /*!
@@ -85,6 +124,7 @@ void CpuBuffer<T>::destroyData() noexcept
 template <typename T> inline
 void CpuBuffer<T>::initData()
 {
+  prepareBuffer();
 }
 
 /*!
@@ -96,7 +136,7 @@ template <typename T> inline
 CpuDevice& CpuBuffer<T>::parentImpl() noexcept
 {
   auto p = Buffer<T>::getParent();
-  return *zisc::treatAs<CpuBuffer*>(p);
+  return *zisc::treatAs<CpuDevice*>(p);
 }
 
 /*!
@@ -108,7 +148,23 @@ template <typename T> inline
 const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();
-  return *zisc::treatAs<const CpuBuffer*>(p);
+  return *zisc::treatAs<const CpuDevice*>(p);
+}
+
+/*!
+  \details No detailed description
+  */
+template <typename T> inline
+void CpuBuffer<T>::prepareBuffer() noexcept
+{
+  if (!buffer_) {
+    auto mem_resource = Buffer<T>::memoryResource();
+    using BufferImplType = typename decltype(buffer_)::element_type;
+    typename BufferImplType::allocator_type alloc{mem_resource};
+    BufferImplType buffer{alloc};
+    buffer_ = zisc::pmr::allocateUnique<BufferImplType>(mem_resource,
+                                                        std::move(buffer));
+  }
 }
 
 // Device
