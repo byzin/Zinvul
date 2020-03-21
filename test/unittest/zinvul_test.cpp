@@ -17,224 +17,126 @@
 //#include <cstddef>
 //#include <cstring>
 //#include <iostream>
+#include <memory>
 //#include <string>
-//#include <vector>
+#include <vector>
 // GoogleTest
 #include "gtest/gtest.h"
-// Vulkan
-#ifdef ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
-#include <vulkan/vulkan.hpp>
-#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
 // Zisc
 //#include "zisc/math.hpp"
-//#include "zisc/utility.hpp"
+#include "zisc/std_memory_resource.hpp"
+#include "zisc/simple_memory_resource.hpp"
+#include "zisc/utility.hpp"
 // Zinvul
 #include "zinvul/zinvul.hpp"
+#if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
+#include "zinvul/vulkan/vulkan_sub_platform.hpp"
+#include "zinvul/vulkan/utility/vulkan.hpp"
+#include "zinvul/vulkan/utility/vulkan_dispatch_loader.hpp"
+#endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
 //#include "zinvul/kernel_set/experiment.hpp"
 //#include "test.hpp"
 
 #if defined(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
 
-TEST(ZinvulTest, VulkanInstanceTest)
+TEST(VulkanSubPlatformTest, GetInstanceProcAddrOptionTest)
 {
-//  const auto to_version_string = [](const zinvul::uint32b version)
-//  {
-//    return std::to_string(VK_VERSION_MAJOR(version)) + "." +
-//        std::to_string(VK_VERSION_MINOR(version)) + "." +
-//        std::to_string(VK_VERSION_PATCH(version));
-//  };
-//
-//  {
-//    std::cout << "  Extensions" << std::endl;
-//    auto [result, extensions] = vk::enumerateInstanceExtensionProperties();
-//    auto cmp = [](const vk::ExtensionProperties& lhs,
-//                  const vk::ExtensionProperties& rhs)
-//    {
-//      return std::strcmp(lhs.extensionName, rhs.extensionName) < 0;
-//    };
-//    std::sort(extensions.begin(), extensions.end(), cmp);
-//    for (const auto& ext : extensions) {
-//      std::cout << "    " << ext.extensionName << ": "
-//                << to_version_string(ext.specVersion) << std::endl;
-//    }
-//  }
-//  {
-//    std::cout << "  Layers" << std::endl;
-//    auto [result, layers] = vk::enumerateInstanceLayerProperties();
-//    auto cmp = [](const vk::LayerProperties& lhs,
-//                  const vk::LayerProperties& rhs)
-//    {
-//      return std::strcmp(lhs.layerName, rhs.layerName) < 0;
-//    };
-//    std::sort(layers.begin(), layers.end(), cmp);
-//    for (const auto& layer : layers) {
-//      std::cout << "    " << layer.layerName << ": "
-//                << to_version_string(layer.specVersion) << std::endl;
-//    }
-//  }
+  zisc::SimpleMemoryResource mem_resource;
+
+  // Dispatcher
+  auto dispatch_loader = std::make_unique<zinvul::VulkanDispatchLoader>(std::addressof(mem_resource));
+  ASSERT_TRUE(dispatch_loader->isAvailable()) << "Loader isn't available.";
+  auto loader = dispatch_loader->loaderImpl();
+
+  {
+
+    zinvul::PlatformOptions platform_options{&mem_resource};
+    platform_options.setPlatformName("GetInstanceProcAddrOptionTest");
+    platform_options.setPlatformVersionMajor(zinvul::Config::versionMajor());
+    platform_options.setPlatformVersionMinor(zinvul::Config::versionMinor());
+    platform_options.setPlatformVersionPatch(zinvul::Config::versionPatch());
+    platform_options.enableVulkanSubPlatform(true);
+    platform_options.enableDebugMode(true);
+    platform_options.setVulkanGetProcAddrPtr(std::addressof(loader->vkGetInstanceProcAddr));
+
+    auto platform = zinvul::makePlatform(std::addressof(mem_resource));
+    platform->initialize(platform_options);
+
+    ASSERT_TRUE(platform->hasSubPlatform(zinvul::SubPlatformType::kVulkan)) <<
+        "Vulkan initilaization failed.";
+
+    // Get an index of a vulkan device
+    std::size_t index = 0;
+    const auto& device_info_list = platform->deviceInfoList();
+    for (index = 0; index < device_info_list.size(); ++index) {
+      const auto& info = device_info_list[index];
+      if (info->type() == zinvul::SubPlatformType::kVulkan)
+        break;
+    }
+
+    auto device = platform->makeDevice(index);
+  }
+  dispatch_loader.reset();
 }
 
-TEST(ZinvulTest, VulkanDeviceTest)
+TEST(VulkanSubPlatformTest, InstanceOptionTest)
 {
-//  const auto device_info_list = zinvul::VulkanDevice::getPhysicalDeviceInfoList();
-//  ASSERT_GT(device_info_list.size(), 0) << "There is no vulkan device.";
-//
-//  const auto to_version_string = [](const zinvul::uint32b version)
-//  {
-//    return std::to_string(VK_VERSION_MAJOR(version)) + "." +
-//        std::to_string(VK_VERSION_MINOR(version)) + "." +
-//        std::to_string(VK_VERSION_PATCH(version));
-//  };
-//
-//  const auto to_gb_size = [](const std::size_t bytes)
-//  {
-//    const double mb = zisc::cast<double>(bytes) / zisc::power<3>(1024.0);
-//    return mb;
-//  };
-//
-//  for (std::size_t number = 0; number < device_info_list.size(); ++number) {
-//    const auto& info = device_info_list[number];
-//    {
-//      const auto& p = info.properties();
-//      const auto& properties1 = p.properties1_;
-//      std::cout << "Device[" << number << "]" << std::endl;
-//      std::cout << "  Name: " << properties1.deviceName << std::endl;
-//      std::cout << "  Vendor ID: " << properties1.vendorID << std::endl;
-//      std::cout << "  Vendor Name: "
-//                << zinvul::VulkanDevice::getVendorName(properties1.vendorID)
-//                << std::endl;
-//      std::cout << "  Type: " << vk::to_string(properties1.deviceType) << std::endl;
-//      std::cout << "  Driver version: "
-//                << to_version_string(properties1.driverVersion) << std::endl;
-//      std::cout << "    ID: " << vk::to_string(p.driver_.driverID) << std::endl;
-//      std::cout << "    Name: " << p.driver_.driverName << std::endl;
-//      std::cout << "    Info: " << p.driver_.driverInfo << std::endl;
-//      std::cout << "  API version: "
-//                << to_version_string(properties1.apiVersion) << std::endl;
-//      std::cout << "  Max memory allocation size: "
-//                << to_gb_size(p.maintenance3_.maxMemoryAllocationSize)
-//                << " GB" << std::endl;
-//      std::cout << "  SubgroupSize: "
-//                << p.subgroup_.subgroupSize << std::endl;
-//    }
-//    {
-//      const auto& p = info.features();
-//      const auto features1 = p.features1_;
-//      std::cout << "  Features" << std::endl;
-//      std::cout << "    Shader 64bit integer: "
-//                << features1.shaderInt64 << std::endl;
-//      std::cout << "    Shader 16bit integer: "
-//                << features1.shaderInt16 << std::endl;
-//      std::cout << "    Shader 8bit integer: "
-//                << p.float16_int8_.shaderInt8 << std::endl;
-//      std::cout << "    Shader 64bit float: "
-//                << features1.shaderFloat64 << std::endl;
-//      std::cout << "    Shader 16bit float: "
-//                << p.float16_int8_.shaderFloat16 << std::endl;
-//      std::cout << "    16bit storage buffer access: "
-//                << p.b16bit_storage_.storageBuffer16BitAccess << std::endl;
-//      std::cout << "    16bit uniform buffer access: "
-//                << p.b16bit_storage_.uniformAndStorageBuffer16BitAccess << std::endl;
-//      std::cout << "    16bit storage push constant: "
-//                << p.b8bit_storage_.storagePushConstant8 << std::endl;
-//      std::cout << "    8bit storage buffer access: "
-//                << p.b8bit_storage_.storageBuffer8BitAccess << std::endl;
-//      std::cout << "    8bit uniform buffer access: "
-//                << p.b8bit_storage_.uniformAndStorageBuffer8BitAccess << std::endl;
-//      std::cout << "    8bit storage push constant: "
-//                << p.b8bit_storage_.storagePushConstant8 << std::endl;
-//      std::cout << "    Protected memory: "
-//                << p.protected_memory_.protectedMemory << std::endl;
-//      std::cout << "    Atomic 64bit integer on buffers: "
-//                << p.shader_atomic_int64_.shaderBufferInt64Atomics << std::endl;
-//      std::cout << "    Atomic 64bit integer on shared memory: "
-//                << p.shader_atomic_int64_.shaderSharedInt64Atomics << std::endl;
-//      std::cout << "    Uniform buffer standard layout: "
-//                << p.uniform_buffer_standard_layout_.uniformBufferStandardLayout << std::endl;
-//      std::cout << "    Variable pointers storage buffer: "
-//                << p.variable_pointers_.variablePointersStorageBuffer << std::endl;
-//      std::cout << "    Variable pointers: "
-//                << p.variable_pointers_.variablePointers << std::endl;
-//    }
-//    {
-//      const auto& p = info.queueFamilyPropertiesList();
-//      for (zinvul::uint32b i = 0; i < p.size(); ++i) {
-//        std::cout << "  QueueFamily[" << i << "]" << std::endl;
-//        std::cout << "    Type: "
-//                  << vk::to_string(p[i].properties1_.queueFlags) << std::endl;
-//        std::cout << "    Count: "
-//                  << p[i].properties1_.queueCount << std::endl;
-//      }
-//    }
-//    {
-//      const auto& p = info.memoryProperties();
-//      for (zinvul::uint32b i = 0; i < p.properties1_.memoryTypeCount; ++i) {
-//        std::cout << "  MemoryType[" << i << "]" << std::endl;
-//        std::cout << "    MemoryType: "
-//                  << vk::to_string(p.properties1_.memoryTypes[i].propertyFlags)
-//                  << std::endl;
-//        std::cout << "    HeapIndex: "
-//                  << p.properties1_.memoryTypes[i].heapIndex << std::endl;
-//      }
-//      for (zinvul::uint32b i = 0; i < p.properties1_.memoryHeapCount; ++i) {
-//        std::cout << "  HeapType[" << i << "]" << std::endl;
-//        std::cout << "    HeapType: "
-//                  << vk::to_string(p.properties1_.memoryHeaps[i].flags)
-//                  << std::endl;
-//        std::cout << "    HeapSize: "
-//                  << to_gb_size(p.properties1_.memoryHeaps[i].size)
-//                  << " GB" << std::endl;
-//        std::cout << "    HeapBudget: "
-//                  << to_gb_size(p.budget_.heapBudget[i])
-//                  <<  " GB" << std::endl;
-//        std::cout << "    HeapUsage: "
-//                  << to_gb_size(p.budget_.heapUsage[i])
-//                  <<  " GB" << std::endl;
-//      }
-//    }
-//    {
-//      std::cout << "  Extensions" << std::endl;
-//      const auto& e = info.extensionPropertiesList();
-//      {
-//        std::vector<vk::ExtensionProperties> extensions;
-//        extensions.reserve(e.size());
-//        for (const auto& ext : e)
-//          extensions.emplace_back(ext.properties1_);
-//        auto cmp = [](const vk::ExtensionProperties& lhs,
-//                      const vk::ExtensionProperties& rhs)
-//        {
-//          return std::strcmp(lhs.extensionName, rhs.extensionName) < 0;
-//        };
-//        std::sort(extensions.begin(), extensions.end(), cmp);
-//        for (const auto& ext : extensions) {
-//          std::cout << "    " << ext.extensionName << ": "
-//                    << to_version_string(ext.specVersion) << std::endl;
-//        }
-//      }
-//    }
-//    {
-//      std::cout << "  Layers" << std::endl;
-//      const auto& e = info.layerPropertiesList();
-//      {
-//        std::vector<vk::LayerProperties> layers;
-//        layers.reserve(e.size());
-//        for (const auto& layer : e)
-//          layers.emplace_back(layer.properties1_);
-//        auto cmp = [](const vk::LayerProperties& lhs,
-//                      const vk::LayerProperties& rhs)
-//        {
-//          return std::strcmp(lhs.layerName, rhs.layerName) < 0;
-//        };
-//        std::sort(layers.begin(), layers.end(), cmp);
-//        for (const auto& layer : layers) {
-//          std::cout << "    " << layer.layerName << ": "
-//                    << to_version_string(layer.specVersion) << std::endl;
-//        }
-//      }
-//    }
-//
-//  }
+  zisc::SimpleMemoryResource mem_resource;
+
+  // Dispatcher
+  auto dispatch_loader = std::make_unique<zinvul::VulkanDispatchLoader>(std::addressof(mem_resource));
+  ASSERT_TRUE(dispatch_loader->isAvailable()) << "Loader isn't available.";
+  auto loader = dispatch_loader->loaderImpl();
+
+  // Instance
+  using zinvul::uint32b;
+  std::vector<const char*> extensions;
+  extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+  std::vector<const char*> layers;
+  layers.push_back("VK_LAYER_KHRONOS_validation");
+  zinvulvk::ApplicationInfo app_info;
+  app_info.apiVersion = zinvul::VulkanSubPlatform::apiVersion();
+  zinvulvk::InstanceCreateInfo create_info{zinvulvk::InstanceCreateFlags{},
+                                           std::addressof(app_info),
+                                           zisc::cast<uint32b>(layers.size()),
+                                           layers.data(),
+                                           zisc::cast<uint32b>(extensions.size()),
+                                           extensions.data()};
+  zinvulvk::Instance instance = zinvulvk::createInstance(create_info, nullptr, *loader);
+  dispatch_loader->set(zisc::cast<VkInstance>(instance));
+
+  {
+    zinvul::PlatformOptions platform_options{&mem_resource};
+    platform_options.setPlatformName("GetInstanceProcAddrOptionTest");
+    platform_options.setPlatformVersionMajor(zinvul::Config::versionMajor());
+    platform_options.setPlatformVersionMinor(zinvul::Config::versionMinor());
+    platform_options.setPlatformVersionPatch(zinvul::Config::versionPatch());
+    platform_options.enableVulkanSubPlatform(true);
+    platform_options.enableDebugMode(true);
+    platform_options.setVulkanInstancePtr(std::addressof(instance));
+
+    auto platform = zinvul::makePlatform(std::addressof(mem_resource));
+    platform->initialize(platform_options);
+
+    ASSERT_TRUE(platform->hasSubPlatform(zinvul::SubPlatformType::kVulkan)) <<
+        "Vulkan initilaization failed.";
+
+    // Get an index of a vulkan device
+    std::size_t index = 0;
+    const auto& device_info_list = platform->deviceInfoList();
+    for (index = 0; index < device_info_list.size(); ++index) {
+      const auto& info = device_info_list[index];
+      if (info->type() == zinvul::SubPlatformType::kVulkan)
+        break;
+    }
+
+    auto device = platform->makeDevice(index);
+  }
+
+  instance.destroy(nullptr, *loader);
+  dispatch_loader.reset();
 }
+
 #endif // ZINVUL_ENABLE_VULKAN_SUB_PLATFORM
 
 //TEST(Experiment, ZinvulTest)

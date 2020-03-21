@@ -569,20 +569,20 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
       platform_options.platformVersionMajor(),
       platform_options.platformVersionMinor(),
       platform_options.platformVersionPatch())};
-  zinvulvk::InstanceCreateInfo createInfo{zinvulvk::InstanceCreateFlags{},
-                                          std::addressof(app_info),
-                                          zisc::cast<uint32b>(layers.size()),
-                                          layers.data(),
-                                          zisc::cast<uint32b>(extensions.size()),
-                                          extensions.data()};
+  zinvulvk::InstanceCreateInfo create_info{zinvulvk::InstanceCreateFlags{},
+                                           std::addressof(app_info),
+                                           zisc::cast<uint32b>(layers.size()),
+                                           layers.data(),
+                                           zisc::cast<uint32b>(extensions.size()),
+                                           extensions.data()};
   if (isDebugMode()) {
-    createInfo.setPNext(std::addressof(debug_utils_create_info));
+    create_info.setPNext(std::addressof(debug_utils_create_info));
     debug_utils_create_info.setPNext(std::addressof(validation_features));
   }
 
   zinvulvk::AllocationCallbacks alloc{makeAllocator()};
   const auto loader = dispatcher().loaderImpl();
-  zinvulvk::Instance ins = zinvulvk::createInstance(createInfo, alloc, *loader);
+  zinvulvk::Instance ins = zinvulvk::createInstance(create_info, alloc, *loader);
   instance_ = zisc::cast<VkInstance>(ins);
   instance_ref_ = std::addressof(instance_);
 }

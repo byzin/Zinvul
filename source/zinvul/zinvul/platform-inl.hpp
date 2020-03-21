@@ -56,7 +56,8 @@ bool Platform::hasSubPlatform(const SubPlatformType type) const noexcept
 {
   const std::size_t index = zisc::cast<std::size_t>(type);
   ZISC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
-  const bool result = sub_platform_list_[index] != nullptr;
+  const auto& sub_platform = sub_platform_list_[index];
+  const bool result = (sub_platform != nullptr) && sub_platform->isAvailable();
   return result;
 }
 
