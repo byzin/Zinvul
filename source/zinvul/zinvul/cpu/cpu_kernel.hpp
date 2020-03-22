@@ -19,7 +19,6 @@
 #include <array>
 #include <cstddef>
 #include <memory>
-#include <tuple>
 #include <type_traits>
 // Zinvul
 #include "zinvul/kernel.hpp"
@@ -55,7 +54,7 @@ class CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...> 
   using InitParameters = typename BaseKernel::InitParameters;
   using Function = typename InitParameters::Function;
   template <typename Type>
-  using BufferRef = typename BaseKernel::BufferRef;
+  using BufferRef = typename BaseKernel::template BufferRef<Type>;
   using LaunchOptions = typename BaseKernel::LaunchOptions;
 
 

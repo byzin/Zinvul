@@ -90,6 +90,6 @@ class CpuSubPlatform : public SubPlatform
 
 } // namespace zinvul
 
-#include "cpu_sub_platform.hpp"
+#include "cpu_sub_platform-inl.hpp"
 
 #endif // ZINVUL_CPU_SUB_PLATFORM_HPP

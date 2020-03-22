@@ -21,7 +21,6 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
-#include <tuple>
 #include <type_traits>
 // Zisc
 #include "zisc/error.hpp"
@@ -75,6 +74,28 @@ kernel() const noexcept -> Function
 
 /*!
   \details No detailed description
+
+  \param [in] args No description.
+  \param [in] launch_options No description.
+  */
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+run(BufferRef<ArgTypes>... args, const LaunchOptions& launch_options)
+{
+  auto& device = parentImpl();
+  const auto work_size = expandTo3d(launch_options.workSize());
+  using LauncherType = Launcher<FuncArgTypes...>;
+  auto command = [func = kernel(), &args..., &launch_options]() noexcept
+  {
+    LauncherType::exec(func, launch_options, args...);
+  };
+  device.submit(work_size, command);
+}
+
+/*!
+  \details No detailed description
   */
 template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
@@ -97,28 +118,6 @@ CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
 initData(const InitParameters& params)
 {
   kernel_ = params.func();
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] args No description.
-  \param [in] launch_options No description.
-  */
-template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
-inline
-void
-CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
-run(BufferRef<ArgTypes>... args, const LaunchOptions& launch_options)
-{
-  auto& device = parentImpl();
-  const auto work_size = expandTo3d(launch_options.workSize());
-  using LauncherType = Launcher<FuncArgTypes...>;
-  auto command = [func = kernel(), &args..., &launch_options]() noexcept
-  {
-    LauncherType::exec(func, launch_options, args...);
-  };
-  device.submit(work_size, command);
 }
 
 /*!
