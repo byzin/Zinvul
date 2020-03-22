@@ -1,7 +1,12 @@
 /*!
   \file cpu_kernel.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -13,78 +18,107 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <memory>
 #include <tuple>
 #include <type_traits>
 // Zinvul
 #include "zinvul/kernel.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/utility/id_data.hpp"
+#include "zinvul/utility/kernel_init_parameters.hpp"
 
 namespace zinvul {
 
 // Forward declaration
+template <typename Type> class Buffer;
 class CpuDevice;
-
-template <std::size_t kDimension, typename Function, typename ...BufferArgs>
+template <std::size_t kDimension, typename FuncArgTypes, typename ...ArgTypes>
 class CpuKernel;
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam kDimension No description.
+  \tparam FuncArgTypes No description.
+  \tparam ArgTypes No description.
   */
-template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
-class CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...> :
-    public Kernel<kDimension, BufferArgs...>
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
+class CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...> :
+    public Kernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>
 {
  public:
-  using Function = void (*)(ArgumentTypes...);
+  // Type aliases
+  using BaseKernel =
+      Kernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>;
+  using InitParameters = typename BaseKernel::InitParameters;
+  using Function = typename InitParameters::Function;
+  template <typename Type>
+  using BufferRef = typename BaseKernel::BufferRef;
+  using LaunchOptions = typename BaseKernel::LaunchOptions;
 
 
-   //! Construct a kernel
-  CpuKernel(CpuDevice* device, const Function kernel) noexcept;
+  //! Initialize the kernel
+  CpuKernel(IdData&& id) noexcept;
+
+  //! Finalize the kernel
+  ~CpuKernel() noexcept override;
 
 
-  //! Return an assigned device
-  CpuDevice* device() noexcept;
-
-  //! Return an assigned device
-  const CpuDevice* device() const noexcept;
-
-  //! Return the device type
-  SubPlatformType SubPlatformType() const noexcept override;
-
-  //! Return a kernel function
+  //! Return the underlying kernel function
   Function kernel() const noexcept;
 
-  //! Check if this has a kernel
-  bool hasKernel() const noexcept;
-
   //! Execute a kernel
-  void run(std::add_lvalue_reference_t<BufferArgs>... args,
-           const std::array<uint32b, kDimension> works,
-           const uint32b queue_index) noexcept override;
+  void run(BufferRef<ArgTypes>... args,
+           const LaunchOptions& launch_options) override;
 
-  //! Set a kernel function
-  void setKernel(const Function kernel) noexcept;
+ protected:
+  //! Clear the contents of the kernel
+  void destroyData() noexcept override;
+
+  //! Initialize the kernel
+  void initData(const InitParameters& params) override;
 
  private:
-  template <typename ...Types>
-  struct ArgumentPackInfo
+  /*!
+    \brief No brief description
+
+    No detailed description.
+
+    \tparam ArgType No description.
+    \tparam RestTypes No description.
+    */
+  template <typename ArgType, typename ...RestTypes>
+  class Launcher 
   {
-    static constexpr bool kHasArgument = false;
+   public:
+    //! Launch the given function 
+    template <typename Type, typename ...Types>
+    static void exec(Function func,
+                     const LaunchOptions& launch_options,
+                     Type&& value,
+                     Types&&... rest) noexcept;
+
+   private:
+    //! Invoke the given function 
+    template <typename ...Types>
+    static void invoke(Function func,
+                       const LaunchOptions& launch_options,
+                       Types&&... args) noexcept;
   };
 
-  template <typename T, typename ...Types>
-  struct ArgumentPackInfo<std::tuple<T, Types...>>
-  {
-    using Type = T;
-    using RestArgPack = std::tuple<Types...>;
-    static constexpr bool kHasArgument = true;
-  };
+  //! Expand the given work size to 3d work size array
+  static std::array<uint32b, 3> expandTo3d(
+    const std::array<uint32b, kDimension>& work_size) noexcept;
 
-  //! Execute a kernel
-  template <typename ArgPack, typename Type, typename ...Types>
-  void runFunc(Type&& argument, Types&&... args) noexcept;
+  //! Return the device
+  CpuDevice& parentImpl() noexcept;
+
+  //! Return the device
+  const CpuDevice& parentImpl() const noexcept;
 
 
-  CpuDevice* device_ = nullptr;
   Function kernel_ = nullptr;
 };
 

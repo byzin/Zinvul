@@ -41,6 +41,8 @@ PlatformOptions::PlatformOptions(zisc::pmr::memory_resource* mem_resource)
         platform_version_minor_{0},
         platform_version_patch_{0},
         debug_mode_enabled_{Config::scalarResultFalse()},
+        cpu_num_of_threads_{0},
+        cpu_task_batch_size_{32},
         vulkan_sub_platform_enabled_{Config::scalarResultTrue()},
         vulkan_instance_ptr_{nullptr},
         vulkan_get_proc_addr_ptr_{nullptr}
@@ -61,6 +63,8 @@ PlatformOptions::PlatformOptions(PlatformOptions&& other) noexcept :
     platform_version_minor_{other.platform_version_minor_},
     platform_version_patch_{other.platform_version_patch_},
     debug_mode_enabled_{other.debug_mode_enabled_},
+    cpu_num_of_threads_{other.cpu_num_of_threads_},
+    cpu_task_batch_size_{other.cpu_task_batch_size_},
     vulkan_sub_platform_enabled_{other.vulkan_sub_platform_enabled_},
     vulkan_instance_ptr_{other.vulkan_instance_ptr_},
     vulkan_get_proc_addr_ptr_{other.vulkan_get_proc_addr_ptr_}
@@ -82,10 +86,34 @@ PlatformOptions& PlatformOptions::operator=(PlatformOptions&& other) noexcept
   platform_version_minor_ = other.platform_version_minor_;
   platform_version_patch_ = other.platform_version_patch_;
   debug_mode_enabled_ = other.debug_mode_enabled_;
+  cpu_num_of_threads_ = other.cpu_num_of_threads_;
+  cpu_task_batch_size_ = other.cpu_task_batch_size_;
   vulkan_sub_platform_enabled_ = other.vulkan_sub_platform_enabled_;
   vulkan_instance_ptr_ = other.vulkan_instance_ptr_;
   vulkan_get_proc_addr_ptr_ = other.vulkan_get_proc_addr_ptr_;
   return *this;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+uint32b PlatformOptions::cpuNumOfThreads() const noexcept
+{
+  return cpu_num_of_threads_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+uint32b PlatformOptions::cpuTaskBatchSize() const noexcept
+{
+  return cpu_task_batch_size_;
 }
 
 /*!
@@ -191,6 +219,28 @@ bool PlatformOptions::debugModeEnabled() const noexcept
 {
   const bool result = debug_mode_enabled_ == Config::scalarResultTrue();
   return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] num_of_threads No description.
+  */
+inline
+void PlatformOptions::setCpuNumOfThreads(const uint32b num_of_threads) noexcept
+{
+  cpu_num_of_threads_ = num_of_threads;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] task_batch_size No description.
+  */
+inline
+void PlatformOptions::setCpuTaskBatchSize(const uint32b task_batch_size) noexcept
+{
+  cpu_task_batch_size_ = task_batch_size;
 }
 
 /*!

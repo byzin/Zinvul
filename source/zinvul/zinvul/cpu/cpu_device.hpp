@@ -20,7 +20,7 @@
 #include <cstddef>
 #include <memory>
 // Zisc
-//#include "zisc/function_reference.hpp"
+#include "zisc/function_reference.hpp"
 #include "zisc/memory.hpp"
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/thread_manager.hpp"
@@ -46,7 +46,8 @@ class CpuSubPlatform;
 class CpuDevice : public Device
 {
  public:
-//  using Command = zisc::FunctionReference<void ()>;
+  // Type aliases
+  using Command = zisc::FunctionReference<void ()>;
 
 
   //! Initialize the cpu device
@@ -56,17 +57,8 @@ class CpuDevice : public Device
   ~CpuDevice() noexcept override;
 
 
-//  //! Allocate a memory of a buffer
-//  template <DescriptorType kDescriptor, typename Type>
-//  void allocate(const std::size_t size,
-//                CpuBuffer<kDescriptor, Type>* buffer) noexcept;
-
   //! Return the underlying device info
   const CpuDeviceInfo& deviceInfoData() const noexcept;
-
-//  //! Deallocate a memory of a buffer
-//  template <DescriptorType kDescriptor, typename Type>
-//  void deallocate(CpuBuffer<kDescriptor, Type>* buffer) noexcept;
 
   //! Make a buffer
   template <typename Type>
@@ -77,14 +69,6 @@ class CpuDevice : public Device
 //  UniqueKernel<kDimension, BufferArgs...> makeKernel(
 //      Function func) noexcept;
 
-  //! Return the number of threads
-//  std::size_t numOfThreads() const noexcept;
-
-  //! Submit a command
-//  template <std::size_t kDimension>
-//  void submit(const std::array<uint32b, kDimension>& works,
-//              const Command& command) noexcept;
-
   //! Notify of device memory allocation
   void notifyAllocation(const std::size_t size) noexcept;
 
@@ -94,8 +78,24 @@ class CpuDevice : public Device
   //! Return the number of underlying command queues
   std::size_t numOfQueues() const noexcept override;
 
+  //! Return the number of threads which are used for kernel execution
+  std::size_t numOfThreads() const noexcept;
+
   //! Return the peak memory usage of the heap of the given index
   std::size_t peakMemoryUsage(const std::size_t number) const noexcept override;
+
+  //! Submit a kernel command
+  void submit(const std::array<uint32b, 3>& work_size,
+              const Command& command) noexcept;
+
+  //! Return the task batch size per thread
+  std::size_t taskBatchSize() const noexcept;
+
+  //! Return the underlying thread manager which is used for kernel exection
+  zisc::ThreadManager& threadManager() noexcept;
+
+  //! Return the underlying thread manager which is used for kernel exection
+  const zisc::ThreadManager& threadManager() const noexcept;
 
   //! Return the current memory usage of the heap of the given index
   std::size_t totalMemoryUsage(const std::size_t number) const noexcept override;
@@ -118,24 +118,15 @@ class CpuDevice : public Device
   void initData() override;
 
  private:
-//  //! Expand the given work-group size array to 3d work-group size array
-//  template <std::size_t kDimension>
-//  std::array<uint32b, 3> expandTo3dWorkGroupSize(
-//      const std::array<uint32b, kDimension>& works) const noexcept;
-
   //! Return the sub-platform
   CpuSubPlatform& parentImpl() noexcept;
 
   //! Return the sub-platform
   const CpuSubPlatform& parentImpl() const noexcept;
 
-//  //! Return the task batch size
-//  uint32b taskBatchSize() const noexcept;
-
 
   zisc::Memory::Usage heap_usage_;
   zisc::pmr::unique_ptr<zisc::ThreadManager> thread_manager_;
-//  uint32b task_batch_size_;
 };
 
 } // namespace zinvul

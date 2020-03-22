@@ -1,7 +1,12 @@
 /*!
   \file kernel_arg_parser.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -15,19 +20,24 @@
 #include <cstddef>
 #include <type_traits>
 // Zinvul
-#include "kernel.hpp"
+//#include "kernel.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
 
 /*!
   \brief POD type info
+
+  No detailed description.
+
+  \tparam Type No description.
   */
 template <typename Type>
 class AddressSpaceInfo
 {
  public:
   using ElementType = std::remove_cv_t<Type>;
+
 
   static constexpr bool kIsGlobal = true;
   static constexpr bool kIsLocal = false;
@@ -41,6 +51,10 @@ class AddressSpaceInfo
 
 /*!
   \brief Type information of a kernel arg
+
+  No detailed description.
+
+  \tparam Type No description.
   */
 template <typename Type>
 class KernelArgInfo
@@ -50,13 +64,11 @@ class KernelArgInfo
  public:
   using ElementType = typename ASpaceInfo::ElementType;
 
+
   static constexpr bool kIsGlobal = ASpaceInfo::kIsGlobal;
   static constexpr bool kIsLocal = ASpaceInfo::kIsLocal;
   static constexpr bool kIsConstant = ASpaceInfo::kIsConstant;
   static constexpr bool kIsPod = ASpaceInfo::kIsPod;
-  static constexpr DescriptorType kDescriptor = (kIsConstant || kIsPod)
-      ? DescriptorType::kUniform
-      : DescriptorType::kStorage;
 
  private:
   static_assert(!std::is_pointer_v<Type>, "The Type is pointer.");
@@ -65,6 +77,11 @@ class KernelArgInfo
                 "The address space pointer is const-qualified.");
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
 class KernelArgParseResult
 {
  public:
@@ -106,12 +123,20 @@ class KernelArgParseResult
 
 /*!
   \brief Type information of kernel arguments
+
+  No detailed description.
+
+  \tparam kDimension No description.
+  \tparam ArgumentTypes No description.
   */
 template <std::size_t kDimension, typename ...ArgumentTypes>
 class KernelArgParser
 {
  public:
+  template <std::size_t kSize>
+  using ResultList = std::array<KernelArgParseResult, kSize>;
   using KernelWithoutLocal = Kernel<kDimension>;
+
 
 
   static constexpr std::size_t kNumOfArgs = 0; //!< The number of arguments
@@ -122,26 +147,23 @@ class KernelArgParser
 
 
   //! Return the info of arguments
-  static constexpr std::array<KernelArgParseResult, kNumOfArgs>
-      getArgInfoList() noexcept
+  static constexpr ResultList<kNumOfArgs> getArgInfoList() noexcept
   {
-    std::array<KernelArgParseResult, kNumOfArgs> result_list;
+    ResultList<kNumOfArgs> result_list;
     return result_list;
   }
 
   //! Return the info of global arguments
-  static constexpr std::array<KernelArgParseResult, kNumOfGlobalArgs>
-      getGlobalArgInfoList() noexcept
+  static constexpr ResultList<kNumOfGlobalArgs> getGlobalArgInfoList() noexcept
   {
-    std::array<KernelArgParseResult, kNumOfGlobalArgs> result_list;
+    ResultList<kNumOfGlobalArgs> result_list;
     return result_list;
   }
 
   //! Return the info of local arguments
-  static constexpr std::array<KernelArgParseResult, kNumOfLocalArgs>
-      getLocalArgInfoList() noexcept
+  static constexpr ResultList<kNumOfLocalArgs> getLocalArgInfoList() noexcept
   {
-    std::array<KernelArgParseResult, kNumOfLocalArgs> result_list;
+    ResultList<kNumOfLocalArgs> result_list;
     return result_list;
   }
 

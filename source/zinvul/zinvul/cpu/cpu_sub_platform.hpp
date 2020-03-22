@@ -57,8 +57,17 @@ class CpuSubPlatform : public SubPlatform
   //! Make a unique device
   SharedDevice makeDevice(const DeviceInfo& device_info) noexcept override;
 
+  //! Return the maximum task batch size per thread
+  static constexpr uint32b maxTaskBatchSize() noexcept;
+
   //! Return the number of available devices
   std::size_t numOfDevices() const noexcept override;
+
+  //! Return the number of thread which is used for kernel execution
+  std::size_t numOfThreads() const noexcept;
+
+  //! Return the task batch size per thread
+  std::size_t taskBatchSize() const noexcept;
 
   //! Return the sub-platform type
   SubPlatformType type() const noexcept override;
@@ -75,8 +84,12 @@ class CpuSubPlatform : public SubPlatform
 
  private:
   zisc::pmr::unique_ptr<CpuDeviceInfo> device_info_;
+  uint32b num_of_threads_ = 0;
+  uint32b task_batch_size_ = 32;
 };
 
 } // namespace zinvul
+
+#include "cpu_sub_platform.hpp"
 
 #endif // ZINVUL_CPU_SUB_PLATFORM_HPP

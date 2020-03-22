@@ -21,6 +21,7 @@
 #include <memory>
 // Zisc
 #include "zisc/memory.hpp"
+#include "zisc/thread_manager.hpp"
 #include "zisc/utility.hpp"
 // Zinvul
 #include "cpu_device_info.hpp"
@@ -72,6 +73,53 @@ void CpuDevice::notifyDeallocation(const std::size_t size) noexcept
 {
   heap_usage_.release(size);
 }
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+std::size_t CpuDevice::numOfThreads() const noexcept
+{
+  const auto& thread_manager = threadManager();
+  return thread_manager.numOfThreads();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+std::size_t CpuDevice::taskBatchSize() const noexcept
+{
+  const auto& device = parentImpl();
+  return device.taskBatchSize();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+zisc::ThreadManager& CpuDevice::threadManager() noexcept
+{
+  return *thread_manager_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const zisc::ThreadManager& CpuDevice::threadManager() const noexcept
+{
+  return *thread_manager_;
+}
+
 
 ////  setDeviceMemoryUsage(memory_usage);
 ////  setHostMemoryUsage(memory_usage);
@@ -178,23 +226,6 @@ void CpuDevice::notifyDeallocation(const std::size_t size) noexcept
 //void CpuDevice::waitForCompletion(const QueueType /* queue_type */,
 //                                  const uint32b /* queue_index */) const noexcept
 //{
-//}
-//
-///*!
-//  \details No detailed description
-//
-//  \tparam kDimension No description.
-//  \param [in] works No description.
-//  \return No description
-//  */
-//template <std::size_t kDimension> inline
-//std::array<uint32b, 3> CpuDevice::expandTo3dWorkGroupSize(
-//    const std::array<uint32b, kDimension>& works) const noexcept
-//{
-//  std::array<uint32b, 3> work_group_size{{1, 1, 1}};
-//  for (std::size_t i = 0; i < kDimension; ++i)
-//    work_group_size[i] = works[i];
-//  return work_group_size;
 //}
 
 /*!

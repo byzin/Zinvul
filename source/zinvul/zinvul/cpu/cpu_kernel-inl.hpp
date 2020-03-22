@@ -1,7 +1,12 @@
 /*!
   \file cpu_kernel-inl.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -14,6 +19,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <tuple>
 #include <type_traits>
@@ -24,148 +30,225 @@
 #include "cpu_buffer.hpp"
 #include "cpu_device.hpp"
 #include "zinvul/kernel.hpp"
-#include "zinvul/kernel_arg_parser.hpp"
 #include "zinvul/zinvul_config.hpp"
+#include "zinvul/utility/id_data.hpp"
+#include "zinvul/utility/kernel_arg_parser.hpp"
+#include "zinvul/utility/kernel_init_parameters.hpp"
 
 namespace zinvul {
 
 /*!
+  \details No detailed description
+
+  \param [in] id No description.
   */
-template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
-CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::CpuKernel(
-    CpuDevice* device,
-    const Function kernel_func) noexcept : device_{device}
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+CpuKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
 {
-  setKernel(kernel_func);
 }
 
 /*!
+  \details No detailed description
   */
-template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
-auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::device()
-    noexcept -> CpuDevice*
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+~CpuKernel() noexcept
 {
-  ZISC_ASSERT(device_ != nullptr, "The assigned device is null.");
-  return device_;
 }
 
 /*!
-  */
-template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
-inline
-auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::device()
-    const noexcept -> const CpuDevice*
-{
-  ZISC_ASSERT(device_ != nullptr, "The assigned device is null.");
-  return device_;
-}
+  \details No detailed description
 
-/*!
+  \return No description
   */
-template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
-auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::SubPlatformType()
-    const noexcept -> SubPlatformType
+auto
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+kernel() const noexcept -> Function
 {
-  return SubPlatformType::kCpu;
-}
-
-/*!
-  */
-template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
-inline
-auto CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::kernel()
-    const noexcept -> Function
-{
-  ZISC_ASSERT(kernel_ != nullptr, "The kernel function is null.");
   return kernel_;
 }
 
 /*!
+  \details No detailed description
   */
-template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
-bool CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::hasKernel()
-    const noexcept
+void
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+destroyData() noexcept
 {
-  const bool result = kernel_ != nullptr;
-  return result;
+  kernel_ = nullptr;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] params No description.
   */
-template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
-void CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::run(
-    std::add_lvalue_reference_t<BufferArgs>... args,
-    const std::array<uint32b, kDimension> works,
-    const uint32b /* queue_index */) noexcept
+void
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+initData(const InitParameters& params)
 {
-  const auto command = [this, &args...]() noexcept
+  kernel_ = params.func();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] args No description.
+  \param [in] launch_options No description.
+  */
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+run(BufferRef<ArgTypes>... args, const LaunchOptions& launch_options)
+{
+  auto& device = parentImpl();
+  const auto work_size = expandTo3d(launch_options.workSize());
+  using LauncherType = Launcher<FuncArgTypes...>;
+  auto command = [func = kernel(), &args..., &launch_options]() noexcept
   {
-    using ArgPack = std::tuple<ArgumentTypes...>;
-    runFunc<ArgPack>(args...);
+    LauncherType::exec(func, launch_options, args...);
   };
-  device()->submit(works, CpuDevice::Command{command});
+  device.submit(work_size, command);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam Types No description.
+  \param [in] func No description.
+  \param [in] value No description.
+  \param [in] rest No description.
   */
-template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
+template <typename ArgType, typename ...RestTypes>
+template <typename Type, typename ...Types>
 inline
-void CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::setKernel(
-    const Function kernel_func) noexcept
+void
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+Launcher<ArgType, RestTypes...>::exec(Function func,
+                                      const LaunchOptions& launch_options,
+                                      Type&& value,
+                                      Types&&... rest) noexcept
 {
-  kernel_ = kernel_func;
-}
-
-/*!
-  */
-template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
-template <typename ArgPack, typename Type, typename ...Types> inline
-void CpuKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::runFunc(
-    Type&& argument,
-    Types&&... rest) noexcept
-{
-  using ArgPackInfo = ArgumentPackInfo<ArgPack>;
-  if constexpr (ArgPackInfo::kHasArgument) {
-    using ArgInfo = KernelArgInfo<typename ArgPackInfo::Type>;
-    using RestArgPack = typename ArgPackInfo::RestArgPack;
-    if constexpr (ArgInfo::kIsGlobal) {
-      // Process a global argument
-      using ElementType = typename std::remove_reference_t<Type>::Type;
-      using CpuBufferT = CpuBuffer<ArgInfo::kDescriptor, ElementType>;
-      using CpuBufferPtr = std::add_pointer_t<CpuBufferT>;
-
-      auto& buffer = argument;
-      ZISC_ASSERT(buffer.SubPlatformType() == SubPlatformType::kCpu,
-                  "The device type of the buffer isn't cpu.");
-      ZISC_ASSERT(0 < buffer.size(), "The buffer is empty.");
-      auto b = zisc::cast<CpuBufferPtr>(std::addressof(buffer));
-      if constexpr (ArgInfo::kIsPod) {
-        auto& clargument = *(b->data());
-        runFunc<RestArgPack>(std::forward<Types>(rest)..., clargument);
-      }
-      else {
-        typename ArgPackInfo::Type clargument{b->data()};
-        runFunc<RestArgPack>(std::forward<Types>(rest)..., clargument);
-      }
-    }
-    else {
-      // Process a local argument
-      typename ArgInfo::ElementType local_storage{};
-      typename ArgPackInfo::Type clargument{std::addressof(local_storage)};
-      runFunc<RestArgPack>(std::forward<Type>(argument),
-                           std::forward<Types>(rest)...,
-                           clargument);
-    }
+//  constexpr std::size_t rest_size = sizeof...(RestTypes);
+  using ArgInfo = KernelArgInfo<ArgType>;
+  using ArgT = std::remove_volatile_t<ArgType>;
+  if constexpr (ArgInfo::kIsLocal) { // Process a local argument
+    typename ArgInfo::ElementType storage{};
+    ArgT cl_arg{std::addressof(storage)};
+    invoke(func,
+           launch_options,
+           std::forward<Type>(value),
+           std::forward<Types>(rest)...,
+           cl_arg);
   }
   else {
-    // All buffers are processed, run a kernel
-    (*kernel())(std::forward<Type>(argument), std::forward<Types>(rest)...);
+    // Process a global argument
+    using BufferT = std::remove_reference_t<Type>;
+    using CpuBufferT = CpuBuffer<typename BufferT::Type>;
+    using CpuBufferPtr = std::add_pointer_t<CpuBufferT>;
+    auto buffer = zisc::cast<CpuBufferPtr>(std::addressof(value));
+    if constexpr (ArgInfo::kIsPod) {
+      auto& cl_arg = *(buffer->data());
+      invoke(func,
+             launch_options,
+             std::forward<Types>(rest)...,
+             cl_arg);
+    }
+    else {
+      ArgT cl_arg{buffer->data()};
+      invoke(func,
+             launch_options,
+             std::forward<Types>(rest)...,
+             cl_arg);
+    }
   }
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Types No description.
+  \param [in] func No description.
+  \param [in] args No description.
+  */
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
+template <typename ArgType, typename ...RestTypes>
+template <typename ...Types>
+inline
+void
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+Launcher<ArgType, RestTypes...>::invoke(Function func,
+                                        const LaunchOptions& launch_options,
+                                        Types&&... args) noexcept
+{
+  constexpr std::size_t rest_size = sizeof...(RestTypes);
+  if (0 < rest_size) {
+    using LauncherType = Launcher<RestTypes...>;
+    LauncherType::exec(func, launch_options, std::forward<Types>(args)...);
+  }
+  else {
+    std::invoke(func, std::forward<Types>(args)...);
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] work_size No description.
+  \return No description
+  */
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+std::array<uint32b, 3>
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+expandTo3d(const std::array<uint32b, kDimension>& work_size) noexcept
+{
+  std::array<uint32b, 3> work_size_3d{{1, 1, 1}};
+  for (std::size_t i = 0; i < kDimension; ++i)
+    work_size_3d[i] = work_size[i];
+  return work_size_3d;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+CpuDevice&
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+parentImpl() noexcept
+{
+  auto p = BaseKernel::getParent();
+  return *zisc::treatAs<CpuDevice*>(p);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+const CpuDevice&
+CpuKernel<kDimension, KernelInitParameters<FuncArgTypes...>, ArgTypes...>::
+parentImpl() const noexcept
+{
+  const auto p = BaseKernel::getParent();
+  return *zisc::treatAs<const CpuDevice*>(p);
 }
 
 } // namespace zinvul

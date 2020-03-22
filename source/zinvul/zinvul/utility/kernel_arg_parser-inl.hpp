@@ -1,7 +1,12 @@
 /*!
   \file kernel_arg_parser-inl.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -18,28 +23,35 @@
 // Zisc
 #include "zisc/zisc_config.hpp"
 // Zinvul
-#include "buffer.hpp"
-#include "kernel.hpp"
-#include "cppcl/address_space_pointer.hpp"
+#include "zinvul/buffer.hpp"
+//#include "zinvul/kernel.hpp"
+#include "zinvul/cppcl/address_space_pointer.hpp"
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
 
 /*!
   \brief Global or Local type info
+
+  No detailed description.
+
+  \tparam kAddressType No description.
+  \tparam Type No description.
   */
 template <cl::AddressSpaceType kAddressType, typename Type>
 class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
 {
+  using ASpaceType = cl::AddressSpaceType;
+
  public:
   using ElementType = std::remove_cv_t<Type>;
 
-  static constexpr bool kIsConstant = (kAddressType == cl::AddressSpaceType::kConstant);
-  static constexpr bool kIsGlobal = (kAddressType == cl::AddressSpaceType::kGlobal) ||
-                                    kIsConstant;
-  static constexpr bool kIsLocal = (kAddressType == cl::AddressSpaceType::kLocal);
-  static constexpr bool kIsPod = false;
 
+  static constexpr bool kIsConstant = (kAddressType == ASpaceType::kConstant);
+  static constexpr bool kIsGlobal = (kAddressType == ASpaceType::kGlobal) ||
+                                    kIsConstant;
+  static constexpr bool kIsLocal = (kAddressType == ASpaceType::kLocal);
+  static constexpr bool kIsPod = false;
   static_assert(kIsGlobal || kIsLocal, "The address space is wrong.");
 
  private:
@@ -48,6 +60,7 @@ class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
 };
 
 /*!
+  \details No detailed description
   */
 inline
 constexpr KernelArgParseResult::KernelArgParseResult() noexcept :
@@ -60,6 +73,12 @@ constexpr KernelArgParseResult::KernelArgParseResult() noexcept :
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] is_global No description.
+  \param [in] is_local No description.
+  \param [in] is_pod No description.
+  \param [in] is_constant No description.
   */
 inline
 constexpr KernelArgParseResult::KernelArgParseResult(const bool is_global,
@@ -76,6 +95,9 @@ constexpr KernelArgParseResult::KernelArgParseResult(const bool is_global,
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 constexpr bool KernelArgParseResult::isConstant() const noexcept
@@ -84,6 +106,9 @@ constexpr bool KernelArgParseResult::isConstant() const noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 constexpr bool KernelArgParseResult::isGlobal() const noexcept
@@ -92,6 +117,9 @@ constexpr bool KernelArgParseResult::isGlobal() const noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 constexpr bool KernelArgParseResult::isLocal() const noexcept
@@ -100,6 +128,9 @@ constexpr bool KernelArgParseResult::isLocal() const noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 constexpr bool KernelArgParseResult::isPod() const noexcept
@@ -108,6 +139,9 @@ constexpr bool KernelArgParseResult::isPod() const noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
 constexpr std::size_t KernelArgParseResult::index() const noexcept
@@ -116,6 +150,9 @@ constexpr std::size_t KernelArgParseResult::index() const noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] index No description.
   */
 inline
 constexpr void KernelArgParseResult::setIndex(const std::size_t index) noexcept

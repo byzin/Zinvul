@@ -45,6 +45,12 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   PlatformOptions& operator=(PlatformOptions&& other) noexcept;
 
 
+  //! Return the number of thread for kernel execution
+  uint32b cpuNumOfThreads() const noexcept;
+
+  //! Return the task batch size per thread
+  uint32b cpuTaskBatchSize() const noexcept;
+
   //! Enable the debug mode
   void enableDebugMode(const bool debug_mode_enabled) noexcept;
 
@@ -71,6 +77,12 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
 
   //! Check whether the debug mode is enabled
   bool debugModeEnabled() const noexcept;
+
+  //! Set the number of threads for kernel execution
+  void setCpuNumOfThreads(const uint32b num_of_threads) noexcept;
+
+  //! Set the task batch size per thread
+  void setCpuTaskBatchSize(const uint32b task_batch_size) noexcept;
 
   //! Set the platform name
   void setPlatformName(std::string_view name) noexcept;
@@ -110,8 +122,8 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   uint32b platform_version_minor_;
   uint32b platform_version_patch_;
   int32b debug_mode_enabled_; //!< Enable debugging in Zinvul
-  // uint32b cpu_num_of_threads_
-  // uint32b cpu_task_batch_size_
+  uint32b cpu_num_of_threads_ = 0;
+  uint32b cpu_task_batch_size_ = 32;
   int32b vulkan_sub_platform_enabled_;
   void* vulkan_instance_ptr_ = nullptr;
   void* vulkan_get_proc_addr_ptr_ = nullptr;
