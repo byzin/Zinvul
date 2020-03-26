@@ -107,6 +107,8 @@
 !/example/
 !/example/CMakeLists.txt
 !/example/*.cpp
+!/example/kernels/
+!/example/kernels/*.cl
 
 # Build directories
 !/build/

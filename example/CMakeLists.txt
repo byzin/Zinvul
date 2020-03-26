@@ -83,3 +83,11 @@ addExample(VulkanSubPlatformExample OFF
            ${PROJECT_SOURCE_DIR}/vulkan_sub_platform_example.cpp)
 addExample(DeviceExample OFF
            ${PROJECT_SOURCE_DIR}/device_example.cpp)
+addExample(KernelExample OFF
+           ${PROJECT_SOURCE_DIR}/kernel_example.cpp)
+
+# Kernel set
+include(${CMAKE_SOURCE_DIR}/source/zinvul/cmake/kernel.cmake)
+addKernelSet(example ${PROJECT_VERSION}
+    SOURCE_FILES ${PROJECT_SOURCE_DIR}/kernels/example.cl)
+target_link_libraries(KernelExample PRIVATE KernelSet_example)

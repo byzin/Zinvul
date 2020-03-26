@@ -12,7 +12,7 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#include "zinvul/@kernel_set_name@/@kernel_set_name@.hpp"
+#include "zinvul/kernel_set/@kernel_set_name@.hpp"
 // Standard C++ library
 #include <fstream>
 #include <vector>

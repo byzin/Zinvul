@@ -9,16 +9,176 @@
 cmake_minimum_required(VERSION 3.16)
 
 
-function(prepareCppBackend kernel_set_dir)
-  set(hpp_file_path ${kernel_set_dir}/zinvul/kernel_set/@kernel_set_name@.hpp)
-  configure_file(@kernel_set_template_path@/kernel_set.hpp.in
+# Create a kernels inclusion string
+function(makeKernelInclusionString kernel_inclusion_lines)
+  set(inclusion_lines "")
+  foreach(kernel_file IN LISTS ARGN)
+    get_filename_component(kernel_file_path ${kernel_file} ABSOLUTE BASE_DIR @kernel_set_base_dir@)
+  string(APPEND inclusion_lines "#include \"${kernel_file_path}\"\n")
+  endforeach(kernel_file)
+
+  # Output
+  set(${kernel_inclusion_lines} "${inclusion_lines}" PARENT_SCOPE)
+endfunction(makeKernelInclusionString)
+
+
+function(getZinvulKernelFlags zinvul_compile_flags zinvul_definitions)
+  set(compile_flags "")
+  set(definitions "")
+
+  # Math
+  if(ZINVUL_MATH_BUILTIN)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_FREXP)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_FREXP)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_LDEXP)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_LDEXP)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_ILOGB)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_ILOGB)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_MODF)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_MODF)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_ROUND)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_ROUND)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_FMOD)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_FMOD)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_EXP)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_EXP)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_LOG)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_LOG)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_POW)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_POW)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_SQRT)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_SQRT)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_CBRT)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_CBRT)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_TRIGONOMETRIC)
+  endif()
+  if(ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
+    list(APPEND definitions ZINVUL_MATH_BUILTIN_INV_TRIGONOMETRIC)
+  endif()
+
+
+  # Output variables
+  set(${zinvul_compile_flags} ${compile_flags} PARENT_SCOPE)
+  set(${zinvul_definitions} ${definitions} PARENT_SCOPE)
+endfunction(getZinvulKernelFlags)
+
+
+function(initCpuBackend)
+  # Make the output dir for C++ backend
+  set(output_dir ${PROJECT_BINARY_DIR}/cpp)
+  set(include_dir ${output_dir}/include)
+
+  # Hpp file
+  file(MAKE_DIRECTORY ${include_dir}/zinvul/kernel_set)
+  set(hpp_file_path ${include_dir}/zinvul/kernel_set/@kernel_set_name@.hpp)
+  configure_file(@kernel_set_template_dir@/kernel_set.hpp.in
                  ${hpp_file_path}
                  @ONLY)
+  # Cpp file
+  set(cpp_file_path ${output_dir}/@kernel_set_name@.cpp)
+  configure_file(@kernel_set_template_dir@/kernel_set.cpp.in
+                 ${cpp_file_path}
+                 @ONLY)
 
-  # Set target properties
-  target_sources(${PROJECT_NAME} INTERFACE ${hpp_file_path})
-  target_include_directories(${PROJECT_NAME} INTERFACE ${kernel_set_dir})
-endfunction(prepareCppBackend)
+  getZinvulKernelFlags(zinvul_compile_flags zinvul_definitions)
+
+  source_group(${PROJECT_NAME} FILES ${hpp_file_path} ${cpp_file_path})
+  add_library(${PROJECT_NAME} STATIC ${hpp_file_path} ${cpp_file_path})
+  target_compile_options(${PROJECT_NAME} PUBLIC ${zinvul_compile_flags})
+  target_compile_definitions(${PROJECT_NAME} PUBLIC ${zinvul_definitions})
+  target_include_directories(${PROJECT_NAME} PUBLIC ${include_dir})
+endfunction(initCpuBackend)
+
+
+function(initVulkanBackend)
+  # Find clspv command
+  find_program(clspv_command "clspv"
+               DOC "A compiler for a subset of OpenCL to Vulkan compute shaders.")
+  if(clspv_command-NOTFOUND)
+    message(FATAL_ERROR "'clspv' not found in PATH.") 
+  endif()
+
+  # Make the output dir for Vulkan backend
+  set(output_dir ${PROJECT_BINARY_DIR}/spv)
+
+  # OpenCL file
+  file(MAKE_DIRECTORY ${output_dir})
+  set(cl_file_path ${output_dir}/@kernel_set_name@.cl)
+  configure_file(@kernel_set_template_dir@/kernel_set.cl.in
+                 ${cl_file_path}
+                 @ONLY)
+
+  # Set clspv options
+  set(clspv_options -D=ZINVUL_VULKAN)
+  ## include directories
+  set(include_dirs "")
+  list(APPEND include_dirs @kernel_set_include_dirs@)
+  foreach(include_dir IN LISTS include_dirs)
+    list(APPEND clspv_options -I=${include_dir})
+  endforeach(include_dir)
+  list(APPEND clspv_options -I=@zinvul_path@)
+  ## Definitions
+  getZinvulKernelFlags(clspv_compile_flags clspv_definitions)
+  list(APPEND clspv_options ${clspv_compile_flags})
+  list(APPEND clspv_definitions @kernel_set_definitions@)
+  foreach(definition IN LISTS clspv_definitions)
+    list(APPEND clspv_options -D=${definition})
+  endforeach(definition)
+  if(Z_DEBUG_MODE)
+    list(APPEND clspv_options -D=Z_DEBUG_MODE)
+  elseif(Z_RELEASE_MODE)
+    list(APPEND clspv_options -D=Z_RELEASE_MODE)
+  endif()
+  if(Z_WINDOWS)
+    list(APPEND clspv_options -D=Z_WINDOWS)
+  elseif(Z_LINUX)
+    list(APPEND clspv_options -D=Z_LINUX)
+  elseif(Z_MAC)
+    list(APPEND clspv_options -D=Z_MAC)
+  endif()
+#  list(APPEND clspv_options --c++
+#                            --f16bit_storage
+#                            --inline-entry-points
+#                            --int8
+#                            # Optimization
+#                            -O=3
+#                            --cl-no-signed-zeros
+#                            --cost-kind=throughput
+#                            --cl-denorms-are-zero
+#                            --cl-finite-math-only
+#                            --enable-gvn-memdep
+#                            --enable-load-pre
+#                            --enable-loop-simplifycfg-term-folding
+#                            --expensive-combines
+#                            --instcombine-code-sinking
+#                            )
+#  endif()
+#
+#  # Descriptor map
+#  set(descriptor_map_path ${kernel_set_dir}/@kernel_set_name@.csv)
+#  list(APPEND clspv_options --descriptormap=${descriptor_map_path})
+#
+#  # Set clspv build command
+#  list(APPEND clspv_options -o={spv_file_path})
+#  set(build_commands COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
+#
+#  #  list(APPEND clspv_output_files ${descriptor_map_path})
+
+endfunction(initVulkanBackend)
 
 
 #function(prepareVulkanBackend kernel_set_dir cl_files kernel_source_files)
@@ -163,38 +323,27 @@ endfunction(prepareCppBackend)
 #endfunction(prepareVulkanBackend)
 
 
-project(Zinvul_@kernel_set_name@ VERSION @kernel_set_version@ LANGUAGES CXX)
+project(KernelSet_@kernel_set_name@ VERSION @kernel_set_version@ LANGUAGES CXX)
 
-# Check source files
-set(source_files "@kernel_set_source_files@")
-if(NOT "${source_files}")
-  message(FATAL_ERROR "The kernel set '@kernel_set_name@' has no source.")
-endif()
+include(${zisc_path}/cmake/general.cmake)
+include(${zisc_path}/cmake/platform.cmake)
+getPlatformFlags(platform_definitions)
+setVariablesOnCMake(${platform_definitions})
 
-# Create an include list of C++ header
-set(kernel_include_lines "")
-foreach(cl_file IN LISTS source_files)
-  get_filename_component(cl_file_path ${cl_file} ABSOLUTE BASE_DIR @kernel_set_base_dir@)
-  string(APPEND kernel_include_lines "#include \"${cl_file_path}\"\n")
-endforeach(cl_file)
+set(source_files @kernel_set_source_files@)
+makeKernelInclusionString(kernel_inclusion_lines ${source_files})
 
-# Create the c++ output dir
-set(cpp_kernel_set_dir ${PROJECT_BINARY_DIR}/cpp)
-file(MAKE_DIRECTORY ${cpp_kernel_set_dir})
-# Create the vulkan output dir
-set(spv_kernel_set_dir ${PROJECT_BINARY_DIR}/spv)
-file(MAKE_DIRECTORY ${spv_kernel_set_dir})
-
-set(spv_file_path ${spv_kernel_set_dir}/@kernel_set_name@.spv)
-set(baked_spv_file_path ${spv_kernel_set_dir}/baked_@kernel_set_name@_spirv.hpp)
-
-# Create the kernel set library
-add_library(${PROJECT_NAME} INTERFACE)
+#set(spv_file_path ${spv_kernel_set_dir}/@kernel_set_name@.spv)
+#set(baked_spv_file_path ${spv_kernel_set_dir}/baked_@kernel_set_name@_spirv.hpp)
 
 # C++ backend
-prepareCppBackend(${cpp_kernel_set_dir} kernel_source_files)
+initCpuBackend()
 
 # Vulkan backend
+if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
+  initVulkanBackend()
+endif()
+
 #if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
 #  prepareVulkanBackend()
 #endif()
@@ -210,4 +359,49 @@ prepareCppBackend(${cpp_kernel_set_dir} kernel_source_files)
   #  set(${zinvul_source_files} ${kernel_source_files} PARENT_SCOPE)
   #  set(${zinvul_definitions} ${definitions} PARENT_SCOPE)
   #  set(__zinvul_num_of_sets__ ${set_number} CACHE INTERNAL "")
-endfunction(addKernelSet)
+
+
+# Properties
+get_target_property(zisc_definitions Zisc INTERFACE_COMPILE_DEFINITIONS)
+if(zisc_definitions)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE ${zisc_definitions})
+endif()
+get_target_property(zinvul_definitions Zinvul INTERFACE_COMPILE_DEFINITIONS)
+if(zinvul_definitions)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE ${zinvul_definitions})
+endif()
+get_target_property(zisc_features Zisc INTERFACE_COMPILE_FEATURES)
+if(zisc_features)
+  target_compile_features(${PROJECT_NAME} PRIVATE ${zisc_features})
+endif()
+get_target_property(zinvul_features Zinvul INTERFACE_COMPILE_FEATURES)
+if(zinvul_features)
+  target_compile_features(${PROJECT_NAME} PRIVATE ${zinvul_features})
+endif()
+get_target_property(zisc_compile_flags Zisc INTERFACE_COMPILE_OPTIONS)
+if(zisc_compile_flags)
+  target_compile_options(${PROJECT_NAME} PRIVATE ${zisc_compile_flags})
+endif()
+get_target_property(zinvul_compile_flags Zinvul INTERFACE_COMPILE_OPTIONS)
+if(zinvul_compile_flags)
+  target_compile_options(${PROJECT_NAME} PRIVATE ${zinvul_compile_flags})
+endif()
+get_target_property(zisc_linker_flag Zisc INTERFACE_LINK_OPTIONS)
+if(zisc_linker_flag)
+  target_link_options(${PROJECT_NAME} PRIVATE ${zisc_linker_flag})
+endif()
+get_target_property(zinvul_linker_flag Zinvul INTERFACE_LINK_OPTIONS)
+if(zinvul_linker_flag)
+  target_link_options(${PROJECT_NAME} PRIVATE ${zinvul_linker_flag})
+endif()
+get_target_property(zisc_include_dirs Zisc INTERFACE_INCLUDE_DIRECTORIES)
+if(zisc_include_dirs)
+  target_include_directories(${PROJECT_NAME} PRIVATE ${zisc_include_dirs})
+endif()
+get_target_property(zinvul_include_dirs Zinvul INTERFACE_INCLUDE_DIRECTORIES)
+if(zinvul_include_dirs)
+  target_include_directories(${PROJECT_NAME} PRIVATE ${zinvul_include_dirs})
+endif()
+
+#
+setStaticAnalyzer(${PROJECT_NAME})

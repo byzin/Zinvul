@@ -1,4 +1,4 @@
-# file: config.cmake
+# file: kernel.cmake
 # author: Sho Ikeda
 #
 # Copyright (c) 2015-2020 Sho Ikeda
@@ -7,7 +7,7 @@
 # 
 
 
-set(__template_path__ ${CMAKE_CURRENT_LIST_DIR})
+set(__script_path__ ${CMAKE_CURRENT_LIST_DIR})
 
 function(getZinvulKernelFlags zinvul_compile_flags zinvul_definitions)
   set(compile_flags "")
@@ -65,14 +65,14 @@ endfunction(getZinvulKernelFlags)
 
 set(__zinvul_num_of_sets__ 0 CACHE INTERNAL "")
 
-function(getKernelSetNumber number)
+function(issueKernelSetNumber number)
   set(kernel_set_number ${__zinvul_num_of_sets__})
   math(EXPR num_of_sets "${__zinvul_num_of_sets__} + 1")
   set(__zinvul_num_of_sets__ ${num_of_sets} CACHE INTERNAL "")
 
   # Output
   set(${number} ${kernel_set_number} PARENT_SCOPE)
-endfunction(getKernelSetNumber)
+endfunction(issueKernelSetNumber)
 
 
 function(addKernelSet kernel_set_name kernel_set_version)
@@ -80,7 +80,7 @@ function(addKernelSet kernel_set_name kernel_set_version)
   set(options "")
   set(one_value_args "")
   set(multi_value_args SOURCE_FILES INCLUDE_DIRS DEFINITIONS)
-  cmake_parse_arguments(PARSE_ARGV 3 ZINVUL "${options}" "${one_value_args}" "${multi_value_args}")
+  cmake_parse_arguments(PARSE_ARGV 2 ZINVUL "${options}" "${one_value_args}" "${multi_value_args}")
 
   # Check source files
   if(NOT ZINVUL_SOURCE_FILES)
@@ -88,10 +88,21 @@ function(addKernelSet kernel_set_name kernel_set_version)
   endif()
 
   # Set kernel properties
-  getKernelSetNumber(kernel_set_number)
-  set(kernel_set_template_path ${__template_path__})
+  issueKernelSetNumber(kernel_set_number)
+  set(zinvul_path ${__script_path__}/..)
+  get_filename_component(zinvul_path "${zinvul_path}" REALPATH)
+  set(kernel_set_template_dir ${zinvul_path}/template)
   set(kernel_set_base_dir ${CMAKE_CURRENT_LIST_DIR})
   set(kernel_set_source_files ${ZINVUL_SOURCE_FILES})
   set(kernel_set_include_dirs ${ZINVUL_INCLUDE_DIRS})
   set(kernel_set_definitions ${ZINVUL_DEFINITIONS})
+  set(zisc_path ${zinvul_path}/../dependencies/zisc/source/zisc)
+
+  # Make a CMakeLists.txt of the given kernel set
+  set(kernel_set_dir ${PROJECT_BINARY_DIR}/KernelSet/${kernel_set_name})
+  file(MAKE_DIRECTORY ${kernel_set_dir})
+  configure_file(${kernel_set_template_dir}/kernel_set.cmake.in
+                 ${kernel_set_dir}/CMakeLists.txt
+                 @ONLY)
+  add_subdirectory(${kernel_set_dir} ${kernel_set_dir}/build)
 endfunction(addKernelSet)

@@ -9,10 +9,6 @@
 cmake_minimum_required(VERSION 3.16)
 
 
-set(__zinvul_path__ ${CMAKE_CURRENT_LIST_DIR})
-set(__zisc_path__ ${CMAKE_SOURCE_DIR}/source/dependencies/zisc/source/zisc)
-set(__vma_path__ ${CMAKE_SOURCE_DIR}/source/dependencies/VulkanMemoryAllocator)
-
 function(initZinvulOptions)
   set(option_description "Bake Vulkan kernels into a binary.")
   setBooleanOption(ZINVUL_BAKE_KERNELS OFF ${option_description})
@@ -78,7 +74,7 @@ endfunction(initZinvulOptions)
 
 
 function(getZinvulFlags zinvul_compile_flags zinvul_linker_flags zinvul_definitions)
-  include(${__zinvul_path__}/cmake/kernel.cmake)
+  include(${PROJECT_SOURCE_DIR}/cmake/kernel.cmake)
   getZinvulKernelFlags(compile_flags definitions)
 
   if(ZINVUL_BAKE_KERNELS)
@@ -87,8 +83,6 @@ function(getZinvulFlags zinvul_compile_flags zinvul_linker_flags zinvul_definiti
   if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
     list(APPEND definitions ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
 
-    # Vulkan SDK
-    list(APPEND definitions VULKAN_HPP_NO_SMART_HANDLE)
     # Dynamic vulkan loading
     if(ZINVUL_DYNAMIC_VULKAN_LOADING)
       list(APPEND definitions ZINVUL_DYNAMIC_VULKAN_LOADING)
@@ -131,15 +125,19 @@ set(project_description "Zinvul.")
 project(Zinvul VERSION 0.0.1 DESCRIPTION "${project_description}" LANGUAGES CXX)
 message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
-include(${__zisc_path__}/cmake/general.cmake)
-include(${__zisc_path__}/cmake/platform.cmake)
+set(dependencies_dir ${PROJECT_SOURCE_DIR}/../dependencies)
+set(zisc_path ${dependencies_dir}/zisc/source/zisc)
+set(cpu_features_path ${dependencies_dir}/cpu_features)
+
+include(${zisc_path}/cmake/general.cmake)
+include(${zisc_path}/cmake/platform.cmake)
 getPlatformFlags(platform_definitions)
 setVariablesOnCMake(${platform_definitions})
 initZinvulOptions()
 
 # Check dependencies
-checkTarget(cpu_features)
-checkTarget(Zisc)
+add_subdirectory(${zisc_path} ${PROJECT_BINARY_DIR}/Zisc)
+add_subdirectory(${cpu_features_path} ${PROJECT_BINARY_DIR}/CpuFeatures)
 
 # Make zinvul configuration header file
 set(zinvul_config_dir ${PROJECT_BINARY_DIR}/include/zinvul)
@@ -162,7 +160,7 @@ source_group(${PROJECT_NAME} FILES ${zinvul_source_files})
 add_library(${PROJECT_NAME} STATIC ${zinvul_source_files})
 
 # Compiler flags
-include(${__zisc_path__}/cmake/compiler.cmake)
+include(${zisc_path}/cmake/compiler.cmake)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17
                                                  CXX_STANDARD_REQUIRED ON)
 
@@ -184,10 +182,11 @@ if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
   find_package(Vulkan REQUIRED)
   target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
   # Vulkan Memory Allocator
-  checkSubmodule(${__vma_path__})
-  set(vma_include_dir ${PROJECT_BINARY_DIR}/vma)
+  set(vma_path ${dependencies_dir}/VulkanMemoryAllocator)
+  checkSubmodule(${vma_path})
+  set(vma_include_dir ${PROJECT_BINARY_DIR}/VulkanMemoryAllocator)
   file(MAKE_DIRECTORY ${vma_include_dir})
-  file(COPY ${__vma_path__}/src/vk_mem_alloc.h DESTINATION ${vma_include_dir})
+  file(COPY ${vma_path}/src/vk_mem_alloc.h DESTINATION ${vma_include_dir})
   target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC  ${vma_include_dir})
 endif()
 

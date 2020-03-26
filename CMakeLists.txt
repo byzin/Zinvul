@@ -29,14 +29,6 @@ include(${PROJECT_SOURCE_DIR}/cmake/option.cmake)
 initProjectOptions()
 restrictBuildDirectory(${PROJECT_SOURCE_DIR}/build)
 
-# Build Zisc
-add_subdirectory(${zisc_path} ${PROJECT_BINARY_DIR}/Zisc)
-
-# cpu_features
-set(cpu_features_path ${PROJECT_SOURCE_DIR}/source/dependencies/cpu_features)
-add_subdirectory(${cpu_features_path} ${PROJECT_BINARY_DIR}/CpuFeatures)
-#attachZinvulOption(cpu_features)
-
 # Build Zinvul
 set(zinvul_path ${PROJECT_SOURCE_DIR}/source/zinvul)
 add_subdirectory(${zinvul_path} ${PROJECT_BINARY_DIR}/Zinvul)

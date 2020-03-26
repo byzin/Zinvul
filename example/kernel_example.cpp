@@ -1,5 +1,5 @@
 /*!
-  \file device_example.cpp
+  \file kernel_example.cpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -53,7 +53,7 @@ int main(int /* argc */, char** /* argv */)
 
   // Platform options
   zinvul::PlatformOptions platform_options{&mem_resource};
-  platform_options.setPlatformName("DeviceExample");
+  platform_options.setPlatformName("KernelExample");
   platform_options.setPlatformVersionMajor(zinvul::Config::versionMajor());
   platform_options.setPlatformVersionMinor(zinvul::Config::versionMinor());
   platform_options.setPlatformVersionPatch(zinvul::Config::versionPatch());

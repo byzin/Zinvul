@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZINVUL_@kernel_set_name@_CL
-#define ZINVUL_@kernel_set_name@_CL @kernel_set_number@
+#ifndef ZINVUL_KERNEL_SET_@kernel_set_name@_CL
+#define ZINVUL_KERNEL_SET_@kernel_set_name@_CL @kernel_set_number@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc++98-compat"
@@ -25,16 +25,13 @@
 // Definitions
 #define ZINVUL_GLOBAL_NAMESPACE
 
-@kernel_include_lines@
+@kernel_inclusion_lines@
 
-static_assert(ZINVUL_@kernel_set_name@_CL == @kernel_set_number@,
-              "The number of the kernel set is changed.");
-#if !defined(ZINVUL_GLOBAL_NAMESPACE)
-static_assert(false, "The ZINVUL_GLOBAL_NAMESPACE macro isn't defined.");
-#endif // ZINVUL_GLOBAL_NAMESPACE
+static_assert(ZINVUL_KERNEL_SET_@kernel_set_name@_CL == @kernel_set_number@,
+              "The ID number of the kernel set isn't valid.");
 
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
 //#pragma clang diagnostic pop
 
-#endif /* ZINVUL_@kernel_set_name@_CL */
+#endif /* ZINVUL_KERNEL_SET_@kernel_set_name@_CL */
