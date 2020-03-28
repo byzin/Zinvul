@@ -9,10 +9,14 @@
 cmake_minimum_required(VERSION 3.16)
 
 
+# Global constants
+set(kernel_set_prefix kernel_set)
+
 # Create a kernels inclusion string
 function(makeKernelInclusionString kernel_inclusion_lines)
+  set(kernel_files ${ARGN})
   set(inclusion_lines "")
-  foreach(kernel_file IN LISTS ARGN)
+  foreach(kernel_file IN LISTS ${kernel_files})
     get_filename_component(kernel_file_path ${kernel_file} ABSOLUTE BASE_DIR @kernel_set_base_dir@)
   string(APPEND inclusion_lines "#include \"${kernel_file_path}\"\n")
   endforeach(kernel_file)
@@ -77,250 +81,206 @@ function(getZinvulKernelFlags zinvul_compile_flags zinvul_definitions)
 endfunction(getZinvulKernelFlags)
 
 
-function(initCpuBackend)
+function(initCpuBackend target)
   # Make the output dir for C++ backend
   set(output_dir ${PROJECT_BINARY_DIR}/cpp)
   set(include_dir ${output_dir}/include)
 
   # Hpp file
   file(MAKE_DIRECTORY ${include_dir}/zinvul/kernel_set)
-  set(hpp_file_path ${include_dir}/zinvul/kernel_set/@kernel_set_name@.hpp)
+  set(hpp_file_path ${include_dir}/zinvul/kernel_set/${kernel_set_prefix}-@kernel_set_name@.hpp)
   configure_file(@kernel_set_template_dir@/kernel_set.hpp.in
                  ${hpp_file_path}
                  @ONLY)
   # Cpp file
-  set(cpp_file_path ${output_dir}/@kernel_set_name@.cpp)
+  set(cpp_file_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@.cpp)
   configure_file(@kernel_set_template_dir@/kernel_set.cpp.in
                  ${cpp_file_path}
                  @ONLY)
 
   getZinvulKernelFlags(zinvul_compile_flags zinvul_definitions)
 
-  source_group(${PROJECT_NAME} FILES ${hpp_file_path} ${cpp_file_path})
-  add_library(${PROJECT_NAME} STATIC ${hpp_file_path} ${cpp_file_path})
-  target_compile_options(${PROJECT_NAME} PUBLIC ${zinvul_compile_flags})
-  target_compile_definitions(${PROJECT_NAME} PUBLIC ${zinvul_definitions})
-  target_include_directories(${PROJECT_NAME} PUBLIC ${include_dir})
+  source_group(${target} FILES ${hpp_file_path} ${cpp_file_path})
+  add_library(${target} STATIC ${hpp_file_path} ${cpp_file_path})
+  target_compile_options(${target} PUBLIC ${zinvul_compile_flags})
+  target_compile_definitions(${target} PUBLIC ${zinvul_definitions})
+  target_include_directories(${target} PUBLIC ${include_dir})
 endfunction(initCpuBackend)
 
 
-function(initVulkanBackend)
-  # Find clspv command
-  find_program(clspv_command "clspv"
-               DOC "A compiler for a subset of OpenCL to Vulkan compute shaders.")
-  if(clspv_command-NOTFOUND)
-    message(FATAL_ERROR "'clspv' not found in PATH.") 
+function(findClspv clspv_command)
+  if(ZINVUL_USES_OWN_CLSPV)
+    if(NOT TARGET clspv)
+      message(FATAL_ERROR "'clspv' target not found.")
+    endif()
+    set(command clspv)
+  else()
+    find_program(command "clspv"
+                 DOC "A compiler for a subset of OpenCL to Vulkan compute shaders.")
+    if(command-NOTFOUND)
+      message(FATAL_ERROR "'clspv' not found in PATH.") 
+    endif()
   endif()
 
+  # Output
+  set(${clspv_command} ${command} PARENT_SCOPE)
+endfunction(findClspv)
+
+
+function(getClspvCompileFlags clspv_compile_flags)
+  set(options -D=ZINVUL_VULKAN)
+  ## include directories
+  set(include_dirs "")
+  list(APPEND include_dirs @kernel_set_include_dirs@)
+  foreach(include_dir IN LISTS include_dirs)
+    list(APPEND options -I=${include_dir})
+  endforeach(include_dir)
+  list(APPEND options -I=@zinvul_path@)
+  ## Definitions
+  getZinvulKernelFlags(compile_flags definitions)
+  list(APPEND options ${compile_flags})
+  list(APPEND definitions @kernel_set_definitions@)
+  foreach(definition IN LISTS definitions)
+    list(APPEND options -D=${definition})
+  endforeach(definition)
+  if(Z_DEBUG_MODE)
+    list(APPEND options -D=Z_DEBUG_MODE)
+  elseif(Z_RELEASE_MODE)
+    list(APPEND options -D=Z_RELEASE_MODE)
+  endif()
+  if(Z_WINDOWS)
+    list(APPEND options -D=Z_WINDOWS)
+  elseif(Z_LINUX)
+    list(APPEND options -D=Z_LINUX)
+  elseif(Z_MAC)
+    list(APPEND options -D=Z_MAC)
+  endif()
+  ## Clspv compile options
+  list(APPEND options --color
+                      -O=3
+                      --cl-std=CLC++
+                      --cost-kind=throughput
+                      --expensive-combines
+                      --f16bit_storage
+                      --inline-entry-points
+                      --instcombine-code-sinking
+                      --int8
+                      -x=cl
+                      )
+  # For float debug
+  #  list(APPEND options --cl-denorms-are-zero
+  #                      --cl-finite-math-only
+  #                      --cl-no-signed-zeros
+  #                      )
+
+
+  # Output
+  set(${clspv_compile_flags} ${options} PARENT_SCOPE)
+endfunction(getClspvCompileFlags)
+
+
+function(prepareSpirVAnalysis target spv_dir spv_file_path)
+  set(spv_analysis_dir ${spv_dir}/analysis)
+  file(MAKE_DIRECTORY ${spv_analysis_dir})
+
+  set(sub_targets "")
+  # Build SPIR-V kernels separately
+  findClspv(clspv_command)
+  getClspvCompileFlags(base_clspv_options)
+  set(cl_files ${ARGN})
+  set(spv_files ${spv_file_path})
+  foreach(cl_file IN LISTS cl_files)
+    get_filename_component(file_name "${cl_file}" NAME_WLE)
+    set(kernel_spv_file_path ${spv_analysis_dir}/${file_name}.spv)
+    list(APPEND spv_files ${kernel_spv_file_path})
+    set(options ${base_clspv_options} -o=${kernel_spv_file_path})
+    list(APPEND options -w -D=ZINVUL_GLOBAL_NAMESPACE="")
+    add_custom_command(OUTPUT ${kernel_spv_file_path}
+      COMMAND ${clspv_command} ${options} ${cl_file}
+      DEPENDS ${cl_file}
+      COMMENT "Building CL object '${cl_file}' for analysis")
+  endforeach(cl_file)
+  add_custom_target(${target}_SpirV DEPENDS ${spv_files})
+  list(APPEND sub_targets ${target}_SpirV)
+
+  # SPIR-V dis
+  set(dis_files "")
+  find_program(spirv_dis_command "spirv-dis"
+               DOC "Disassemble a SPIR-V binary module.")
+  if(spirv_dis_command-NOTFOUND)
+    message(WARNING "'spirv-dis' not found in PATH.") 
+  else()
+    foreach(spv_file IN LISTS spv_files)
+      get_filename_component(file_name "${spv_file}" NAME_WLE)
+      set(dis_file_path ${spv_analysis_dir}/${file_name}-dis.txt)
+      list(APPEND dis_files ${dis_file_path})
+      set(options -o ${dis_file_path})
+      add_custom_command(OUTPUT ${dis_file_path}
+        COMMAND ${spirv_dis_command} ${options} ${spv_file}
+        DEPENDS ${psv_file}
+        COMMENT "Disassemble SPIR-V binary '${spv_file}'")
+    endforeach(spv_file)
+    add_custom_target(${target}_Dis DEPENDS ${dis_files})
+    add_dependencies(${target}_Dis ${target}_SpirV)
+    list(APPEND sub_targets ${target}_Dis)
+  endif()
+
+  # Create a target of the analysis
+  add_custom_target(${target}
+    COMMENT "Preparing analysis of kernel set '@kernel_set_name@'")
+  add_dependencies(${target} ${sub_targets})
+endfunction(prepareSpirVAnalysis)
+
+
+function(initVulkanBackend target)
   # Make the output dir for Vulkan backend
   set(output_dir ${PROJECT_BINARY_DIR}/spv)
 
   # OpenCL file
   file(MAKE_DIRECTORY ${output_dir})
-  set(cl_file_path ${output_dir}/@kernel_set_name@.cl)
+  set(cl_file_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@.cl)
   configure_file(@kernel_set_template_dir@/kernel_set.cl.in
                  ${cl_file_path}
                  @ONLY)
 
+  set(sub_targets "")
   # Set clspv options
-  set(clspv_options -D=ZINVUL_VULKAN)
-  ## include directories
-  set(include_dirs "")
-  list(APPEND include_dirs @kernel_set_include_dirs@)
-  foreach(include_dir IN LISTS include_dirs)
-    list(APPEND clspv_options -I=${include_dir})
-  endforeach(include_dir)
-  list(APPEND clspv_options -I=@zinvul_path@)
-  ## Definitions
-  getZinvulKernelFlags(clspv_compile_flags clspv_definitions)
-  list(APPEND clspv_options ${clspv_compile_flags})
-  list(APPEND clspv_definitions @kernel_set_definitions@)
-  foreach(definition IN LISTS clspv_definitions)
-    list(APPEND clspv_options -D=${definition})
-  endforeach(definition)
-  if(Z_DEBUG_MODE)
-    list(APPEND clspv_options -D=Z_DEBUG_MODE)
-  elseif(Z_RELEASE_MODE)
-    list(APPEND clspv_options -D=Z_RELEASE_MODE)
-  endif()
-  if(Z_WINDOWS)
-    list(APPEND clspv_options -D=Z_WINDOWS)
-  elseif(Z_LINUX)
-    list(APPEND clspv_options -D=Z_LINUX)
-  elseif(Z_MAC)
-    list(APPEND clspv_options -D=Z_MAC)
-  endif()
-#  list(APPEND clspv_options --c++
-#                            --f16bit_storage
-#                            --inline-entry-points
-#                            --int8
-#                            # Optimization
-#                            -O=3
-#                            --cl-no-signed-zeros
-#                            --cost-kind=throughput
-#                            --cl-denorms-are-zero
-#                            --cl-finite-math-only
-#                            --enable-gvn-memdep
-#                            --enable-load-pre
-#                            --enable-loop-simplifycfg-term-folding
-#                            --expensive-combines
-#                            --instcombine-code-sinking
-#                            )
-#  endif()
-#
-#  # Descriptor map
-#  set(descriptor_map_path ${kernel_set_dir}/@kernel_set_name@.csv)
-#  list(APPEND clspv_options --descriptormap=${descriptor_map_path})
-#
-#  # Set clspv build command
-#  list(APPEND clspv_options -o={spv_file_path})
-#  set(build_commands COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
-#
-#  #  list(APPEND clspv_output_files ${descriptor_map_path})
+  findClspv(clspv_command)
+  getClspvCompileFlags(clspv_options)
+  set(clspv_output_files "")
+  ## Clspv descriptor map
+  set(descriptor_map_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@-descmap.csv)
+  list(APPEND clspv_options --descriptormap=${descriptor_map_path})
+  list(APPEND clspv_output_files ${descriptor_map_path})
+  ## Set clspv build command
+  set(spv_file_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@.spv)
+  list(APPEND clspv_options -o=${spv_file_path})
+  list(APPEND clspv_output_files ${spv_file_path})
+  set(build_commands COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
+  ## Create a build command
+  add_custom_command(OUTPUT ${clspv_output_files}
+    ${build_commands}
+    DEPENDS ${cl_file_path} @kernel_set_source_files@ @kernel_set_depends@
+    COMMENT "Building CL object '${cl_file_path}'")
 
+  ## Create a target of the vulkan backend
+  set(vulkan_backend_target ${target}_SpirV)
+  add_custom_target(${vulkan_backend_target}
+    DEPENDS ${clspv_output_files}
+    COMMENT "Preparing kernel set '@kernel_set_name@'")
+  list(APPEND sub_targets ${vulkan_backend_target})
+
+  ## SPIR-V analysis
+  if(ZINVUL_ENABLE_SPIRV_ANALYSIS)
+    set(analysis_target ${target}_Analysis)
+    prepareSpirVAnalysis(${analysis_target} ${output_dir} ${spv_file_path} @kernel_set_source_files@)
+    add_dependencies(${analysis_target} ${vulkan_backend_target})
+    list(APPEND sub_targets ${analysis_target})
+  endif()
+
+  ## Make a dependency with C++ backend
+  add_dependencies(${target} ${sub_targets})
 endfunction(initVulkanBackend)
-
-
-#function(prepareVulkanBackend kernel_set_dir cl_files kernel_source_files)
-#  # Find clspv command
-#  find_program(clspv_command "clspv"
-#               DOC "A compiler for a subset of OpenCL to Vulkan compute shaders.")
-#  if(clspv_command-NOTFOUND)
-#    message(FATAL_ERROR "'clspv' not found in PATH.") 
-#  endif()
-#
-#  set(spv_file_path ${kernel_set_dir}/@kernel_set_name@.spv)
-#  set(baked_spv_file_path ${kernel_set_dir}/baked_@kernel_set_name@_spirv.hpp)
-#
-#  #  set(clspv_output_files ${spv_file_path})
-#  set(cl_file_path ${kernel_set_dir}/@kernel_set_name@.cl)
-#  configure_file(@kernel_settemplate_path@/kernel_set.cl.in
-#                 ${cl_file_path}
-#                 @ONLY)
-#  #  list(APPEND kernel_source_files ${cl_file_path})
-#
-#  # Set clspv options
-#  set(clspv_options -D=ZINVUL_VULKAN)
-#  getZinvulKernelFlags(clspv_compile_flags clspv_definitions)
-#  list(APPEND clspv_options ${clspv_compile_flags})
-#  foreach(cl_file IN LISTS cl_files)
-#    list(APPEND clspv_options -I=${cl_file})
-#  endforeach(cl_file)
-#  list(APPEND clspv_options -I=@zinvul_dir@)
-#  foreach(definition IN LISTS @kernel_set_definitions@ clspv_definitions)
-#    list(APPEND clspv_options -D=${definition})
-#  endforeach(definition)
-#  if(Z_DEBUG_MODE)
-#    list(APPEND clspv_options -D=Z_DEBUG_MODE)
-#  elseif(Z_RELEASE_MODE)
-#    list(APPEND clspv_options -D=Z_RELEASE_MODE)
-#  endif()
-#  if(Z_WINDOWS)
-#    list(APPEND clspv_options -D=Z_WINDOWS)
-#  elseif(Z_LINUX)
-#    list(APPEND clspv_options -D=Z_LINUX)
-#  elseif(Z_MAC)
-#    list(APPEND clspv_options -D=Z_MAC)
-#  endif()
-#  list(APPEND clspv_options --c++
-#                            --f16bit_storage
-#                            --inline-entry-points
-#                            --int8
-#                            # Optimization
-#                            -O=3
-#                            --cl-no-signed-zeros
-#                            --cost-kind=throughput
-#                            --cl-denorms-are-zero
-#                            --cl-finite-math-only
-#                            --enable-gvn-memdep
-#                            --enable-load-pre
-#                            --enable-loop-simplifycfg-term-folding
-#                            --expensive-combines
-#                            --instcombine-code-sinking
-#                            )
-#  endif()
-#
-#  # Descriptor map
-#  set(descriptor_map_path ${kernel_set_dir}/@kernel_set_name@.csv)
-#  list(APPEND clspv_options --descriptormap=${descriptor_map_path})
-#
-#  # Set clspv build command
-#  list(APPEND clspv_options -o={spv_file_path})
-#  set(build_commands COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
-#
-#  #  list(APPEND clspv_output_files ${descriptor_map_path})
-#
-#  # Bake spir-v kernels
-#  if(ZINVUL_BAKE_KERNELS)
-#    find_package(Python3 REQUIRED)
-#    list(APPEND build_commands COMMAND ${Python3_EXECUTABLE}
-#                                       @zinvul_dir@/python/bake_spirv_command.py
-#                                       @kernel_set_name@
-#                                       ${spv_file_path}
-#                                       ${baked_spv_file_path})
-##    list(APPEND clspv_output_files ${baked_spv_file_path})
-##    list(APPEND kernel_source_files ${baked_spv_file_path})
-#  endif()
-#
-#  # Create a build command
-#  add_custom_command(OUTPUT ${clspv_output_files}
-#    ${build_commands}
-#    DEPENDS ${cl_files}
-#    COMMENT "Building CL object ${cl_file_path}")
-#
-#  # SPIR-V analysys
-#  #  if(ZINVUL_ENABLE_SPIRV_ANALYSIS)
-#  #    set(spv_analysis_commands "")
-#  #    set(spv_analysis_output_files "")
-#  #    set(spv_analysis_dir ${spv_kernel_set_dir}/spv_analysis/${kernel_set_name})
-#  #    file(MAKE_DIRECTORY ${spv_analysis_dir})
-#  #    # SPIRV-dis
-#  #    find_program(spirv_dis "spirv-dis")
-#  #    if(spirv_dis)
-#  #      set(dis_file_path ${spv_analysis_dir}/${kernel_set_name}.txt)
-#  #      list(APPEND spv_analysis_commands COMMAND
-#  #                                        ${spirv_dis}
-#  #                                        ${spv_file_path}
-#  #                                        -o ${dis_file_path})
-#  #      list(APPEND spv_analysis_output_files ${dis_file_path})
-#  #    else()
-#  #      message(WARNING "The `spirv-dis` command not found.")
-#  #    endif()
-#  #    # SPIR-V per .cl file
-#  #    list(APPEND clspv_options -D=ZINVUL_GLOBAL_NAMESPACE="") # Workaround
-#  #    foreach(cl_file IN LISTS ZINVUL_SOURCE_FILES)
-#  #      get_filename_component(rga_spv_file_path "${cl_file}" NAME_WLE)
-#  #      set(rga_spv_file_path ${spv_analysis_dir}/${rga_spv_file_path}.spv)
-#  #      set(rga_clspv_commands COMMAND ${clspv} ${clspv_options} -w
-#  #                                     -o=${rga_spv_file_path} ${cl_file})
-#  #      list(APPEND spv_analysis_commands ${rga_clspv_commands})
-#  #      list(APPEND spv_analysis_output_files ${rga_spv_file_path})
-#  #    endforeach(cl_file)
-#  #    # Radeon GPU Analyzer
-#  #    #      find_program(rga "rga")
-#  #    #      if(rga)
-#  #    #        set(rga_livereg_file_path
-#  #    #            ${spv_analysis_dir}/${kernel_set_name}-rga-livereg.txt)
-#  #    #        list(APPEND spv_analysis_commands COMMAND
-#  #    #                                          ${rga} -s vk-spv-offline
-#  #    #                                          -c gfx900
-#  #    #                                          -c gfx902
-#  #    #                                          -c gfx906
-#  #    #                                          --comp ${spv_file_path}
-#  #    #                                          --livereg ${rga_livereg_file_path})
-#  #    #      else()
-#  #    #        message(WARNING "The `rga` command not found.")
-#  #    #      endif()
-#  #    add_custom_command(OUTPUT ${spv_analysis_output_files}
-#  #      ${spv_analysis_commands}
-#  #      DEPENDS ${spv_file_path}
-#  #      COMMENT "Prepare analysis of SPIR-V of the set '${kernel_set_name}'")
-#  #    list(APPEND clspv_output_files ${spv_analysis_output_files})
-#  #  endif()
-#
-#  add_custom_target(${kernel_set_name} DEPENDS ${clspv_output_files})
-#
-#endfunction(prepareVulkanBackend)
 
 
 project(KernelSet_@kernel_set_name@ VERSION @kernel_set_version@ LANGUAGES CXX)
@@ -330,78 +290,59 @@ include(${zisc_path}/cmake/platform.cmake)
 getPlatformFlags(platform_definitions)
 setVariablesOnCMake(${platform_definitions})
 
-set(source_files @kernel_set_source_files@)
-makeKernelInclusionString(kernel_inclusion_lines ${source_files})
-
-#set(spv_file_path ${spv_kernel_set_dir}/@kernel_set_name@.spv)
+makeKernelInclusionString(kernel_inclusion_lines @kernel_set_source_files@)
 #set(baked_spv_file_path ${spv_kernel_set_dir}/baked_@kernel_set_name@_spirv.hpp)
 
+set(target ${PROJECT_NAME})
 # C++ backend
-initCpuBackend()
-
+initCpuBackend(${target})
 # Vulkan backend
 if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
-  initVulkanBackend()
+  initVulkanBackend(${target})
 endif()
-
-#if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
-#  prepareVulkanBackend()
-#endif()
-
-  #    add_custom_target(${kernel_set_name} DEPENDS ${clspv_output_files})
-  #  else()
-  #    add_custom_target(${kernel_set_name})
-  #  endif()
-
-  #  source_group(${kernel_set_name} FILES ${kernel_source_files})
-
-  # Output variables
-  #  set(${zinvul_source_files} ${kernel_source_files} PARENT_SCOPE)
-  #  set(${zinvul_definitions} ${definitions} PARENT_SCOPE)
-  #  set(__zinvul_num_of_sets__ ${set_number} CACHE INTERNAL "")
 
 
 # Properties
 get_target_property(zisc_definitions Zisc INTERFACE_COMPILE_DEFINITIONS)
 if(zisc_definitions)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE ${zisc_definitions})
+  target_compile_definitions(${target} PRIVATE ${zisc_definitions})
 endif()
 get_target_property(zinvul_definitions Zinvul INTERFACE_COMPILE_DEFINITIONS)
 if(zinvul_definitions)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE ${zinvul_definitions})
+  target_compile_definitions(${target} PRIVATE ${zinvul_definitions})
 endif()
 get_target_property(zisc_features Zisc INTERFACE_COMPILE_FEATURES)
 if(zisc_features)
-  target_compile_features(${PROJECT_NAME} PRIVATE ${zisc_features})
+  target_compile_features(${target} PRIVATE ${zisc_features})
 endif()
 get_target_property(zinvul_features Zinvul INTERFACE_COMPILE_FEATURES)
 if(zinvul_features)
-  target_compile_features(${PROJECT_NAME} PRIVATE ${zinvul_features})
+  target_compile_features(${target} PRIVATE ${zinvul_features})
 endif()
 get_target_property(zisc_compile_flags Zisc INTERFACE_COMPILE_OPTIONS)
 if(zisc_compile_flags)
-  target_compile_options(${PROJECT_NAME} PRIVATE ${zisc_compile_flags})
+  target_compile_options(${target} PRIVATE ${zisc_compile_flags})
 endif()
 get_target_property(zinvul_compile_flags Zinvul INTERFACE_COMPILE_OPTIONS)
 if(zinvul_compile_flags)
-  target_compile_options(${PROJECT_NAME} PRIVATE ${zinvul_compile_flags})
+  target_compile_options(${target} PRIVATE ${zinvul_compile_flags})
 endif()
 get_target_property(zisc_linker_flag Zisc INTERFACE_LINK_OPTIONS)
 if(zisc_linker_flag)
-  target_link_options(${PROJECT_NAME} PRIVATE ${zisc_linker_flag})
+  target_link_options(${target} PRIVATE ${zisc_linker_flag})
 endif()
 get_target_property(zinvul_linker_flag Zinvul INTERFACE_LINK_OPTIONS)
 if(zinvul_linker_flag)
-  target_link_options(${PROJECT_NAME} PRIVATE ${zinvul_linker_flag})
+  target_link_options(${target} PRIVATE ${zinvul_linker_flag})
 endif()
 get_target_property(zisc_include_dirs Zisc INTERFACE_INCLUDE_DIRECTORIES)
 if(zisc_include_dirs)
-  target_include_directories(${PROJECT_NAME} PRIVATE ${zisc_include_dirs})
+  target_include_directories(${target} PRIVATE ${zisc_include_dirs})
 endif()
 get_target_property(zinvul_include_dirs Zinvul INTERFACE_INCLUDE_DIRECTORIES)
 if(zinvul_include_dirs)
-  target_include_directories(${PROJECT_NAME} PRIVATE ${zinvul_include_dirs})
+  target_include_directories(${target} PRIVATE ${zinvul_include_dirs})
 endif()
 
 #
-setStaticAnalyzer(${PROJECT_NAME})
+setStaticAnalyzer(${target})

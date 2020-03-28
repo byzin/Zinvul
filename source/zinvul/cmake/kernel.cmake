@@ -79,7 +79,7 @@ function(addKernelSet kernel_set_name kernel_set_version)
   # Parse arguments
   set(options "")
   set(one_value_args "")
-  set(multi_value_args SOURCE_FILES INCLUDE_DIRS DEFINITIONS)
+  set(multi_value_args SOURCE_FILES INCLUDE_DIRS DEFINITIONS DEPENDS)
   cmake_parse_arguments(PARSE_ARGV 2 ZINVUL "${options}" "${one_value_args}" "${multi_value_args}")
 
   # Check source files
@@ -96,6 +96,7 @@ function(addKernelSet kernel_set_name kernel_set_version)
   set(kernel_set_source_files ${ZINVUL_SOURCE_FILES})
   set(kernel_set_include_dirs ${ZINVUL_INCLUDE_DIRS})
   set(kernel_set_definitions ${ZINVUL_DEFINITIONS})
+  set(kernel_set_depends ${ZINVUL_DEPENDS})
   set(zisc_path ${zinvul_path}/../dependencies/zisc/source/zisc)
 
   # Make a CMakeLists.txt of the given kernel set

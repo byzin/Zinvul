@@ -10,3 +10,6 @@
 [submodule "source/dependencies/cpu_features"]
 	path = source/dependencies/cpu_features
 	url = https://github.com/google/cpu_features.git
+[submodule "source/dependencies/clspv"]
+	path = source/dependencies/clspv
+	url = https://github.com/google/clspv.git

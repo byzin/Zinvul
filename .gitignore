@@ -64,6 +64,7 @@
 # Dependencies
 !/source/dependencies/
 !/source/dependencies/cpu_features
+!/source/dependencies/clspv
 !/source/dependencies/VulkanMemoryAllocator
 !/source/dependencies/zisc
 

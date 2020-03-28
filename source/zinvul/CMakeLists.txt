@@ -10,9 +10,6 @@ cmake_minimum_required(VERSION 3.16)
 
 
 function(initZinvulOptions)
-  set(option_description "Bake Vulkan kernels into a binary.")
-  setBooleanOption(ZINVUL_BAKE_KERNELS OFF ${option_description})
-
   set(option_description "Enable Vulkan sub-platform.")
   setBooleanOption(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM ON ${option_description})
 
@@ -21,6 +18,12 @@ function(initZinvulOptions)
 
   set(option_description "Enable Zinvul to build VMA implementation.")
   setBooleanOption(ZINVUL_ENABLE_VMA_IMPLEMENTATION ON ${option_description})
+
+  set(option_description "Zinvul uses own 'clspv' instead of existing 'clspv'.")
+  setBooleanOption(ZINVUL_USES_OWN_CLSPV OFF ${option_description})
+
+  set(option_description "Bake Vulkan kernels into a binary.")
+  setBooleanOption(ZINVUL_BAKE_KERNELS OFF ${option_description})
 
   set(option_description "Enable SPIR-V analysis.")
   setBooleanOption(ZINVUL_ENABLE_SPIRV_ANALYSIS ON ${option_description})
@@ -77,12 +80,8 @@ function(getZinvulFlags zinvul_compile_flags zinvul_linker_flags zinvul_definiti
   include(${PROJECT_SOURCE_DIR}/cmake/kernel.cmake)
   getZinvulKernelFlags(compile_flags definitions)
 
-  if(ZINVUL_BAKE_KERNELS)
-    list(APPEND definitions ZINVUL_BAKE_KERNELS)
-  endif()
   if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
     list(APPEND definitions ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
-
     # Dynamic vulkan loading
     if(ZINVUL_DYNAMIC_VULKAN_LOADING)
       list(APPEND definitions ZINVUL_DYNAMIC_VULKAN_LOADING)
@@ -90,6 +89,9 @@ function(getZinvulFlags zinvul_compile_flags zinvul_linker_flags zinvul_definiti
     # Vulkan Memory Allocator
     if(ZINVUL_ENABLE_VMA_IMPLEMENTATION)
       list(APPEND definitions ZINVUL_ENABLE_VMA_IMPLEMENTATION)
+    endif()
+    if(ZINVUL_BAKE_KERNELS)
+      list(APPEND definitions ZINVUL_BAKE_KERNELS)
     endif()
   endif()
 
@@ -118,6 +120,28 @@ function(getZinvulWarningFlags zinvul_warning_flags)
 
   set(${zinvul_warning_flags} ${warning_flags} PARENT_SCOPE)
 endfunction(getZinvulWarningFlags)
+
+
+function(addClspv clspv_dir)
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  message(STATUS "Fetching clspv dependencies ... ")
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} ${clspv_dir}/utils/fetch_sources.py
+    RESULT_VARIABLE fetch_result
+    OUTPUT_VARIABLE fetch_output
+    ERROR_VARIABLE fetch_error)
+  if(${fetch_result} EQUAL 0)
+    message("        completed.")
+  else()
+    message(FATAL_ERROR "    failed.\n${fetch_error}")
+  endif()
+
+  # Add clspv
+  unset(CMAKE_CONFIGURATION_TYPES)
+  set(SKIP_CLSPV_TOOLS_INSTALL ON)
+  set(SKIP_SPIRV_TOOLS_INSTALL ON)
+  add_subdirectory(${clspv_dir} ${PROJECT_BINARY_DIR}/Clspv)
+endfunction(addClspv)
 
 
 #
@@ -178,6 +202,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}
 
 if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
   # Find dependencies
+  if(ZINVUL_USES_OWN_CLSPV)
+    addClspv(${dependencies_dir}/clspv)
+    checkTarget(clspv)
+  endif()
   # Vulkan
   find_package(Vulkan REQUIRED)
   target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
