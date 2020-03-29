@@ -226,8 +226,8 @@ checkTarget(gtest_main)
 #file(GLOB unittest_source_files ${__test_root__}/unittest/*[.hpp|.cpp])
 set(unittest_source_files ${PROJECT_SOURCE_DIR}/unittest/unittest.cpp
                           ${PROJECT_SOURCE_DIR}/unittest/zinvul_test.cpp)
-source_group(${PROJECT_NAME} FILES ${unittest_source_files})
 add_executable(${PROJECT_NAME} ${unittest_source_files})
+source_group(${PROJECT_NAME} FILES ${unittest_source_files})
 
 #
 set_target_properties(${PROJECT_NAME} PROPERTIES

@@ -122,11 +122,11 @@ function(getZinvulWarningFlags zinvul_warning_flags)
 endfunction(getZinvulWarningFlags)
 
 
-function(addClspv clspv_dir)
+function(addClspv clspv_path)
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
   message(STATUS "Fetching clspv dependencies ... ")
   execute_process(
-    COMMAND ${Python3_EXECUTABLE} ${clspv_dir}/utils/fetch_sources.py
+    COMMAND ${Python3_EXECUTABLE} ${clspv_path}/utils/fetch_sources.py
     RESULT_VARIABLE fetch_result
     OUTPUT_VARIABLE fetch_output
     ERROR_VARIABLE fetch_error)
@@ -140,8 +140,24 @@ function(addClspv clspv_dir)
   unset(CMAKE_CONFIGURATION_TYPES)
   set(SKIP_CLSPV_TOOLS_INSTALL ON)
   set(SKIP_SPIRV_TOOLS_INSTALL ON)
-  add_subdirectory(${clspv_dir} ${PROJECT_BINARY_DIR}/Clspv)
+  add_subdirectory(${clspv_path} ${PROJECT_BINARY_DIR}/Clspv)
+  checkTarget(clspv)
 endfunction(addClspv)
+
+
+function(addZstd zstd_path)
+  set(ZSTD_BUILD_SHARED OFF)
+  set(ZSTD_BUILD_PROGRAMS OFF)
+  set(ZSTD_MULTITHREAD_SUPPORT OFF)
+  set(zstd_dest_path ${PROJECT_BINARY_DIR}/Zstd)
+  add_subdirectory(${zstd_path}/build/cmake ${zstd_dest_path})
+  checkTarget(libzstd_static)
+  # Headers
+  file(MAKE_DIRECTORY ${zstd_dest_path}/include)
+  file(COPY ${zstd_path}/lib/zstd.h ${zstd_path}/lib/common/zstd_errors.h
+       DESTINATION ${zstd_dest_path}/include)
+  target_include_directories(libzstd_static SYSTEM INTERFACE ${zstd_dest_path}/include)
+endfunction(addZstd)
 
 
 #
@@ -180,8 +196,8 @@ if(NOT ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
   endforeach(source_file)
 endif()
 list(APPEND zinvul_source_files ${zinvul_config_dir}/zinvul_config-inl.hpp)
-source_group(${PROJECT_NAME} FILES ${zinvul_source_files})
 add_library(${PROJECT_NAME} STATIC ${zinvul_source_files})
+source_group(${PROJECT_NAME} FILES ${zinvul_source_files})
 
 # Compiler flags
 include(${zisc_path}/cmake/compiler.cmake)
@@ -203,8 +219,15 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}
 if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
   # Find dependencies
   if(ZINVUL_USES_OWN_CLSPV)
-    addClspv(${dependencies_dir}/clspv)
-    checkTarget(clspv)
+    set(clspv_path ${dependencies_dir}/clspv)
+    checkSubmodule(${clspv_path})
+    addClspv(${clspv_path})
+  endif()
+  if(ZINVUL_BAKE_KERNELS)
+    set(zstd_path ${dependencies_dir}/zstd)
+    checkSubmodule(${zstd_path})
+    addZstd(${zstd_path})
+    add_subdirectory(${PROJECT_SOURCE_DIR}/kernel_baker ${PROJECT_BINARY_DIR}/KernelBaker)
   endif()
   # Vulkan
   find_package(Vulkan REQUIRED)

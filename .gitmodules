@@ -13,3 +13,6 @@
 [submodule "source/dependencies/clspv"]
 	path = source/dependencies/clspv
 	url = https://github.com/google/clspv.git
+[submodule "source/dependencies/zstd"]
+	path = source/dependencies/zstd
+	url = https://github.com/facebook/zstd.git

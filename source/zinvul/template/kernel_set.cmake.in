@@ -11,14 +11,15 @@ cmake_minimum_required(VERSION 3.16)
 
 # Global constants
 set(kernel_set_prefix kernel_set)
+set(zstd_compression_level 19)
 
 # Create a kernels inclusion string
 function(makeKernelInclusionString kernel_inclusion_lines)
   set(kernel_files ${ARGN})
   set(inclusion_lines "")
-  foreach(kernel_file IN LISTS ${kernel_files})
+  foreach(kernel_file IN LISTS kernel_files)
     get_filename_component(kernel_file_path ${kernel_file} ABSOLUTE BASE_DIR @kernel_set_base_dir@)
-  string(APPEND inclusion_lines "#include \"${kernel_file_path}\"\n")
+    string(APPEND inclusion_lines "#include \"${kernel_file_path}\"\n")
   endforeach(kernel_file)
 
   # Output
@@ -98,13 +99,23 @@ function(initCpuBackend target)
                  ${cpp_file_path}
                  @ONLY)
 
-  getZinvulKernelFlags(zinvul_compile_flags zinvul_definitions)
-
-  source_group(${target} FILES ${hpp_file_path} ${cpp_file_path})
   add_library(${target} STATIC ${hpp_file_path} ${cpp_file_path})
-  target_compile_options(${target} PUBLIC ${zinvul_compile_flags})
+  source_group(${target} FILES ${hpp_file_path} ${cpp_file_path})
+
+  # Compiler flags
+  include(@zisc_path@/cmake/compiler.cmake)
+  set_target_properties(${target} PROPERTIES CXX_STANDARD 17
+                        CXX_STANDARD_REQUIRED ON)
+  getCxxWarningFlags(cxx_compile_warning_flags)
+  getZinvulKernelFlags(zinvul_compile_flags zinvul_definitions)
+  target_compile_options(${target} PUBLIC ${zinvul_compile_flags}
+                                   PRIVATE ${cxx_compile_warning_flags})
   target_compile_definitions(${target} PUBLIC ${zinvul_definitions})
+  target_link_libraries(${target} PRIVATE Zisc Zinvul)
   target_include_directories(${target} PUBLIC ${include_dir})
+
+  #
+  setStaticAnalyzer(${target})
 endfunction(initCpuBackend)
 
 
@@ -179,7 +190,23 @@ function(getClspvCompileFlags clspv_compile_flags)
 endfunction(getClspvCompileFlags)
 
 
-function(prepareSpirVAnalysis target spv_dir spv_file_path)
+function(getKernelBakeCommand bake_command spv_file_path baked_spv_file_path)
+  include(@zisc_path@/cmake/general.cmake)
+  checkTarget(KernelBaker)
+
+  # Invoke KernelBaker
+  set(command KernelBaker ${spv_file_path} ${baked_spv_file_path})
+  # Add parameters
+  list(APPEND command "@kernel_set_name@")
+  list(APPEND command ${zstd_compression_level})
+
+  # Output
+  set(${bake_command} ${command} PARENT_SCOPE)
+endfunction(getKernelBakeCommand)
+
+
+function(prepareSpirVAnalysis target spv_file_path)
+  get_filename_component(spv_dir "${spv_file_path}" DIRECTORY)
   set(spv_analysis_dir ${spv_dir}/analysis)
   file(MAKE_DIRECTORY ${spv_analysis_dir})
 
@@ -257,6 +284,10 @@ function(initVulkanBackend target)
   list(APPEND clspv_options -o=${spv_file_path})
   list(APPEND clspv_output_files ${spv_file_path})
   set(build_commands COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
+  if(ZINVUL_BAKE_KERNELS)
+    getKernelBakeCommand(bake_command ${spv_file_path} ${baked_spv_file_path})
+    list(APPEND build_commands COMMAND ${bake_command})
+  endif()
   ## Create a build command
   add_custom_command(OUTPUT ${clspv_output_files}
     ${build_commands}
@@ -273,7 +304,7 @@ function(initVulkanBackend target)
   ## SPIR-V analysis
   if(ZINVUL_ENABLE_SPIRV_ANALYSIS)
     set(analysis_target ${target}_Analysis)
-    prepareSpirVAnalysis(${analysis_target} ${output_dir} ${spv_file_path} @kernel_set_source_files@)
+    prepareSpirVAnalysis(${analysis_target} ${spv_file_path} @kernel_set_source_files@)
     add_dependencies(${analysis_target} ${vulkan_backend_target})
     list(APPEND sub_targets ${analysis_target})
   endif()
@@ -285,13 +316,13 @@ endfunction(initVulkanBackend)
 
 project(KernelSet_@kernel_set_name@ VERSION @kernel_set_version@ LANGUAGES CXX)
 
-include(${zisc_path}/cmake/general.cmake)
-include(${zisc_path}/cmake/platform.cmake)
+include(@zisc_path@/cmake/general.cmake)
+include(@zisc_path@/cmake/platform.cmake)
 getPlatformFlags(platform_definitions)
 setVariablesOnCMake(${platform_definitions})
 
 makeKernelInclusionString(kernel_inclusion_lines @kernel_set_source_files@)
-#set(baked_spv_file_path ${spv_kernel_set_dir}/baked_@kernel_set_name@_spirv.hpp)
+set(baked_spv_file_path ${PROJECT_BINARY_DIR}/cpp/${kernel_set_prefix}-@kernel_set_name@-bake.hpp)
 
 set(target ${PROJECT_NAME})
 # C++ backend
@@ -300,49 +331,3 @@ initCpuBackend(${target})
 if(ZINVUL_ENABLE_VULKAN_SUB_PLATFORM)
   initVulkanBackend(${target})
 endif()
-
-
-# Properties
-get_target_property(zisc_definitions Zisc INTERFACE_COMPILE_DEFINITIONS)
-if(zisc_definitions)
-  target_compile_definitions(${target} PRIVATE ${zisc_definitions})
-endif()
-get_target_property(zinvul_definitions Zinvul INTERFACE_COMPILE_DEFINITIONS)
-if(zinvul_definitions)
-  target_compile_definitions(${target} PRIVATE ${zinvul_definitions})
-endif()
-get_target_property(zisc_features Zisc INTERFACE_COMPILE_FEATURES)
-if(zisc_features)
-  target_compile_features(${target} PRIVATE ${zisc_features})
-endif()
-get_target_property(zinvul_features Zinvul INTERFACE_COMPILE_FEATURES)
-if(zinvul_features)
-  target_compile_features(${target} PRIVATE ${zinvul_features})
-endif()
-get_target_property(zisc_compile_flags Zisc INTERFACE_COMPILE_OPTIONS)
-if(zisc_compile_flags)
-  target_compile_options(${target} PRIVATE ${zisc_compile_flags})
-endif()
-get_target_property(zinvul_compile_flags Zinvul INTERFACE_COMPILE_OPTIONS)
-if(zinvul_compile_flags)
-  target_compile_options(${target} PRIVATE ${zinvul_compile_flags})
-endif()
-get_target_property(zisc_linker_flag Zisc INTERFACE_LINK_OPTIONS)
-if(zisc_linker_flag)
-  target_link_options(${target} PRIVATE ${zisc_linker_flag})
-endif()
-get_target_property(zinvul_linker_flag Zinvul INTERFACE_LINK_OPTIONS)
-if(zinvul_linker_flag)
-  target_link_options(${target} PRIVATE ${zinvul_linker_flag})
-endif()
-get_target_property(zisc_include_dirs Zisc INTERFACE_INCLUDE_DIRECTORIES)
-if(zisc_include_dirs)
-  target_include_directories(${target} PRIVATE ${zisc_include_dirs})
-endif()
-get_target_property(zinvul_include_dirs Zinvul INTERFACE_INCLUDE_DIRECTORIES)
-if(zinvul_include_dirs)
-  target_include_directories(${target} PRIVATE ${zinvul_include_dirs})
-endif()
-
-#
-setStaticAnalyzer(${target})

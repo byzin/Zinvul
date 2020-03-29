@@ -29,8 +29,9 @@
 !/source/zinvul/
 !/source/zinvul/CMakeLists.txt
 !/source/zinvul/*.dox
-!/source/zinvul/python/
-!/source/zinvul/python/*.py
+!/source/zinvul/kernel_baker/
+!/source/zinvul/kernel_baker/CMakeLists.txt
+!/source/zinvul/kernel_baker/kernel_baker.cpp
 !/source/zinvul/template/
 !/source/zinvul/template/*.hpp.in
 !/source/zinvul/template/*.cpp.in
@@ -67,6 +68,7 @@
 !/source/dependencies/clspv
 !/source/dependencies/VulkanMemoryAllocator
 !/source/dependencies/zisc
+!/source/dependencies/zstd
 
 # Test
 !/test/
