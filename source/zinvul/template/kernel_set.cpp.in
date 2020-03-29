@@ -1,5 +1,5 @@
 /*!
-  \file @kernel_set_name@.cpp
+  \file kernel_set-@kernel_set_name@.cpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,10 +12,18 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#include "zinvul/kernel_set/@kernel_set_name@.hpp"
+#include "zinvul/kernel_set/kernel_set-@kernel_set_name@.hpp"
 // Standard C++ library
+#include <array>
+#include <cstddef>
 #include <fstream>
+#include <memory>
 #include <vector>
+#if defined(ZINVUL_BAKE_KERNELS)
+// Zstandard
+#define ZSTD_STATIC_LINKING_ONLY
+#include <zstd.h>
+#endif // ZINVUL_BAKE_KERNELS
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/std_memory_resource.hpp"
@@ -24,64 +32,106 @@
 #include "zinvul/kernel_set.hpp"
 #include "zinvul/zinvul_config.hpp"
 
+#if defined(ZINVUL_BAKE_KERNELS)
 namespace {
 
+#include "@baked_spv_file_path@"
+
+// Type aliases
 using zinvul::uint32b;
 
-//! Concatenate four bytes (char) into a 32bit unsigned integer
-inline
-constexpr uint32b to4Byte(const uint32b byte1,
-                          const uint32b byte2,
-                          const uint32b byte3,
-                          const uint32b byte4) noexcept
+//! Allocate a memory
+void* allocateMemory(void* opaque, size_t size)
 {
-  const uint32b b = byte1 | (byte2 << 8u) | (byte3 << 16u) | (byte4 << 24u);
-  return b;
+  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(opaque);
+  void* address = mem_resource->allocate(size);
+  return address;
 }
 
-} // namespace 
-
-namespace zinvul {
-
-namespace @kernel_set_name@ {
-
-namespace inner {
+//! Deallocate a memory
+void freeMemory(void* opaque, void* address)
+{
+  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(opaque);
+  const std::size_t size = 0; //! \todo Retrieve the actual memory size
+  mem_resource->deallocate(address, size);
+}
 
 /*!
   \details No detailed description
 
-  \param [in,out] mem_resource No description.
-  \return No description
+  \param [out] spirv_code_out No description.
   */
-zisc::pmr::vector<uint32b> KernelSet::getKernelSpirvCode(
-    zisc::pmr::memory_resource* mem_resource) noexcept
+void loadBakedSpirvCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept
 {
-  zisc::pmr::vector<uint32b> spirv_code{mem_resource};
-#if !defined(ZINVUL_BAKE_KERNELS)
-  std::ifstream spirv_file{"@spv_file_path@", std::ios_base::binary};
-  ZISC_ASSERT(spirv_file.is_open(), "The SPIR-V file doesn't exist.");
-  std::streamsize spirv_size = 0;
-  {
-    const auto begin = spirv_file.tellg();
-    spirv_file.seekg(0, std::ios_base::end);
-    const auto end = spirv_file.tellg();
-    spirv_size = end - begin;
-    ZISC_ASSERT((spirv_size % 4) == 0, "The size of the SPIR-V code is invalid.");
-    spirv_file.clear();
-    spirv_file.seekg(0, std::ios_base::beg);
-  }
-  spirv_code.resize(zisc::cast<std::size_t>(spirv_size / 4));
-  spirv_file.read(reinterpret_cast<char*>(spirv_code.data()), spirv_size);
-#else // ZINVUL_BAKE_KERNELS
-  spirv_code = {
-#include "@baked_spv_file_path@"
-      };
-#endif // ZINVUL_BAKE_KERNELS
-  return spirv_code;
+  using BakedKernelSet = BakedKernelSet_@kernel_set_name@;
+  constexpr std::size_t expected_raw_size = BakedKernelSet::rawSize();
+  static_assert((expected_raw_size % 4) == 0,
+                "The size of the SPIR-V code isn't valid.");
+
+  auto alloc = spirv_code_out->get_allocator();
+  zisc::pmr::memory_resource* mem_resource = alloc.resource();
+
+  // Get the raw size of the SPIR-V code
+  constexpr auto encoded_code = BakedKernelSet::encodedData();
+  static_assert(encoded_code.size() == BakedKernelSet::size(),
+                "The size of the encoded SPIR-V code isn't valid.");
+  std::size_t raw_size = ZSTD_getFrameContentSize(encoded_code.data(),
+                                                  encoded_code.size());
+  ZISC_ASSERT(raw_size == expected_raw_size,
+              "The header of the encoded kernel set isn't valid.");
+
+  // Create a Zstd context
+  ZSTD_customMem mem{allocateMemory, freeMemory, mem_resource};
+  ZSTD_DCtx* context = ZSTD_createDCtx_advanced(mem);
+
+  // Decompress the SPIR-V code
+  spirv_code_out->resize(raw_size / 4);
+  raw_size = ZSTD_decompressDCtx(context,
+                                 spirv_code_out->data(),
+                                 raw_size,
+                                 encoded_code.data(),
+                                 encoded_code.size());
+
+  ZSTD_freeDCtx(context);
 }
 
-} // namespace inner
+} // namespace
+#endif // ZINVUL_BAKE_KERNELS
 
-} // namespace @kernel_set_name@
+namespace zinvul {
+
+namespace kernel_set {
+
+/*!
+  \details No detailed description
+
+  \param [out] spirv_code_out No description.
+  */
+void KernelSet_@kernel_set_name@::loadSpirVCode(
+    zisc::pmr::vector<uint32b>* spirv_code_out) noexcept
+{
+  static_assert(sizeof(uint32b) == 4, "The size of the code element isn't 4.");
+#if defined(ZINVUL_BAKE_KERNELS)
+  ::loadBakedSpirvCode(spirv_code_out);
+#else // ZINVUL_BAKE_KERNELS
+  std::ifstream spv_file{"@spv_file_path@", std::ios_base::binary};
+  ZISC_ASSERT(spv_file.is_open(), "The SPIR-V file not found.");
+  std::streamsize spirv_size = 0;
+  {
+    const auto begin = spv_file.tellg();
+    spv_file.seekg(0, std::ios_base::end);
+    const auto end = spv_file.tellg();
+    spirv_size = end - begin;
+    ZISC_ASSERT((spirv_size % 4) == 0,
+                "The size of the SPIR-V code isn't valid.");
+    spv_file.clear();
+    spv_file.seekg(0, std::ios_base::beg);
+  }
+  spirv_code_out->resize(zisc::cast<std::size_t>(spirv_size / 4));
+  spv_file.read(reinterpret_cast<char*>(spirv_code_out->data()), spirv_size);
+#endif // ZINVUL_BAKE_KERNELS
+}
+
+} // namespace kernel_set
 
 } // namespace zinvul

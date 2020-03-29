@@ -112,6 +112,9 @@ function(initCpuBackend target)
                                    PRIVATE ${cxx_compile_warning_flags})
   target_compile_definitions(${target} PUBLIC ${zinvul_definitions})
   target_link_libraries(${target} PRIVATE Zisc Zinvul)
+  if(ZINVUL_BAKE_KERNELS)
+    target_link_libraries(${target} PRIVATE libzstd_static)
+  endif()
   target_include_directories(${target} PUBLIC ${include_dir})
 
   #
@@ -280,7 +283,6 @@ function(initVulkanBackend target)
   list(APPEND clspv_options --descriptormap=${descriptor_map_path})
   list(APPEND clspv_output_files ${descriptor_map_path})
   ## Set clspv build command
-  set(spv_file_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@.spv)
   list(APPEND clspv_options -o=${spv_file_path})
   list(APPEND clspv_output_files ${spv_file_path})
   set(build_commands COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
@@ -322,6 +324,9 @@ getPlatformFlags(platform_definitions)
 setVariablesOnCMake(${platform_definitions})
 
 makeKernelInclusionString(kernel_inclusion_lines @kernel_set_source_files@)
+
+# SPIR-V pathes
+set(spv_file_path ${PROJECT_BINARY_DIR}/spv/${kernel_set_prefix}-@kernel_set_name@.spv)
 set(baked_spv_file_path ${PROJECT_BINARY_DIR}/cpp/${kernel_set_prefix}-@kernel_set_name@-bake.hpp)
 
 set(target ${PROJECT_NAME})

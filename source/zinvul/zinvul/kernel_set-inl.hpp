@@ -1,7 +1,12 @@
 /*!
   \file kernel_set-inl.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2020 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -12,30 +17,36 @@
 
 #include "kernel_set.hpp"
 // Standard C++ library
-#include <cstddef>
+#include <memory>
 #include <vector>
 // Zisc
-#include "zisc/memory_resource.hpp"
+#include "zisc/std_memory_resource.hpp"
 // Zinvul
 #include "zinvul/zinvul_config.hpp"
 
 namespace zinvul {
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 template <typename SetType> inline
-zisc::pmr::vector<uint32b> KernelSet<SetType>::getKernelSpirvCode(
-    zisc::pmr::memory_resource* mem_resource) noexcept
+constexpr uint32b KernelSet<SetType>::id() noexcept
 {
-  return SetType::getKernelSpirvCode(mem_resource);
+  return SetType::id();
 }
 
 /*!
+  \details No detailed description
+
+  \param [out] spirv_code_out No description.
   */
 template <typename SetType> inline
-constexpr uint32b KernelSet<SetType>::getId() noexcept
+void KernelSet<SetType>::loadSpirVCode(
+    zisc::pmr::vector<uint32b>* spirv_code_out) noexcept
 {
-  return SetType::getId();
+  SetType::loadSpirVCode(spirv_code_out);
 }
 
 } // namespace zinvul

@@ -1,5 +1,5 @@
 /*!
-  \file @kernel_set_name@.hpp
+  \file kernel_set-@kernel_set_name@.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -99,16 +99,14 @@ static_assert(false, "The macro 'kernel' is already defined.");
 
   No detailed description.
   */
-namespace @kernel_set_name@ {
-
-namespace inner {
+namespace kernel_set {
 
 /*!
   \brief No brief description
 
   No detailed description.
   */
-class KernelSet : public zinvul::KernelSet<KernelSet>
+class KernelSet_@kernel_set_name@ : public KernelSet<KernelSet_@kernel_set_name@>
 {
  public:
   //! Return the ID number of the kernel set
@@ -118,12 +116,10 @@ class KernelSet : public zinvul::KernelSet<KernelSet>
   }
 
   //! Load the SPIR-V code
-  static void loadSpirvCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;
+  static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;
 };
 
-} // namespace inner
-
-} // namespace @kernel_set_name@
+} // namespace kernel_set
 
 } // namespace zinvul
 

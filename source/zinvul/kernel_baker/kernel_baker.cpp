@@ -193,11 +193,12 @@ zisc::pmr::stringstream generateBakeCode(
   add_line("  No detailed description.");
   add_line("  */");
   add_line("");
-  tmp = "ZINVUL_KERNEL_SET_";
-  tmp += tmp + params.kernel_set_name_.data();
-  tmp += "_BAKE_HPP";
-  add_line("#ifndef " + tmp);
-  add_line("#define " + tmp);
+  zisc::pmr::string include_guard_name{alloc};
+  include_guard_name = "ZINVUL_KERNEL_SET_";
+  include_guard_name += params.kernel_set_name_.data();
+  include_guard_name += "_BAKE_HPP";
+  add_line("#ifndef " + include_guard_name);
+  add_line("#define " + include_guard_name);
   add_line("");
   add_line("// Standard C++ library");
   add_line("// #include <array>");
@@ -208,7 +209,9 @@ zisc::pmr::stringstream generateBakeCode(
   add_line("");
   add_line("  No detailed description.");
   add_line("  */");
-  add_line("class BakedKernel");
+  tmp = "class BakedKernelSet_";
+  tmp += params.kernel_set_name_.data();
+  add_line(tmp);
   add_line("{");
   add_line(" public:");
   add_line("  static constexpr std::size_t kRawSize = " + std::to_string(spv_data.size()) + ";");
@@ -251,7 +254,7 @@ zisc::pmr::stringstream generateBakeCode(
   add_line("};");
 
   add_line("");
-  add_line("#endif // " + tmp);
+  add_line("#endif // " + include_guard_name);
 
   return bake_code;
 }
